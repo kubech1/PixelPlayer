@@ -537,7 +537,7 @@ class PhoneDirectWatchTransferCoordinator @Inject constructor(
 
     private suspend fun resolveTransferThemePalette(song: Song): WearThemePalette? {
         val playerTheme = themePreferencesRepository.playerThemePreferenceFlow.first()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && playerTheme == ThemePreference.DYNAMIC) {
+        if (playerTheme == ThemePreference.DYNAMIC) {
             return buildWearThemePalette(dynamicDarkColorScheme(application))
         }
 

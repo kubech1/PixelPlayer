@@ -9,8 +9,8 @@
     <string name="settings_category_playback_subtitle">Lydatferd, crossfade og bakgrunnsavspilling</string>
     <string name="settings_category_behavior_title">Atferd</string>
     <string name="settings_category_behavior_subtitle">Gester, haptikk og navigasjonsatferd</string>
-    <string name="settings_category_ai_title">AI-integrasjon (β)</string>
-    <string name="settings_category_ai_subtitle">AI-leverandører, API-nøkler og modellinnstillinger</string>
+    
+    
     <string name="settings_category_backup_title">Sikkerhetskopiering og gjenoppretting</string>
     <string name="settings_category_backup_subtitle">Eksporter og gjenopprett dine personlige app-data</string>
     <string name="settings_category_developer_title">Utvikleralternativer</string>
@@ -303,55 +303,55 @@
     <string name="settings_haptic_feedback_title">Haptisk tilbakemelding</string>
     <string name="settings_haptic_feedback_subtitle">Aktiver vibrasjonstilbakemelding i appen.</string>
 
-    <!-- AI Integration category -->
-    <string name="settings_ai_provider_section">AI-leverandør</string>
-    <string name="settings_ai_provider_title">Leverandør</string>
-    <string name="settings_ai_provider_subtitle">Velg din AI-leverandør</string>
-    <string name="settings_safe_token_title">Sikker token-modus</string>
-    <string name="settings_safe_token_on">PÅ — Raskt &amp; billig. Sender minimalt med data (~1K tokens) til AI.</string>
-    <string name="settings_safe_token_off">AV — Dyp kontekst. Sender full lytteprofil (~8K tokens) for rikere resultater.</string>
-    <string name="settings_credentials_section">Innloggingsinformasjon</string>
-    <string name="settings_ai_api_key_title">%1$s API-nøkkel</string>
-    <string name="settings_ai_api_key_subtitle">Hent fra %1$s</string>
-    <string name="settings_ai_source_gemini">Google AI Studio (aistudio.google.com)</string>
-    <string name="settings_ai_source_deepseek">DeepSeek Platform (api.deepseek.com)</string>
-    <string name="settings_ai_source_groq">Groq Console (console.groq.com)</string>
-    <string name="settings_ai_source_mistral">Mistral AI Platform (console.mistral.ai)</string>
-    <string name="settings_ai_source_nvidia">NVIDIA Build (build.nvidia.com)</string>
-    <string name="settings_ai_source_kimi">Moonshot AI Platform (platform.moonshot.cn)</string>
-    <string name="settings_ai_source_glm">Zhipu AI Open Platform (bigmodel.cn)</string>
-    <string name="settings_ai_source_openai">OpenAI Platform (platform.openai.com)</string>
-    <string name="settings_model_selection_section">Modellvalg</string>
-    <string name="settings_loading_models">Laster tilgjengelige modeller…</string>
-    <string name="settings_models_fetch_failed">Kunne ikke laste modeller</string>
-    <string name="settings_ai_model_title">AI-modell</string>
-    <string name="settings_ai_model_subtitle">Velg en modell.</string>
-    <string name="settings_enter_api_key_placeholder">Skriv inn API-nøkkel</string>
-    <string name="settings_prompt_behavior_section">Prompt-atferd</string>
-    <string name="settings_system_prompt_title">System-prompt</string>
-    <string name="settings_system_prompt_subtitle">Tilpass hvordan AI-en oppfører seg.</string>
-    <string name="settings_preset_prompts">Forhåndsinnstilte prompter</string>
-    <string name="settings_system_prompt_placeholder">Skriv inn system-prompt…</string>
-    <string name="settings_preset_professional_curator_name">Profesjonell kurator</string>
-    <string name="settings_preset_professional_curator_prompt">You are \'Vibe-Engine\', a world-class music curator and master of sonic flow. Your goal is to construct seamless, high-fidelity listening experiences. Prioritize harmonic compatibility, logical BPM transitions, and a sophisticated balance between familiar favorites and tasteful, logic-driven discovery.</string>
-    <string name="settings_preset_creative_maverick_name">Kreativ fribytter</string>
-    <string name="settings_preset_creative_maverick_prompt">You are an avant-garde music explorer specializing in \'unexpected cohesion\'. Your mission is to break conventional genre boundaries by identifying non-obvious sonic parallels. Prioritize rare deep cuts, experimental textures, and artistic novelty while maintaining a surprising but undeniable transition logic.</string>
-    <string name="settings_preset_strict_librarian_name">Streng bibliotekar</string>
-    <string name="settings_preset_strict_librarian_prompt">You are a surgical music database architect. Your logic is driven by absolute metadata precision and rigid categorical adherence. Minimize algorithmic discovery in favor of strict genre consistency, energy-level matching, and maximizing the retrieval of highly specific user-defined preferences.</string>
-    <string name="settings_preset_atmospheric_guide_name">Atmosfærisk guide</string>
-    <string name="settings_preset_atmospheric_guide_prompt">You are a master of ambient textures and low-energy flow. Focus exclusively on tracks that facilitate a \'deep focus\' or \'tranquility\' state. Prioritize acoustic warmth, minimalist arrangements, and gentle transitions, while strictly avoiding high-transient sounds or sudden shifts in dynamic range.</string>
-    <string name="settings_preset_sonic_enthusiast_name">Lydentusiast</string>
-    <string name="settings_preset_sonic_enthusiast_prompt">You are an audiophile analyst focused on production complexity and instrumentation. Prioritize tracks characterized by high dynamic range, intricate polyrhythms, and superior soundstage quality. Favor active-listening pieces that reward the listener for paying attention to technical fidelity and arrangement detail.</string>
-    <string name="settings_preset_energy_catalyst_name">Energikatalysator</string>
-    <string name="settings_preset_energy_catalyst_prompt">You are a high-momentum rhythm generator. Your philosophy centers on driving basslines, percussive intensity, and infectious grooves. Prioritize high-BPM club compatibility, syncopated energy, and continuous rhythmic tension to keep the listener\'s heart rate and motivation peak-level.</string>
-    <string name="settings_ai_usage_report_section">AI-bruksrapport</string>
-    <string name="settings_total_consumption_title">Totalt forbruk</string>
-    <string name="settings_ai_usage_tokens_subtitle">%1$s tokens sporing\nPrompt: %2$s | Output: %3$s | Tanke: %4$s</string>
-    <string name="settings_ai_clear_logs">Tøm logger</string>
-    <string name="settings_ai_activity_log_title">AI-aktivitetslogg (%1$d)</string>
-    <string name="settings_ai_usage_provier_model">%1$s · %2$s</string>
-    <string name="settings_ai_show_logs">Vis</string>
-    <string name="settings_ai_hide_logs">Skjul</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- Backup & Restore category -->
     <string name="settings_backup_how_dialog_title">Hvordan sikkerhetskopi fungerer</string>

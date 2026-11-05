@@ -36,33 +36,7 @@ internal fun decodeWidgetAlbumArtBitmap(
         readBytesCapped(input, ArtworkTransportSanitizer.WIDGET_CONFIG.sourceBytesLimit)
     } ?: return null
 
-    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-    BitmapFactory.decodeByteArray(encodedBytes, 0, encodedBytes.size, bounds)
-    if (bounds.outWidth <= 0 || bounds.outHeight <= 0) {
-        return null
-    }
-
-    var inSampleSize = 1
-    if (bounds.outHeight > targetHeightPx || bounds.outWidth > targetWidthPx) {
-        val halfHeight = bounds.outHeight / 2
-        val halfWidth = bounds.outWidth / 2
-        while (
-            halfHeight / inSampleSize >= targetHeightPx &&
-            halfWidth / inSampleSize >= targetWidthPx
-        ) {
-            inSampleSize *= 2
-        }
-    }
-
-    return BitmapFactory.decodeByteArray(
-        encodedBytes,
-        0,
-        encodedBytes.size,
-        BitmapFactory.Options().apply {
-            this.inSampleSize = inSampleSize
-            inJustDecodeBounds = false
-        }
-    )
+    return decodeSizedWidgetBytes(encodedBytes, targetWidthPx.coerceAtLeast(1), targetHeightPx.coerceAtLeast(1))
 }
 
 private fun readBytesCapped(input: java.io.InputStream, maxBytes: Int): ByteArray? {

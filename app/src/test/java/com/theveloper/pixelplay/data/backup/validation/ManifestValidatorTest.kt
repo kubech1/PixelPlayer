@@ -15,6 +15,21 @@ class ManifestValidatorTest {
     private val validator = ManifestValidator()
 
     @Test
+    fun `retired AI module is skipped with a nonfatal warning`() {
+        val result = validator.validate(BackupManifest(
+            modules = mapOf(
+                "playlists" to BackupModuleInfo(),
+                "ai_usage_logs" to BackupModuleInfo()
+            )
+        )) as BackupValidationResult.Invalid
+        assertTrue(result.fatalErrors.isEmpty())
+        assertTrue(result.warnings.any { it.code == "UNKNOWN_MODULE" && it.module == "ai_usage_logs" })
+        assertEquals(null, com.theveloper.pixelplay.data.backup.model.BackupSection.fromKey("ai_usage_logs"))
+        assertEquals(com.theveloper.pixelplay.data.backup.model.BackupSection.PLAYLISTS,
+            com.theveloper.pixelplay.data.backup.model.BackupSection.fromKey("playlists"))
+    }
+
+    @Test
     fun `valid manifest passes validation`() {
         val manifest = BackupManifest(
             schemaVersion = 3,

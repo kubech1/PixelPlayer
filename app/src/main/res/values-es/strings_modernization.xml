@@ -1,0 +1,28 @@
+<resources>
+    <string name="settings_haptic_intensity">Intensidad háptica</string>
+    <string name="settings_haptic_low">Baja</string>
+    <string name="settings_haptic_medium">Media</string>
+    <string name="settings_haptic_high">Alta</string>
+    <string name="settings_haptic_preview">Probar vibración</string>
+    <string name="widget_previous">Pista anterior</string>
+    <string name="widget_next">Pista siguiente</string>
+    <string name="widget_play_pause">Reproducir o pausar</string>
+    <string name="audio_route_title">Salida de audio y sesión</string>
+    <string name="audio_route_unknown">Desconocido</string>
+    <string name="audio_route_yes">Sí</string>
+    <string name="audio_route_no">No</string>
+    <string name="audio_route_available">Disponibles: %1$s</string>
+    <string name="audio_route_predicted">Ruta prevista para música: %1$s</string>
+    <string name="audio_route_prediction_note">Android prevé esta ruta; no certifica el recorrido final de la señal.</string>
+    <string name="audio_route_session">Sesión de audio local: %1$d</string>
+    <string name="audio_route_sink">Configuración del sink de Media3: %1$s</string>
+    <string name="audio_route_float_requested">PCM float solicitado por el reproductor: %1$s</string>
+    <string name="audio_route_offload_requested">Offload solicitado: %1$s</string>
+    <string name="audio_route_offload_configured">Sink configurado para offload: %1$s</string>
+    <string name="audio_route_offload_sleeping">Reposo por offload observado: %1$s</string>
+    <string name="audio_route_bluetooth_unknown">Códec Bluetooth: no disponible mediante una API pública fiable. PCM float no identifica el códec ni la resolución del DAC.</string>
+    <string name="audio_route_format_query_note">El soporte de offload de formatos se consulta a 44,1 kHz estéreo. No es una observación de la pista en reproducción.</string>
+    <string name="audio_route_query_failed">Consulta de ruta no disponible; reconecta o vuelve a abrir esta pantalla para actualizar.</string>
+    <string name="audio_route_sink_capabilities">Capacidades del sink: %1$s</string>
+    <string name="audio_route_sink_value">%1$d Hz · %2$s · %3$d canales</string>
+</resources>

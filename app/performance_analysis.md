@@ -1,5 +1,7 @@
 # Auditoría de Performance UI - PixelPlay
 
+> **Alcance histórico:** este análisis estático conserva observaciones, estimaciones e hipótesis de una revisión anterior, sin fecha original verificada. No representa una medición actual ni una lista de bugs confirmados. Por ejemplo, el `PlayerUiState` actual ya no contiene `currentPosition`; contrasta cada hallazgo con su fuente antes de aplicarlo. Consulta la [guía vigente de diagnósticos](../docs/diagnostics.md).
+
 ## 1. Resumen Ejecutivo
 
 El estado general de performance de PixelPlay es mixto con tendencia a acumulativo. La app demuestra que hubo esfuerzo deliberado en optimización: strong skipping, stability config, state slicing con `.map().distinctUntilChanged()` en el player sheet, separación del flow de posición, baseline profiles, y uso de `ImmutableList` extensivo. Esto no es un codebase negligente en performance.

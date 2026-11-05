@@ -3,7 +3,6 @@ accompanistDrawablepainter = "0.37.3"
 aboutLibraries = "15.0.3"
 agp = "9.2.1"
 app = "1.7.0"
-googleGenai = "1.58.0"
 googlePlayServicesCast = "22.3.1"
 animation = "1.11.3"
 appcompat = "1.7.1"
@@ -45,8 +44,6 @@ mediaRouter = "1.8.1"
 navigationCompose = "2.9.8"
 paletteKtx = "1.0.0"
 protobufJavalite = "4.35.1"
-pytorch_android = "2.1.0"
-pytorch_android_torchvision = "2.1.0"
 reorderable = "0.9.6"
 reorderables = "3.1.0"
 paging = "3.5.0"
@@ -81,15 +78,10 @@ javax-inject = "1"
 ksp = "2.3.9"
 smoothCornerRectAndroidCompose = "v1.0.0"
 spleeterAndroidIos = "1.0.2"
-tensorflowLite = "2.17.0"
-tensorflowLiteSelectTfOps = "2.16.1"
-tensorflowLiteSelectTfOpsVersion = "2.16.1"
-tensorflowLiteSupport = "0.5.0"
 wavySlider = "2.2.0"
 workRuntimeKtx = "2.11.2"
 composeTesting = "1.0.0-alpha03"
 timber = "5.0.1"
-generativeai = "0.9.0"
 mockk = "1.14.11"
 turbine = "1.2.1"
 truth = "1.4.5"
@@ -127,7 +119,6 @@ androidx-app = { module = "androidx.car.app:app", version.ref = "app" }
 androidx-app-projected = { module = "androidx.car.app:app-projected", version.ref = "app" }
 androidx-media = { module = "androidx.media:media", version.ref = "media" }
 androidx-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "composeUi" }
-google-genai = { group = "com.google.genai", name = "google-genai", version.ref = "googleGenai" }
 google-play-services-cast-framework = { group = "com.google.android.gms", name = "play-services-cast-framework", version.ref = "googlePlayServicesCast" }
 androidx-animation = { module = "androidx.compose.animation:animation", version.ref = "animation" }
 desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
@@ -197,16 +188,10 @@ ktor-server-cio = { group = "io.ktor", name = "ktor-server-cio-jvm", version.ref
 material = { module = "com.google.android.material:material", version.ref = "material" }
 material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 protobuf-javalite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protobufJavalite" }
-pytorch_android = { module = "org.pytorch:pytorch_android", version.ref = "pytorch_android" }
-pytorch_android_torchvision = { module = "org.pytorch:pytorch_android_torchvision", version.ref = "pytorch_android_torchvision" }
 reorderable = { module = "org.burnoutcrew.composereorderable:reorderable", version.ref = "reorderable" }
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 smooth-corner-rect-android-compose = { module = "com.github.racra:smooth-corner-rect-android-compose", version.ref = "smoothCornerRectAndroidCompose" }
 spleeter-android-ios = { module = "com.github.FaceOnLive:Spleeter-Android-iOS", version.ref = "spleeterAndroidIos" }
-tensorflow-lite = { module = "org.tensorflow:tensorflow-lite", version.ref = "tensorflowLite" }
-#tensorflow-lite-select-tf-ops = { module = "org.tensorflow:tensorflow-lite-select-tf-ops", version.ref = "tensorflowLiteSelectTfOps" }
-tensorflow-lite-select-tf-ops = { module = "org.tensorflow:tensorflow-lite-select-tf-ops", version.ref = "tensorflowLiteSelectTfOpsVersion" }
-tensorflow-lite-support = { module = "org.tensorflow:tensorflow-lite-support", version.ref = "tensorflowLiteSupport" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 wavy-slider = { module = "ir.mahozad.multiplatform:wavy-slider", version.ref = "wavySlider" }
 checker-qual = { group = "org.checkerframework", name = "checker-qual", version.ref = "checkerframework" }
@@ -214,7 +199,6 @@ taglib = { group = "io.github.kyant0", name = "taglib", version.ref = "taglib" }
 jaudiotagger = { group = "net.jthink", name = "jaudiotagger", version.ref = "jaudiotagger" }
 vorbisjava-core = { group = "org.gagravarr", name = "vorbis-java-core", version.ref = "vorbisjava" }
 reorderables = { group = "sh.calvin.reorderable", name = "reorderable", version.ref = "reorderables" }
-generativeai = { group = "com.google.ai.client.generativeai", name = "generativeai", version.ref = "generativeai" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }

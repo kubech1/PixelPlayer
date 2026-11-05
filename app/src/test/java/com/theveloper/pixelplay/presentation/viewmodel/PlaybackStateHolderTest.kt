@@ -13,6 +13,9 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.launch
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
@@ -56,6 +59,42 @@ class PlaybackStateHolderTest {
     init {
         every { appContext.getSystemService(Context.POWER_SERVICE) } returns powerManager
         every { powerManager.isInteractive } returns true
+    }
+
+    @Test
+    fun `position polling stops while UI is hidden even with a retained subscriber`() = runTest {
+        val player = mockk<androidx.media3.common.Player>(relaxed = true)
+        every { dualPlayerEngine.masterPlayer } returns player
+        every { player.mediaItemCount } returns 1
+        every { player.isPlaying } returns true
+        every { player.currentPosition } returns 1_000L
+        every { player.duration } returns 20_000L
+        every { castStateHolder.castSession } returns kotlinx.coroutines.flow.MutableStateFlow(null)
+        coEvery { userPreferencesRepository.getPlaybackQueueSnapshotOnce() } returns null
+        val holder = createHolder()
+        holder.initialize(backgroundScope)
+        val subscriber = backgroundScope.launch(kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)) {
+            holder.currentPosition.collect { }
+        }
+        try {
+            com.theveloper.pixelplay.presentation.utils.AppVisibility.setVisible(true)
+            holder.startProgressUpdates()
+            runCurrent()
+            assertEquals(1_000L, holder.currentPosition.value)
+            com.theveloper.pixelplay.presentation.utils.AppVisibility.setVisible(false)
+            runCurrent()
+            io.mockk.clearMocks(player, answers = false)
+            advanceTimeBy(10_000L)
+            runCurrent()
+            io.mockk.verify(exactly = 0) { player.currentPosition }
+            com.theveloper.pixelplay.presentation.utils.AppVisibility.setVisible(true)
+            runCurrent()
+            io.mockk.verify(atLeast = 1) { player.currentPosition }
+        } finally {
+            holder.stopProgressUpdates()
+            subscriber.cancel()
+            com.theveloper.pixelplay.presentation.utils.AppVisibility.setVisible(false)
+        }
     }
 
     @Test

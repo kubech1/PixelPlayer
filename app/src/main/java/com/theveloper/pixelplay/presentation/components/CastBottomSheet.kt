@@ -184,15 +184,12 @@ fun CastBottomSheet(
 
     val requiredPermissions = remember {
         buildList {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            run {
                 add(Manifest.permission.BLUETOOTH_CONNECT)
                 add(Manifest.permission.BLUETOOTH_SCAN)
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            run {
                 add(Manifest.permission.NEARBY_WIFI_DEVICES)
-            }
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
-                add(Manifest.permission.ACCESS_FINE_LOCATION)
             }
         }
     }

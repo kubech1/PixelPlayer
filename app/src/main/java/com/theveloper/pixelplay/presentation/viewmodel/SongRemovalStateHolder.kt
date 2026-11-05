@@ -133,7 +133,7 @@ class SongRemovalStateHolder @Inject constructor(
             val skippedCount = songs.size - deletableSongs.size
 
             // On Android 11+, use system batch delete dialog
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            run {
                 val deleteRequests = withContext(Dispatchers.IO) {
                     deletableSongs.mapNotNull { song ->
                         MediaStorePermissionHelper
@@ -270,7 +270,7 @@ class SongRemovalStateHolder @Inject constructor(
 
             // On Android 11+, use the system delete confirmation dialog via MediaStore.createDeleteRequest()
             // which both confirms AND handles deletion in one step (no MANAGE_EXTERNAL_STORAGE needed).
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            run {
                 val intentSender = withContext(Dispatchers.IO) {
                     try {
                         MediaStorePermissionHelper

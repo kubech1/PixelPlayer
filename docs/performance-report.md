@@ -1,5 +1,7 @@
 # Debug / Performance Report
 
+> **Scope and currency:** this is a focused guide to diagnostic instrumentation. The current report also has advanced diagnostics; verify the payload and guarantees against `DebugPerformanceReport.kt` and `DebugPerformanceReportCollector.kt` before changing or sharing it. See the [current diagnostics guide](diagnostics.md) for source links and the distinction between static findings and runtime evidence.
+
 A lightweight, user-exportable diagnostic snapshot for the **high-res audio
 performance investigation**. It exists so we can tell *where* lag comes from —
 scanning, metadata, artwork extraction, artwork decoding, playback prepare,

@@ -72,6 +72,8 @@ class PixelPlayApplication : Application(), ImageLoaderFactory, Configuration.Pr
     @Inject
     lateinit var advancedPerformanceDiagnosticsController: dagger.Lazy<AdvancedPerformanceDiagnosticsController>
 
+    @Inject lateinit var audioOutputs: dagger.Lazy<com.theveloper.pixelplay.data.audio.AudioOutputRepository>
+
     private val startupScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     // AÑADE EL COMPANION OBJECT
@@ -83,7 +85,12 @@ class PixelPlayApplication : Application(), ImageLoaderFactory, Configuration.Pr
 
     private val appLifecycleObserver = object : DefaultLifecycleObserver {
         override fun onStart(owner: LifecycleOwner) {
+            com.theveloper.pixelplay.presentation.utils.AppVisibility.setVisible(true)
+            audioOutputs.get().refresh()
             libraryStateHolder.get().restoreAfterTrimIfNeeded()
+        }
+        override fun onStop(owner: LifecycleOwner) {
+            com.theveloper.pixelplay.presentation.utils.AppVisibility.setVisible(false)
         }
     }
 
@@ -108,7 +115,7 @@ class PixelPlayApplication : Application(), ImageLoaderFactory, Configuration.Pr
             Timber.plant(ReleaseTree())
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        run {
             val channel = NotificationChannel(
                 NOTIFICATION_CHANNEL_ID,
                 "PixelPlayer Music Playback",
@@ -120,6 +127,16 @@ class PixelPlayApplication : Application(), ImageLoaderFactory, Configuration.Pr
 
         ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
         advancedPerformanceDiagnosticsController.get().start(startupScope)
+
+        startupScope.launch {
+            androidx.work.WorkManager.getInstance(this@PixelPlayApplication)
+                .cancelAllWorkByTag(com.theveloper.pixelplay.data.preferences.RetiredAiData.WORK_TAG)
+            val notifications = getSystemService(NotificationManager::class.java)
+            notifications.activeNotifications
+                .filter { it.notification.channelId == "ai_generation_channel" }
+                .forEach { notifications.cancel(it.tag, it.id) }
+            notifications.deleteNotificationChannel("ai_generation_channel")
+        }
 
         startupScope.launch {
             AlbumArtUtils.migrateLegacyCacheLocation(this@PixelPlayApplication)

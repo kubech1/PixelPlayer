@@ -1,0 +1,28 @@
+<resources>
+    <string name="settings_haptic_intensity">Intensitas haptik</string>
+    <string name="settings_haptic_low">Rendah</string>
+    <string name="settings_haptic_medium">Sedang</string>
+    <string name="settings_haptic_high">Tinggi</string>
+    <string name="settings_haptic_preview">Coba getaran</string>
+    <string name="widget_previous">Lagu sebelumnya</string>
+    <string name="widget_next">Lagu berikutnya</string>
+    <string name="widget_play_pause">Putar atau jeda</string>
+    <string name="audio_route_title">Keluaran audio dan sesi</string>
+    <string name="audio_route_unknown">Tidak diketahui</string>
+    <string name="audio_route_yes">Ya</string>
+    <string name="audio_route_no">Tidak</string>
+    <string name="audio_route_available">Tersedia: %1$s</string>
+    <string name="audio_route_predicted">Rute musik yang diperkirakan: %1$s</string>
+    <string name="audio_route_prediction_note">Android memperkirakan rute ini; hal ini tidak memastikan jalur akhir sinyal.</string>
+    <string name="audio_route_session">Sesi audio lokal: %1$d</string>
+    <string name="audio_route_sink">Konfigurasi sink Media3: %1$s</string>
+    <string name="audio_route_float_requested">PCM float yang diminta pemutar: %1$s</string>
+    <string name="audio_route_offload_requested">Offload diminta: %1$s</string>
+    <string name="audio_route_offload_configured">Sink dikonfigurasi untuk offload: %1$s</string>
+    <string name="audio_route_offload_sleeping">Status tidur untuk offload yang teramati: %1$s</string>
+    <string name="audio_route_bluetooth_unknown">Codec Bluetooth: tidak tersedia melalui API publik yang andal. PCM float tidak mengidentifikasi codec atau resolusi DAC.</string>
+    <string name="audio_route_format_query_note">Dukungan offload format diperiksa pada 44,1 kHz stereo. Ini bukan pengamatan terhadap lagu yang sedang diputar.</string>
+    <string name="audio_route_query_failed">Rute audio tidak dapat diperiksa. Sambungkan ulang perangkat atau buka kembali layar ini untuk memperbarui.</string>
+    <string name="audio_route_sink_capabilities">Kemampuan sink: %1$s</string>
+    <string name="audio_route_sink_value">%1$d Hz · %2$s · %3$d kanal</string>
+</resources>

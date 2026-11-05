@@ -16,8 +16,8 @@
 
     <!-- Library Toasts -->
     <string name="library_toast_playlist_created">플레이리스트가 생성되었습니다</string>
-    <string name="library_toast_set_ai_provider_api_key_first">먼저 AI 제공업체 API 키를 설정하세요</string>
-    <string name="library_toast_set_gemini_api_key_first">먼저 Gemini API 키를 설정하세요</string>
+    
+    
     <string name="library_toast_added_to_queue">대기열에 추가됨</string>
     <string name="library_toast_playing_next">다음에 재생됨</string>
 
@@ -51,8 +51,8 @@
     <string name="library_cloud_sources_heading">클라우드</string>
     <string name="library_cloud_only_label">클라우드 전용</string>
 
-    <!-- Library AI Metadata Processing -->
-    <string name="library_generating_ai_metadata">AI로 메타데이터 생성 중…</string>
+    
+    
 
     <!-- Library list errors -->
     <string name="library_error_loading_songs">곡을 불러오는 중 오류 발생</string>
@@ -336,95 +336,73 @@
     <string name="playlist_dismissed_message">플레이리스트 닫힘</string>
 
     <!-- PlaylistCreationDialogs -->
-    <string name="playlist_creation_create_playlist_title">플레이리스트 생성</string>
-    <string name="playlist_creation_create_playlist_subtitle">생성 방식을 선택하세요.</string>
-    <string name="playlist_creation_mode_manual_title">직접 만들기</string>
-    <string name="playlist_creation_mode_manual_subtitle">아트워크, 아이콘, 모양을 디자인하고 곡을 직접 선택합니다.</string>
-    <string name="playlist_creation_mode_ai_title">AI로 만들기</string>
-    <string name="playlist_creation_mode_ai_subtitle_enabled">고급 컨트롤을 사용하여 큐레이팅된 플레이리스트를 생성합니다.</string>
-    <string name="playlist_creation_mode_ai_subtitle_disabled">설정에서 Gemini API 키를 구성해야 합니다.</string>
-    <string name="playlist_creation_setup_api_key">API 키 설정</string>
+    
+    
+    
+    
+    
+    
+    
+    
 
-    <!-- AI playlist lab -->
-    <string name="playlist_creation_ai_lab_title">AI 플레이리스트 연구소</string>
-    <string name="playlist_creation_ai_reset">초기화</string>
-    <string name="playlist_creation_ai_generating">생성 중…</string>
-    <string name="playlist_creation_ai_generate">생성</string>
-    <string name="playlist_creation_ai_section_intent">의도</string>
-    <string name="playlist_creation_ai_name_optional">플레이리스트 이름 (선택 사항)</string>
-    <string name="playlist_creation_ai_feel_label">어떤 느낌의 플레이리스트를 원하시나요?</string>
-    <string name="playlist_creation_ai_feel_placeholder">예: 따뜻한 신디사이저 사운드와 함께하는 노을 드라이브</string>
-    <string name="playlist_creation_ai_section_direction">방향</string>
-    <string name="playlist_creation_ai_mood_label">기분</string>
-    <string name="playlist_creation_ai_activity_label">활동</string>
-    <string name="playlist_creation_ai_era_label">시대</string>
-    <string name="playlist_creation_ai_section_curation">큐레이션 엔진</string>
-    <string name="playlist_creation_ai_energy_label">에너지</string>
-    <string name="playlist_creation_ai_energy_desc">곡의 강도와 템포를 조절합니다. 1 = 차분함/느림, 5 = 고에너지/빠름.</string>
-    <string name="playlist_creation_ai_discovery_label">발견</string>
-    <string name="playlist_creation_ai_discovery_desc">곡의 친숙도를 조절합니다. 1 = 가장 많이 들은 즐겨찾기, 5 = 거의 듣지 않은 숨은 명곡.</string>
-    <string name="playlist_creation_ai_min_songs">최소 곡 수</string>
-    <string name="playlist_creation_ai_max_songs">Max songs</string>
-    <string name="playlist_creation_ai_section_filters">필터</string>
-    <string name="playlist_creation_ai_prioritize_genres">선호 장르 (선택 사항)</string>
-    <string name="playlist_creation_ai_prioritize_genres_placeholder">예: synthwave, indie pop</string>
-    <string name="playlist_creation_ai_avoid_genres">제외 장르 (선택 사항)</string>
-    <string name="playlist_creation_ai_avoid_genres_placeholder">예: metal, hard trap</string>
-    <string name="playlist_creation_ai_preferred_language">선호 언어 (선택 사항)</string>
-    <string name="playlist_creation_ai_preferred_language_placeholder">예: 영어, 한국어, 연주곡</string>
-    <string name="playlist_creation_ai_prioritize_favorites">즐겨찾기 우선순위 설정</string>
-    <string name="playlist_creation_ai_avoid_explicit">자극적인 가사 제외</string>
-    <string name="playlist_creation_ai_section_prompt_preview">프롬프트 미리보기</string>
-    <string name="playlist_creation_ai_prompt_preview_empty">선호도를 추가하면 최종 프롬프트가 여기에 표시됩니다.</string>
-    <string name="playlist_creation_ai_hero_title">정밀한 큐레이션</string>
-    <string name="playlist_creation_ai_hero_subtitle">기분, 활동, 제약 조건 및 깊이를 정의하세요.</string>
-    <string name="playlist_creation_ai_hero_library_note">AI는 로컬 라이브러리에 있는 곡만 사용합니다.</string>
-    <string name="playlist_creation_ai_error_add_instruction">AI를 위한 지침을 하나 이상 추가하세요.</string>
-    <string name="playlist_creation_ai_error_song_range">유효한 곡 범위를 설정하세요.</string>
-    <string name="playlist_creation_ai_level_out_of_five">%1$d/5</string>
-    <string name="playlist_creation_ai_custom_chip">사용자 지정…</string>
-    <string name="playlist_creation_ai_enter_custom_title">사용자 지정 값 입력</string>
-    <string name="playlist_creation_ai_enter_custom_label">사용자 지정 값을 입력하세요</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
-    <!-- AI prompt -->
+    
     <string name="playlist_creation_ai_era_any">모든 시대</string>
-    <string name="playlist_creation_ai_prompt_core_request">핵심 요청: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_mood">목표 기분: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_activity">활동 문맥: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_era">시대 중점: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_prioritize_genres">우선 장르: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_avoid_genres">제외 장르: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_preferred_language">선호 언어: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_energy">목표 에너지 레벨: %1$d/5.</string>
-    <string name="playlist_creation_ai_prompt_discovery">목표 발견 레벨: %1$d/5 (1: 친숙함, 5: 숨은 명곡).</string>
-    <string name="playlist_creation_ai_prompt_prioritize_favorites">가능한 경우 청취자의 즐겨찾기에 가까운 곡을 우선시합니다.</string>
-    <string name="playlist_creation_ai_prompt_avoid_explicit">대안이 있는 경우 자극적인 가사를 피합니다.</string>
-    <string name="playlist_creation_ai_prompt_smooth_transitions">전환을 부드럽게 유지하고 동일한 아티스트가 반복되는 것을 피합니다.</string>
-    <string-array name="playlist_creation_ai_mood_options">
-        <item>편안함</item>
-        <item>활기참</item>
-        <item>행복함</item>
-        <item>어두움</item>
-        <item>로맨틱함</item>
-        <item>우울함</item>
-    </string-array>
-    <string-array name="playlist_creation_ai_activity_options">
-        <item>운동</item>
-        <item>집중</item>
-        <item>드라이브</item>
-        <item>파티</item>
-        <item>공부</item>
-        <item>늦은 밤</item>
-    </string-array>
-    <string-array name="playlist_creation_ai_era_options">
-        <item>@string/playlist_creation_ai_era_any</item>
-        <item>70년대</item>
-        <item>80년대</item>
-        <item>90년대</item>
-        <item>2000년대</item>
-        <item>2010년대</item>
-        <item>2020년대</item>
-    </string-array>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- PlaylistContainer -->
     <string name="playlist_container_no_playlist_created">생성된 플레이리스트가 없습니다.</string>
@@ -494,7 +472,7 @@
     <string name="playlist_view_model_none_to_export">내보낼 플레이리스트가 없습니다</string>
     <string name="playlist_view_model_export_failed">내보내기 실패: %1$s</string>
     <string name="playlist_view_model_export_folder_display">Music/PixelPlayer Exports</string>
-    <string name="playlist_view_model_ai_gemini_key_required">설정에서 Gemini API 키를 구성해 주세요.</string>
+    
     <string name="playlist_view_model_restored_toast">플레이리스트 복원됨</string>
     <plurals name="playlist_view_model_sharing_message">
         <item quantity="other">플레이리스트 %d개 공유 중</item>
@@ -545,14 +523,14 @@
     <string name="metadata_edit_permission_denied_save_lyrics">권한 거부됨 - 가사를 저장할 수 없습니다</string>
     <string name="metadata_edit_permission_denied_edit_this_file">권한 거부됨 - 이 파일을 편집할 수 없습니다</string>
 
-    <!-- AiStateHolder -->
-    <string name="ai_state_error_api_key">설정에서 선택한 AI 제공업체에 대한 유효한 API 키를 구성해 주세요.</string>
-    <string name="ai_state_error_generic">AI 오류: %s</string>
-    <string name="ai_state_error_quota">선택한 AI 제공업체가 계정에 크레딧이나 사용 가능한 할당량이 없어 요청을 거부했습니다.</string>
-    <string name="ai_state_error_model_unavailable">선택한 AI 모델을 더 이상 사용할 수 없습니다. PixelPlayer가 지원되는 모델로 자동 전환을 시도했습니다.</string>
-    <string name="ai_state_no_songs_found">AI가 프롬프트에 맞는 노래를 찾지 못했습니다.</string>
-    <string name="ai_state_prompt_empty">데일리 믹스에 대한 아이디어를 작성해 보세요</string>
-    <string name="ai_state_daily_mix_updated">AI로 데일리 믹스가 업데이트되었습니다</string>
-    <string name="ai_state_could_not_update">업데이트할 수 없음: %s</string>
-    <string name="ai_state_no_songs_for_mix">AI가 이 믹스에 맞는 노래를 찾지 못했습니다</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 </resources>

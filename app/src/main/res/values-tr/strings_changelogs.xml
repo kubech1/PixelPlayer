@@ -24,7 +24,6 @@
         <item>Oynatıcının tam yeniden tasarımı.</item>
         <item>Kütüphanede performans iyileştirmeleri.</item>
         <item>Uygulama başlangıç hızı iyileştirildi.</item>
-        <item>Yapay zeka artık daha iyi sonuçlar veriyor.</item>
     </string-array>
     <string-array name="changelog_020_fixes">
         <item>Etiket düzenleyicisindeki çeşitli hatalar düzeltildi.</item>
@@ -42,7 +41,6 @@
         <item>Daha akıcı gezinme için uygulama genelinde animasyonlar ve geçişler düzeltildi.</item>
         <item>Sanatçı ekranı düzeni daha zengin ayrıntılar ve cilalamayla geliştirildi.</item>
         <item>DailyMix and YourMix üretimi daha akıllı, daha çeşitli seçimlerle yükseltildi.</item>
-        <item>Yapay zeka çalma listesi oluşturma güçlendirildi.</item>
         <item>Daha hızlı keşif için arama ilgisi ve sunumu iyileştirildi.</item>
         <item>Daha geniş ses dosyası formatları yelpazesi için destek genişletildi.</item>
     </string-array>
@@ -70,7 +68,6 @@
         <item>Material 3 Expressive Arayüz Güncellemesi</item>
         <item>10 Bantlı Ekolayzer &amp; Efektler</item>
         <item>Yeni Kütüphane Senkronizasyon Akışı</item>
-        <item>Yapay Zeka Entegrasyonu (Gemini Modelleri)</item>
         <item>M3U Çalma Listesi İçe/Dışa Aktarma</item>
         <item>Deezer Sanatçı Görseli Entegrasyonu</item>
         <item>Özel Çalma Listesi Kapakları</item>
@@ -108,7 +105,6 @@
     </string-array>
     <string-array name="changelog_070_whats_new">
         <item>Wear OS: Saatten müzik aktarımı, yerel oynatma, kuyruk senkronizasyonu ve uzaktan kumanda.</item>
-        <item>Yapay Zeka: Token optimizasyonuyla Groq AI and OpenRouter (deneysel) entegrasyonu.</item>
         <item>Bulut: Jellyfin desteği eklendi.</item>
         <item>Sözler: Özel geçiş düğmesiyle senkronize çeviri, Kugou LRC format desteği, metin hizalama özelleştirmesi ve gelişmiş uzaktan yükleme.</item>
         <item>Arayüz/Kullanıcı Deneyimi: Kompakt gezinme çubuğu modu, albüm kapağı paletinden dinamik temalar, uzun başlıklar için kayan yazı ve yeni sıralama seçenekleri.</item>

@@ -9,8 +9,8 @@
     <string name="settings_category_playback_subtitle">Поведение аудио, кроссфейд и фоновое воспроизведение</string>
     <string name="settings_category_behavior_title">Поведение</string>
     <string name="settings_category_behavior_subtitle">Жесты, тактильный отклик и навигация</string>
-    <string name="settings_category_ai_title">Интеграция ИИ (β)</string>
-    <string name="settings_category_ai_subtitle">Поставщики ИИ, API-ключи и настройки моделей</string>
+    
+    
     <string name="settings_category_backup_title">Резервное копирование и восстановление</string>
     <string name="settings_category_backup_subtitle">Экспорт и восстановление персональных данных приложения</string>
     <string name="settings_category_developer_title">Параметры разработчика</string>
@@ -303,55 +303,55 @@
     <string name="settings_haptic_feedback_title">Тактильная отдача</string>
     <string name="settings_haptic_feedback_subtitle">Включить виброотклик во всём приложении.</string>
 
-    <!-- AI Integration category -->
-    <string name="settings_ai_provider_section">Поставщик ИИ</string>
-    <string name="settings_ai_provider_title">Поставщик</string>
-    <string name="settings_ai_provider_subtitle">Выберите поставщика ИИ</string>
-    <string name="settings_safe_token_title">Режим безопасных токенов</string>
-    <string name="settings_safe_token_on">ВКЛ. — Быстро и экономно. Отправляет ИИ минимум данных (~1K токенов).</string>
-    <string name="settings_safe_token_off">ВЫКЛ. — Глубокий контекст. Отправляет полный профиль прослушивания (~8K токенов) для более качественных результатов.</string>
-    <string name="settings_credentials_section">Учётные данные</string>
-    <string name="settings_ai_api_key_title">API-ключ %1$s</string>
-    <string name="settings_ai_api_key_subtitle">Получить на %1$s</string>
-    <string name="settings_ai_source_gemini">Google AI Studio (aistudio.google.com)</string>
-    <string name="settings_ai_source_deepseek">DeepSeek Platform (api.deepseek.com)</string>
-    <string name="settings_ai_source_groq">Groq Console (console.groq.com)</string>
-    <string name="settings_ai_source_mistral">Mistral AI Platform (console.mistral.ai)</string>
-    <string name="settings_ai_source_nvidia">NVIDIA Build (build.nvidia.com)</string>
-    <string name="settings_ai_source_kimi">Moonshot AI Platform (platform.moonshot.cn)</string>
-    <string name="settings_ai_source_glm">Zhipu AI Open Platform (bigmodel.cn)</string>
-    <string name="settings_ai_source_openai">OpenAI Platform (platform.openai.com)</string>
-    <string name="settings_model_selection_section">Выбор модели</string>
-    <string name="settings_loading_models">Загрузка доступных моделей…</string>
-    <string name="settings_models_fetch_failed">Не удалось загрузить модели</string>
-    <string name="settings_ai_model_title">Модель ИИ</string>
-    <string name="settings_ai_model_subtitle">Выберите модель.</string>
-    <string name="settings_enter_api_key_placeholder">Введите API-ключ</string>
-    <string name="settings_prompt_behavior_section">Поведение промпта</string>
-    <string name="settings_system_prompt_title">Системный промпт</string>
-    <string name="settings_system_prompt_subtitle">Настройте поведение ИИ.</string>
-    <string name="settings_preset_prompts">Готовые промпты</string>
-    <string name="settings_system_prompt_placeholder">Введите системный промпт…</string>
-    <string name="settings_preset_professional_curator_name">Professional Curator</string>
-    <string name="settings_preset_professional_curator_prompt">You are \'Vibe-Engine\', a world-class music curator and master of sonic flow. Your goal is to construct seamless, high-fidelity listening experiences. Prioritize harmonic compatibility, logical BPM transitions, and a sophisticated balance between familiar favorites and tasteful, logic-driven discovery.</string>
-    <string name="settings_preset_creative_maverick_name">Creative Maverick</string>
-    <string name="settings_preset_creative_maverick_prompt">You are an avant-garde music explorer specializing in \'unexpected cohesion\'. Your mission is to break conventional genre boundaries by identifying non-obvious sonic parallels. Prioritize rare deep cuts, experimental textures, and artistic novelty while maintaining a surprising but undeniable transition logic.</string>
-    <string name="settings_preset_strict_librarian_name">Strict Librarian</string>
-    <string name="settings_preset_strict_librarian_prompt">You are a surgical music database architect. Your logic is driven by absolute metadata precision and rigid categorical adherence. Minimize algorithmic discovery in favor of strict genre consistency, energy-level matching, and maximizing the retrieval of highly specific user-defined preferences.</string>
-    <string name="settings_preset_atmospheric_guide_name">Atmospheric Guide</string>
-    <string name="settings_preset_atmospheric_guide_prompt">You are a master of ambient textures and low-energy flow. Focus exclusively on tracks that facilitate a \'deep focus\' or \'tranquility\' state. Prioritize acoustic warmth, minimalist arrangements, and gentle transitions, while strictly avoiding high-transient sounds or sudden shifts in dynamic range.</string>
-    <string name="settings_preset_sonic_enthusiast_name">Sonic Enthusiast</string>
-    <string name="settings_preset_sonic_enthusiast_prompt">You are an audiophile analyst focused on production complexity and instrumentation. Prioritize tracks characterized by high dynamic range, intricate polyrhythms, and superior soundstage quality. Favor active-listening pieces that reward the listener for paying attention to technical fidelity and arrangement detail.</string>
-    <string name="settings_preset_energy_catalyst_name">Energy Catalyst</string>
-    <string name="settings_preset_energy_catalyst_prompt">You are a high-momentum rhythm generator. Your philosophy centers on driving basslines, percussive intensity, and infectious grooves. Prioritize high-BPM club compatibility, syncopated energy, and continuous rhythmic tension to keep the listener\'s heart rate and motivation peak-level.</string>
-    <string name="settings_ai_usage_report_section">Отчёт об использовании ИИ</string>
-    <string name="settings_total_consumption_title">Общее потребление</string>
-    <string name="settings_ai_usage_tokens_subtitle">Учёт токенов: %1$s\nЗапрос: %2$s | Ответ: %3$s | Размышления: %4$s</string>
-    <string name="settings_ai_clear_logs">Очистить журнал</string>
-    <string name="settings_ai_activity_log_title">Журнал активности ИИ (%1$d)</string>
-    <string name="settings_ai_usage_provier_model">%1$s · %2$s</string>
-    <string name="settings_ai_show_logs">Показать</string>
-    <string name="settings_ai_hide_logs">Скрыть</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- Backup & Restore category -->
     <string name="settings_backup_how_dialog_title">Как работает резервное копирование</string>

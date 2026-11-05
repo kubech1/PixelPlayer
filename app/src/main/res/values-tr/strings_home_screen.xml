@@ -117,31 +117,31 @@
         <item quantity="other">%1$d şarkı • %2$s</item>
     </plurals>
     <string name="daily_mix_action_play_it">Oynat</string>
-    <string name="daily_mix_cd_ai_playlist_generator">Yapay Zeka Çalma Listesi Oluşturucu</string>
+    
 
     <!-- DailyMixMenu -->
-    <string name="daily_mix_how_title">Günlük Mix\'iniz nasıl oluşturulur</string>
-    <string name="daily_mix_how_body">Günlük Mix\'iniz en sevdiğiniz ve en çok çaldığınız şarkılardan oluşturulur. Yeni müzikler keşfetmeniz için beğendiğiniz sanatçı ve türlerden de parçalar ekliyoruz.</string>
-    <string name="daily_mix_prompt_label">Yapay zekaya bugün ne dinlemek istediğinizi söyleyin</string>
-    <string name="daily_mix_cost_hint">Maliyetleri düşük tutmak için küçük bir örnek kullanıyoruz</string>
-    <string name="daily_mix_updating">Güncelleniyor…</string>
-    <string name="daily_mix_update">Günlük Mix\'i Güncelle</string>
+    
+    
+    
+    
+    
+    
 
     <!-- AIPlaylistSheet -->
-    <string name="ai_playlist_headline_perfect">Mükemmel Küratörlük</string>
-    <string name="ai_playlist_headline_daily_mix">Günlük Mix</string>
-    <string name="ai_playlist_subtitle_journey_ready">Ses yolculuğunuz hazır</string>
-    <string name="ai_playlist_subtitle_generator">Yapay Zeka Çalma Listesi Oluşturucu</string>
-    <string name="ai_playlist_description">Hissiyatı, modu veya aktiviteyi tanımlayın ve yapay zekanın kitaplığınızdan mükemmel çalma listesini oluşturmasına izin verin.</string>
-    <string name="ai_playlist_section_size">Çalma listesi boyutu</string>
-    <string name="ai_playlist_min_songs">En az şarkı</string>
-    <string name="ai_playlist_max_songs">En fazla şarkı</string>
-    <string name="ai_playlist_prompt_placeholder">Örn: Sakin akşam esintisi, hareketli antrenman enerjisi…</string>
-    <string name="ai_playlist_tap_to_retry">Yeniden Denemek için Dokun</string>
-    <string name="ai_playlist_status_default">Ses yolculuğu sentezlendi!</string>
-    <string name="ai_playlist_ready_to_play">Oynatmaya Hazır</string>
-    <string name="ai_playlist_generating">Oluşturuluyor…</string>
-    <string name="ai_playlist_generate">Çalma Listesi Oluştur</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- RecentlyPlayedSection -->
     <string name="home_recently_played_title">Son Çalınanlar</string>

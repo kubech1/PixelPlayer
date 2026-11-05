@@ -16,8 +16,8 @@
 
     <!-- Library Toasts -->
     <string name="library_toast_playlist_created">Lista creada correctamente</string>
-    <string name="library_toast_set_ai_provider_api_key_first">Configura primero tu clave API del proveedor de IA</string>
-    <string name="library_toast_set_gemini_api_key_first">Configura primero tu clave API de Gemini</string>
+    
+    
     <string name="library_toast_added_to_queue">Añadida a la cola</string>
     <string name="library_toast_playing_next">Se reproducirá a continuación</string>
 
@@ -51,8 +51,8 @@
     <string name="library_cloud_sources_heading">Nube</string>
     <string name="library_cloud_only_label">Solo nube</string>
 
-    <!-- Library AI Metadata Processing -->
-    <string name="library_generating_ai_metadata">Generando metadatos con IA…</string>
+    
+    
 
     <!-- Library list errors -->
     <string name="library_error_loading_songs">Error al cargar canciones</string>
@@ -336,95 +336,73 @@
     <string name="playlist_dismissed_message">Lista descartada</string>
 
     <!-- PlaylistCreationDialogs -->
-    <string name="playlist_creation_create_playlist_title">Crear lista de reproducción</string>
-    <string name="playlist_creation_create_playlist_subtitle">Elige el flujo de creación.</string>
-    <string name="playlist_creation_mode_manual_title">Manual</string>
-    <string name="playlist_creation_mode_manual_subtitle">Diseña la portada, el icono, la forma y selecciona las canciones tú mismo.</string>
-    <string name="playlist_creation_mode_ai_title">Con IA</string>
-    <string name="playlist_creation_mode_ai_subtitle_enabled">Genera una lista seleccionada con controles avanzados.</string>
-    <string name="playlist_creation_mode_ai_subtitle_disabled">Requiere configurar una clave API de Gemini en los ajustes.</string>
-    <string name="playlist_creation_setup_api_key">Configurar clave API</string>
+    
+    
+    
+    
+    
+    
+    
+    
 
-    <!-- AI playlist lab -->
-    <string name="playlist_creation_ai_lab_title">Laboratorio de listas con IA</string>
-    <string name="playlist_creation_ai_reset">Restablecer</string>
-    <string name="playlist_creation_ai_generating">Generando…</string>
-    <string name="playlist_creation_ai_generate">Generar</string>
-    <string name="playlist_creation_ai_section_intent">Objetivo</string>
-    <string name="playlist_creation_ai_name_optional">Nombre de la lista (opcional)</string>
-    <string name="playlist_creation_ai_feel_label">¿Qué sensación debería transmitir esta lista?</string>
-    <string name="playlist_creation_ai_feel_placeholder">Ejemplo: viaje al atardecer con sintetizadores cálidos</string>
-    <string name="playlist_creation_ai_section_direction">Dirección</string>
-    <string name="playlist_creation_ai_mood_label">Estado de ánimo</string>
-    <string name="playlist_creation_ai_activity_label">Actividad</string>
-    <string name="playlist_creation_ai_era_label">Época</string>
-    <string name="playlist_creation_ai_section_curation">Motor de selección</string>
-    <string name="playlist_creation_ai_energy_label">Energía</string>
-    <string name="playlist_creation_ai_energy_desc">Controla la intensidad y el tempo de las canciones. 1 = tranquilo/lento, 5 = muy enérgico/rápido.</string>
-    <string name="playlist_creation_ai_discovery_label">Descubrimiento</string>
-    <string name="playlist_creation_ai_discovery_desc">Controla la familiaridad de las selecciones. 1 = tus canciones favoritas más reproducidas, 5 = rarezas poco reproducidas.</string>
-    <string name="playlist_creation_ai_min_songs">Mín. canciones</string>
-    <string name="playlist_creation_ai_max_songs">Máx. canciones</string>
-    <string name="playlist_creation_ai_section_filters">Filtros</string>
-    <string name="playlist_creation_ai_prioritize_genres">Priorizar géneros (opcional)</string>
-    <string name="playlist_creation_ai_prioritize_genres_placeholder">p. ej. synthwave, indie pop</string>
-    <string name="playlist_creation_ai_avoid_genres">Evitar géneros (opcional)</string>
-    <string name="playlist_creation_ai_avoid_genres_placeholder">p. ej. metal, hard trap</string>
-    <string name="playlist_creation_ai_preferred_language">Idioma preferido (opcional)</string>
-    <string name="playlist_creation_ai_preferred_language_placeholder">p. ej. inglés, español, instrumental</string>
-    <string name="playlist_creation_ai_prioritize_favorites">Priorizar favoritas</string>
-    <string name="playlist_creation_ai_avoid_explicit">Evitar letras explícitas</string>
-    <string name="playlist_creation_ai_section_prompt_preview">Vista previa del prompt</string>
-    <string name="playlist_creation_ai_prompt_preview_empty">Tu prompt final aparecerá aquí una vez que añadas preferencias.</string>
-    <string name="playlist_creation_ai_hero_title">Crea con precisión</string>
-    <string name="playlist_creation_ai_hero_subtitle">Define el ambiente, la actividad, las limitaciones y la profundidad.</string>
-    <string name="playlist_creation_ai_hero_library_note">La IA solo utilizará canciones de tu biblioteca local.</string>
-    <string name="playlist_creation_ai_error_add_instruction">Añade al menos una instrucción para la IA.</string>
-    <string name="playlist_creation_ai_error_song_range">Establece un rango de canciones válido.</string>
-    <string name="playlist_creation_ai_level_out_of_five">%1$d/5</string>
-    <string name="playlist_creation_ai_custom_chip">Personalizado…</string>
-    <string name="playlist_creation_ai_enter_custom_title">Introduce un valor personalizado</string>
-    <string name="playlist_creation_ai_enter_custom_label">Introduce tu valor personalizado</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
-    <!-- AI prompt -->
+    
     <string name="playlist_creation_ai_era_any">Cualquier época</string>
-    <string name="playlist_creation_ai_prompt_core_request">Petición principal: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_mood">Objetivo de estado de ánimo: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_activity">Contexto de actividad: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_era">Enfoque de época: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_prioritize_genres">Priorizar géneros: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_avoid_genres">Evitar géneros: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_preferred_language">Idioma preferido: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_energy">Objetivo de nivel de energía: %1$d/5.</string>
-    <string name="playlist_creation_ai_prompt_discovery">Objetivo de descubrimiento: %1$d/5 donde 1 es familiar y 5 son rarezas.</string>
-    <string name="playlist_creation_ai_prompt_prioritize_favorites">Priorizar canciones cercanas a las favoritas del oyente cuando sea posible.</string>
-    <string name="playlist_creation_ai_prompt_avoid_explicit">Evitar letras explícitas siempre que existan alternativas.</string>
-    <string name="playlist_creation_ai_prompt_smooth_transitions">Mantener transiciones suaves y evitar agrupaciones repetitivas del mismo artista.</string>
-    <string-array name="playlist_creation_ai_mood_options">
-        <item>Relajado</item>
-        <item>Enérgico</item>
-        <item>Alegre</item>
-        <item>Oscuro</item>
-        <item>Romántico</item>
-        <item>Melancólico</item>
-    </string-array>
-    <string-array name="playlist_creation_ai_activity_options">
-        <item>Entrenamiento</item>
-        <item>Concentración</item>
-        <item>Viaje en coche</item>
-        <item>Fiesta</item>
-        <item>Estudio</item>
-        <item>Noche tardía</item>
-    </string-array>
-    <string-array name="playlist_creation_ai_era_options">
-        <item>@string/playlist_creation_ai_era_any</item>
-        <item>Años 70</item>
-        <item>Años 80</item>
-        <item>Años 90</item>
-        <item>Años 2000</item>
-        <item>Años 2010</item>
-        <item>Años 2020</item>
-    </string-array>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- PlaylistContainer -->
     <string name="playlist_container_no_playlist_created">No se ha creado ninguna lista de reproducción.</string>
@@ -498,7 +476,7 @@
     <string name="playlist_view_model_none_to_export">No hay listas para exportar</string>
     <string name="playlist_view_model_export_failed">Error al exportar: %1$s</string>
     <string name="playlist_view_model_export_folder_display">Music/PixelPlayer Exports</string>
-    <string name="playlist_view_model_ai_gemini_key_required">Por favor configure su clave API de Gemini en Ajustes.</string>
+    
     <string name="playlist_view_model_restored_toast">Lista restaurada</string>
     <plurals name="playlist_view_model_sharing_message">
         <item quantity="one">Compartiendo %d lista</item>
@@ -553,14 +531,14 @@
     <string name="metadata_edit_permission_denied_save_lyrics">Permiso denegado – no se pueden guardar letras</string>
     <string name="metadata_edit_permission_denied_edit_this_file">Permiso denegado – no se puede editar este archivo</string>
 
-    <!-- AiStateHolder -->
-    <string name="ai_state_error_api_key">Por favor, configure una clave API válida para el proveedor de IA seleccionado en Ajustes.</string>
-    <string name="ai_state_error_generic">Error de IA: %s</string>
-    <string name="ai_state_error_quota">El proveedor de IA seleccionado rechazó la solicitud porque la cuenta no tiene créditos o cuota disponible.</string>
-    <string name="ai_state_error_model_unavailable">El modelo de IA seleccionado ya no está disponible. PixelPlayer intentó cambiar a un modelo compatible automáticamente.</string>
-    <string name="ai_state_no_songs_found">La IA no pudo encontrar ninguna canción para tu prompt.</string>
-    <string name="ai_state_prompt_empty">Escribe una idea para tu Daily Mix</string>
-    <string name="ai_state_daily_mix_updated">Daily Mix actualizado con IA</string>
-    <string name="ai_state_could_not_update">No se pudo actualizar: %s</string>
-    <string name="ai_state_no_songs_for_mix">La IA no pudo encontrar canciones para este mix</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 </resources>

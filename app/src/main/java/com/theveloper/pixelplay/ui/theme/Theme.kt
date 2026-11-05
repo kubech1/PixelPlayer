@@ -49,7 +49,7 @@ fun PixelPlayStatusBarStyle(
     SideEffect {
         val window = view.context.findActivity()?.window ?: return@SideEffect
         window.statusBarColor = android.graphics.Color.TRANSPARENT
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        run {
             window.isStatusBarContrastEnforced = false
         }
 
@@ -58,7 +58,7 @@ fun PixelPlayStatusBarStyle(
 
             if (updateNavigationBar) {
                 window.navigationBarColor = android.graphics.Color.TRANSPARENT
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                run {
                     window.isNavigationBarContrastEnforced = false
                 }
                 isAppearanceLightNavigationBars = useDarkNavigationIcons
@@ -114,7 +114,7 @@ fun PixelPlayTheme(
 ) {
     val context = LocalContext.current
     val finalColorScheme = when {
-        colorSchemePairOverride == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        colorSchemePairOverride == null -> {
             // Tema dinámico del sistema como prioridad si no hay override
             try {
                 if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)

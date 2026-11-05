@@ -24,7 +24,6 @@
         <item>Pendesainan ulang lengkap pemutar.</item>
         <item>Peningkatan performa di pustaka.</item>
         <item>Peningkatan kecepatan peluncuran aplikasi.</item>
-        <item>AI sekarang memberikan hasil yang lebih baik.</item>
     </string-array>
     <string-array name="changelog_020_fixes">
         <item>Memperbaiki berbagai bug di editor tag.</item>
@@ -42,7 +41,6 @@
         <item>Memuluskan animasi dan transisi di seluruh aplikasi untuk navigasi yang lebih lancar.</item>
         <item>Meningkatkan tata letak layar artis dengan detail yang lebih kaya dan penyempurnaan.</item>
         <item>Meningkatkan pembuatan DailyMix dan YourMix dengan pilihan yang lebih cerdas dan beragam.</item>
-        <item>Memperkuat pembuatan playlist AI.</item>
         <item>Meningkatkan relevansi pencarian dan presentasi untuk penemuan yang lebih cepat.</item>
         <item>Memperluas dukungan untuk format file audio yang lebih luas.</item>
     </string-array>
@@ -70,7 +68,6 @@
         <item>Pembaruan UI Material 3 yang Ekspresif</item>
         <item>Equalizer &amp; Efek 10-band</item>
         <item>Alur Sinkronisasi Pustaka Baru</item>
-        <item>Integrasi AI (Model Gemini)</item>
         <item>Impor/Ekspor Playlist M3U</item>
         <item>Integrasi Gambar Artis Deezer</item>
         <item>Sampul Playlist Kustom</item>
@@ -108,7 +105,6 @@
     </string-array>
     <string-array name="changelog_070_whats_new">
         <item>Wear OS: Transfer musik, pemutaran lokal, sinkronisasi antrean, dan kendali jarak jauh dari jam tangan.</item>
-        <item>AI: Integrasi Groq AI dan OpenRouter (eksperimental) dengan optimasi token.</item>
         <item>Cloud: Dukungan Jellyfin ditambahkan.</item>
         <item>Lirik: Terjemahan tersinkronisasi dengan toggle khusus, dukungan format Kugou LRC, kustomisasi perataan teks, dan pemuatan jarak jauh yang ditingkatkan.</item>
         <item>UI/UX: Mode bilah navigasi kompak, tema dinamis dari palet sampul album, marquee untuk judul panjang, dan opsi pengurutan baru.</item>

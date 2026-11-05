@@ -9,8 +9,8 @@
     <string name="settings_category_playback_subtitle">Perilaku audio, crossfade, dan putar latar belakang</string>
     <string name="settings_category_behavior_title">Perilaku</string>
     <string name="settings_category_behavior_subtitle">Gerakan, haptik, dan perilaku navigasi</string>
-    <string name="settings_category_ai_title">Integrasi AI (β)</string>
-    <string name="settings_category_ai_subtitle">Penyedia AI, kunci API, dan pengaturan model</string>
+    
+    
     <string name="settings_category_backup_title">Cadangkan &amp; Pulihkan</string>
     <string name="settings_category_backup_subtitle">Ekspor dan pulihkan data aplikasi pribadi Anda</string>
     <string name="settings_category_developer_title">Opsi Pengembang</string>
@@ -299,55 +299,55 @@
     <string name="settings_haptic_feedback_title">Haptic feedback</string>
     <string name="settings_haptic_feedback_subtitle">Aktifkan haptic feedback di seluruh aplikasi.</string>
 
-    <!-- AI Integration category -->
-    <string name="settings_ai_provider_section">Penyedia AI</string>
-    <string name="settings_ai_provider_title">Penyedia</string>
-    <string name="settings_ai_provider_subtitle">Pilih penyedia AI Anda</string>
-    <string name="settings_safe_token_title">Mode Token Aman</string>
-    <string name="settings_safe_token_on">NYALA — Cepat &amp; murah. Mengirim data minimal (~1K token) ke AI.</string>
-    <string name="settings_safe_token_off">MATI — Konteks mendalam. Mengirim profil mendengarkan lengkap (~8K token) untuk hasil yang lebih kaya.</string>
-    <string name="settings_credentials_section">Kredensial</string>
-    <string name="settings_ai_api_key_title">API Key %1$s</string>
-    <string name="settings_ai_api_key_subtitle">Dapatkan dari %1$s</string>
-    <string name="settings_ai_source_gemini">Google AI Studio (aistudio.google.com)</string>
-    <string name="settings_ai_source_deepseek">DeepSeek Platform (api.deepseek.com)</string>
-    <string name="settings_ai_source_groq">Groq Console (console.groq.com)</string>
-    <string name="settings_ai_source_mistral">Mistral AI Platform (console.mistral.ai)</string>
-    <string name="settings_ai_source_nvidia">NVIDIA Build (build.nvidia.com)</string>
-    <string name="settings_ai_source_kimi">Moonshot AI Platform (platform.moonshot.cn)</string>
-    <string name="settings_ai_source_glm">Zhipu AI Open Platform (bigmodel.cn)</string>
-    <string name="settings_ai_source_openai">OpenAI Platform (platform.openai.com)</string>
-    <string name="settings_model_selection_section">Pemilihan Model</string>
-    <string name="settings_loading_models">Memuat model yang tersedia…</string>
-    <string name="settings_models_fetch_failed">Gagal memuat model</string>
-    <string name="settings_ai_model_title">Model AI</string>
-    <string name="settings_ai_model_subtitle">Pilih sebuah model.</string>
-    <string name="settings_enter_api_key_placeholder">Masukkan API Key</string>
-    <string name="settings_prompt_behavior_section">Perilaku Prompt</string>
-    <string name="settings_system_prompt_title">Prompt Sistem</string>
-    <string name="settings_system_prompt_subtitle">Sesuaikan cara AI berperilaku.</string>
-    <string name="settings_preset_prompts">Preset Prompt</string>
-    <string name="settings_system_prompt_placeholder">Masukkan prompt sistem…</string>
-    <string name="settings_preset_professional_curator_name">Kurator Profesional</string>
-    <string name="settings_preset_professional_curator_prompt">Anda adalah \'Vibe-Engine\', seorang kurator musik kelas dunia dan ahli aliran sonik. Tujuan Anda adalah membangun pengalaman mendengarkan yang mulus dan berkualitas tinggi. Prioritaskan kompatibilitas harmonis, transisi BPM yang logis, dan keseimbangan canggih antara favorit yang sudah dikenal dan penemuan terarah yang logis.</string>
-    <string name="settings_preset_creative_maverick_name">Maverick Kreatif</string>
-    <string name="settings_preset_creative_maverick_prompt">Anda adalah penjelajah musik avant-garde yang berspesialisasi dalam \'kohesi yang tidak terduga\'. Misi Anda adalah mendobrak batas genre konvensional dengan mengidentifikasi paralel sonik yang tidak jelas. Prioritaskan potongan mendalam yang langka, tekstur eksperimental, dan kebaruan artistik sambil mempertahankan logika transisi yang mengejutkan namun tidak dapat disangkal.</string>
-    <string name="settings_preset_strict_librarian_name">Pustakawan Ketat</string>
-    <string name="settings_preset_strict_librarian_prompt">Anda adalah arsitek database musik bedah. Logika Anda didorong oleh presisi metadata absolut dan kepatuhan kategoris yang kaku. Minimalkan penemuan algoritmik demi konsistensi genre yang ketat, pencocokan tingkat energi, dan memaksimalkan pengambilan preferensi khusus yang ditentukan pengguna.</string>
-    <string name="settings_preset_atmospheric_guide_name">Panduan Atmosfer</string>
-    <string name="settings_preset_atmospheric_guide_prompt">Anda adalah ahli tekstur ambien dan aliran energi rendah. Fokus secara eksklusif pada trek yang memfasilitasi keadaan \'fokus mendalam\' atau \'ketenangan\'. Prioritaskan kehangatan akustik, arsitektur minimalis, dan transisi lembut, sambil menghindari suara transien tinggi atau perubahan mendadak dalam rentang dinamis.</string>
-    <string name="settings_preset_sonic_enthusiast_name">Penggemar Sonik</string>
-    <string name="settings_preset_sonic_enthusiast_prompt">Anda adalah analis audiofil yang fokus pada kompleksitas produksi dan instrumentasi. Prioritaskan trek yang dicirikan oleh rentang dinamis tinggi, poliritme rumit, dan kualitas panggung suara yang unggul. Utamakan karya mendengarkan aktif yang menghargai pendengar karena memperhatikan kesetiaan teknis dan detail aransemen.</string>
-    <string name="settings_preset_energy_catalyst_name">Katalis Energi</string>
-    <string name="settings_preset_energy_catalyst_prompt">Anda adalah generator ritme momentum tinggi. Filosofi Anda berpusat pada garis bass yang dinamis, intensitas perkusi, dan alur yang menular. Prioritaskan kompatibilitas klub BPM tinggi, energi sinkopasi, dan ketegangan berirama berkelanjutan untuk menjaga detak jantung dan motivasi pendengar pada tingkat puncak.</string>
-    <string name="settings_ai_usage_report_section">Laporan Penggunaan AI</string>
-    <string name="settings_total_consumption_title">Total Konsumsi</string>
-    <string name="settings_ai_usage_tokens_subtitle">Pelacakan %1$s token\nPrompt: %2$s | Output: %3$s | Pemikiran: %4$s</string>
-    <string name="settings_ai_clear_logs">Bersihkan Log</string>
-    <string name="settings_ai_activity_log_title">Log Aktivitas AI (%1$d)</string>
-    <string name="settings_ai_usage_provier_model">%1$s · %2$s</string>
-    <string name="settings_ai_show_logs">Tampilkan</string>
-    <string name="settings_ai_hide_logs">Sembunyikan</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- Backup & Restore category -->
     <string name="settings_backup_how_dialog_title">Cara kerja pencadangan</string>

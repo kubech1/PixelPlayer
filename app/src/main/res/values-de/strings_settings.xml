@@ -9,8 +9,8 @@
     <string name="settings_category_playback_subtitle">Audio, Crossfade und Hintergrundwiedergabe</string>
     <string name="settings_category_behavior_title">Verhalten</string>
     <string name="settings_category_behavior_subtitle">Gesten, Haptik und Navigation</string>
-    <string name="settings_category_ai_title">KI-Integration (β)</string>
-    <string name="settings_category_ai_subtitle">Anbieter, API Keys und Modelle</string>
+    
+    
     <string name="settings_category_backup_title">Backup &amp; Wiederherstellen</string>
     <string name="settings_category_backup_subtitle">App-Daten exportieren und importieren</string>
     <string name="settings_category_developer_title">Entwickleroptionen</string>
@@ -303,55 +303,55 @@
     <string name="settings_haptic_feedback_title">Haptisches Feedback</string>
     <string name="settings_haptic_feedback_subtitle">Vibrieren bei Interaktionen in der gesamten App.</string>
 
-    <!-- AI Integration category -->
-    <string name="settings_ai_provider_section">KI-Anbieter</string>
-    <string name="settings_ai_provider_title">Anbieter</string>
-    <string name="settings_ai_provider_subtitle">KI-Dienst auswählen</string>
-    <string name="settings_safe_token_title">Safe Token-Modus</string>
-    <string name="settings_safe_token_on">AN – Schnell &amp; günstig. Nur minimale Daten (~1K Tokens) werden gesendet.</string>
-    <string name="settings_safe_token_off">AUS – Mehr Kontext. Das vollständige Hörprofil (~8K Tokens) für bessere Ergebnisse.</string>
-    <string name="settings_credentials_section">Zugangsdaten</string>
-    <string name="settings_ai_api_key_title">%1$s API Key</string>
-    <string name="settings_ai_api_key_subtitle">Erhältlich bei %1$s</string>
-    <string name="settings_ai_source_gemini">Google AI Studio (aistudio.google.com)</string>
-    <string name="settings_ai_source_deepseek">DeepSeek Platform (api.deepseek.com)</string>
-    <string name="settings_ai_source_groq">Groq Console (console.groq.com)</string>
-    <string name="settings_ai_source_mistral">Mistral AI Platform (console.mistral.ai)</string>
-    <string name="settings_ai_source_nvidia">NVIDIA Build (build.nvidia.com)</string>
-    <string name="settings_ai_source_kimi">Moonshot AI Platform (platform.moonshot.cn)</string>
-    <string name="settings_ai_source_glm">Zhipu AI Open Platform (bigmodel.cn)</string>
-    <string name="settings_ai_source_openai">OpenAI Platform (platform.openai.com)</string>
-    <string name="settings_model_selection_section">Modell</string>
-    <string name="settings_loading_models">Modelle werden geladen…</string>
-    <string name="settings_models_fetch_failed">Laden der Modelle fehlgeschlagen</string>
-    <string name="settings_ai_model_title">KI-Modell</string>
-    <string name="settings_ai_model_subtitle">Aktives Modell auswählen.</string>
-    <string name="settings_enter_api_key_placeholder">API Key eingeben</string>
-    <string name="settings_prompt_behavior_section">Prompt</string>
-    <string name="settings_system_prompt_title">System-Prompt</string>
-    <string name="settings_system_prompt_subtitle">KI-Verhalten nach eigenen Vorstellungen anpassen.</string>
-    <string name="settings_preset_prompts">Preset-Prompts</string>
-    <string name="settings_system_prompt_placeholder">System-Prompt eingeben…</string>
-    <string name="settings_preset_professional_curator_name">Professioneller Kurator</string>
-    <string name="settings_preset_professional_curator_prompt">Du bist \'Vibe-Engine\', ein Weltklasse-Musikredakteur. Dein Ziel ist es, nahtlose, hochwertige Hörerlebnisse zu schaffen. Priorisiere harmonische Kompatibilität, logische BPM-Übergänge und eine ausgewogene Balance zwischen bekannten Favoriten und geschmackvoller Entdeckung.</string>
-    <string name="settings_preset_creative_maverick_name">Kreativer Maverick</string>
-    <string name="settings_preset_creative_maverick_prompt">Du bist ein avantgardistischer Musikentdecker, spezialisiert auf \'unerwartete Kohärenz\'. Deine Mission: konventionelle Genre-Grenzen aufbrechen und nicht offensichtliche klangliche Parallelen aufdecken. Priorisiere seltene Deep Cuts, experimentelle Texturen und künstlerische Neuheit.</string>
-    <string name="settings_preset_strict_librarian_name">Strenger Bibliothekar</string>
-    <string name="settings_preset_strict_librarian_prompt">Du bist ein präziser Musikdatenbank-Architekt. Deine Logik basiert auf absoluter Metadaten-Genauigkeit und strikter Kategorietreue. Minimiere algorithmische Entdeckung zugunsten von Genre-Konsistenz, Energie-Matching und exakten Nutzerpräferenzen.</string>
-    <string name="settings_preset_atmospheric_guide_name">Atmosphärischer Guide</string>
-    <string name="settings_preset_atmospheric_guide_prompt">Du bist ein Meister ambientartiger Texturen und ruhiger Flows. Fokussiere ausschließlich auf Titel, die Tiefenfokus oder Entspannung begünstigen. Priorisiere akustische Wärme, minimalistische Arrangements und sanfte Übergänge.</string>
-    <string name="settings_preset_sonic_enthusiast_name">Klang-Enthusiast</string>
-    <string name="settings_preset_sonic_enthusiast_prompt">Du bist ein Audiophiler mit Fokus auf Produktionskomplexität und Instrumentierung. Priorisiere Titel mit hoher Dynamik, komplizierten Rhythmen und überlegener Klangbühne – Stücke, die beim aufmerksamen Hören belohnen.</string>
-    <string name="settings_preset_energy_catalyst_name">Energie-Katalysator</string>
-    <string name="settings_preset_energy_catalyst_prompt">Du bist ein hochenergetischer Rhythmus-Generator. Deine Philosophie: treibende Basslines, perkussive Intensität und ansteckende Grooves. Priorisiere hohe BPM-Kompatibilität, synkopierte Energie und kontinuierliche rhythmische Spannung.</string>
-    <string name="settings_ai_usage_report_section">Nutzungsbericht</string>
-    <string name="settings_total_consumption_title">Token-Verbrauch gesamt</string>
-    <string name="settings_ai_usage_tokens_subtitle">%1$s Tokens\nPrompt: %2$s | Ausgabe: %3$s | Denken: %4$s</string>
-    <string name="settings_ai_clear_logs">Protokolle löschen</string>
-    <string name="settings_ai_activity_log_title">KI-Aktivitätsprotokoll (%1$d)</string>
-    <string name="settings_ai_usage_provier_model">%1$s · %2$s</string>
-    <string name="settings_ai_show_logs">Anzeigen</string>
-    <string name="settings_ai_hide_logs">Ausblenden</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- Backup & Restore category -->
     <string name="settings_backup_how_dialog_title">So funktioniert Backup</string>

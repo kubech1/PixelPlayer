@@ -33,17 +33,20 @@ import com.theveloper.pixelplay.MainActivity
 import com.theveloper.pixelplay.data.model.PlayerInfo
 import kotlin.text.ifEmpty
 
-class BarWidget4x1 : GlanceAppWidget() {
+class BarWidget4x1 : MemorySafeGlanceWidget() {
 
     override val sizeMode = SizeMode.Exact
     override val stateDefinition = PlayerInfoStateDefinition
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
+        val bitmapBudget = widgetBitmapBudget(context, id, artworkSlots = 1)
         provideContent {
+            androidx.compose.runtime.CompositionLocalProvider(LocalWidgetBitmapBudget provides bitmapBudget) {
             val playerInfo = currentState<PlayerInfo>()
             GlanceTheme {
                 BarWidget4x1Content(playerInfo = playerInfo, context = context)
             }
+                    }
         }
     }
 

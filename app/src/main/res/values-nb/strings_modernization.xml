@@ -1,0 +1,28 @@
+<resources>
+    <string name="settings_haptic_intensity">Styrke på haptisk respons</string>
+    <string name="settings_haptic_low">Lav</string>
+    <string name="settings_haptic_medium">Middels</string>
+    <string name="settings_haptic_high">Høy</string>
+    <string name="settings_haptic_preview">Prøv vibrasjon</string>
+    <string name="widget_previous">Forrige spor</string>
+    <string name="widget_next">Neste spor</string>
+    <string name="widget_play_pause">Spill av eller sett på pause</string>
+    <string name="audio_route_title">Lydutgang og økt</string>
+    <string name="audio_route_unknown">Ukjent</string>
+    <string name="audio_route_yes">Ja</string>
+    <string name="audio_route_no">Nei</string>
+    <string name="audio_route_available">Tilgjengelige: %1$s</string>
+    <string name="audio_route_predicted">Forventet musikkrute: %1$s</string>
+    <string name="audio_route_prediction_note">Android forventer denne ruten; det bekrefter ikke den endelige signalveien.</string>
+    <string name="audio_route_session">Lokal lydøkt: %1$d</string>
+    <string name="audio_route_sink">Media3-sinkkonfigurasjon: %1$s</string>
+    <string name="audio_route_float_requested">PCM float forespurt av spilleren: %1$s</string>
+    <string name="audio_route_offload_requested">Offload forespurt: %1$s</string>
+    <string name="audio_route_offload_configured">Sink konfigurert for offload: %1$s</string>
+    <string name="audio_route_offload_sleeping">Observert hvilemodus for offload: %1$s</string>
+    <string name="audio_route_bluetooth_unknown">Bluetooth-kodek: ikke tilgjengelig via et pålitelig offentlig API. PCM float identifiserer verken kodeken eller DAC-oppløsningen.</string>
+    <string name="audio_route_format_query_note">Formatstøtte for offload forespørres ved 44,1 kHz stereo. Dette er ikke en observasjon av sporet som spilles.</string>
+    <string name="audio_route_query_failed">Lydruten er utilgjengelig. Koble til på nytt eller åpne denne skjermen igjen for å oppdatere.</string>
+    <string name="audio_route_sink_capabilities">Sinkegenskaper: %1$s</string>
+    <string name="audio_route_sink_value">%1$d Hz · %2$s · %3$d kanaler</string>
+</resources>

@@ -82,6 +82,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.consumePositionChange
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.animation.core.animateFloatAsState
@@ -245,7 +246,6 @@ fun LyricsSheet(
     isImmersiveTemporarilyDisabled: Boolean,
     onSetImmersiveTemporarilyDisabled: (Boolean) -> Unit,
     onSaveLyricsToFile: (Song, Lyrics, Boolean) -> Unit,
-    onTranslateViaAi: () -> Unit,
     // BottomToggleRow Params
     isShuffleEnabled: Boolean,
     repeatMode: Int,
@@ -1023,7 +1023,6 @@ fun LyricsSheet(
                         wasResetTriggered = true
                         resetLyricsForCurrentSong()
                     },
-                    onTranslateViaAi = onTranslateViaAi,
                     onToggleSyncControls = {
                         resetImmersiveTimer()
                         showSyncControls = !showSyncControls
@@ -1994,40 +1993,20 @@ private fun LyricsTrackInfo(
 
     val albumShape = CircleShape
 
-    // Helper state to stop rotation when paused, but we want it to pause in place?
-    // Using infiniteTransition.animateFloat will reset on recomposition if spec changes or stops.
-    // For a realistic vinyl pause, we need a manual Animatable that loops.
-    // But for simplicity requested: "Animate the cover art to rotate... when music is playing".
-    // If we just use conditional Modifier.graphicsLayer rotation, it might jump.
-    // Let's use a simpler approach: if isPlaying, rotate.
-    
-    // Better approach for pausing rotation in place is non-trivial without a dedicated running time state.
-    // Given the constraints, I will use a simple AnimatedVisibility or just let it reset, OR
-    // use a monotonic clock if possible.
-    // Let's stick to infinite transition for running, and maybe 0f for static?
-    // Actually, user said "simulate a vinyl record". This implies continuous storage of rotation?
-    // I'll try to implement continuous rotation.
-    
+    val (visuallyActive, visibilityModifier) = com.theveloper.pixelplay.presentation.utils.visualAnimationActivity()
     val currentRotation = remember { Animatable(0f) }
-    
-    LaunchedEffect(isPlaying) {
-        if (isPlaying) {
-            // Spin forever. 8s per revolution halves the effective per-second animation work
-            // vs the original 4s cadence — visually still clearly a rotating "vinyl", but
-            // drives fewer Compose invalidations during long listening sessions.
-            while (true) {
-                currentRotation.animateTo(
-                    targetValue = currentRotation.value + 360f,
-                    animationSpec = tween(8000, easing = LinearEasing)
-                )
+    LaunchedEffect(isPlaying, visuallyActive) {
+        if (isPlaying && visuallyActive) {
+            while (kotlinx.coroutines.currentCoroutineContext().isActive && android.animation.ValueAnimator.areAnimatorsEnabled()) {
+                val angle = currentRotation.value % 360f
+                currentRotation.snapTo(angle)
+                currentRotation.animateTo(angle + 360f, animationSpec = tween(8000, easing = LinearEasing))
             }
-        } else {
-             currentRotation.stop()
-        }
+        } else currentRotation.stop()
     }
 
     Row(
-        modifier = modifier,
+        modifier = modifier.then(visibilityModifier),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {

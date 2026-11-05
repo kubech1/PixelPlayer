@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.CoroutineScope
@@ -632,8 +634,10 @@ class PlaybackStateHolder @Inject constructor(
             // no lock-screen progress UI mounted), this collectLatest sits
             // idle and the CPU stays asleep. As soon as a subscriber appears
             // (player sheet opened, widget bound, etc.) the inner loop resumes.
-            _currentPosition.subscriptionCount.collectLatest { subscriberCount ->
-                if (subscriberCount == 0) return@collectLatest
+            combine(_currentPosition.subscriptionCount, com.theveloper.pixelplay.presentation.utils.AppVisibility.visible) { count, visible ->
+                count > 0 && visible
+            }.distinctUntilChanged().collectLatest { shouldPoll ->
+                if (!shouldPoll) return@collectLatest
                 coroutineScope {
                     while (isActive) {
                         val tickMs = currentProgressTickMs()

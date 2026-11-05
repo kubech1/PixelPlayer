@@ -24,7 +24,6 @@
         <item>플레이어 전면 재설계.</item>
         <item>라이브러리 성능 개선.</item>
         <item>애플리케이션 시작 속도 향상.</item>
-        <item>AI가 이제 더 나은 결과를 제공합니다.</item>
     </string-array>
     <string-array name="changelog_020_fixes">
         <item>태그 편집기의 다양한 버그를 수정했습니다.</item>
@@ -42,7 +41,6 @@
         <item>더 부드러운 화면 이동을 위해 앱 전반의 애니메이션과 전환 효과를 부드럽게 조정했습니다.</item>
         <item>더 풍부한 디테일과 세련미로 아티스트 화면 레이아웃을 개선했습니다.</item>
         <item>더 스마트하고 다양하게 선정되도록 DailyMix 및 YourMix 생성을 업그레이드했습니다.</item>
-        <item>AI 플레이리스트 생성 기능을 강화했습니다.</item>
         <item>더 빠른 발견을 위해 검색 관련성 및 표시 방식을 개선했습니다.</item>
         <item>더 광범위한 오디오 파일 형식 지원을 확장했습니다.</item>
     </string-array>
@@ -70,7 +68,6 @@
         <item>Material 3 Expressive UI 업데이트</item>
         <item>10밴드 이퀄라이저 및 효과</item>
         <item>새로운 라이브러리 동기화 흐름</item>
-        <item>AI 통합 (Gemini 모델)</item>
         <item>M3U 플레이리스트 가져오기/내보내기</item>
         <item>Deezer 아티스트 아트워크 통합</item>
         <item>사용자 지정 플레이리스트 커버</item>
@@ -108,7 +105,6 @@
     </string-array>
     <string-array name="changelog_070_whats_new">
         <item>Wear OS: 워치에서의 음악 전송, 로컬 재생, 대기열 동기화 및 원격 제어.</item>
-        <item>AI: 토큰 최적화가 포함된 Groq AI 및 OpenRouter(실험적 기능) 연동.</item>
         <item>클라우드: Jellyfin 지원 추가.</item>
         <item>가사: 전용 토글을 통한 동기화 번역, Kugou LRC 형식 지원, 텍스트 정렬 맞춤 설정 및 개선된 원격 로딩.</item>
         <item>UI/UX: 컴팩트 내비게이션 바 모드, 앨범 아트 팔레트의 동적 테마, 긴 제목을 위한 흐르는 텍스트(Marquee) 효과 및 새로운 정렬 옵션.</item>

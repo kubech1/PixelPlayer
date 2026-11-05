@@ -26,7 +26,6 @@
         <item>Refonte complète du lecteur.</item>
         <item>Amélioration des performances de la bibliothèque.</item>
         <item>Amélioration de la vitesse de démarrage de l’application.</item>
-        <item>L’IA fournit désormais de meilleurs résultats.</item>
     </string-array>
 
     <string-array name="changelog_020_fixes">
@@ -47,7 +46,6 @@
         <item>Animations et transitions plus fluides dans toute l’application.</item>
         <item>Amélioration de la page artiste avec plus de détails et de finition.</item>
         <item>Amélioration des playlists DailyMix et YourMix avec des sélections plus variées.</item>
-        <item>Amélioration du moteur de génération de playlists IA.</item>
         <item>Recherche améliorée pour une découverte plus rapide.</item>
         <item>Support élargi pour davantage de formats audio.</item>
     </string-array>
@@ -78,7 +76,6 @@
         <item>Mise à jour de l’interface Material 3 Expressive</item>
         <item>Égaliseur 10 bandes &amp; effets</item>
         <item>Nouveau flux de synchronisation de la bibliothèque</item>
-        <item>Intégration IA (modèles Gemini)</item>
         <item>Import/export de playlists M3U</item>
         <item>Intégration des images d’artistes Deezer</item>
         <item>Pochettes de playlists personnalisées</item>
@@ -121,7 +118,6 @@
 
     <string-array name="changelog_070_whats_new">
         <item>Wear OS : transfert de musique, lecture locale, synchronisation de file et contrôle à distance.</item>
-        <item>IA : intégration Groq AI et OpenRouter (expérimental).</item>
         <item>Cloud : ajout du support Jellyfin.</item>
         <item>Paroles : traduction synchronisée, support Kugou LRC, alignement et chargement amélioré.</item>
         <item>UI/UX : barre compacte, thèmes dynamiques, titre défilant, tri amélioré.</item>
@@ -149,7 +145,6 @@
     <string-array name="changelog_075_whats_new">
         <item>Intégration Google Drive avec gestion de lecture.</item>
         <item>Édition en lot des métadonnées.</item>
-        <item>Traduction IA des paroles avec options Wear OS.</item>
         <item>Outil de diagnostic de latence et sélection multiple dans la recherche.</item>
         <item>Support arabe et turc avec options réseau local HTTP.</item>
     </string-array>

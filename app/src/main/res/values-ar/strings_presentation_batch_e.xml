@@ -54,92 +54,70 @@
     <string name="presentation_batch_e_create_playlist_subtitle">اختر طريقة الإنشاء.</string>
     <string name="presentation_batch_e_creation_mode_manual">يدوياً</string>
     <string name="presentation_batch_e_creation_mode_manual_subtitle">صمم الغلاف، الأيقونة، الشكل، واشحن الأغاني بنفسك.</string>
-    <string name="presentation_batch_e_creation_mode_ai">بالذكاء الاصطناعي</string>
-    <string name="presentation_batch_e_creation_mode_ai_subtitle_enabled">أنشئ قائمة تشغيل منسقة ومخصصة عبر خيارات متقدمة.</string>
-    <string name="presentation_batch_e_creation_mode_ai_subtitle_disabled">تتطلب هذه الميزة تهيئة مفتاح Gemini API في الإعدادات.</string>
-    <string name="presentation_batch_e_setup_api_key">إعداد مفتاح API</string>
+    
+    
+    
+    
 
-    <!-- AI playlist lab -->
-    <string name="presentation_batch_e_ai_playlist_lab_title">معمل قوائم التشغيل بالذكاء الاصطناعي</string>
-    <string name="presentation_batch_e_ai_reset">إعادة تعيين</string>
-    <string name="presentation_batch_e_ai_generating">جاري الإنشاء…</string>
-    <string name="presentation_batch_e_ai_generate">إنشاء</string>
-    <string name="presentation_batch_e_ai_section_intent">الهدف والأجواء</string>
-    <string name="presentation_batch_e_ai_playlist_name_optional">اسم قائمة التشغيل (اختياري)</string>
-    <string name="presentation_batch_e_ai_feel_label">ما هي الأجواء التي ترغب بها في قائمة التشغيل هذه؟</string>
-    <string name="presentation_batch_e_ai_feel_placeholder">مثال: قيادة وقت الغروب مع ألحان سينث دافئة</string>
-    <string name="presentation_batch_e_ai_section_direction">الاتجاه الفني</string>
-    <string name="presentation_batch_e_ai_mood_label">الحالة المزاجية</string>
-    <string name="presentation_batch_e_ai_activity_label">النشاط</string>
-    <string name="presentation_batch_e_ai_era_label">الحقبة الزمنية</string>
-    <string name="presentation_batch_e_ai_section_curation">محرك التنسيق</string>
-    <string name="presentation_batch_e_ai_energy_label">الحيوية والطاقة</string>
-    <string name="presentation_batch_e_ai_energy_description">تتحكم في حدة الأغاني وإيقاعها. 1 = هادئ/بطيء، 5 = حماسي جداً/سريع.</string>
-    <string name="presentation_batch_e_ai_discovery_label">عمق الاكتشاف</string>
-    <string name="presentation_batch_e_ai_discovery_description">تتحكم في مدى معرفتك بالاختيارات. 1 = المفضلة الأكثر تشغيلاً، 5 = أغانٍ نادرة ولم تسمعها كثيراً.</string>
-    <string name="presentation_batch_e_ai_min_songs">أقل عدد أغانٍ</string>
-    <string name="presentation_batch_e_ai_max_songs">أقصى عدد أغانٍ</string>
-    <string name="presentation_batch_e_ai_section_filters">الفلاتر</string>
-    <string name="presentation_batch_e_ai_prioritize_genres">أنواع موسيقية مفضلة (اختياري)</string>
-    <string name="presentation_batch_e_ai_prioritize_genres_placeholder">مثال: سينث ويف، إندي بوب</string>
-    <string name="presentation_batch_e_ai_avoid_genres">أنواع موسيقية تتجنبها (اختياري)</string>
-    <string name="presentation_batch_e_ai_avoid_genres_placeholder">مثال: ميتال، هارد تراب</string>
-    <string name="presentation_batch_e_ai_preferred_language">اللغة المفضلة (اختياري)</string>
-    <string name="presentation_batch_e_ai_preferred_language_placeholder">مثال: الإنجليزية، العربية، معزوفات موسيقية</string>
-    <string name="presentation_batch_e_ai_prioritize_favorites">إعطاء الأولوية للمفضلة</string>
-    <string name="presentation_batch_e_ai_avoid_explicit">تجنب الكلمات غير لائقة (Explicit)</string>
-    <string name="presentation_batch_e_ai_section_prompt_preview">معاينة الأمر (Prompt)</string>
-    <string name="presentation_batch_e_ai_prompt_preview_empty">سيظهر أمرك النهائي هنا بمجرد إضافة تفضيلاتك.</string>
-    <string name="presentation_batch_e_ai_hero_title">تنسيق بدقة متناهية</string>
-    <string name="presentation_batch_e_ai_hero_subtitle">حدد المزاج، النشاط، القيود، وعمق الاختيارات.</string>
-    <string name="presentation_batch_e_ai_hero_library_note">سيقوم الذكاء الاصطناعي باختيار الأغاني من مكتبتك المحلية فقط.</string>
-    <string name="presentation_batch_e_ai_error_add_instruction">يرجى إضافة توجيه واحد على الأقل للذكاء الاصطناعي.</string>
-    <string name="presentation_batch_e_ai_error_song_range">يرجى تعيين نطاق أغانٍ صالح.</string>
-    <string name="presentation_batch_e_ai_level_out_of_five">5/%1$d</string>
-    <string name="presentation_batch_e_ai_custom_chip">مخصص…</string>
-    <string name="presentation_batch_e_ai_enter_custom_title">إدخال قيمة مخصصة</string>
-    <string name="presentation_batch_e_ai_enter_custom_label">أدخل قيمتك المخصصة</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
-    <!-- AI prompt assembly (sent to model; localized for consistency with UI) -->
-    <string name="presentation_batch_e_ai_era_any">أي حقبة</string>
-    <string name="presentation_batch_e_ai_prompt_core_request">الطلب الأساسي: %1$s.</string>
-    <string name="presentation_batch_e_ai_prompt_mood">المزاج المستهدف: %1$s.</string>
-    <string name="presentation_batch_e_ai_prompt_activity">سياق النشاط: %1$s.</string>
-    <string name="presentation_batch_e_ai_prompt_era">التركيز على الحقبة: %1$s.</string>
-    <string name="presentation_batch_e_ai_prompt_prioritize_genres">إعطاء الأولوية للأنواع: %1$s.</string>
-    <string name="presentation_batch_e_ai_prompt_avoid_genres">تجنب الأنواع: %1$s.</string>
-    <string name="presentation_batch_e_ai_prompt_preferred_language">اللغة المفضلة: %1$s.</string>
-    <string name="presentation_batch_e_ai_prompt_energy">مستوى الطاقة المستهدف: 5/%1$d.</string>
-    <string name="presentation_batch_e_ai_prompt_discovery">هدف الاكتشاف: 5/%1$d حيث 1 تعني مألوف و5 تعني اختيارات عميقة ونادرة.</string>
-    <string name="presentation_batch_e_ai_prompt_prioritize_favorites">إعطاء الأولوية للأغاني القريبة من مفضلات المستمع كلما أمكن ذلك.</string>
-    <string name="presentation_batch_e_ai_prompt_avoid_explicit">تجنب الأغاني ذات الكلمات غير اللائقة كلما توفرت بدائل.</string>
-    <string name="presentation_batch_e_ai_prompt_smooth_transitions">الحفاظ على سلاسة الانتقالات وتجنب التكرار المتتالي لنفس الفنان.</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
-    <string-array name="presentation_batch_e_ai_mood_options">
-        <item>هادئ (Chill)</item>
-        <item>حماسي (Energetic)</item>
-        <item>سعيد (Happy)</item>
-        <item>داكن/غامض (Dark)</item>
-        <item>رومانسي (Romantic)</item>
-        <item>شجي/ميلانكولي (Melancholic)</item>
-    </string-array>
-    <string-array name="presentation_batch_e_ai_activity_options">
-        <item>تمارين رياضية (Workout)</item>
-        <item>تركيز (Focus)</item>
-        <item>رحلة على الطريق (Road trip)</item>
-        <item>حفلة (Party)</item>
-        <item>دراسة (Study)</item>
-        <item>وقت متأخر من الليل (Late night)</item>
-    </string-array>
-    <string-array name="presentation_batch_e_ai_era_options">
-        <item>@string/presentation_batch_e_ai_era_any</item>
-        <item>السبعينات</item>
-        <item>الثمانينات</item>
-        <item>التسعينات</item>
-        <item>الألفينات (2000s)</item>
-        <item>العقد 2010</item>
-        <item>العقد 2020</item>
-    </string-array>
+    
+    
+    
 
     <!-- ReorderPresetsSheet -->
     <string name="presentation_batch_e_reset_presets_title">إعادة تعيين الإعدادات المسبقة</string>
@@ -153,8 +131,8 @@
     <!-- DailyMixMenu -->
     <string name="presentation_batch_e_daily_mix_how_title">كيف يتم بناء المزيج اليومي الخاص بك</string>
     <string name="presentation_batch_e_daily_mix_how_body">يتم بناء المزيج اليومي الخاص بك (Daily Mix) بناءً على أغانيك المفضلة والأكثر تشغيلاً. نقوم أيضاً بإضافة مسارات من فنانين وأنواع موسيقية تحبها لتتمكن من اكتشاف موسيقى جديدة.</string>
-    <string name="presentation_batch_e_daily_mix_prompt_label">أخبر الذكاء الاصطناعي بما تود الاستماع إليه اليوم</string>
-    <string name="presentation_batch_e_daily_mix_cost_hint">نحن نستخدم عينة صغيرة للحفاظ على انخفاض استهلاك البيانات والتكلفة</string>
+    
+    
     <string name="presentation_batch_e_daily_mix_updating">جاري التحديث…</string>
     <string name="presentation_batch_e_daily_mix_update">تحديث المزيج اليومي</string>
 </resources>

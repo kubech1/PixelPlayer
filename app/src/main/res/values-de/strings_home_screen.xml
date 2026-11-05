@@ -117,31 +117,31 @@
         <item quantity="other">%1$d Songs • %2$s</item>
     </plurals>
     <string name="daily_mix_action_play_it">Abspielen</string>
-    <string name="daily_mix_cd_ai_playlist_generator">KI-Playlist-Generator</string>
+    
 
     <!-- DailyMixMenu -->
-    <string name="daily_mix_how_title">Wie dein Daily Mix erstellt wird</string>
-    <string name="daily_mix_how_body">Dein Daily Mix wird aus deinen Lieblingssongs und am häufigsten gespielten Titeln zusammengestellt. Wir fügen auch Titel von Künstlern und Genres hinzu, die dir gefallen, damit du neue Musik entdecken kannst.</string>
-    <string name="daily_mix_prompt_label">Teile der KI mit, was du heute hören möchtest</string>
-    <string name="daily_mix_cost_hint">Wir verwenden eine kleine Stichprobe, um die Kosten niedrig zu halten</string>
-    <string name="daily_mix_updating">Aktualisieren…</string>
-    <string name="daily_mix_update">Daily Mix aktualisieren</string>
+    
+    
+    
+    
+    
+    
 
     <!-- AIPlaylistSheet -->
-    <string name="ai_playlist_headline_perfect">Perfekt kuratiert</string>
-    <string name="ai_playlist_headline_daily_mix">Daily Mix</string>
-    <string name="ai_playlist_subtitle_journey_ready">Deine Klangreise ist bereit</string>
-    <string name="ai_playlist_subtitle_generator">KI-Playlist-Generator</string>
-    <string name="ai_playlist_description">Beschreibe die Stimmung, Atmosphäre oder Aktivität und lass die KI die perfekte Playlist aus deiner Bibliothek zusammenstellen.</string>
-    <string name="ai_playlist_section_size">Playlist-Größe</string>
-    <string name="ai_playlist_min_songs">Mindestanzahl Songs</string>
-    <string name="ai_playlist_max_songs">Maximale Anzahl Songs</string>
-    <string name="ai_playlist_prompt_placeholder">z. B. Entspannte Abendstimmung, motivierende Workout-Energie…</string>
-    <string name="ai_playlist_tap_to_retry">Tippen zum Wiederholen</string>
-    <string name="ai_playlist_status_default">Klangreise synthetisiert!</string>
-    <string name="ai_playlist_ready_to_play">Bereit zum Abspielen</string>
-    <string name="ai_playlist_generating">Wird generiert…</string>
-    <string name="ai_playlist_generate">Playlist generieren</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- RecentlyPlayedSection -->
     <string name="home_recently_played_title">Zuletzt gespielt</string>

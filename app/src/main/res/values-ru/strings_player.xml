@@ -153,12 +153,12 @@
 
     <!-- LyricsMoreBottomSheet -->
     <string name="lyrics_save_title">Сохранить текст песни</string>
-    <string name="lyrics_translate_via_ai">Перевести через ИИ</string>
-    <string name="lyrics_translate_already_translated">Для этого текста уже существует перевод</string>
-    <string name="lyrics_translate_already_in_target_language">Этот текст уже на выбранном языке</string>
-    <string name="lyrics_translate_api_not_configured">API не настроен</string>
-    <string name="lyrics_translate_success">Текст песни успешно переведён!</string>
-    <string name="lyrics_translate_progress">Перевод текста песни...</string>
+    
+    
+    
+    
+    
+    
     <string name="lyrics_reset_imported">Сбросить импортированный текст</string>
     <string name="lyrics_reset_dialog_title">Сбросить текст песни?</string>
     <string name="lyrics_reset_dialog_message">Вы уверены, что хотите сбросить текст песни для этого трека?</string>

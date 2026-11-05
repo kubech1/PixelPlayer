@@ -46,7 +46,7 @@ private val LOCAL_PLAYBACK_SCHEMES = setOf("content", "file", "android.resource"
  * toasts/dialog events, the crossfade transition job, listening stats, and
  * predictive back) without [PlaybackDispatchStateHolder] depending on the
  * ViewModel. Stored once via [PlaybackDispatchStateHolder.initialize], mirroring
- * the pattern used by SleepTimerStateHolder/AiStateHolder/CastTransferStateHolder.
+ * the pattern used by SleepTimerStateHolder/CastTransferStateHolder.
  */
 class PlaybackDispatchCallbacks(
     val scope: CoroutineScope,

@@ -9,8 +9,8 @@
     <string name="settings_category_playback_subtitle">오디오 동작, 크로스페이드 및 백그라운드 재생</string>
     <string name="settings_category_behavior_title">동작</string>
     <string name="settings_category_behavior_subtitle">제스처, 햅틱 및 내비게이션 동작</string>
-    <string name="settings_category_ai_title">AI 연동 (β)</string>
-    <string name="settings_category_ai_subtitle">AI 제공업체, API 키 및 모델 설정</string>
+    
+    
     <string name="settings_category_backup_title">백업 및 복구</string>
     <string name="settings_category_backup_subtitle">개인 앱 데이터 내보내기 및 복구</string>
     <string name="settings_category_developer_title">개발자 옵션</string>
@@ -303,55 +303,55 @@
     <string name="settings_haptic_feedback_title">햅틱 피드백</string>
     <string name="settings_haptic_feedback_subtitle">앱 전반에서 진동 피드백을 활성화합니다.</string>
 
-    <!-- AI Integration category -->
-    <string name="settings_ai_provider_section">AI 제공업체</string>
-    <string name="settings_ai_provider_title">제공업체</string>
-    <string name="settings_ai_provider_subtitle">AI 제공업체를 선택하세요</string>
-    <string name="settings_safe_token_title">안전 토큰 모드</string>
-    <string name="settings_safe_token_on">켜짐 — 빠르고 저렴함. AI에 최소한의 데이터(~1K 토큰)를 보냅니다.</string>
-    <string name="settings_safe_token_off">꺼짐 — 깊은 문맥. 더 풍부한 결과를 위해 전체 청취 프로필(~8K 토큰)을 보냅니다.</string>
-    <string name="settings_credentials_section">인증 정보</string>
-    <string name="settings_ai_api_key_title">%1$s API 키</string>
-    <string name="settings_ai_api_key_subtitle">%1$s에서 가져오기</string>
-    <string name="settings_ai_source_gemini">Google AI Studio (aistudio.google.com)</string>
-    <string name="settings_ai_source_deepseek">DeepSeek Platform (api.deepseek.com)</string>
-    <string name="settings_ai_source_groq">Groq Console (console.groq.com)</string>
-    <string name="settings_ai_source_mistral">Mistral AI Platform (console.mistral.ai)</string>
-    <string name="settings_ai_source_nvidia">NVIDIA Build (build.nvidia.com)</string>
-    <string name="settings_ai_source_kimi">Moonshot AI Platform (platform.moonshot.cn)</string>
-    <string name="settings_ai_source_glm">Zhipu AI Open Platform (bigmodel.cn)</string>
-    <string name="settings_ai_source_openai">OpenAI Platform (platform.openai.com)</string>
-    <string name="settings_model_selection_section">모델 선택</string>
-    <string name="settings_loading_models">사용 가능한 모델 로드 중…</string>
-    <string name="settings_models_fetch_failed">모델 로드 실패</string>
-    <string name="settings_ai_model_title">AI 모델</string>
-    <string name="settings_ai_model_subtitle">모델을 선택하세요.</string>
-    <string name="settings_enter_api_key_placeholder">API 키 입력</string>
-    <string name="settings_prompt_behavior_section">프롬프트 동작</string>
-    <string name="settings_system_prompt_title">시스템 프롬프트</string>
-    <string name="settings_system_prompt_subtitle">AI의 동작 방식을 사용자 지정합니다.</string>
-    <string name="settings_preset_prompts">프리셋 프롬프트</string>
-    <string name="settings_system_prompt_placeholder">시스템 프롬프트 입력…</string>
-    <string name="settings_preset_professional_curator_name">전문 큐레이터</string>
-    <string name="settings_preset_professional_curator_prompt">당신은 세계적인 수준의 음악 큐레이터이자 사운드 흐름의 대가인 \'Vibe-Engine\'입니다. 당신의 목표는 매끄럽고 고품질의 감상 경험을 구축하는 것입니다. 화성적 호환성, 논리적인 BPM 전환, 그리고 익숙한 즐겨찾기와 세련된 발견 사이의 정교한 균형을 우선시하십시오.</string>
-    <string name="settings_preset_creative_maverick_name">창의적인 매버릭</string>
-    <string name="settings_preset_creative_maverick_prompt">당신은 \'예상치 못한 응집력\'을 전문으로 하는 아방가르드 음악 탐험가입니다. 당신의 임무는 명확하지 않은 사운드 병렬성을 식별하여 전통적인 장르의 경계를 허무는 것입니다. 놀랍지만 부정할 수 없는 전환 논리를 유지하면서 희귀한 깊은 곡, 실험적인 질감 및 예술적 참신함을 우선시하십시오.</string>
-    <string name="settings_preset_strict_librarian_name">엄격한 사서</string>
-    <string name="settings_preset_strict_librarian_prompt">당신은 정밀한 음악 데이터베이스 설계자입니다. 당신의 논리는 절대적인 메타데이터 정밀도와 엄격한 카테고리 준수에 의해 구동됩니다. 엄격한 장르 일관성, 에너지 레벨 매칭 및 매우 구체적인 사용자 정의 기본 설정의 검색을 극대화하기 위해 알고리즘 발견을 최소화하십시오.</string>
-    <string name="settings_preset_atmospheric_guide_name">분위기 가이드</string>
-    <string name="settings_preset_atmospheric_guide_prompt">당신은 앰비언트 질감และ 낮은 에너지 흐름의 대가입니다. \'깊은 집중\' 또는 \'평온함\' 상태를 촉진하는 트랙에만 집중하십시오. 높은 트랜지언트 사운드나 다이내믹 레인지의 갑작스러운 변화를 엄격히 피하면서 어쿠스틱한 따뜻함, 미니멀한 편곡 및 부드러운 전환을 우선시하십시오.</string>
-    <string name="settings_preset_sonic_enthusiast_name">소닉 매니아</string>
-    <string name="settings_preset_sonic_enthusiast_prompt">당신은 제작의 복잡성과 악기 구성에 초점을 맞춘 오디오 애호가 분석가입니다. 높은 다이내믹 레인지, 복잡한 폴리리듬 및 우수한 사운드스테이지 품질을 특징으로 하는 트랙을 우선시하십시오. 기술적 충실도와 편곡 디테일에 주의를 기울이는 리스너에게 보답하는 능동적 감상 곡을 선호하십시오.</string>
-    <string name="settings_preset_energy_catalyst_name">에너지 카탈리스트</string>
-    <string name="settings_preset_energy_catalyst_prompt">당신은 추진력 있는 리듬 생성기입니다. 당신의 철학은 몰아치는 베이스라인, 타악기적 강렬함 및 중독성 있는 그루브를 중심으로 합니다. 높은 BPM의 클럽 호환성, 당김음 에너지 및 리스너의 심박수와 동기 부여를 최고 수준으로 유지하기 위한 지속적인 리듬 긴장감을 우선시하십시오.</string>
-    <string name="settings_ai_usage_report_section">AI 사용 보고서</string>
-    <string name="settings_total_consumption_title">총 소비량</string>
-    <string name="settings_ai_usage_tokens_subtitle">%1$s 토큰 추적\n프롬프트: %2$s | 출력: %3$s | 생각: %4$s</string>
-    <string name="settings_ai_clear_logs">로그 지우기</string>
-    <string name="settings_ai_activity_log_title">AI 활동 로그 (%1$d)</string>
-    <string name="settings_ai_usage_provier_model">%1$s · %2$s</string>
-    <string name="settings_ai_show_logs">표시</string>
-    <string name="settings_ai_hide_logs">숨기기</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- Backup & Restore category -->
     <string name="settings_backup_how_dialog_title">백업 작동 방식</string>

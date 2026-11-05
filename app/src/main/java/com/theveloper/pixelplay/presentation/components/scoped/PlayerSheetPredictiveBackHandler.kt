@@ -31,7 +31,7 @@ internal fun PlayerSheetPredictiveBackHandler(
 ) {
     val scope = rememberCoroutineScope()
     key(registrationKey) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        run {
             PredictiveBackHandler(enabled = enabled) { progressFlow ->
                 try {
                     progressFlow.collect { backEvent ->
@@ -69,10 +69,6 @@ internal fun PlayerSheetPredictiveBackHandler(
                         onSwipeEdgeChanged(null)
                     }
                 }
-            }
-        } else {
-            BackHandler(enabled = enabled) {
-                playerViewModel.collapsePlayerSheet()
             }
         }
     }

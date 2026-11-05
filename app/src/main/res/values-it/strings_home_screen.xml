@@ -117,31 +117,31 @@
         <item quantity="other">%1$d brani • %2$s</item>
     </plurals>
     <string name="daily_mix_action_play_it">Riproduci</string>
-    <string name="daily_mix_cd_ai_playlist_generator">Generatore di playlist AI</string>
+    
 
     <!-- DailyMixMenu -->
-    <string name="daily_mix_how_title">Come viene creato il tuo Daily Mix</string>
-    <string name="daily_mix_how_body">Il tuo Daily Mix è creato dai tuoi brani preferiti e più ascoltati. Aggiungiamo anche tracce di artisti e generi che ti piacciono per farti scoprire nuova musica.</string>
-    <string name="daily_mix_prompt_label">Dì all\'AI cosa vuoi ascoltare oggi</string>
-    <string name="daily_mix_cost_hint">Usiamo un piccolo campione per contenere i costi</string>
-    <string name="daily_mix_updating">Aggiornamento…</string>
-    <string name="daily_mix_update">Aggiorna Daily Mix</string>
+    
+    
+    
+    
+    
+    
 
     <!-- AIPlaylistSheet -->
-    <string name="ai_playlist_headline_perfect">Perfettamente curata</string>
-    <string name="ai_playlist_headline_daily_mix">Daily Mix</string>
-    <string name="ai_playlist_subtitle_journey_ready">Il tuo viaggio sonoro è pronto</string>
-    <string name="ai_playlist_subtitle_generator">Generatore playlist AI</string>
-    <string name="ai_playlist_description">Descrivi l\'atmosfera, l\'umore o l\'attività e lascia che l\'AI curi la playlist perfetta dalla tua libreria.</string>
-    <string name="ai_playlist_section_size">Dimensione playlist</string>
-    <string name="ai_playlist_min_songs">Brani min</string>
-    <string name="ai_playlist_max_songs">Brani max</string>
-    <string name="ai_playlist_prompt_placeholder">es. Vibe serata rilassante, energia allenamento vivace…</string>
-    <string name="ai_playlist_tap_to_retry">Tocca per riprovare</string>
-    <string name="ai_playlist_status_default">Viaggio sonoro sintetizzato!</string>
-    <string name="ai_playlist_ready_to_play">Pronta per la riproduzione</string>
-    <string name="ai_playlist_generating">Generazione in corso…</string>
-    <string name="ai_playlist_generate">Genera playlist</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- RecentlyPlayedSection -->
     <string name="home_recently_played_title">Riprodotte di recente</string>

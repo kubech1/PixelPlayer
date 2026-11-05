@@ -13,18 +13,25 @@ import timber.log.Timber
  *  2. Attempt to instantiate an [AudioTrack] with ENCODING_PCM_FLOAT. Some devices pass
  *     stage 1 but throw or produce STATE_UNINITIALIZED at creation time (driver bug).
  *
- * Result is cached after the first call; device capabilities don't change at runtime.
+ * The 44.1 kHz stereo AudioTrack acceptance probe is cached until the audio route changes.
+ * This does not certify the DAC, Bluetooth codec, bit depth, or end-to-end output path.
  */
 object HiFiCapabilityChecker {
 
     @Volatile private var cachedResult: Boolean? = null
 
+    private var generation = 0L
+
+    @Synchronized fun invalidate() { generation++; cachedResult = null }
+
     fun isSupported(): Boolean {
-        cachedResult?.let { return it }
-        return runCheck().also {
-            cachedResult = it
-            Timber.tag("HiFiCapability").i("PCM_FLOAT AudioTrack supported: $it")
+        val startedGeneration = synchronized(this) {
+            cachedResult?.let { return it }
+            generation
         }
+        val result = runCatching { runCheck() }.getOrDefault(false)
+        synchronized(this) { if (startedGeneration == generation) cachedResult = result }
+        return result
     }
 
     private fun runCheck(): Boolean {
@@ -39,7 +46,7 @@ object HiFiCapabilityChecker {
             return false
         }
 
-        // Stage 2: actual AudioTrack creation (definitive hardware check)
+        // Stage 2: AudioTrack creation (acceptance check for this PCM configuration)
         return try {
             val track = AudioTrack.Builder()
                 .setAudioFormat(

@@ -153,12 +153,12 @@
 
     <!-- LyricsMoreBottomSheet -->
     <string name="lyrics_save_title">Simpan Lirik</string>
-    <string name="lyrics_translate_via_ai">Terjemahkan via AI</string>
-    <string name="lyrics_translate_already_translated">Lirik ini sudah memiliki terjemahan</string>
-    <string name="lyrics_translate_already_in_target_language">Lirik ini sudah dalam bahasa tersebut</string>
-    <string name="lyrics_translate_api_not_configured">API belum dikonfigurasi</string>
-    <string name="lyrics_translate_success">Lirik berhasil diterjemahkan!</string>
-    <string name="lyrics_translate_progress">Menerjemahkan lirik...</string>
+    
+    
+    
+    
+    
+    
     <string name="lyrics_reset_imported">Reset lirik yang diimpor</string>
     <string name="lyrics_reset_dialog_title">Reset lirik?</string>
     <string name="lyrics_reset_dialog_message">Apakah Anda yakin ingin mengatur ulang lirik untuk lagu ini?</string>

@@ -66,7 +66,8 @@ import com.theveloper.pixelplay.data.diagnostics.AdvancedPerformanceDiagnostics
 
 data class ActiveDecoderInfo(
     val name: String,
-    val isHardware: Boolean
+    val isHardware: Boolean?,
+    val inferredHardware: Boolean? = null
 )
 
 internal fun shouldResumeAfterTransientAudioFocusLoss(
@@ -221,7 +222,8 @@ class DualPlayerEngine @Inject constructor(
     private val jellyfinStreamProxy: com.theveloper.pixelplay.data.jellyfin.JellyfinStreamProxy,
     private val gdriveStreamProxy: com.theveloper.pixelplay.data.gdrive.GDriveStreamProxy,
     private val telegramCacheManager: com.theveloper.pixelplay.data.telegram.TelegramCacheManager,
-    private val connectivityStateHolder: com.theveloper.pixelplay.presentation.viewmodel.ConnectivityStateHolder
+    private val connectivityStateHolder: com.theveloper.pixelplay.presentation.viewmodel.ConnectivityStateHolder,
+    private val audioOutputs: com.theveloper.pixelplay.data.audio.AudioOutputRepository
 ) {
     private companion object {
         private const val AUDIO_OFFLOAD_STALL_FALLBACK_MS = 4_000L
@@ -419,6 +421,7 @@ class DualPlayerEngine @Inject constructor(
         @Suppress("UnsafeOptInUsageError")
         override fun onSleepingForOffloadChanged(sleepingForOffload: Boolean) {
             if (!::playerA.isInitialized) return
+            audioOutputs.selectSession(playerA.audioSessionId, sleepingForOffload)
             // Only override the wake mode for local media. Remote schemes need
             // C.WAKE_MODE_NETWORK to keep the wifi lock; we never want to drop
             // that to NONE.
@@ -450,8 +453,12 @@ class DualPlayerEngine @Inject constructor(
             initializedTimestampMs: Long,
             initializationDurationMs: Long
         ) {
-            val isHardware = AudioDecoderPolicy.isLikelyHardwareDecoder(decoderName)
-            _activeDecoderInfo.value = ActiveDecoderInfo(decoderName, isHardware)
+            val inferredHardware = AudioDecoderPolicy.isLikelyHardwareDecoder(decoderName)
+            val isHardware = runCatching {
+                android.media.MediaCodecList(android.media.MediaCodecList.ALL_CODECS).codecInfos
+                    .firstOrNull { it.name == decoderName }?.isHardwareAccelerated
+            }.getOrNull()
+            _activeDecoderInfo.value = ActiveDecoderInfo(decoderName, isHardware, inferredHardware)
             PerformanceMetrics.recordTiming(
                 PerformanceMetrics.Timings.AUDIO_DECODER_INIT,
                 initializationDurationMs
@@ -462,11 +469,12 @@ class DualPlayerEngine @Inject constructor(
             ) {
                 mapOf(
                     "decoderName" to decoderName,
-                    "isHardware" to isHardware.toString(),
+                    "hardwareReported" to isHardware.toString(),
+                    "hardwareInferredFromName" to inferredHardware.toString(),
                     "initializationDurationMs" to initializationDurationMs.toString()
                 )
             }
-            Timber.tag("DualPlayerEngine").d("Audio decoder initialized: %s (Hardware: %b)", decoderName, isHardware)
+            Timber.tag("DualPlayerEngine").d("Audio decoder initialized: %s (platform hardware flag: %s)", decoderName, isHardware)
         }
 
         override fun onAudioInputFormatChanged(
@@ -497,7 +505,7 @@ class DualPlayerEngine @Inject constructor(
 
         override fun onAudioSessionIdChanged(audioSessionId: Int) {
             if (audioSessionId != 0 && _activeAudioSessionId.value != audioSessionId) {
-                _activeAudioSessionId.value = audioSessionId
+                publishAudioSession(audioSessionId)
                 AdvancedPerformanceDiagnostics.recordEventIfEnabled(
                     type = AdvancedPerformanceDiagnostics.EventTypes.PLAYBACK,
                     name = "audio_session_changed"
@@ -756,6 +764,12 @@ class DualPlayerEngine @Inject constructor(
         }
     }
 
+    private fun publishAudioSession(session: Int) {
+        _activeAudioSessionId.value = session
+        audioOutputs.refresh()
+        audioOutputs.selectSession(session)
+    }
+
     fun getAudioSessionId(): Int = if (::playerA.isInitialized) playerA.audioSessionId else 0
 
     private var isReleased = false
@@ -786,7 +800,7 @@ class DualPlayerEngine @Inject constructor(
 
         addMasterPlayerListeners(playerA)
 
-        _activeAudioSessionId.value = playerA.audioSessionId
+        publishAudioSession(playerA.audioSessionId)
         isReleased = false
         queueSnapshot = emptyList()
         activeWindowStartIndex = 0
@@ -812,7 +826,8 @@ class DualPlayerEngine @Inject constructor(
             .setAcceptsDelayedFocusGain(true)
             .build()
 
-        val result = audioManager.requestAudioFocus(request)
+        val result = runCatching { audioManager.requestAudioFocus(request) }
+            .getOrDefault(AudioManager.AUDIOFOCUS_REQUEST_FAILED)
         when (result) {
             AudioManager.AUDIOFOCUS_REQUEST_GRANTED -> {
                 audioFocusRequest = request
@@ -825,9 +840,20 @@ class DualPlayerEngine @Inject constructor(
             }
             else -> {
                 Timber.tag("TransitionDebug").w("AudioFocus Request Failed: $result")
-                playerA.playWhenReady = false
+                pauseAfterPlaybackRejection()
             }
         }
+    }
+
+    fun pauseAfterPlaybackRejection() {
+        isFocusLossPause = false
+        cancelAudioOffloadFallback()
+        // Only undo crossfade attenuation when a transition was actually running.
+        // Resetting an ordinary track to 1f would overwrite the user's/RG volume.
+        cancelNext(resetMasterVolume = transitionRunning)
+        if (::playerA.isInitialized) playerA.pause()
+        playerB?.pause()
+        abandonAudioFocus()
     }
 
     private fun abandonAudioFocus() {
@@ -974,7 +1000,7 @@ class DualPlayerEngine @Inject constructor(
             applyWakeModeForCurrentItem()
         }
 
-        _activeAudioSessionId.value = playerA.audioSessionId
+        publishAudioSession(playerA.audioSessionId)
         onPlayerSwappedListeners.forEach { it(playerA) }
 
         AdvancedPerformanceDiagnostics.recordEventIfEnabled(
@@ -1029,6 +1055,7 @@ class DualPlayerEngine @Inject constructor(
     }
 
     private fun buildPlayer(): ExoPlayer {
+        audioOutputs.requested(float = hiFiModeEnabled, offload = audioOffloadEnabled)
         val mediaCodecSelector = MediaCodecSelector { mimeType, requiresSecureDecoder, requiresTunnelingDecoder ->
             val decoderInfos = MediaCodecSelector.DEFAULT.getDecoderInfos(
                 mimeType,
@@ -1044,7 +1071,7 @@ class DualPlayerEngine @Inject constructor(
                 enableFloatOutput: Boolean,
                 enableAudioOutputPlaybackParams: Boolean
             ): AudioSink {
-                return DefaultAudioSink.Builder(context)
+                return com.theveloper.pixelplay.data.audio.ObservedAudioSink(DefaultAudioSink.Builder(context)
                     .setEnableFloatOutput(hiFiModeEnabled)
                     .setEnableAudioOutputPlaybackParameters(enableAudioOutputPlaybackParams)
                     .setAudioProcessorChain(
@@ -1053,7 +1080,7 @@ class DualPlayerEngine @Inject constructor(
                             SurroundDownmixProcessor()
                         )
                     )
-                    .build()
+                    .build(), audioOutputs)
             }
 
             override fun buildVideoRenderers(
@@ -1334,7 +1361,9 @@ class DualPlayerEngine @Inject constructor(
         }
     }
 
-    fun cancelNext() {
+    fun cancelNext() = cancelNext(resetMasterVolume = true)
+
+    private fun cancelNext(resetMasterVolume: Boolean) {
         val shouldPublishMasterPlayer = transitionRunning
         transitionJob?.cancel()
         transitionRunning = false
@@ -1346,7 +1375,7 @@ class DualPlayerEngine @Inject constructor(
             } catch (e: Exception) { /* Ignore */ }
         }
         if (::playerA.isInitialized) {
-            playerA.volume = 1f
+            if (resetMasterVolume) playerA.volume = 1f
             if (shouldPublishMasterPlayer) {
                 onPlayerSwappedListeners.forEach { it(playerA) }
             }
@@ -1451,7 +1480,7 @@ class DualPlayerEngine @Inject constructor(
         if (playerA.playWhenReady) requestAudioFocus()
 
         onPlayerSwappedListeners.forEach { it(playerA) }
-        _activeAudioSessionId.value = playerA.audioSessionId
+        publishAudioSession(playerA.audioSessionId)
 
         playerB?.pause()
         playerB?.stop()

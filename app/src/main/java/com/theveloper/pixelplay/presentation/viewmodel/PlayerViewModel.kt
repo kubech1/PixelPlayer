@@ -53,7 +53,6 @@ import com.theveloper.pixelplay.data.preferences.CarouselStyle
 import com.theveloper.pixelplay.data.preferences.LibraryNavigationMode
 import com.theveloper.pixelplay.data.preferences.NavBarStyle
 import com.theveloper.pixelplay.data.preferences.FullPlayerLoadingTweaks
-import com.theveloper.pixelplay.data.preferences.AiPreferencesRepository
 import com.theveloper.pixelplay.data.preferences.AlbumArtPaletteStyle
 import com.theveloper.pixelplay.data.preferences.ThemePreferencesRepository
 import com.theveloper.pixelplay.data.preferences.UserPreferencesRepository
@@ -162,13 +161,6 @@ private fun moveQueueIndex(index: Int, fromIndex: Int, toIndex: Int): Int {
     }
 }
 
-private data class AiUiSnapshot(
-    val showAiPlaylistSheet: Boolean,
-    val isGeneratingAiPlaylist: Boolean,
-    val aiStatus: String?,
-    val aiError: String?,
-)
-
 private data class SortOptionsSnapshot(
     val songSort: SortOption,
     val albumSort: SortOption,
@@ -185,7 +177,6 @@ class PlayerViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val musicRepository: MusicRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val aiPreferencesRepository: AiPreferencesRepository,
     private val themePreferencesRepository: ThemePreferencesRepository,
     val syncManager: SyncManager, // Inyectar SyncManager
 
@@ -203,7 +194,6 @@ class PlayerViewModel @Inject constructor(
     private val connectivityStateHolder: ConnectivityStateHolder,
     private val sleepTimerStateHolder: SleepTimerStateHolder,
     private val searchStateHolder: SearchStateHolder,
-    private val aiStateHolder: AiStateHolder,
     private val libraryStateHolder: LibraryStateHolder,
     private val folderNavigationStateHolder: FolderNavigationStateHolder,
     private val libraryTabsStateHolder: LibraryTabsStateHolder,
@@ -437,12 +427,6 @@ class PlayerViewModel @Inject constructor(
         _isMiniPlayerDismissing.value = dismissing
     }
 
-    // AI Ecosystem: States delegated to AiStateHolder for centralized management
-    val showAiPlaylistSheet: StateFlow<Boolean> = aiStateHolder.showAiPlaylistSheet
-    val isGeneratingAiPlaylist: StateFlow<Boolean> = aiStateHolder.isGeneratingAiPlaylist
-    val aiSuccess: StateFlow<Boolean> = aiStateHolder.aiSuccess
-    val aiStatus: StateFlow<String?> = aiStateHolder.aiStatus
-    val aiError: StateFlow<String?> = aiStateHolder.aiError
 
     private val _selectedSongForInfo = MutableStateFlow<Song?>(null)
     val selectedSongForInfo: StateFlow<Song?> = _selectedSongForInfo.asStateFlow()
@@ -489,61 +473,6 @@ class PlayerViewModel @Inject constructor(
             initialValue = CarouselStyle.NO_PEEK
         )
 
-    val hasActiveAiProviderApiKey: StateFlow<Boolean> = combine(
-        aiPreferencesRepository.aiProvider,
-        aiPreferencesRepository.geminiApiKey,
-        aiPreferencesRepository.deepseekApiKey,
-        aiPreferencesRepository.groqApiKey,
-        aiPreferencesRepository.mistralApiKey,
-        aiPreferencesRepository.nvidiaApiKey,
-        aiPreferencesRepository.kimiApiKey,
-        aiPreferencesRepository.glmApiKey,
-        aiPreferencesRepository.openaiApiKey,
-        aiPreferencesRepository.ollamaApiKey,
-        aiPreferencesRepository.customApiKey,
-        aiPreferencesRepository.openrouterApiKey
-    ) { values ->
-        val provider = values[0]
-        val gemini = values[1]
-        val deepseek = values[2]
-        val groq = values[3]
-        val mistral = values[4]
-        val nvidia = values[5]
-        val kimi = values[6]
-        val glm = values[7]
-        val openai = values[8]
-        val ollama = values[9]
-        val custom = values[10]
-        val openrouter = values[11]
-        when (provider) {
-            "GEMINI" -> gemini.isNotBlank()
-            "DEEPSEEK" -> deepseek.isNotBlank()
-            "GROQ" -> groq.isNotBlank()
-            "MISTRAL" -> mistral.isNotBlank()
-            "NVIDIA" -> nvidia.isNotBlank()
-            "KIMI" -> kimi.isNotBlank()
-            "GLM" -> glm.isNotBlank()
-            "OPENAI" -> openai.isNotBlank()
-            "OPENROUTER" -> openrouter.isNotBlank()
-            "OLLAMA" -> ollama.isNotBlank()
-            "CUSTOM" -> custom.isNotBlank()
-            else -> false
-        }
-    }.distinctUntilChanged()
-        .stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = false
-    )
-
-    val hasGeminiApiKey: StateFlow<Boolean> = aiPreferencesRepository.geminiApiKey
-        .map { it.isNotBlank() }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = false
-        )
-
     val fullPlayerLoadingTweaks: StateFlow<FullPlayerLoadingTweaks> = userPreferencesRepository.fullPlayerLoadingTweaksFlow
         .stateIn(
             scope = viewModelScope,
@@ -568,6 +497,9 @@ class PlayerViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = false
         )
+
+    val hapticIntensity = userPreferencesRepository.hapticIntensityFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), com.theveloper.pixelplay.presentation.utils.HapticIntensity.MEDIUM)
 
     val hapticsEnabled: StateFlow<Boolean> = userPreferencesRepository.hapticsEnabledFlow
         .stateIn(
@@ -1773,42 +1705,6 @@ class PlayerViewModel @Inject constructor(
             }
         }
 
-        // Initialize AiStateHolder
-        aiStateHolder.initialize(
-            scope = viewModelScope,
-            allSongsProvider = { musicRepository.getAllSongsOnce() },
-            favoriteSongIdsProvider = { favoriteSongIds.value },
-            toastEmitter = { msg -> viewModelScope.launch { _toastEvents.emit(msg) } },
-            playSongsCallback = { songs, startSong, queueName -> playSongs(songs, startSong, queueName) },
-            openPlayerSheetCallback = { _isSheetVisible.value = true }
-        )
-
-        // Collect AiStateHolder flows for playlist generation state
-        viewModelScope.launch {
-            combine(
-                aiStateHolder.showAiPlaylistSheet,
-                aiStateHolder.isGeneratingAiPlaylist,
-                aiStateHolder.aiStatus,
-                aiStateHolder.aiError,
-            ) { show, generating, status, error ->
-                AiUiSnapshot(
-                    showAiPlaylistSheet = show,
-                    isGeneratingAiPlaylist = generating,
-                    aiStatus = status,
-                    aiError = error
-                )
-            }.collect { snapshot ->
-                _playerUiState.update {
-                    it.copy(
-                        showAiPlaylistSheet = snapshot.showAiPlaylistSheet,
-                        isGeneratingAiPlaylist = snapshot.isGeneratingAiPlaylist,
-                        aiStatus = snapshot.aiStatus,
-                        aiError = snapshot.aiError
-                    )
-                }
-            }
-        }
-
         // Initialize LibraryStateHolder
         libraryStateHolder.initialize(viewModelScope)
 
@@ -2578,45 +2474,13 @@ class PlayerViewModel @Inject constructor(
         searchStateHolder.clearSearchHistory()
     }
 
-    // --- AI Playlist Generation ---
 
-    // --- AI Playlist Generation ---
 
-    fun showAiPlaylistSheet() {
-        aiStateHolder.showAiPlaylistSheet()
-    }
 
-    fun dismissAiPlaylistSheet() {
-        aiStateHolder.dismissAiPlaylistSheet()
-    }
 
-    fun clearAiPlaylistError() {
-        aiStateHolder.clearAiPlaylistError()
-    }
 
-    fun generateAiPlaylist(
-        prompt: String,
-        minLength: Int,
-        maxLength: Int,
-        saveAsPlaylist: Boolean = false,
-        playlistName: String? = null
-    ) {
-        aiStateHolder.generateAiPlaylist(
-            prompt = prompt,
-            minLength = minLength,
-            maxLength = maxLength,
-            saveAsPlaylist = saveAsPlaylist,
-            playlistName = playlistName
-        )
-    }
 
-    fun regenerateDailyMixWithPrompt(prompt: String) {
-        aiStateHolder.regenerateDailyMixWithPrompt(prompt)
-    }
 
-    fun retryLastPlaylistGeneration() {
-        aiStateHolder.retryLastPlaylistGeneration()
-    }
 
     fun clearQueueExceptCurrent() {
         mediaController?.let { controller ->
@@ -2671,7 +2535,6 @@ class PlayerViewModel @Inject constructor(
         castTransferStateHolder.onCleared()
         castStateHolder.onCleared()
         searchStateHolder.onCleared()
-        aiStateHolder.onCleared()
         libraryStateHolder.onCleared()
         sleepTimerStateHolder.onCleared()
         connectivityStateHolder.onCleared()
@@ -2960,18 +2823,6 @@ class PlayerViewModel @Inject constructor(
         lyricsStateHolder.importLyricsFromFile(songId, validatedImport, currentSong)
     }
 
-    fun translateLyricsViaAi() {
-        val currentSong = stablePlayerState.value.currentSong ?: return
-        lyricsStateHolder.translateLyricsViaAi(
-            currentSong = currentSong,
-            lyricsObj = stablePlayerState.value.lyrics,
-            cb = LyricsTranslationCallbacks(
-                translate = { rawLyrics -> aiStateHolder.translateLyrics(rawLyrics) },
-                getString = { resId -> context.getString(resId) },
-                getErrorString = { detail -> context.getString(R.string.ai_state_error_generic, detail) }
-            )
-        )
-    }
 
     /**
      * Resetea el estado de la búsqueda de letras a Idle.

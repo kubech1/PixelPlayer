@@ -9,8 +9,8 @@
     <string name="settings_category_playback_subtitle">音频行为、淡入淡出和后台播放</string>
     <string name="settings_category_behavior_title">行为</string>
     <string name="settings_category_behavior_subtitle">手势、触感反馈和导航行为</string>
-    <string name="settings_category_ai_title">AI 集成 (β)</string>
-    <string name="settings_category_ai_subtitle">AI 提供商、API 密钥和模型设置</string>
+    
+    
     <string name="settings_category_backup_title">备份与恢复</string>
     <string name="settings_category_backup_subtitle">导出和恢复您的个人应用数据</string>
     <string name="settings_category_developer_title">开发者选项</string>
@@ -303,55 +303,55 @@
     <string name="settings_haptic_feedback_title">触感反馈</string>
     <string name="settings_haptic_feedback_subtitle">在整个应用中启用震动反馈。</string>
 
-    <!-- AI Integration category -->
-    <string name="settings_ai_provider_section">AI 提供商</string>
-    <string name="settings_ai_provider_title">提供商</string>
-    <string name="settings_ai_provider_subtitle">选择您的 AI 提供商</string>
-    <string name="settings_safe_token_title">安全 Token 模式</string>
-    <string name="settings_safe_token_on">开启 — 快速且低成本。向 AI 发送最少的数据（约 1K token）。</string>
-    <string name="settings_safe_token_off">关闭 — 深度上下文。发送完整的听歌偏好资料（约 8K token）以获得更丰富的结果。</string>
-    <string name="settings_credentials_section">凭据</string>
-    <string name="settings_ai_api_key_title">%1$s API 密钥</string>
-    <string name="settings_ai_api_key_subtitle">从 %1$s 获取</string>
-    <string name="settings_ai_source_gemini">Google AI Studio (aistudio.google.com)</string>
-    <string name="settings_ai_source_deepseek">DeepSeek 平台 (api.deepseek.com)</string>
-    <string name="settings_ai_source_groq">Groq 控制台 (console.groq.com)</string>
-    <string name="settings_ai_source_mistral">Mistral AI 平台 (console.mistral.ai)</string>
-    <string name="settings_ai_source_nvidia">NVIDIA Build (build.nvidia.com)</string>
-    <string name="settings_ai_source_kimi">月之暗面 (Moonshot) AI 平台 (platform.moonshot.cn)</string>
-    <string name="settings_ai_source_glm">智谱 AI 开放平台 (bigmodel.cn)</string>
-    <string name="settings_ai_source_openai">OpenAI 平台 (platform.openai.com)</string>
-    <string name="settings_model_selection_section">模型选择</string>
-    <string name="settings_loading_models">正在加载可用模型…</string>
-    <string name="settings_models_fetch_failed">加载模型失败</string>
-    <string name="settings_ai_model_title">AI 模型</string>
-    <string name="settings_ai_model_subtitle">选择一个模型。</string>
-    <string name="settings_enter_api_key_placeholder">输入 API 密钥</string>
-    <string name="settings_prompt_behavior_section">提示词行为</string>
-    <string name="settings_system_prompt_title">系统提示词 (System Prompt)</string>
-    <string name="settings_system_prompt_subtitle">自定义 AI 的行为方式。</string>
-    <string name="settings_preset_prompts">预设提示词</string>
-    <string name="settings_system_prompt_placeholder">输入系统提示词…</string>
-    <string name="settings_preset_professional_curator_name">专业策展人 (Professional Curator)</string>
-    <string name="settings_preset_professional_curator_prompt">你是“Vibe-Engine”，一位世界级的音乐策展人和声音心流大师。你的目标是构建无缝、高保真的听觉体验。请优先考虑和声兼容性、符合逻辑的 BPM 过渡，并在熟悉的挚爱与富有品味、逻辑驱动的发现之间取得精妙平衡。</string>
-    <string name="settings_preset_creative_maverick_name">创意先锋 (Creative Maverick)</string>
-    <string name="settings_preset_creative_maverick_prompt">你是一位前卫的音乐探索者，专注于“意想不到的凝聚力”。你的任务是通过识别非显而易见的声音共性来打破传统的流派界限。在保持令人惊讶但不可否认的过渡逻辑的同时，优先考虑罕见的深度曲目、实验性纹理和艺术新意。</string>
-    <string name="settings_preset_strict_librarian_name">严谨图书管理员 (Strict Librarian)</string>
-    <string name="settings_preset_strict_librarian_prompt">你是一位精准的音乐数据库架构师。你的逻辑由绝对的元数据精确性和严格的分类界限所驱动。尽量减少算法发现，优先保持严格的流派一致性、能量水平匹配，并最大程度地检索出用户定义的高度具体的偏好。</string>
-    <string name="settings_preset_atmospheric_guide_name">氛围向导 (Atmospheric Guide)</string>
-    <string name="settings_preset_atmospheric_guide_prompt">你是环境纹理和低能量心流的大师。专心挑选能够促进“深度专注”或“宁静”状态的曲目。优先选择原声的温暖感、极简主义的编曲和柔和的过渡，同时严格避免瞬态强烈的声音或动态范围的突然转变。</string>
-    <string name="settings_preset_sonic_enthusiast_name">声音狂热者 (Sonic Enthusiast)</string>
-    <string name="settings_preset_sonic_enthusiast_prompt">你是一位专注于制作复杂性和配器的发烧友分析师。优先选择具有高动态范围、复杂多重节奏和卓越声场质量的曲目。偏好那些奖励听众关注技术保真度和编曲细节的主动聆听作品。</string>
-    <string name="settings_preset_energy_catalyst_name">能量催化剂 (Energy Catalyst)</string>
-    <string name="settings_preset_energy_catalyst_prompt">你是一个高动量的节奏生成器。你的哲学以驱动感强的低音线、强烈的打击乐和极具感染力的律动为中心。优先考虑高 BPM 的夜店兼容性、切分音能量和持续的节奏张力，以使听众的心率和动力保持在最高水平。</string>
-    <string name="settings_ai_usage_report_section">AI 使用报告</string>
-    <string name="settings_total_consumption_title">总消耗量</string>
-    <string name="settings_ai_usage_tokens_subtitle">%1$s token 追踪\n提示：%2$s | 输出：%3$s | 思考：%4$s</string>
-    <string name="settings_ai_clear_logs">清除日志</string>
-    <string name="settings_ai_activity_log_title">AI 活动日志 (%1$d)</string>
-    <string name="settings_ai_usage_provier_model">%1$s · %2$s</string>
-    <string name="settings_ai_show_logs">显示</string>
-    <string name="settings_ai_hide_logs">隐藏</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- Backup & Restore category -->
     <string name="settings_backup_how_dialog_title">备份的工作原理</string>

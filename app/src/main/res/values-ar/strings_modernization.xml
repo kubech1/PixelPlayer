@@ -1,0 +1,28 @@
+<resources>
+    <string name="settings_haptic_intensity">شدة الاستجابة اللمسية</string>
+    <string name="settings_haptic_low">منخفضة</string>
+    <string name="settings_haptic_medium">متوسطة</string>
+    <string name="settings_haptic_high">عالية</string>
+    <string name="settings_haptic_preview">تجربة الاهتزاز</string>
+    <string name="widget_previous">المقطع السابق</string>
+    <string name="widget_next">المقطع التالي</string>
+    <string name="widget_play_pause">تشغيل أو إيقاف مؤقت</string>
+    <string name="audio_route_title">مخرج الصوت والجلسة</string>
+    <string name="audio_route_unknown">غير معروف</string>
+    <string name="audio_route_yes">نعم</string>
+    <string name="audio_route_no">لا</string>
+    <string name="audio_route_available">الأجهزة المتاحة: %1$s</string>
+    <string name="audio_route_predicted">المسار المتوقع للموسيقى: %1$s</string>
+    <string name="audio_route_prediction_note">يتوقع Android هذا المسار، لكنه لا يؤكد المسار النهائي للإشارة.</string>
+    <string name="audio_route_session">جلسة الصوت المحلية: %1$d</string>
+    <string name="audio_route_sink">إعدادات sink في Media3: %1$s</string>
+    <string name="audio_route_float_requested">PCM float الذي طلبه المشغل: %1$s</string>
+    <string name="audio_route_offload_requested">تم طلب offload: %1$s</string>
+    <string name="audio_route_offload_configured">تم إعداد sink لاستخدام offload: %1$s</string>
+    <string name="audio_route_offload_sleeping">حالة السكون المرصودة لاستخدام offload: %1$s</string>
+    <string name="audio_route_bluetooth_unknown">ترميز Bluetooth غير متاح عبر واجهة API عامة موثوقة. لا يحدد PCM float الترميز أو دقة DAC.</string>
+    <string name="audio_route_format_query_note">يتم الاستعلام عن دعم offload للتنسيقات عند 44.1 كيلوهرتز بصوت ستيريو. هذه ليست ملاحظة للمقطع الجاري تشغيله.</string>
+    <string name="audio_route_query_failed">تعذر الاستعلام عن مسار الصوت. أعد الاتصال أو افتح هذه الشاشة مجددًا للتحديث.</string>
+    <string name="audio_route_sink_capabilities">قدرات sink: %1$s</string>
+    <string name="audio_route_sink_value">%1$d هرتز · %2$s · %3$d قنوات</string>
+</resources>

@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import com.theveloper.pixelplay.presentation.utils.interactiveRefreshRate
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
@@ -642,7 +643,7 @@ fun UnifiedPlayerSheetV2(
         color = Color.Transparent
     ) {
         Box(
-            modifier = Modifier
+            modifier = Modifier.interactiveRefreshRate(directTouch = true)
                 .fillMaxSize()
                 .padding(bottom = currentBottomPadding)
         ) {
@@ -797,7 +798,7 @@ fun UnifiedPlayerSheetV2(
                 )
             }
 
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            run {
                 PredictiveBackHandler(enabled = isQueueVisible && !internalIsKeyboardVisible) { progressFlow ->
                     try {
                         progressFlow.collect { backEvent ->
@@ -825,10 +826,6 @@ fun UnifiedPlayerSheetV2(
                             queuePredictiveBackSwipeEdge = null
                         }
                     }
-                }
-            } else {
-                BackHandler(enabled = isQueueVisible && !internalIsKeyboardVisible) {
-                    sheetActionHandlers.animateQueueSheet(false)
                 }
             }
 

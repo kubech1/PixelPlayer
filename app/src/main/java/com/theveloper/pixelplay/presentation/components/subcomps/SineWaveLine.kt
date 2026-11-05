@@ -43,10 +43,11 @@ fun SineWaveLine(
     samples: Int = 400,
     cap: StrokeCap = StrokeCap.Round
 ) {
+    val (visuallyActive, visibilityModifier) = com.theveloper.pixelplay.presentation.utils.visualAnimationActivity()
     val density = LocalDensity.current
 
     // Only allocate an infinite transition when animation is enabled.
-    val currentPhase = if (animate == true) {
+    val currentPhase = if (animate == true && visuallyActive) {
         val infiniteTransition = rememberInfiniteTransition(label = "SineWaveAnimation")
         val animatedPhase by infiniteTransition.animateFloat(
             initialValue = 0f,
@@ -62,7 +63,7 @@ fun SineWaveLine(
         phase
     }
 
-    Canvas(modifier = modifier) {
+    Canvas(modifier = modifier.then(visibilityModifier)) {
         val w = size.width
         val h = size.height
         val centerY = h / 2f

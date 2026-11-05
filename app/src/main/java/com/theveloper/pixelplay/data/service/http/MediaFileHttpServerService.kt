@@ -293,7 +293,7 @@ class MediaFileHttpServerService : Service() {
             val channelId = "pixelplay_cast_server"
             val channelName = getString(R.string.cast_server_channel_name)
             
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            run {
                 val channel = android.app.NotificationChannel(
                     channelId,
                     channelName,
@@ -310,14 +310,12 @@ class MediaFileHttpServerService : Service() {
                 .setPriority(androidx.core.app.NotificationCompat.PRIORITY_LOW)
                 .build()
 
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            run {
                 startForeground(
                     1002, 
                     notification, 
                     android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
                 )
-            } else {
-                startForeground(1002, notification)
             }
         }.onFailure { throwable ->
             lastFailureReason = FailureReason.FOREGROUND_START_EXCEPTION

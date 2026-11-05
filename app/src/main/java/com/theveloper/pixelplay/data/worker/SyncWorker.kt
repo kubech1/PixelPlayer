@@ -672,7 +672,7 @@ constructor(
      */
     private suspend fun fetchGenreMap(forceRefresh: Boolean = false): Map<Long, String> = coroutineScope {
         // Optimization: Skip genre map on Android 11+ because we can query GENRE directly.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        run {
             return@coroutineScope emptyMap()
         }
 
@@ -840,7 +840,7 @@ constructor(
         )
 
         // API 30+ supports GENRE in the main audio table
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        run {
             projectionList.add(MediaStore.Audio.Media.GENRE)
         }
 
@@ -890,9 +890,7 @@ constructor(
                     val yearCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR)
                     val dateModifiedCol =
                             cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED)
-                    val genreCol = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        cursor.getColumnIndex(MediaStore.Audio.Media.GENRE)
-                    } else -1
+                    val genreCol = cursor.getColumnIndex(MediaStore.Audio.Media.GENRE)
 
                     while (cursor.moveToNext()) {
                         try {

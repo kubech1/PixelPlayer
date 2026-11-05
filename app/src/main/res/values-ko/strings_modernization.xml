@@ -1,0 +1,28 @@
+<resources>
+    <string name="settings_haptic_intensity">햅틱 강도</string>
+    <string name="settings_haptic_low">낮음</string>
+    <string name="settings_haptic_medium">중간</string>
+    <string name="settings_haptic_high">높음</string>
+    <string name="settings_haptic_preview">진동 미리보기</string>
+    <string name="widget_previous">이전 곡</string>
+    <string name="widget_next">다음 곡</string>
+    <string name="widget_play_pause">재생 또는 일시 정지</string>
+    <string name="audio_route_title">오디오 출력 및 세션</string>
+    <string name="audio_route_unknown">알 수 없음</string>
+    <string name="audio_route_yes">예</string>
+    <string name="audio_route_no">아니요</string>
+    <string name="audio_route_available">사용 가능: %1$s</string>
+    <string name="audio_route_predicted">예상 음악 경로: %1$s</string>
+    <string name="audio_route_prediction_note">Android가 예측한 경로이며 신호의 최종 경로를 보증하지 않습니다.</string>
+    <string name="audio_route_session">로컬 오디오 세션: %1$d</string>
+    <string name="audio_route_sink">Media3 sink 구성: %1$s</string>
+    <string name="audio_route_float_requested">플레이어가 요청한 PCM float: %1$s</string>
+    <string name="audio_route_offload_requested">Offload 요청: %1$s</string>
+    <string name="audio_route_offload_configured">Offload용 sink 구성: %1$s</string>
+    <string name="audio_route_offload_sleeping">관측된 offload 절전 상태: %1$s</string>
+    <string name="audio_route_bluetooth_unknown">Bluetooth 코덱은 신뢰할 수 있는 공개 API로 확인할 수 없습니다. PCM float는 코덱이나 DAC 해상도를 나타내지 않습니다.</string>
+    <string name="audio_route_format_query_note">형식별 offload 지원 여부는 44.1kHz 스테레오 기준으로 조회합니다. 재생 중인 곡을 관측한 결과가 아닙니다.</string>
+    <string name="audio_route_query_failed">오디오 경로를 조회할 수 없습니다. 다시 연결하거나 이 화면을 다시 열어 새로고침하세요.</string>
+    <string name="audio_route_sink_capabilities">Sink 기능: %1$s</string>
+    <string name="audio_route_sink_value">%1$d Hz · %2$s · %3$d채널</string>
+</resources>

@@ -177,12 +177,12 @@
     <string name="device_capabilities_output_digital">مخرج رقمي</string>
     <string name="device_capabilities_output_other">مخرج آخر</string>
 
-    <!-- AI and Parsing -->
-    <string name="presentation_batch_g_ai_token_input">الإدخال (Input)</string>
-    <string name="presentation_batch_g_ai_token_output">الإخراج (Output)</string>
-    <string name="presentation_batch_g_ai_token_thought">التفكير (Thought)</string>
-    <string name="presentation_batch_g_ai_token_count">%1$s: %2$s</string>
-    <string name="presentation_batch_g_ai_usage_date_pattern">MMM dd، HH:mm</string>
+    
+    
+    
+    
+    
+    
     <string name="presentation_batch_g_artist_section_multi_parsing">تحليل الفنانين المتعددين</string>
     <string name="presentation_batch_g_artist_item_char_delimiters">محددات الرموز</string>
     <string name="presentation_batch_g_artist_item_char_delimiters_current">الحالي: %1$s</string>
@@ -528,7 +528,6 @@
         <item>تحديث واجهة المستخدم التعبيرية Material 3 Expressive</item>
         <item>معادل صوتي ذو 10 نطاقات وتأثيرات صوتية</item>
         <item>تدفق مزامنة جديد للمكتبة الموسيقية</item>
-        <item>التكامل مع الذكاء الاصطناعي (نماذج Gemini)</item>
         <item>استيراد وتصدير قوائم التشغيل بصيغة M3U</item>
         <item>تكامل أغلفة الفنانين من منصة Deezer</item>
         <item>أغلفة مخصصة لقوائم التشغيل</item>
@@ -571,7 +570,6 @@
         <item>تنعيم الرسوم المتحركة والانتقالات عبر التطبيق لتنقل أكثر انسيابية.</item>
         <item>تحسين تخطيط شاشة الفنان مع تفاصيل أكثر ثراءً ولمسات جمالية.</item>
         <item>ترقية توليد DailyMix و YourMix باختيارات أكثر ذكاءً وتنوعاً.</item>
-        <item>تعزيز توليد قوائم التشغيل بواسطة الذكاء الاصطناعي.</item>
         <item>تحسين صلة نتائج البحث وعرضها لاكتشاف أسرع.</item>
         <item>توسيع الدعم لنطاق أوسع من تنسيقات الملفات الصوتية.</item>
     </string-array>
@@ -597,7 +595,6 @@
         <item>إعادة تصميم كاملة للمشغل.</item>
         <item>تحسينات الأداء في المكتبة الموسيقية.</item>
         <item>تحسين سرعة تشغيل التطبيق عند البدء.</item>
-        <item>الذكاء الاصطناعي يقدم الآن نتائج أفضل.</item>
     </string-array>
     <string-array name="presentation_batch_g_changelog_020_fixed">
         <item>إصلاح أخطاء مختلفة في محرر العلامات (Tags).</item>
@@ -606,7 +603,6 @@
     </string-array>
     <string-array name="presentation_batch_g_changelog_070_whats_new">
         <item>Wear OS: نقل الموسيقى، التشغيل المحلي، مزامنة قائمة الانتظار، والتحكم عن بعد من الساعة.</item>
-        <item>الذكاء الاصطناعي: تكامل Groq AI و OpenRouter (تجريبي) مع تحسين استهلاك الرموز (Tokens).</item>
         <item>السحاب: إضافة دعم Jellyfin.</item>
         <item>كلمات الأغاني: ترجمة متزامنة مع مفتاح تبديل مخصص، دعم تنسيق Kugou LRC، تخصيص محاذاة النص، وتحسين التحميل عن بعد.</item>
         <item>واجهة المستخدم/تجربة المستخدم: وضع شريط التنقل المدمج، سمات ديناميكية من لوحة ألوان غلاف الألبوم، نص متحرك (Marquee) للعناوين الطويلة، وخيارات فرز جديدة.</item>

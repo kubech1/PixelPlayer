@@ -153,12 +153,12 @@
 
     <!-- LyricsMoreBottomSheet -->
     <string name="lyrics_save_title">Salva testi</string>
-    <string name="lyrics_translate_via_ai">Traduci con IA</string>
-    <string name="lyrics_translate_already_translated">Questi testi hanno già una traduzione</string>
-    <string name="lyrics_translate_already_in_target_language">Questi testi sono già in questa lingua</string>
-    <string name="lyrics_translate_api_not_configured">API non configurata</string>
-    <string name="lyrics_translate_success">Testi tradotti con successo!</string>
-    <string name="lyrics_translate_progress">Traduzione testi in corso...</string>
+    
+    
+    
+    
+    
+    
     <string name="lyrics_reset_imported">Reimposta testi importati</string>
     <string name="lyrics_reset_dialog_title">Reimpostare testo?</string>
     <string name="lyrics_reset_dialog_message">Sei sicuro di voler reimpostare il testo per questo brano?</string>

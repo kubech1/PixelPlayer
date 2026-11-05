@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * Process-wide flag describing whether a music playback session is currently active.
  *
  * Owned by [MusicService]: set to true in `onIsPlayingChanged(true)`, cleared on
- * stop/destroy. Read by background workers (AI, sync) to defer non-urgent work
+ * stop/destroy. Read by background sync workers to defer non-urgent work
  * while the user is listening, prioritising thermal stability and battery over
  * background completion latency.
  *

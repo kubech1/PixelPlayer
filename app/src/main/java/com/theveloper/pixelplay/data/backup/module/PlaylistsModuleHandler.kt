@@ -126,7 +126,7 @@ class PlaylistsModuleHandler @Inject constructor(
     override suspend fun export(): String = withContext(Dispatchers.IO) {
         val allPlaylists = playlistPreferencesRepository.getPlaylistsOnce()
 
-        // Only export local/AI playlists — cloud playlists (Telegram, Netease, QQMusic)
+        // Only export local playlists — cloud playlists (Telegram, Netease, QQMusic)
         // are tied to service auth and would be empty on restore
         val playlists = allPlaylists.filter { it.source in LOCAL_SOURCES }
 
@@ -486,7 +486,7 @@ class PlaylistsModuleHandler @Inject constructor(
         private const val DURATION_TOLERANCE_MS = 2000L
 
         /** Playlist sources that are backed up. Cloud-sourced playlists are excluded. */
-        private val LOCAL_SOURCES = setOf("LOCAL", "AI")
+        private val LOCAL_SOURCES = setOf("LOCAL")
 
         const val LEGACY_USER_PLAYLISTS_KEY = "user_playlists_json_v1"
         const val LEGACY_PLAYLIST_ORDER_MODES_KEY = "playlist_song_order_modes"

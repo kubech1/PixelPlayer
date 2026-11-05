@@ -63,6 +63,8 @@ fun WavyLinearProgressIndicator(
     waveFrequency: Float = 0.08f
 ) {
     val context = LocalContext.current
+    val bitmapBudget = com.theveloper.pixelplay.ui.glancewidget.LocalWidgetBitmapBudget.current.progressBytes
+    if (bitmapBudget < 4) return
     val progressPercent = (progress * 100f).toInt().coerceIn(0, 100)
     // El componente en Glance es simplemente una Imagen. El Bitmap se genera bajo demanda.
     Image(
@@ -80,7 +82,8 @@ fun WavyLinearProgressIndicator(
                 thumbRadius = thumbRadius,
                 waveAmplitude = waveAmplitude,
                 waveFrequency = waveFrequency,
-                bitmapHeight = (height.value * context.resources.displayMetrics.density).toInt()
+                bitmapHeight = (height.value * context.resources.displayMetrics.density).toInt(),
+                maxBytes = bitmapBudget
             )
         ),
         contentDescription = context.getString(R.string.widget_wavy_progress_bar_desc, progressPercent),
@@ -106,9 +109,11 @@ private fun createWavyProgressBitmap(
     waveAmplitude: Dp,
     waveFrequency: Float,
     bitmapWidth: Int = 1000, // Ancho fijo para la resolución del bitmap
-    bitmapHeight: Int
+    bitmapHeight: Int,
+    maxBytes: Int
 ): Bitmap {
-    val bmp = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888)
+    val (safeWidth, safeHeight) = checkNotNull(com.theveloper.pixelplay.ui.glancewidget.fitWidgetImage(bitmapWidth, bitmapHeight, maxBytes))
+    val bmp = Bitmap.createBitmap(safeWidth, safeHeight, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bmp)
 
     // Usar la densidad real del dispositivo para convertir Dp a Px.

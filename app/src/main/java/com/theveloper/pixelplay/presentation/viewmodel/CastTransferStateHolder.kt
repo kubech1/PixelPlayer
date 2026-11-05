@@ -1215,10 +1215,8 @@ class CastTransferStateHolder @Inject constructor(
             castDeviceIpHint?.let { putExtra(MediaFileHttpServerService.EXTRA_CAST_DEVICE_IP, it) }
         }
         runCatching {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            run {
                 context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
             }
         }.onFailure { throwable ->
             Timber.tag(CAST_LOG_TAG).e(throwable, "Failed to pre-start media server service")
@@ -1258,10 +1256,8 @@ class CastTransferStateHolder @Inject constructor(
             castDeviceIpHint?.let { putExtra(MediaFileHttpServerService.EXTRA_CAST_DEVICE_IP, it) }
         }
         try {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            run {
                 context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
             }
         } catch (e: Exception) {
             Timber.tag(CAST_LOG_TAG).e(e, "Failed to start media server service")

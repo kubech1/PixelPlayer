@@ -208,7 +208,6 @@ private enum class PlaylistCreationMode {
 fun CreatePlaylistDialog(
     visible: Boolean,
     onDismiss: () -> Unit,
-    onGenerateClick: () -> Unit,
     onCreate: (String, String?, Int?, String?, List<String>, Float, Float, Float, String?, Float?, Float?, Float?, Float?, String?) -> Unit
 ) {
     val transitionState = remember { MutableTransitionState(false) }
@@ -230,7 +229,6 @@ fun CreatePlaylistDialog(
             ) {
                 CreatePlaylistContent(
                     onDismiss = onDismiss,
-                    onGenerateClick = onGenerateClick,
                     onCreate = onCreate
                 )
             }
@@ -294,7 +292,6 @@ fun EditPlaylistDialog(
 @Composable
 private fun CreatePlaylistContent(
     onDismiss: () -> Unit,
-    onGenerateClick: () -> Unit,
     onCreate: (String, String?, Int?, String?, List<String>, Float, Float, Float, String?, Float?, Float?, Float?, Float?, String?) -> Unit,
     playerViewModel: PlayerViewModel = hiltViewModel()
 ) {
@@ -704,7 +701,6 @@ private fun CreatePlaylistContent(
                      onCreationModeChange = { creationMode = it },
                      selectedSmartRule = selectedSmartRule,
                      onSmartRuleChange = { selectedSmartRule = it },
-                     onGenerateClick = onGenerateClick,
                      onImageUriChange = { selectedImageUri = it }
                  )
             } else {
@@ -986,7 +982,6 @@ private fun PlaylistFormContent(
     onCreationModeChange: (PlaylistCreationMode) -> Unit,
     selectedSmartRule: SmartPlaylistRule,
     onSmartRuleChange: (SmartPlaylistRule) -> Unit,
-    onGenerateClick: (() -> Unit)? = null,
     onImageUriChange: (Uri?) -> Unit
 ) {
     if (showCropUi) {

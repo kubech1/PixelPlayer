@@ -33,7 +33,6 @@ import android.graphics.ImageDecoder
 import android.os.Build
 import android.provider.MediaStore
 import com.theveloper.pixelplay.data.preferences.TelegramTopicDisplayMode
-import com.theveloper.pixelplay.data.ai.AiPlaylistGenerator
 import com.theveloper.pixelplay.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
@@ -58,9 +57,6 @@ data class PlaylistUiState(
     val playlistSongsOrderMode: PlaylistSongsOrderMode = PlaylistSongsOrderMode.Sorted(SortOption.SongTitleAZ),
     val playlistOrderModes: Map<String, PlaylistSongsOrderMode> = emptyMap(),
 
-    // AI Generation State
-    val isAiGenerating: Boolean = false,
-    val aiGenerationError: String? = null
 )
 
 sealed class PlaylistSongsOrderMode {
@@ -73,7 +69,6 @@ class PlaylistViewModel @Inject constructor(
     private val playlistPreferencesRepository: PlaylistPreferencesRepository,
     private val musicRepository: MusicRepository,
     private val dailyMixManager: DailyMixManager,
-    private val aiPlaylistGenerator: AiPlaylistGenerator,
     private val m3uManager: M3uManager,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
@@ -295,7 +290,6 @@ class PlaylistViewModel @Inject constructor(
         cropScale: Float = 1f,
         cropPanX: Float = 0f,
         cropPanY: Float = 0f,
-        isAiGenerated: Boolean = false,
         isQueueGenerated: Boolean = false,
         coverShapeType: String? = null,
         coverShapeDetail1: Float? = null,
@@ -337,7 +331,6 @@ class PlaylistViewModel @Inject constructor(
             playlistPreferencesRepository.createPlaylist(
                 name = name,
                 songIds = resolvedSongIds,
-                isAiGenerated = isAiGenerated,
                 isQueueGenerated = isQueueGenerated,
                 coverImageUri = savedCoverPath,
                 coverColorArgb = coverColor,
@@ -436,7 +429,7 @@ class PlaylistViewModel @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 // Robust bitmap loading (Content URI or Local File)
-                val originalBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val originalBitmap = run {
                     val source = when {
                         uri.scheme == "content" -> ImageDecoder.createSource(context.contentResolver, uri)
                         uri.scheme == "file" || uri.path?.startsWith("/") == true -> {
@@ -446,13 +439,6 @@ class PlaylistViewModel @Inject constructor(
                     }
                     ImageDecoder.decodeBitmap(source) { decoder, _, _ ->
                         decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
-                    }
-                } else {
-                    @Suppress("DEPRECATION")
-                    if (uri.scheme == "content") {
-                        MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-                    } else {
-                        android.graphics.BitmapFactory.decodeFile(uri.path)
                     }
                 }
 
@@ -927,54 +913,7 @@ class PlaylistViewModel @Inject constructor(
         }
     }
 
-    fun generateAiPlaylist(prompt: String, minLength: Int = 10, maxLength: Int = 50) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isAiGenerating = true, aiGenerationError = null) }
 
-            try {
-                val allSongs = withContext(Dispatchers.IO) {
-                    musicRepository.getAllSongsOnce()
-                }
-
-                // Call AiPlaylistGenerator
-                val result = aiPlaylistGenerator.generate(
-                    userPrompt = prompt,
-                    allSongs = allSongs,
-                    minLength = minLength,
-                    maxLength = maxLength
-                )
-
-                result.onSuccess { selectedSongs ->
-                    // Create Playlist
-                    val playlistName = "AI: $prompt".take(50)
-
-                    playlistPreferencesRepository.createPlaylist(
-                        name = playlistName,
-                        songIds = selectedSongs.map { it.id },
-                        isAiGenerated = true,
-                        source = "AI" // Mark as AI source
-                    )
-
-                    _uiState.update { it.copy(isAiGenerating = false) }
-                    _playlistCreationEvent.emit(true)
-                }.onFailure { e ->
-                    val errorMessage = if (e.message?.contains("API Key") == true) {
-                        context.getString(R.string.playlist_view_model_ai_gemini_key_required)
-                    } else {
-                        e.message ?: context.getString(R.string.common_error_unknown)
-                    }
-                    _uiState.update { it.copy(isAiGenerating = false, aiGenerationError = errorMessage) }
-                }
-
-            } catch (e: Exception) {
-                _uiState.update { it.copy(isAiGenerating = false, aiGenerationError = e.message) }
-            }
-        }
-    }
-
-    fun clearAiError() {
-        _uiState.update { it.copy(aiGenerationError = null) }
-    }
 
     /**
      * Delete multiple playlists in batch
@@ -1154,14 +1093,12 @@ class PlaylistViewModel @Inject constructor(
                     songIds = allSongs.toList(),
                     createdAt = System.currentTimeMillis(),
                     lastModified = System.currentTimeMillis(),
-                    isAiGenerated = false,
                     isQueueGenerated = false
                 )
 
                 playlistPreferencesRepository.createPlaylist(
                     name = newPlaylistName,
                     songIds = allSongs.toList(),
-                    isAiGenerated = false,
                     isQueueGenerated = false
                 )
 

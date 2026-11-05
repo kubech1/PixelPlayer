@@ -255,12 +255,8 @@ class ConnectivityStateHolder @Inject constructor(
     }
 
     private fun updateWifiInfo() {
-        _wifiName.value = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R && hasFineLocationPermission()) {
-            readConnectedWifiSsid()
-        } else {
-            // On Android 12+ we intentionally avoid SSID reads so the cast flow does not look like location usage.
-            "WiFi Connected"
-        }
+        // SSID reads are unnecessary for casting and would add location-related access.
+        _wifiName.value = "WiFi Connected"
     }
 
     private fun updateBluetoothName(connectedAudioDevices: List<String>) {
@@ -419,28 +415,16 @@ class ConnectivityStateHolder @Inject constructor(
     }
 
     private fun hasBluetoothConnectPermission(): Boolean {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
-            ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun hasBluetoothScanPermission(): Boolean {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
-            ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun hasFineLocationPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun hasBluetoothDiscoveryLocationPermission(): Boolean {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ||
-            hasFineLocationPermission()
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun canStartBluetoothDiscovery(): Boolean {
         return _isBluetoothEnabled.value &&
-            hasBluetoothScanPermission() &&
-            hasBluetoothDiscoveryLocationPermission()
+            hasBluetoothScanPermission()
     }
 
     private fun BluetoothAudioDeviceState.uniqueKey(): String {
@@ -503,20 +487,6 @@ class ConnectivityStateHolder @Inject constructor(
     }
 
     @SuppressLint("MissingPermission")
-    private fun readConnectedWifiSsid(): String? {
-        if (!hasFineLocationPermission()) return null
-
-        val info = wifiManager?.connectionInfo ?: return null
-        if (info.supplicantState != android.net.wifi.SupplicantState.COMPLETED) return null
-
-        var ssid = info.ssid
-        if (ssid.startsWith("\"") && ssid.endsWith("\"")) {
-            ssid = ssid.substring(1, ssid.length - 1)
-        }
-        return ssid
-    }
-
-    @SuppressLint("MissingPermission")
     private fun readBluetoothEnabledState(): Boolean {
         if (!hasBluetoothConnectPermission()) return false
 
@@ -558,10 +528,8 @@ class ConnectivityStateHolder @Inject constructor(
 
     @Suppress("DEPRECATION")
     private fun extractBluetoothDevice(intent: Intent): BluetoothDevice? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        return run {
             intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
-        } else {
-            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
         }
     }
 

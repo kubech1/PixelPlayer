@@ -150,12 +150,12 @@
 
     <!-- LyricsMoreBottomSheet -->
     <string name="lyrics_save_title">가사 저장</string>
-    <string name="lyrics_translate_via_ai">AI로 번역</string>
-    <string name="lyrics_translate_already_translated">이 가사에는 이미 번역이 있습니다</string>
-    <string name="lyrics_translate_already_in_target_language">이 가사는 이미 해당 언어로 되어 있습니다</string>
-    <string name="lyrics_translate_api_not_configured">API 키가 구성되지 않았습니다</string>
-    <string name="lyrics_translate_success">가사가 성공적으로 번역되었습니다!</string>
-    <string name="lyrics_translate_progress">가사 번역 중...</string>
+    
+    
+    
+    
+    
+    
     <string name="lyrics_reset_imported">가져온 가사 초기화</string>
     <string name="lyrics_reset_dialog_title">가사를 초기화하시겠습니까?</string>
     <string name="lyrics_reset_dialog_message">이 곡의 가사를 정말로 초기화하시겠습니까?</string>

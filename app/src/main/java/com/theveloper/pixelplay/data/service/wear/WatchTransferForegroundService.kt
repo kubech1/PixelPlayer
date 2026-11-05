@@ -83,14 +83,12 @@ class WatchTransferForegroundService : Service() {
 
     private fun startInForeground(notification: Notification) {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            run {
                 startForeground(
                     NOTIFICATION_ID,
                     notification,
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
                 )
-            } else {
-                startForeground(NOTIFICATION_ID, notification)
             }
             hasStartedForeground = true
         } catch (error: Exception) {
@@ -101,11 +99,8 @@ class WatchTransferForegroundService : Service() {
 
     private fun stopForegroundCompat() {
         if (!hasStartedForeground) return
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        run {
             stopForeground(STOP_FOREGROUND_REMOVE)
-        } else {
-            @Suppress("DEPRECATION")
-            stopForeground(true)
         }
         hasStartedForeground = false
     }
@@ -245,7 +240,7 @@ class WatchTransferForegroundService : Service() {
     }
 
     private fun ensureNotificationChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL_ID,
             getString(R.string.watch_transfer_channel_name),

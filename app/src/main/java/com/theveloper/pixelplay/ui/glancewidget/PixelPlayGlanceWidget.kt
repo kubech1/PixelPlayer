@@ -53,7 +53,7 @@ import com.theveloper.pixelplay.data.model.QueueItem
 import com.theveloper.pixelplay.utils.createScalableBackgroundBitmap
 import timber.log.Timber
 
-class PixelPlayGlanceWidget : GlanceAppWidget() {
+class PixelPlayGlanceWidget : MemorySafeGlanceWidget() {
 
     companion object {
         // Tamaños definidos para diferentes configuraciones del widget
@@ -75,7 +75,12 @@ class PixelPlayGlanceWidget : GlanceAppWidget() {
     override val stateDefinition = PlayerInfoStateDefinition
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
+        val bitmapBudget = widgetBitmapBudget(context, id)
         provideContent {
+            val bucketSize = LocalSize.current
+            val artworkSlots = if (bucketSize.width >= EXTRA_LARGE_LAYOUT_SIZE.width && bucketSize.height >= EXTRA_LARGE_LAYOUT_SIZE.height) 5 else 1
+            val bucketBudget = bitmapBudget.copy(artworkSlots = artworkSlots)
+            androidx.compose.runtime.CompositionLocalProvider(LocalWidgetBitmapBudget provides bucketBudget) {
             val playerInfo = currentState<PlayerInfo>()
             val currentSize = LocalSize.current
 
@@ -85,6 +90,7 @@ class PixelPlayGlanceWidget : GlanceAppWidget() {
             GlanceTheme {
                 WidgetUi(playerInfo = playerInfo, size = currentSize, context = context)
             }
+                    }
         }
     }
 
@@ -1091,91 +1097,11 @@ class PixelPlayGlanceWidget : GlanceAppWidget() {
         val sizingModifier = if (size != null) modifier.size(size) else modifier
         val widgetDpSize = LocalSize.current // Get the actual size of the composable
 
-        val imageProvider = bitmapData?.let { data ->
-            val cacheKey = AlbumArtBitmapCache.getKey(data)
-            var bitmap = AlbumArtBitmapCache.getBitmap(cacheKey)
-
-            if (bitmap != null) {
-                Timber.tag(TAG_AAIG).d("Bitmap cache HIT for key: $cacheKey. Using cached bitmap.")
-            } else {
-                Timber.tag(TAG_AAIG).d("Bitmap cache MISS for key: $cacheKey. Decoding new bitmap.")
-                try {
-                    val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                    BitmapFactory.decodeByteArray(data, 0, data.size, options)
-                    Timber.tag(TAG_AAIG)
-                        .d("Initial bounds: ${options.outWidth}x${options.outHeight}")
-
-                    val imageHeight = options.outHeight
-                    val imageWidth = options.outWidth
-                    var inSampleSize = 1
-
-                    // Determine target size in pixels
-                    val targetWidthPx: Int
-                    val targetHeightPx: Int
-                    with(context.resources.displayMetrics) {
-                        if (size != null) {
-                            // If size is provided, use it for both width and height (maintains square logic)
-                            val targetSizePx = (size.value * density).toInt()
-                            targetWidthPx = targetSizePx
-                            targetHeightPx = targetSizePx
-                            Timber.tag(TAG_AAIG).d("Target Px size for Dp $size: $targetSizePx")
-                        } else {
-                            // If size is not provided, use the actual widget size
-                            targetWidthPx = (widgetDpSize.width.value * density).toInt()
-                            targetHeightPx = (widgetDpSize.height.value * density).toInt()
-                            Timber.tag(TAG_AAIG).d("Target Px size from widget DpSize ${widgetDpSize}: ${targetWidthPx}x${targetHeightPx}")
-                        }
-                    }
-
-                    if (imageHeight > targetHeightPx || imageWidth > targetWidthPx) {
-                        val halfHeight: Int = imageHeight / 2
-                        val halfWidth: Int = imageWidth / 2
-                        // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-                        // height and width larger than the requested height and width.
-                        while (halfHeight / inSampleSize >= targetHeightPx && halfWidth / inSampleSize >= targetWidthPx) {
-                            inSampleSize *= 2
-                        }
-                    }
-                    Timber.tag(TAG_AAIG).d("Calculated inSampleSize: $inSampleSize")
-
-                    options.inSampleSize = inSampleSize
-                    options.inJustDecodeBounds = false
-                    val sampledBitmap = BitmapFactory.decodeByteArray(data, 0, data.size, options)
-
-                    if (sampledBitmap == null) {
-                        Timber.tag(TAG_AAIG)
-                            .e("BitmapFactory.decodeByteArray returned null after sampling.")
-                        return@let null
-                    }
-                    Timber.tag(TAG_AAIG)
-                        .d("Sampled bitmap size: ${sampledBitmap.width}x${sampledBitmap.height}")
-
-                    bitmap = sampledBitmap
-
-                    Timber.tag(TAG_AAIG)
-                        .d("Final bitmap size: ${bitmap.width}x${bitmap.height}. Putting into cache with key: $cacheKey")
-                    bitmap.let { AlbumArtBitmapCache.putBitmap(cacheKey, it) }
-
-                } catch (e: Exception) {
-                    Timber.tag(TAG_AAIG).e(e, "Error decoding or scaling bitmap: ${e.message}")
-                    bitmap = null
-                }
-            }
-            bitmap?.let { ImageProvider(it) }
-        } ?: albumArtUri?.let { rawUri ->
-            val cacheKey = "uri:$rawUri"
-            var bitmap = AlbumArtBitmapCache.getBitmap(cacheKey)
-            if (bitmap == null) {
-                bitmap = decodeAlbumArtFromUri(
-                    context = context,
-                    rawUri = rawUri,
-                    requestedSize = size,
-                    widgetDpSize = widgetDpSize
-                )
-                bitmap?.let { AlbumArtBitmapCache.putBitmap(cacheKey, it) }
-            }
-            bitmap?.let { ImageProvider(it) }
-        }
+        val metrics = context.resources.displayMetrics
+        val targetWidth = ((size?.value ?: widgetDpSize.width.value) * metrics.density).toInt().coerceAtLeast(1)
+        val targetHeight = ((size?.value ?: widgetDpSize.height.value) * metrics.density).toInt().coerceAtLeast(1)
+        val imageProvider = loadSizedWidgetArtwork(context, bitmapData, albumArtUri, targetWidth, targetHeight,
+            LocalWidgetBitmapBudget.current.artworkBytes)?.let { ImageProvider(it) }
 
         Box(
             modifier = sizingModifier
@@ -1217,29 +1143,6 @@ class PixelPlayGlanceWidget : GlanceAppWidget() {
         }
     }
 
-    private fun decodeAlbumArtFromUri(
-        context: Context,
-        rawUri: String,
-        requestedSize: Dp?,
-        widgetDpSize: DpSize
-    ): Bitmap? {
-        val (targetWidthPx, targetHeightPx) = with(context.resources.displayMetrics) {
-            if (requestedSize != null) {
-                val target = (requestedSize.value * density).toInt().coerceAtLeast(1)
-                target to target
-            } else {
-                val width = (widgetDpSize.width.value * density).toInt().coerceAtLeast(1)
-                val height = (widgetDpSize.height.value * density).toInt().coerceAtLeast(1)
-                width to height
-            }
-        }
-        return decodeWidgetAlbumArtBitmap(
-            context = context,
-            rawUri = rawUri,
-            targetWidthPx = targetWidthPx,
-            targetHeightPx = targetHeightPx,
-        )
-    }
 
     @Composable
     fun PlayPauseButtonGlance(
@@ -1304,11 +1207,12 @@ class PixelPlayGlanceWidget : GlanceAppWidget() {
             bottomRight = bottomRightCorner,
             width = width,
             height = height
-        )
+        ) .let { boundedWidgetBitmap(it, LocalWidgetBitmapBudget.current.backgroundBytes) }
+
 
         Box(
             modifier = sizeModifier
-                .background(ImageProvider(backgroundBitmap))
+                .then(if (backgroundBitmap != null) GlanceModifier.background(ImageProvider(backgroundBitmap)) else GlanceModifier.background(GlanceTheme.colors.surfaceVariant))
                 .clickable(actionRunCallback<PlayerControlActionCallback>(params)),
             contentAlignment = Alignment.Center
         ) {

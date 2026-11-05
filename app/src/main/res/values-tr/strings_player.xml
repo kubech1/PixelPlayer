@@ -153,12 +153,12 @@
 
     <!-- LyricsMoreBottomSheet -->
     <string name="lyrics_save_title">Şarkı Sözlerini Kaydet</string>
-    <string name="lyrics_translate_via_ai">Yapay Zeka ile Çevir</string>
-    <string name="lyrics_translate_already_translated">Bu şarkı sözlerinin zaten bir çevirisi var</string>
-    <string name="lyrics_translate_already_in_target_language">Bu şarkı sözleri zaten bu dilde</string>
-    <string name="lyrics_translate_api_not_configured">API yapılandırılmamış</string>
-    <string name="lyrics_translate_success">Şarkı sözleri başarıyla çevrildi!</string>
-    <string name="lyrics_translate_progress">Şarkı sözleri çevriliyor...</string>
+    
+    
+    
+    
+    
+    
     <string name="lyrics_reset_imported">İçe aktarılan sözleri sıfırla</string>
     <string name="lyrics_reset_dialog_title">Şarkı sözleri sıfırlansın mı?</string>
     <string name="lyrics_reset_dialog_message">Bu şarkının sözlerini sıfırlamak istediğinizden emin misiniz?</string>

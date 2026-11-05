@@ -21,7 +21,7 @@
     <string name="presentation_batch_d_topic_mode_both">كلاهما</string>
     <string name="presentation_batch_d_cloud_sources_heading">سحابي</string>
     <string name="presentation_batch_d_cloud_only">سحابي فقط</string>
-    <string name="presentation_batch_d_generating_ai_metadata">جاري إنشاء البيانات الوصفية بالذكاء الاصطناعي…</string>
+    
     <string name="presentation_batch_d_max_albums_selection">يمكنك تحديد ما يصل إلى %1$d ألبومات</string>
     <string name="presentation_batch_d_folder_name_fallback">مجلد</string>
     <string name="presentation_batch_d_expand_tab_menu_cd">توسيع القائمة</string>

@@ -1,0 +1,28 @@
+<resources>
+    <string name="settings_haptic_intensity">Haptikintensität</string>
+    <string name="settings_haptic_low">Niedrig</string>
+    <string name="settings_haptic_medium">Mittel</string>
+    <string name="settings_haptic_high">Hoch</string>
+    <string name="settings_haptic_preview">Feedback testen</string>
+    <string name="widget_previous">Vorheriger Titel</string>
+    <string name="widget_next">Nächster Titel</string>
+    <string name="widget_play_pause">Wiedergabe oder Pause</string>
+    <string name="audio_route_title">Audioausgabe und Sitzung</string>
+    <string name="audio_route_unknown">Unbekannt</string>
+    <string name="audio_route_yes">Ja</string>
+    <string name="audio_route_no">Nein</string>
+    <string name="audio_route_available">Verfügbar: %1$s</string>
+    <string name="audio_route_predicted">Voraussichtliche Musikroute: %1$s</string>
+    <string name="audio_route_prediction_note">Android sagt diese Route voraus; der endgültige Signalweg wird damit nicht bestätigt.</string>
+    <string name="audio_route_session">Lokale Audiositzung: %1$d</string>
+    <string name="audio_route_sink">Media3-Sink-Konfiguration: %1$s</string>
+    <string name="audio_route_float_requested">Vom Player angefordertes PCM Float: %1$s</string>
+    <string name="audio_route_offload_requested">Offload angefordert: %1$s</string>
+    <string name="audio_route_offload_configured">Sink für Offload konfiguriert: %1$s</string>
+    <string name="audio_route_offload_sleeping">Beobachteter Ruhezustand für Offload: %1$s</string>
+    <string name="audio_route_bluetooth_unknown">Bluetooth-Codec: über keine verlässliche öffentliche API verfügbar. PCM Float identifiziert weder den Codec noch die DAC-Auflösung.</string>
+    <string name="audio_route_format_query_note">Die Offload-Unterstützung für Formate wird bei 44,1 kHz in Stereo abgefragt. Dies ist keine Beobachtung des laufenden Titels.</string>
+    <string name="audio_route_query_failed">Audioroute kann nicht abgefragt werden. Verbinde das Gerät erneut oder öffne diesen Bildschirm erneut.</string>
+    <string name="audio_route_sink_capabilities">Sink-Fähigkeiten: %1$s</string>
+    <string name="audio_route_sink_value">%1$d Hz · %2$s · %3$d Kanäle</string>
+</resources>

@@ -354,11 +354,11 @@ class MediaControllerSyncStateHolder @Inject constructor(
                         .extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
                         ?.toIntOrNull()
                         ?.takeIf { it > 0 }
-                    val sampleRate = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                    val sampleRate = run {
                         retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_SAMPLERATE)
                             ?.toIntOrNull()
                             ?.takeIf { it > 0 }
-                    } else null
+                    }
                     PlaybackAudioMetadata(
                         mediaId = mediaId,
                         mimeType = mimeType,

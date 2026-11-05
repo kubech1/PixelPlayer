@@ -19,24 +19,24 @@
     <string name="presentation_batch_f_refresh_lyrics_subtitle">جلب كلمات الأغاني تلقائياً لجميع الأغاني باستخدام lrclib.</string>
     <string name="presentation_batch_f_cd_refresh_lyrics">تحديث كلمات الأغاني</string>
     <string name="presentation_batch_f_refresh_lyrics_processing">جاري معالجة %1$d من أصل %2$d أغنية</string>
-    <string name="presentation_batch_f_enter_api_key">أدخل مفتاح API</string>
+    
     <string name="presentation_batch_f_save">حفظ</string>
     <string name="presentation_batch_f_saved">تم الحفظ!</string>
-    <string name="presentation_batch_f_preset_prompts">الأوامر الجاهزة (Presets)</string>
-    <string name="presentation_batch_f_enter_system_prompt_placeholder">أدخل أمر النظام المستهدف…</string>
+    
+    
     <string name="presentation_batch_f_reset">إعادة تعيين</string>
-    <string name="presentation_batch_f_ai_preset_professional_curator_name">المنسق المحترف (Professional Curator)</string>
-    <string name="presentation_batch_f_ai_preset_professional_curator_prompt">أنت \'Vibe-Engine\'، منسق موسيقى عالمي وخبير في التدفق الصوتي الانسيابي. هدفك هو بناء تجارب استماع سلسة وعالية الدقة. أعطِ الأولوية للتوافق الهارموني، والانتقالات المنطقية لسرعة الإيقاع (BPM)، والتوازن المدروس بين الأغاني المألوفة المفضلة والاكتشافات الذكية المبنية على نمط الاستماع.</string>
-    <string name="presentation_batch_f_ai_preset_creative_maverick_name">المستكشف المبتكر (Creative Maverick)</string>
-    <string name="presentation_batch_f_ai_preset_creative_maverick_prompt">أنت مستكشف موسيقى طليعي متخصص في صياغة \'التناغم غير المتوقع\'. مهمتك هي كسر حدود الأنواع الموسيقية التقليدية عبر تحديد ترابطات صوتية غير ظاهرة. أعطِ الأولوية للاختيارات النادرة والعميقة، والتركيبات التجريبية، والتجديد الفني مع الحفاظ على منطق انتقال مفاجئ ومذهل في نفس الوقت.</string>
-    <string name="presentation_batch_f_ai_preset_strict_librarian_name">أمين المكتبة الصارم (Strict Librarian)</string>
-    <string name="presentation_batch_f_ai_preset_strict_librarian_prompt">أنت مهندس دقيق لقواعد البيانات الموسيقية. منطقك مدفوع بالدقة المطلقة للبيانات الوصفية والالتزام الصارم بالتصنيفات. قلل من المكتشفات الخوارزمية العشوائية لصالح التناسق التام للنوع الموسيقي، ومطابقة مستويات الطاقة، وتعظيم استدعاء التفضيلات المحددة بدقة من قبل المستخدم.</string>
-    <string name="presentation_batch_f_ai_preset_atmospheric_guide_name">الدليل الأجاوائي (Atmospheric Guide)</string>
-    <string name="presentation_batch_f_ai_preset_atmospheric_guide_prompt">أنت خبير في التراكيب الصوتية المحيطية والتدفقات الموسيقية الهادئة. ركز حصرياً على المسارات التي تساعد على الدخول في حالة من \'التركيز العميق\' أو \'السكينة\'. أعطِ الأولوية للدفء الصوتي الآلاتي، والتوزيعات البسيطة، والانتقالات اللطيفة، مع تجنب الأصوات الحادة أو التحولات المفاجئة في النطاق الديناميكي للصوت.</string>
-    <string name="presentation_batch_f_ai_preset_sonic_enthusiast_name">عاشق الهندسية الصوتية (Sonic Enthusiast)</string>
-    <string name="presentation_batch_f_ai_preset_sonic_enthusiast_prompt">أنت محلل صوتي مهتم بتعقيد الإنتاج والآلات الموسيقية. أعطِ الأولوية للمسارات التي تتميز بنطاق ديناميكي واسع، والإيقاعات المتعددة المعقدة، وجودة المسرح الصوتي الفائقة. فضّل المقطوعات التي تتطلب استماعاً نشطاً وتكافئ المستمع عند الانتباه إلى التفاصيل التقنية وتفاصيل التوزيع الصوتي.</string>
-    <string name="presentation_batch_f_ai_preset_energy_catalyst_name">محفز الطاقة (Energy Catalyst)</string>
-    <string name="presentation_batch_f_ai_preset_energy_catalyst_prompt">أنت مولد إيقاعات عالي الحماس والزخم. ترتكز فلسفتك على خطوط الباس القوية، وشدة الإيقاع، والنغمات الجذابة. أعطِ الأولوية للمسارات المتوافقة مع أجواء النوادي ذات الإيقاع السريع (High-BPM)، والطاقة المتزامنة، والتوتر الإيقاعي المستمر للحفاظ على نبض المستمع وتحفيزه في ذروة مستوياته.</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <string name="presentation_batch_f_new_smart_playlist">قائمة تشغيل ذكية جديدة</string>
     <string name="presentation_batch_f_new_playlist">قائمة تشغيل جديدة</string>
@@ -59,7 +59,7 @@
     <string name="presentation_batch_f_adjust_cover_hint">استخدم إيماءات التكبير والسحب للحصول على الإطار المثالي</string>
     <string name="presentation_batch_f_creation_mode_manual">يدوي</string>
     <string name="presentation_batch_f_creation_mode_smart">ذكي</string>
-    <string name="presentation_batch_f_generate_with_ai">الإنشاء باستخدام الذكاء الاصطناعي</string>
+    
     <string name="presentation_batch_f_smart_rule">قاعدة ذكية</string>
     <string name="presentation_batch_f_tab_default">الافتراضي</string>
     <string name="presentation_batch_f_tab_image">صورة</string>

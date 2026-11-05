@@ -52,11 +52,23 @@ class ExternalPlayerActivity : ComponentActivity() {
                 else -> systemDarkTheme
             }
             PixelPlayTheme(darkTheme = useDarkTheme) {
+                val enabled by playerViewModel.hapticsEnabled.collectAsStateWithLifecycle()
+                val intensity by playerViewModel.hapticIntensity.collectAsStateWithLifecycle()
+                val view = androidx.compose.ui.platform.LocalView.current
+                val config = com.theveloper.pixelplay.presentation.utils.AppHapticsConfig(enabled, intensity.scale)
+                val feedback = androidx.compose.runtime.remember(view, config) {
+                    com.theveloper.pixelplay.presentation.utils.ExpressiveHapticFeedback(view, config)
+                }
+                androidx.compose.runtime.CompositionLocalProvider(
+                    com.theveloper.pixelplay.presentation.utils.LocalAppHapticsConfig provides config,
+                    androidx.compose.ui.platform.LocalHapticFeedback provides feedback
+                ) {
                 ExternalPlayerOverlay(
                     playerViewModel = playerViewModel,
                     onDismiss = { finish() },
                     onOpenFullPlayer = { openFullPlayer() }
                 )
+                }
             }
         }
 
@@ -100,12 +112,8 @@ class ExternalPlayerActivity : ComponentActivity() {
     }
 
     private fun resolveStreamUri(intent: Intent): Uri? {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        run {
             intent.getParcelableExtra(EXTRA_STREAM, Uri::class.java)?.let { return it }
-        } else {
-            @Suppress("DEPRECATION")
-            val legacyUri = intent.getParcelableExtra<Uri>(EXTRA_STREAM)
-            if (legacyUri != null) return legacyUri
         }
 
         intent.clipData?.let { clipData ->
@@ -118,7 +126,7 @@ class ExternalPlayerActivity : ComponentActivity() {
     }
 
     private fun persistUriPermissionIfNeeded(intent: Intent, uri: Uri) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        run {
             val hasPersistablePermission = intent.flags and Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION != 0
             if (hasPersistablePermission) {
                 val takeFlags = intent.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)

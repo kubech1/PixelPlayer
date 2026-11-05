@@ -76,12 +76,12 @@ class QQSignGenerator(private val context: Context) {
                         domStorageEnabled = true
                         allowFileAccess = false
                         allowContentAccess = false
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        run {
                             allowFileAccessFromFileURLs = false
                             allowUniversalAccessFromFileURLs = false
                         }
                         mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        run {
                             safeBrowsingEnabled = true
                         }
                     }

@@ -16,8 +16,8 @@
 
     <!-- Library Toasts -->
     <string name="library_toast_playlist_created">播放列表创建成功</string>
-    <string name="library_toast_set_ai_provider_api_key_first">请先设置您的 AI 提供商 API 密钥</string>
-    <string name="library_toast_set_gemini_api_key_first">请先设置您的 Gemini API 密钥</string>
+    
+    
     <string name="library_toast_added_to_queue">已添加到队列</string>
     <string name="library_toast_playing_next">下一首播放</string>
 
@@ -51,8 +51,8 @@
     <string name="library_cloud_sources_heading">云端</string>
     <string name="library_cloud_only_label">仅云端</string>
 
-    <!-- Library AI Metadata Processing -->
-    <string name="library_generating_ai_metadata">正在使用 AI 生成元数据…</string>
+    
+    
 
     <!-- Library list errors -->
     <string name="library_error_loading_songs">加载歌曲时出错</string>
@@ -336,95 +336,73 @@
     <string name="playlist_dismissed_message">已忽略播放列表</string>
 
     <!-- PlaylistCreationDialogs -->
-    <string name="playlist_creation_create_playlist_title">创建播放列表</string>
-    <string name="playlist_creation_create_playlist_subtitle">选择创建方式。</string>
-    <string name="playlist_creation_mode_manual_title">手动</string>
-    <string name="playlist_creation_mode_manual_subtitle">自己设计封面、图标、形状并挑选歌曲。</string>
-    <string name="playlist_creation_mode_ai_title">使用 AI</string>
-    <string name="playlist_creation_mode_ai_subtitle_enabled">使用高级控制生成精选的播放列表。</string>
-    <string name="playlist_creation_mode_ai_subtitle_disabled">需要在设置中配置 Gemini API 密钥。</string>
-    <string name="playlist_creation_setup_api_key">设置 API 密钥</string>
+    
+    
+    
+    
+    
+    
+    
+    
 
-    <!-- AI playlist lab -->
-    <string name="playlist_creation_ai_lab_title">AI 播放列表实验室</string>
-    <string name="playlist_creation_ai_reset">重置</string>
-    <string name="playlist_creation_ai_generating">正在生成…</string>
-    <string name="playlist_creation_ai_generate">生成</string>
-    <string name="playlist_creation_ai_section_intent">意图</string>
-    <string name="playlist_creation_ai_name_optional">播放列表名称（可选）</string>
-    <string name="playlist_creation_ai_feel_label">这个播放列表应该带来什么感觉？</string>
-    <string name="playlist_creation_ai_feel_placeholder">示例：伴随温暖合成器音乐的日落驾驶</string>
-    <string name="playlist_creation_ai_section_direction">方向</string>
-    <string name="playlist_creation_ai_mood_label">情绪</string>
-    <string name="playlist_creation_ai_activity_label">活动</string>
-    <string name="playlist_creation_ai_era_label">时代</string>
-    <string name="playlist_creation_ai_section_curation">精选引擎</string>
-    <string name="playlist_creation_ai_energy_label">能量</string>
-    <string name="playlist_creation_ai_energy_desc">控制歌曲的强度和节奏。1 = 平静/缓慢，5 = 高能量/快节奏。</string>
-    <string name="playlist_creation_ai_discovery_label">探索度</string>
-    <string name="playlist_creation_ai_discovery_desc">控制所选歌曲的熟悉程度。1 = 你最常听的最爱，5 = 很少播放的冷门曲目。</string>
-    <string name="playlist_creation_ai_min_songs">最少歌曲数</string>
-    <string name="playlist_creation_ai_max_songs">最多歌曲数</string>
-    <string name="playlist_creation_ai_section_filters">过滤</string>
-    <string name="playlist_creation_ai_prioritize_genres">优先考虑的流派（可选）</string>
-    <string name="playlist_creation_ai_prioritize_genres_placeholder">例如：合成器波 (synthwave)、独立流行 (indie pop)</string>
-    <string name="playlist_creation_ai_avoid_genres">避免的流派（可选）</string>
-    <string name="playlist_creation_ai_avoid_genres_placeholder">例如：金属 (metal)、硬核陷阱 (hard trap)</string>
-    <string name="playlist_creation_ai_preferred_language">首选语言（可选）</string>
-    <string name="playlist_creation_ai_preferred_language_placeholder">例如：英语，西班牙语，纯音乐 (instrumental)</string>
-    <string name="playlist_creation_ai_prioritize_favorites">优先考虑已收藏的最爱</string>
-    <string name="playlist_creation_ai_avoid_explicit">避免露骨歌词 (Explicit)</string>
-    <string name="playlist_creation_ai_section_prompt_preview">提示词预览</string>
-    <string name="playlist_creation_ai_prompt_preview_empty">当您添加偏好设置后，最终的提示词将显示在这里。</string>
-    <string name="playlist_creation_ai_hero_title">精准策展</string>
-    <string name="playlist_creation_ai_hero_subtitle">定义情绪、活动、约束和深度。</string>
-    <string name="playlist_creation_ai_hero_library_note">AI 将仅使用您本地媒体库中的歌曲。</string>
-    <string name="playlist_creation_ai_error_add_instruction">至少为 AI 添加一项指令。</string>
-    <string name="playlist_creation_ai_error_song_range">请设置有效的歌曲数量范围。</string>
-    <string name="playlist_creation_ai_level_out_of_five">%1$d/5</string>
-    <string name="playlist_creation_ai_custom_chip">自定义…</string>
-    <string name="playlist_creation_ai_enter_custom_title">输入自定义值</string>
-    <string name="playlist_creation_ai_enter_custom_label">输入您的自定义值</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
-    <!-- AI prompt -->
+    
     <string name="playlist_creation_ai_era_any">任何时代</string>
-    <string name="playlist_creation_ai_prompt_core_request">核心请求：%1$s。</string>
-    <string name="playlist_creation_ai_prompt_mood">情绪目标：%1$s。</string>
-    <string name="playlist_creation_ai_prompt_activity">活动背景：%1$s。</string>
-    <string name="playlist_creation_ai_prompt_era">时代焦点：%1$s。</string>
-    <string name="playlist_creation_ai_prompt_prioritize_genres">优先考虑的流派：%1$s。</string>
-    <string name="playlist_creation_ai_prompt_avoid_genres">避免的流派：%1$s。</string>
-    <string name="playlist_creation_ai_prompt_preferred_language">首选语言：%1$s。</string>
-    <string name="playlist_creation_ai_prompt_energy">能量等级目标：%1$d/5。</string>
-    <string name="playlist_creation_ai_prompt_discovery">探索度目标：%1$d/5（1 代表熟悉，5 代表冷门曲目）。</string>
-    <string name="playlist_creation_ai_prompt_prioritize_favorites">可能的话，优先选择更接近听众最爱的歌曲。</string>
-    <string name="playlist_creation_ai_prompt_avoid_explicit">只要有替代选择，尽量避免露骨歌词。</string>
-    <string name="playlist_creation_ai_prompt_smooth_transitions">保持平滑的过渡，避免重复聚集同一艺术家。</string>
-    <string-array name="playlist_creation_ai_mood_options">
-        <item>放松</item>
-        <item>活力</item>
-        <item>快乐</item>
-        <item>暗黑</item>
-        <item>浪漫</item>
-        <item>忧郁</item>
-    </string-array>
-    <string-array name="playlist_creation_ai_activity_options">
-        <item>健身</item>
-        <item>专注</item>
-        <item>公路旅行</item>
-        <item>派对</item>
-        <item>学习</item>
-        <item>深夜</item>
-    </string-array>
-    <string-array name="playlist_creation_ai_era_options">
-        <item>@string/playlist_creation_ai_era_any</item>
-        <item>70年代</item>
-        <item>80年代</item>
-        <item>90年代</item>
-        <item>2000年代</item>
-        <item>2010年代</item>
-        <item>2020年代</item>
-    </string-array>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- PlaylistContainer -->
     <string name="playlist_container_no_playlist_created">尚未创建播放列表。</string>
@@ -498,7 +476,7 @@
     <string name="playlist_view_model_none_to_export">没有可导出的播放列表</string>
     <string name="playlist_view_model_export_failed">导出失败：%1$s</string>
     <string name="playlist_view_model_export_folder_display">Music/PixelPlayer Exports</string>
-    <string name="playlist_view_model_ai_gemini_key_required">请在设置中配置您的 Gemini API 密钥。</string>
+    
     <string name="playlist_view_model_restored_toast">播放列表已恢复</string>
     <plurals name="playlist_view_model_sharing_message">
         <item quantity="one">正在分享 %d 个播放列表</item>
@@ -553,14 +531,14 @@
     <string name="metadata_edit_permission_denied_save_lyrics">权限被拒绝 – 无法保存歌词</string>
     <string name="metadata_edit_permission_denied_edit_this_file">权限被拒绝 – 无法编辑此文件</string>
 
-    <!-- AiStateHolder -->
-    <string name="ai_state_error_api_key">请在设置中为选定的 AI 提供商配置有效的 API 密钥。</string>
-    <string name="ai_state_error_generic">AI 错误：%s</string>
-    <string name="ai_state_error_quota">所选 AI 提供商拒绝了请求，原因是账户没有积分或可用配额不足。</string>
-    <string name="ai_state_error_model_unavailable">所选 AI 模型不再可用。PixelPlayer 尝试自动切换到支持的模型。</string>
-    <string name="ai_state_no_songs_found">AI 无法根据您的提示找到任何歌曲。</string>
-    <string name="ai_state_prompt_empty">写下一个 Daily Mix 的灵感</string>
-    <string name="ai_state_daily_mix_updated">已使用 AI 更新 Daily Mix</string>
-    <string name="ai_state_could_not_update">无法更新：%s</string>
-    <string name="ai_state_no_songs_for_mix">AI 无法为此合集找到歌曲</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 </resources>

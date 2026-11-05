@@ -32,11 +32,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         NavidromePlaylistEntity::class,
         TelegramTopicEntity::class,
         JellyfinSongEntity::class,
-        JellyfinPlaylistEntity::class,
-        AiCacheEntity::class,
-        AiUsageEntity::class
+        JellyfinPlaylistEntity::class
     ],
-    version = 42,
+    version = 43,
     exportSchema = true
 )
 abstract class PixelPlayDatabase : RoomDatabase() {
@@ -54,10 +52,23 @@ abstract class PixelPlayDatabase : RoomDatabase() {
     abstract fun qqmusicDao(): QqMusicDao
     abstract fun navidromeDao(): NavidromeDao
     abstract fun jellyfinDao(): JellyfinDao
-    abstract fun aiCacheDao(): AiCacheDao
-    abstract fun aiUsageDao(): AiUsageDao
 
     companion object {
+        /** Retire inference data while preserving playlists, covers and their song ordering. */
+        val MIGRATION_42_43 = object : Migration(42, 43) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS `playlists_without_ai` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `last_modified` INTEGER NOT NULL, `is_queue_generated` INTEGER NOT NULL, `cover_image_uri` TEXT, `cover_color_argb` INTEGER, `cover_icon_name` TEXT, `cover_shape_type` TEXT, `cover_shape_detail_1` REAL, `cover_shape_detail_2` REAL, `cover_shape_detail_3` REAL, `cover_shape_detail_4` REAL, `source` TEXT NOT NULL, PRIMARY KEY(`id`))")
+                db.execSQL(
+                    "INSERT INTO playlists_without_ai (`id`, `name`, `created_at`, `last_modified`, `is_queue_generated`, `cover_image_uri`, `cover_color_argb`, `cover_icon_name`, `cover_shape_type`, `cover_shape_detail_1`, `cover_shape_detail_2`, `cover_shape_detail_3`, `cover_shape_detail_4`, `source`) " +
+                        "SELECT `id`, `name`, `created_at`, `last_modified`, `is_queue_generated`, `cover_image_uri`, `cover_color_argb`, `cover_icon_name`, `cover_shape_type`, `cover_shape_detail_1`, `cover_shape_detail_2`, `cover_shape_detail_3`, `cover_shape_detail_4`, CASE WHEN UPPER(`source`) = 'AI' THEN 'LOCAL' ELSE `source` END FROM playlists"
+                )
+                db.execSQL("DROP TABLE playlists")
+                db.execSQL("ALTER TABLE playlists_without_ai RENAME TO playlists")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_playlists_last_modified ON playlists (last_modified)")
+                db.execSQL("DROP TABLE IF EXISTS ai_cache")
+                db.execSQL("DROP TABLE IF EXISTS ai_usage")
+            }
+        }
         // Gap-bridging no-op migrations for missing version ranges.
         // These versions predate Telegram features; affected tables have since been
         // recreated by later migrations (e.g. 15→16 drops/recreates album_art_themes).

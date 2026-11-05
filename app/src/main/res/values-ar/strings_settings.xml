@@ -12,8 +12,8 @@
     <string name="settings_category_playback_subtitle">سلوك الصوت، التداخل (Crossfade)، والتشغيل في الخلفية</string>
     <string name="settings_category_behavior_title">السلوك</string>
     <string name="settings_category_behavior_subtitle">الإيماءات، التفاعل اللمسي، وسلوك التنقل</string>
-    <string name="settings_category_ai_title">دمج الذكاء الاصطناعي (β)</string>
-    <string name="settings_category_ai_subtitle">مزودو الذكاء الاصطناعي، مفاتيح الـ API، وإعدادات النموذج</string>
+    
+    
     <string name="settings_category_backup_title">النسخ الاحتياطي والاستعادة</string>
     <string name="settings_category_backup_subtitle">تصدير واستعادة بيانات تطبيقك الشخصية</string>
     <string name="settings_category_developer_title">خيارات المطورين</string>
@@ -169,33 +169,33 @@
     <string name="setcat_haptic_feedback_title">الاستجابة اللمسية (الاهتزاز)</string>
     <string name="setcat_haptic_feedback_subtitle">تفعيل اهتزازات الاستجابة الخفيفة عبر أرجاء التطبيق.</string>
 
-    <string name="setcat_ai_provider_section">مزود الذكاء الاصطناعي</string>
-    <string name="setcat_ai_provider_label">المزود</string>
-    <string name="setcat_ai_provider_desc">اختر مزود خدمة الذكاء الاصطناعي الخاص بك</string>
-    <string name="setcat_safe_token_title">وضع الرموز الآمن (Safe Token)</string>
-    <string name="setcat_safe_token_on">مفعل — سريع وموفر. يرسل بيانات قليلة ومحدودة (~1K رموز) إلى الذكاء الاصطناعي.</string>
-    <string name="setcat_safe_token_off">معطل — سياق عميق. يرسل ملف الاستماع الكامل بالكامل (~8K رموز) لنتائج أكثر ثراءً ودقة.</string>
-    <string name="setcat_credentials">بيانات الاعتماد</string>
-    <string name="setcat_ai_api_key_title">مفتاح API لـ %1$s</string>
-    <string name="setcat_ai_api_key_subtitle">احصل عليه من %1$s</string>
-    <string name="setcat_ai_source_gemini">Google AI Studio (aistudio.google.com)</string>
-    <string name="setcat_ai_source_deepseek">DeepSeek Platform (api.deepseek.com)</string>
-    <string name="setcat_ai_source_groq">Groq Console (console.groq.com)</string>
-    <string name="setcat_ai_source_mistral">Mistral AI Platform (console.mistral.ai)</string>
-    <string name="setcat_ai_source_nvidia">NVIDIA Build (build.nvidia.com)</string>
-    <string name="setcat_ai_source_kimi">Moonshot AI Platform (platform.moonshot.cn)</string>
-    <string name="setcat_ai_source_glm">Zhipu AI Open Platform (bigmodel.cn)</string>
-    <string name="setcat_ai_source_openai">OpenAI Platform (platform.openai.com)</string>
-    <string name="setcat_model_selection">اختيار النموذج</string>
-    <string name="setcat_loading_models">جاري تحميل النماذج المتاحة…</string>
-    <string name="setcat_ai_model_label">نموذج الذكاء الاصطناعي</string>
-    <string name="setcat_ai_model_desc">اختر نموذجاً.</string>
-    <string name="setcat_prompt_behavior">سلوك الأوامر (Prompt)</string>
-    <string name="setcat_system_prompt_title">الأمر البرمجي للنظام</string>
-    <string name="setcat_system_prompt_subtitle">تخصيص وتحديد كيفية تصرف واستجابة الذكاء الاصطناعي.</string>
-    <string name="setcat_ai_usage_report">تقرير استخدام الذكاء الاصطناعي</string>
-    <string name="setcat_total_consumption_title">إجمالي الاستهلاك</string>
-    <string name="setcat_ai_usage_tokens_subtitle">تتبع رموز %1$s \nالمدخلات (Prompt): %2$s | المخرجات: %3$s | التفكير: %4$s</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <string name="setcat_create_backup">إنشاء نسخة احتياطية</string>
     <string name="setcat_export_backup_title">تصدير النسخة الاحتياطية</string>
@@ -273,8 +273,8 @@
     <string name="setcat_regenerating">جاري إعادة التوليد…</string>
     <string name="setcat_choose_song">اختر الأغنية</string>
 
-    <string name="setcat_ai_clear_logs">مسح السجلات</string>
-    <string name="setcat_ai_activity_log_title">سجل نشاط الذكاء الاصطناعي (%1$d)</string>
+    
+    
     <string name="cd_show">إظهار</string>
     <string name="cd_hide">إخفاء</string>
     <string name="setcat_select_export">تحديد وتصدير</string>

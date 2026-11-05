@@ -24,7 +24,6 @@
         <item>Complete redesign of the player.</item>
         <item>Performance improvements in the library.</item>
         <item>Improved application startup speed.</item>
-        <item>The AI now provides better results.</item>
     </string-array>
     <string-array name="changelog_020_fixes">
         <item>Fixed various bugs in the tag editor.</item>
@@ -42,7 +41,6 @@
         <item>Smoothed out animations and transitions across the app for more fluid navigation.</item>
         <item>Enhanced the artist screen layout with richer details and polish.</item>
         <item>Upgraded DailyMix and YourMix generation with smarter, more diverse selections.</item>
-        <item>Strengthened the AI playlist generation.</item>
         <item>Improved search relevance and presentation for faster discovery.</item>
         <item>Expanded support for a broader range of audio file formats.</item>
     </string-array>
@@ -70,7 +68,6 @@
         <item>Material 3 Expressive UI Update</item>
         <item>10-band Equalizer &amp; Effects</item>
         <item>New Library Sync Flow</item>
-        <item>AI Integration (Gemini Models)</item>
         <item>M3U Playlist Import/Export</item>
         <item>Deezer Artist Artwork Integration</item>
         <item>Custom Playlist Covers</item>
@@ -108,7 +105,6 @@
     </string-array>
     <string-array name="changelog_070_whats_new">
         <item>Wear OS: Music transfer, local playback, queue sync, and remote control from watch.</item>
-        <item>AI: Groq AI and OpenRouter (experimental) integration with token optimization.</item>
         <item>Cloud: Jellyfin support added.</item>
         <item>Lyrics: Synced translation with dedicated toggle, Kugou LRC format support, text alignment customization, and improved remote loading.</item>
         <item>UI/UX: Compact navigation bar mode, dynamic themes from album art palette, marquee for long titles, and new sorting options.</item>
@@ -132,7 +128,6 @@
     <string-array name="changelog_075_whats_new">
         <item>Google Drive integration with player lifecycle management.</item>
         <item>Batch song metadata editing (tags and cover art).</item>
-        <item>AI lyrics translation with customizable Wear OS preferences.</item>
         <item>Lag diagnostic tool and multi-selection on Search screen.</item>
         <item>Arabic &amp; Turkish support, with localized http URL local-network options.</item>
     </string-array>

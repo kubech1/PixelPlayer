@@ -31,17 +31,20 @@ import androidx.glance.layout.width
 import com.theveloper.pixelplay.MainActivity
 import com.theveloper.pixelplay.data.model.PlayerInfo
 
-class GridWidget2x2 : GlanceAppWidget() {
+class GridWidget2x2 : MemorySafeGlanceWidget() {
 
     override val sizeMode = SizeMode.Exact
     override val stateDefinition = PlayerInfoStateDefinition
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
+        val bitmapBudget = widgetBitmapBudget(context, id, artworkSlots = 1)
         provideContent {
+            androidx.compose.runtime.CompositionLocalProvider(LocalWidgetBitmapBudget provides bitmapBudget) {
             val playerInfo = currentState<PlayerInfo>()
             GlanceTheme {
                 GridWidget2x2Content(playerInfo = playerInfo, context = context)
             }
+                    }
         }
     }
 

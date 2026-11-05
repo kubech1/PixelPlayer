@@ -1,0 +1,28 @@
+<resources>
+    <string name="settings_haptic_intensity">Интенсивность виброотклика</string>
+    <string name="settings_haptic_low">Низкая</string>
+    <string name="settings_haptic_medium">Средняя</string>
+    <string name="settings_haptic_high">Высокая</string>
+    <string name="settings_haptic_preview">Проверить вибрацию</string>
+    <string name="widget_previous">Предыдущий трек</string>
+    <string name="widget_next">Следующий трек</string>
+    <string name="widget_play_pause">Воспроизвести или приостановить</string>
+    <string name="audio_route_title">Аудиовыход и сеанс</string>
+    <string name="audio_route_unknown">Неизвестно</string>
+    <string name="audio_route_yes">Да</string>
+    <string name="audio_route_no">Нет</string>
+    <string name="audio_route_available">Доступны: %1$s</string>
+    <string name="audio_route_predicted">Предполагаемый маршрут музыки: %1$s</string>
+    <string name="audio_route_prediction_note">Android предполагает этот маршрут; это не подтверждает окончательный путь сигнала.</string>
+    <string name="audio_route_session">Локальный аудиосеанс: %1$d</string>
+    <string name="audio_route_sink">Конфигурация sink Media3: %1$s</string>
+    <string name="audio_route_float_requested">PCM float, запрошенный плеером: %1$s</string>
+    <string name="audio_route_offload_requested">Запрошен offload: %1$s</string>
+    <string name="audio_route_offload_configured">Sink настроен для offload: %1$s</string>
+    <string name="audio_route_offload_sleeping">Наблюдаемый спящий режим offload: %1$s</string>
+    <string name="audio_route_bluetooth_unknown">Кодек Bluetooth недоступен через надёжный общедоступный API. PCM float не определяет кодек или разрешение ЦАП.</string>
+    <string name="audio_route_format_query_note">Поддержка offload для форматов запрашивается при 44,1 кГц стерео. Это не наблюдение за воспроизводимым треком.</string>
+    <string name="audio_route_query_failed">Маршрут аудио недоступен. Подключите устройство заново или снова откройте этот экран для обновления.</string>
+    <string name="audio_route_sink_capabilities">Возможности sink: %1$s</string>
+    <string name="audio_route_sink_value">%1$d Гц · %2$s · %3$d каналов</string>
+</resources>

@@ -1,0 +1,28 @@
+<resources>
+    <string name="settings_haptic_intensity">触觉反馈强度</string>
+    <string name="settings_haptic_low">低</string>
+    <string name="settings_haptic_medium">中</string>
+    <string name="settings_haptic_high">高</string>
+    <string name="settings_haptic_preview">预览振动</string>
+    <string name="widget_previous">上一首</string>
+    <string name="widget_next">下一首</string>
+    <string name="widget_play_pause">播放或暂停</string>
+    <string name="audio_route_title">音频输出与会话</string>
+    <string name="audio_route_unknown">未知</string>
+    <string name="audio_route_yes">是</string>
+    <string name="audio_route_no">否</string>
+    <string name="audio_route_available">可用设备：%1$s</string>
+    <string name="audio_route_predicted">预计音乐路径：%1$s</string>
+    <string name="audio_route_prediction_note">这是 Android 预测的路径，并不能证明信号的最终路径。</string>
+    <string name="audio_route_session">本地音频会话：%1$d</string>
+    <string name="audio_route_sink">Media3 sink 配置：%1$s</string>
+    <string name="audio_route_float_requested">播放器请求的 PCM float：%1$s</string>
+    <string name="audio_route_offload_requested">已请求 offload：%1$s</string>
+    <string name="audio_route_offload_configured">Sink 已配置为 offload：%1$s</string>
+    <string name="audio_route_offload_sleeping">观测到的 offload 休眠状态：%1$s</string>
+    <string name="audio_route_bluetooth_unknown">无法通过可靠的公开 API 获取蓝牙编解码器。PCM float 不能用于判断编解码器或 DAC 分辨率。</string>
+    <string name="audio_route_format_query_note">格式的 offload 支持情况以 44.1 kHz 立体声进行查询，并非对当前播放曲目的观测结果。</string>
+    <string name="audio_route_query_failed">无法查询音频路径。请重新连接或重新打开此页面以刷新。</string>
+    <string name="audio_route_sink_capabilities">Sink 能力：%1$s</string>
+    <string name="audio_route_sink_value">%1$d Hz · %2$s · %3$d 声道</string>
+</resources>

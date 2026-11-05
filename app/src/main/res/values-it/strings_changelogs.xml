@@ -26,7 +26,6 @@
         <item>Restyling completo del player.</item>
         <item>Miglioramento delle prestazioni della libreria.</item>
         <item>Miglioramento della velocità di avvio dell’app.</item>
-        <item>L’IA ora fornisce risultati migliori.</item>
     </string-array>
 
     <string-array name="changelog_020_fixes">
@@ -47,7 +46,6 @@
         <item>Animazioni e transizioni più fluide in tutta l’app.</item>
         <item>Migliorata la schermata artista con più dettagli.</item>
         <item>Migliorati DailyMix e YourMix con selezioni più varie.</item>
-        <item>Potenziata la generazione playlist IA.</item>
         <item>Ricerca migliorata per risultati più rapidi.</item>
         <item>Supporto esteso a più formati audio.</item>
     </string-array>
@@ -78,7 +76,6 @@
         <item>Aggiornamento Material 3 Expressive UI</item>
         <item>Equalizzatore a 10 bande &amp; effetti</item>
         <item>Nuovo flusso di sincronizzazione libreria</item>
-        <item>Integrazione IA (modelli Gemini)</item>
         <item>Import/Export playlist M3U</item>
         <item>Integrazione artwork artisti Deezer</item>
         <item>Copertine playlist personalizzate</item>
@@ -121,7 +118,6 @@
 
     <string-array name="changelog_070_whats_new">
         <item>Wear OS: trasferimento musica, riproduzione locale, sync coda e controllo remoto.</item>
-        <item>IA: integrazione Groq AI e OpenRouter (sperimentale).</item>
         <item>Cloud: aggiunto supporto Jellyfin.</item>
         <item>Testi: traduzione sincronizzata, supporto Kugou LRC, allineamento migliorato.</item>
         <item>UI/UX: barra compatta, temi dinamici, marquee, nuovi ordinamenti.</item>
@@ -149,7 +145,6 @@
     <string-array name="changelog_075_whats_new">
         <item>Integrazione Google Drive con gestione riproduzione.</item>
         <item>Modifica batch dei metadati.</item>
-        <item>Traduzione testi IA con opzioni Wear OS.</item>
         <item>Strumento diagnostica lag e selezione multipla ricerca.</item>
         <item>Supporto arabo e turco con opzioni rete locale HTTP.</item>
     </string-array>

@@ -1,0 +1,28 @@
+<resources>
+    <string name="settings_haptic_intensity">Dokunsal geri bildirim şiddeti</string>
+    <string name="settings_haptic_low">Düşük</string>
+    <string name="settings_haptic_medium">Orta</string>
+    <string name="settings_haptic_high">Yüksek</string>
+    <string name="settings_haptic_preview">Titreşimi dene</string>
+    <string name="widget_previous">Önceki parça</string>
+    <string name="widget_next">Sonraki parça</string>
+    <string name="widget_play_pause">Oynat veya duraklat</string>
+    <string name="audio_route_title">Ses çıkışı ve oturum</string>
+    <string name="audio_route_unknown">Bilinmiyor</string>
+    <string name="audio_route_yes">Evet</string>
+    <string name="audio_route_no">Hayır</string>
+    <string name="audio_route_available">Kullanılabilir: %1$s</string>
+    <string name="audio_route_predicted">Müzik için öngörülen yol: %1$s</string>
+    <string name="audio_route_prediction_note">Android bu yolu öngörür; bu, sinyalin son yolunu doğrulamaz.</string>
+    <string name="audio_route_session">Yerel ses oturumu: %1$d</string>
+    <string name="audio_route_sink">Media3 sink yapılandırması: %1$s</string>
+    <string name="audio_route_float_requested">Oynatıcının istediği PCM float: %1$s</string>
+    <string name="audio_route_offload_requested">Offload istendi: %1$s</string>
+    <string name="audio_route_offload_configured">Sink offload için yapılandırıldı: %1$s</string>
+    <string name="audio_route_offload_sleeping">Gözlemlenen offload uyku durumu: %1$s</string>
+    <string name="audio_route_bluetooth_unknown">Bluetooth codec’i: güvenilir bir herkese açık API üzerinden kullanılamıyor. PCM float, codec’i veya DAC çözünürlüğünü belirlemez.</string>
+    <string name="audio_route_format_query_note">Biçimlerin offload desteği 44,1 kHz stereo için sorgulanır. Bu, çalan parçanın gözlemi değildir.</string>
+    <string name="audio_route_query_failed">Ses yolu sorgulanamıyor. Yenilemek için yeniden bağlanın veya bu ekranı yeniden açın.</string>
+    <string name="audio_route_sink_capabilities">Sink yetenekleri: %1$s</string>
+    <string name="audio_route_sink_value">%1$d Hz · %2$s · %3$d kanal</string>
+</resources>

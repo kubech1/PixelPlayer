@@ -1,5 +1,8 @@
 package com.theveloper.pixelplay.presentation.components.scoped
 
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.currentStateAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -72,7 +75,8 @@ fun rememberSmoothProgress(
     // `delay`, which contributed to the post-interaction gesture lag.
     val latestSampleWhilePlayingMs by rememberUpdatedState(sampleWhilePlayingMs)
     val latestSampleWhilePausedMs by rememberUpdatedState(sampleWhilePausedMs)
-    val latestIsVisible by rememberUpdatedState(isVisible)
+    val lifecycle by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
+    val latestIsVisible by rememberUpdatedState(isVisible && lifecycle.isAtLeast(Lifecycle.State.RESUMED))
 
     val safeUpperBound = totalDuration.coerceAtLeast(0L)
     val safeDuration = totalDuration.coerceAtLeast(1L)
@@ -85,7 +89,7 @@ fun rememberSmoothProgress(
             sampledFraction = (clampedPosition / safeDuration.toFloat()).coerceIn(0f, 1f)
         }
 
-        sampleNow()
+        if (latestIsVisible) sampleNow()
 
         while (isActive) {
             val isVisible = latestIsVisible
@@ -105,7 +109,7 @@ fun rememberSmoothProgress(
 
             val delayMillis = latestSampleWhilePlayingMs
             delay(delayMillis.coerceAtLeast(1L))
-            sampleNow()
+            if (latestIsVisible) sampleNow()
         }
     }
 

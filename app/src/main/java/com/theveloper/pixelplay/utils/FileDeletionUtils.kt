@@ -9,21 +9,11 @@ import kotlinx.coroutines.withContext
 object FileDeletionUtils {
 
     /**
-     * Main method to delete a file - handles all Android versions automatically
+     * Delete through MediaStore on the phone baseline (Android 17+).
      */
     suspend fun deleteFile(context: Context, filePath: String): Boolean {
         return try {
-            when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                    deleteFileAndroid11Plus(context, filePath)
-                }
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
-                    deleteFileAndroid10(context, filePath)
-                }
-                else -> {
-                    deleteFileLegacy(context, filePath)
-                }
-            }
+            deleteFileAndroid11Plus(context, filePath)
         } catch (e: Exception) {
             false
         }
@@ -75,48 +65,6 @@ object FileDeletionUtils {
             null
         }
     }
-
-    /**
-     * Android 10 (API 29) deletion - Scoped Storage
-     */
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private suspend fun deleteFileAndroid10(context: Context, filePath: String): Boolean {
-        return withContext(Dispatchers.IO) {
-            try {
-                val file = File(filePath)
-                if (!file.exists()) return@withContext true
-
-                // For Android 10, we can still use MediaStore for media files
-                val uri = MediaStorePermissionHelper.getMediaStoreUri(context, filePath)
-                return@withContext if (uri != null) {
-                    val rowsDeleted = context.contentResolver.delete(uri, null, null)
-                    rowsDeleted > 0
-                } else {
-                    // For non-media files in app-specific directory
-                    file.delete()
-                }
-            } catch (e: Exception) {
-                false
-            }
-        }
-    }
-
-    /**
-     * Legacy deletion for Android 9 and below
-     */
-    private suspend fun deleteFileLegacy(context: Context, filePath: String): Boolean {
-        return withContext(Dispatchers.IO) {
-            try {
-                val file = File(filePath)
-                if (!file.exists()) return@withContext true
-
-                file.delete()
-            } catch (e: Exception) {
-                false
-            }
-        }
-    }
-
 
     /**
      * Delete multiple files at once

@@ -153,12 +153,12 @@
 
     <!-- LyricsMoreBottomSheet -->
     <string name="lyrics_save_title">保存歌词</string>
-    <string name="lyrics_translate_via_ai">使用 AI 翻译</string>
-    <string name="lyrics_translate_already_translated">此歌词已有翻译</string>
-    <string name="lyrics_translate_already_in_target_language">此歌词已经是该语言</string>
-    <string name="lyrics_translate_api_not_configured">未配置 API</string>
-    <string name="lyrics_translate_success">歌词翻译成功！</string>
-    <string name="lyrics_translate_progress">正在翻译歌词...</string>
+    
+    
+    
+    
+    
+    
     <string name="lyrics_reset_imported">重置已导入的歌词</string>
     <string name="lyrics_reset_dialog_title">重置歌词？</string>
     <string name="lyrics_reset_dialog_message">您确定要重置此歌曲的歌词吗？</string>

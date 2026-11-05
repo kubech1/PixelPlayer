@@ -32,7 +32,10 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
+    name = "settings",
+    produceMigrations = { listOf(RetiredAiPreferencesMigration()) }
+)
 
 object ThemePreference {
     const val DEFAULT = "default"
@@ -213,6 +216,7 @@ class UserPreferencesRepository @Inject constructor(
         val ALBUM_ART_CACHE_LIMIT_MB = intPreferencesKey("album_art_cache_limit_mb")
         val TAP_BACKGROUND_CLOSES_PLAYER = booleanPreferencesKey("tap_background_closes_player")
         val HAPTICS_ENABLED = booleanPreferencesKey("haptics_enabled")
+        val HAPTIC_INTENSITY = stringPreferencesKey("haptic_intensity")
         val ADVANCED_PERFORMANCE_DIAGNOSTICS_ENABLED =
             booleanPreferencesKey("advanced_performance_diagnostics_enabled")
         val ADVANCED_PERFORMANCE_DIAGNOSTICS_STARTED_AT =
@@ -1240,6 +1244,13 @@ suspend fun markDirectoryRulesVersionApplied(version: Int) {
     val hapticsEnabledFlow: Flow<Boolean> =
         pref { it[PreferencesKeys.HAPTICS_ENABLED] ?: true }
 
+    val hapticIntensityFlow: Flow<com.theveloper.pixelplay.presentation.utils.HapticIntensity> =
+        pref { com.theveloper.pixelplay.presentation.utils.HapticIntensity.fromStorage(it[PreferencesKeys.HAPTIC_INTENSITY]) }
+
+    suspend fun setHapticIntensity(intensity: com.theveloper.pixelplay.presentation.utils.HapticIntensity) {
+        dataStore.edit { it[PreferencesKeys.HAPTIC_INTENSITY] = intensity.name }
+    }
+
     suspend fun setHapticsEnabled(enabled: Boolean) {
         dataStore.edit { it[PreferencesKeys.HAPTICS_ENABLED] = enabled }
     }
@@ -1312,7 +1323,7 @@ suspend fun markDirectoryRulesVersionApplied(version: Int) {
     suspend fun exportPreferencesForBackup(): List<PreferenceBackupEntry> {
         val snapshot = dataStore.data.first().asMap()
         return snapshot.mapNotNull { (key, value) ->
-            if (key.name in backupExcludedKeyNames) return@mapNotNull null
+            if (key.name in backupExcludedKeyNames || RetiredAiData.isPreferenceKey(key.name)) return@mapNotNull null
             when (value) {
                 is String  -> PreferenceBackupEntry(key = key.name, type = "string",     stringValue = value)
                 is Int     -> PreferenceBackupEntry(key = key.name, type = "int",        intValue = value)
@@ -1343,7 +1354,7 @@ suspend fun markDirectoryRulesVersionApplied(version: Int) {
                     }
             }
             entries.forEach { entry ->
-                if (entry.key in backupExcludedKeyNames) return@forEach
+                if (entry.key in backupExcludedKeyNames || RetiredAiData.isPreferenceKey(entry.key)) return@forEach
                 when (entry.type) {
                     "string"     -> entry.stringValue?.let { preferences[stringPreferencesKey(entry.key)] = it }
                     "int"        -> (entry.intValue ?: entry.doubleValue?.toInt() ?: entry.longValue?.toInt())

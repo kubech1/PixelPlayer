@@ -50,7 +50,7 @@ object AppLocaleManager {
         val configuration = Configuration(base.resources.configuration).apply {
             setLocale(locale)
             setLayoutDirection(locale)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            run {
                 setLocales(LocaleList(locale))
             }
         }

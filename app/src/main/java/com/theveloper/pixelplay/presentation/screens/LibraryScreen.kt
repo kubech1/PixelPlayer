@@ -155,8 +155,6 @@ import com.theveloper.pixelplay.presentation.navigation.Screen
 import com.theveloper.pixelplay.presentation.components.MultiSelectionBottomSheet
 import com.theveloper.pixelplay.presentation.components.AlbumMultiSelectionOptionSheet
 import com.theveloper.pixelplay.presentation.components.PlaylistMultiSelectionBottomSheet
-import com.theveloper.pixelplay.presentation.components.PlaylistCreationTypeDialog
-import com.theveloper.pixelplay.presentation.components.CreateAiPlaylistDialog
 import com.theveloper.pixelplay.presentation.components.subcomps.SelectionActionRow
 import com.theveloper.pixelplay.presentation.components.subcomps.SelectionCountPill
 import com.theveloper.pixelplay.presentation.viewmodel.ColorSchemePair
@@ -491,13 +489,7 @@ fun LibraryScreen(
             .map { uiState -> uiState.currentFolder != null && uiState.folderBackGestureNavigationEnabled }
             .distinctUntilChanged()
     }.collectAsStateWithLifecycle(initialValue = false)
-    val hasActiveAiProviderApiKey by playerViewModel.hasActiveAiProviderApiKey.collectAsStateWithLifecycle()
-    val isGeneratingAiPlaylist by playerViewModel.isGeneratingAiPlaylist.collectAsStateWithLifecycle()
-    val aiError by playerViewModel.aiError.collectAsStateWithLifecycle()
     var showCreatePlaylistDialog by remember { mutableStateOf(false) }
-    var showPlaylistCreationTypeDialog by remember { mutableStateOf(false) }
-    var showCreateAiPlaylistDialog by remember { mutableStateOf(false) }
-    var aiGenerationRequestedFromDialog by remember { mutableStateOf(false) }
 
     val m3uImportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -747,30 +739,7 @@ fun LibraryScreen(
         }
     }
 
-    LaunchedEffect(
-        showCreateAiPlaylistDialog,
-        aiGenerationRequestedFromDialog,
-        isGeneratingAiPlaylist,
-        aiError
-    ) {
-        if (!showCreateAiPlaylistDialog || !aiGenerationRequestedFromDialog || isGeneratingAiPlaylist) {
-            return@LaunchedEffect
-        }
 
-        if (aiError == null) {
-            showCreateAiPlaylistDialog = false
-            playerViewModel.clearAiPlaylistError()
-        }
-        aiGenerationRequestedFromDialog = false
-    }
-
-    LaunchedEffect(hasActiveAiProviderApiKey, showCreateAiPlaylistDialog) {
-        if (!hasActiveAiProviderApiKey && showCreateAiPlaylistDialog) {
-            showCreateAiPlaylistDialog = false
-            aiGenerationRequestedFromDialog = false
-            playerViewModel.clearAiPlaylistError()
-        }
-    }
     // La lógica de carga diferida (lazy loading) se mantiene.
     LaunchedEffect(Unit) {
         Trace.beginSection("LibraryScreen.InitialTabLoad")
@@ -1256,7 +1225,7 @@ fun LibraryScreen(
                                         .padding(end = 4.dp),
                                     onMainActionClick = {
                                         when (tabTitles.getOrNull(currentTabIndex)?.toLibraryTabIdOrNull()) {
-                                            LibraryTabId.PLAYLISTS -> showPlaylistCreationTypeDialog = true
+                                            LibraryTabId.PLAYLISTS -> showCreatePlaylistDialog = true
                                             LibraryTabId.LIKED -> playerViewModel.shuffleFavoriteSongs()
                                             LibraryTabId.ALBUMS -> playerViewModel.shuffleRandomAlbum()
                                             LibraryTabId.ARTISTS -> playerViewModel.shuffleRandomArtist()
@@ -1741,40 +1710,10 @@ fun LibraryScreen(
 
 
 
-    PlaylistCreationTypeDialog(
-        visible = showPlaylistCreationTypeDialog,
-        onDismiss = { showPlaylistCreationTypeDialog = false },
-        onManualSelected = {
-            showPlaylistCreationTypeDialog = false
-            showCreatePlaylistDialog = true
-        },
-        onAiSelected = {
-            if (hasActiveAiProviderApiKey) {
-                showPlaylistCreationTypeDialog = false
-                playerViewModel.clearAiPlaylistError()
-                showCreateAiPlaylistDialog = true
-            } else {
-                Toast.makeText(context, context.getString(R.string.library_toast_set_ai_provider_api_key_first), Toast.LENGTH_SHORT).show()
-            }
-        },
-        isAiEnabled = hasActiveAiProviderApiKey,
-        onSetupAiClick = {
-            navController.navigateSafely(Screen.SettingsCategory.createRoute("ai"))
-        }
-    )
 
     CreatePlaylistDialog(
         visible = showCreatePlaylistDialog,
         onDismiss = { showCreatePlaylistDialog = false },
-        onGenerateClick = {
-            showCreatePlaylistDialog = false
-            if (hasActiveAiProviderApiKey) {
-                playerViewModel.clearAiPlaylistError()
-                showCreateAiPlaylistDialog = true
-            } else {
-                Toast.makeText(context, context.getString(R.string.library_toast_set_ai_provider_api_key_first), Toast.LENGTH_SHORT).show()
-            }
-        },
         onCreate = { name, imageUri, color, icon, songIds, cropScale, cropPanX, cropPanY, shapeType, d1, d2, d3, d4, smartRuleKey ->
             playlistViewModel.createPlaylist(
                 name = name,
@@ -1785,7 +1724,6 @@ fun LibraryScreen(
                 cropScale = cropScale,
                 cropPanX = cropPanX,
                 cropPanY = cropPanY,
-                isAiGenerated = false,
                 isQueueGenerated = false,
                 coverShapeType = shapeType,
                 coverShapeDetail1 = d1,
@@ -1797,26 +1735,6 @@ fun LibraryScreen(
         }
     )
 
-    CreateAiPlaylistDialog(
-        visible = showCreateAiPlaylistDialog && hasActiveAiProviderApiKey,
-        isGenerating = isGeneratingAiPlaylist,
-        error = aiError,
-        onDismiss = {
-            showCreateAiPlaylistDialog = false
-            aiGenerationRequestedFromDialog = false
-            playerViewModel.clearAiPlaylistError()
-        },
-        onGenerate = { playlistName, prompt, minLength, maxLength ->
-            aiGenerationRequestedFromDialog = true
-            playerViewModel.generateAiPlaylist(
-                prompt = prompt,
-                minLength = minLength,
-                maxLength = maxLength,
-                saveAsPlaylist = true,
-                playlistName = playlistName
-            )
-        }
-    )
 
     if (showWatchTransferDialog && activeWatchTransfer != null) {
         val currentWatchTransfer = activeWatchTransfer!!
@@ -2820,10 +2738,10 @@ internal fun resolveFolderNavigationDirection(initialPath: String?, targetPath: 
     }
 
 private fun isDescendantFolderPath(ancestorPath: String, candidatePath: String): Boolean {
-    val normalizedAncestor = ancestorPath.trimEnd(File.separatorChar)
-    val normalizedCandidate = candidatePath.trimEnd(File.separatorChar)
+    val normalizedAncestor = ancestorPath.trimEnd('/')
+    val normalizedCandidate = candidatePath.trimEnd('/')
     if (normalizedAncestor == normalizedCandidate) return false
-    return normalizedCandidate.startsWith("$normalizedAncestor${File.separatorChar}")
+    return normalizedCandidate.startsWith("$normalizedAncestor/")
 }
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3ExpressiveApi::class)

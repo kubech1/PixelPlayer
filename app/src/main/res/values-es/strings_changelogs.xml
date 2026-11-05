@@ -24,7 +24,6 @@
         <item>Rediseño completo del reproductor.</item>
         <item>Mejoras de rendimiento en la biblioteca.</item>
         <item>Mejorada la velocidad de inicio de la aplicación.</item>
-        <item>La IA ahora proporciona mejores resultados.</item>
     </string-array>
     <string-array name="changelog_020_fixes">
         <item>Se corrigieron varios errores en el editor de etiquetas.</item>
@@ -42,7 +41,6 @@
         <item>Se suavizaron las animaciones y transiciones en toda la app para una navegación más fluida.</item>
         <item>Se mejoró el diseño de la pantalla de artista con detalles más ricos y pulido.</item>
         <item>Se mejoró la generación de DailyMix y YourMix con selecciones más inteligentes y diversas.</item>
-        <item>Se fortaleció la generación de listas con IA.</item>
         <item>Se mejoró la relevancia y presentación de la búsqueda para un descubrimiento más rápido.</item>
         <item>Soporte ampliado para una gama más amplia de formatos de archivos de audio.</item>
     </string-array>
@@ -70,7 +68,6 @@
         <item>Actualización de interfaz Material 3 Expressive</item>
         <item>Ecualizador de 10 bandas y efectos</item>
         <item>Nuevo flujo de sincronización de biblioteca</item>
-        <item>Integración de IA (modelos Gemini)</item>
         <item>Importación/exportación de listas M3U</item>
         <item>Integración de portadas de artistas de Deezer</item>
         <item>Portadas de listas personalizadas</item>
@@ -108,7 +105,6 @@
     </string-array>
     <string-array name="changelog_070_whats_new">
         <item>Wear OS: Transferencia de música, reproducción local, sincronización de cola y control remoto desde el reloj.</item>
-        <item>IA: Integración con Groq AI y OpenRouter (experimental) con optimización de tokens.</item>
         <item>Nube: Se añadió soporte para Jellyfin.</item>
         <item>Letras: Traducción sincronizada con interruptor dedicado, soporte para formato Kugou LRC, personalización de alineación de texto y carga remota mejorada.</item>
         <item>UI/UX: Modo de barra de navegación compacta, temas dinámicos a partir de la paleta de carátulas, marquesina para títulos largos y nuevas opciones de ordenación.</item>

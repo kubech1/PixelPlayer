@@ -11,9 +11,13 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.flow.first
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -46,7 +50,7 @@ class LyricsStateHolderTest {
     }
 
     @Test
-    fun fetchLyricsForSong_usesStoredLyricsWithoutRemoteFetch() {
+    fun fetchLyricsForSong_usesStoredLyricsWithoutRemoteFetch() = runBlocking {
         val musicRepository = mockk<MusicRepository>(relaxed = true)
         val userPreferencesRepository = mockk<UserPreferencesRepository>(relaxed = true)
         val songMetadataEditor = mockk<SongMetadataEditor>(relaxed = true)
@@ -55,7 +59,7 @@ class LyricsStateHolderTest {
             userPreferencesRepository = userPreferencesRepository,
             songMetadataEditor = songMetadataEditor
         )
-        val scope = TestScope(StandardTestDispatcher())
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         val callback = RecordingLyricsLoadCallback()
         val state = MutableStateFlow(StablePlayerState())
         val song = testSong(albumArtUriString = "content://art/song_art_1.jpg").copy(
@@ -66,17 +70,22 @@ class LyricsStateHolderTest {
         holder.initialize(scope, callback, state)
         coEvery { musicRepository.getStoredLyrics(song) } returns (storedLyrics to "Stored lyrics")
 
+        try {
         holder.fetchLyricsForSong(
             song = song,
             forcePickResults = false,
             sourcePreference = com.theveloper.pixelplay.data.model.LyricsSourcePreference.API_FIRST
         ) { "Lyrics already available" }
-        scope.advanceUntilIdle()
+        withTimeout(5_000) { holder.searchUiState.first { it is LyricsSearchUiState.Success } }
 
         assertThat(holder.searchUiState.value).isEqualTo(LyricsSearchUiState.Success(storedLyrics))
         coVerify(exactly = 1) { musicRepository.getStoredLyrics(song) }
         coVerify(exactly = 0) { musicRepository.getLyricsFromRemote(any()) }
         coVerify(exactly = 0) { musicRepository.searchRemoteLyrics(any()) }
+        } finally {
+            holder.onCleared()
+            scope.cancel()
+        }
     }
 
     private fun testSong(albumArtUriString: String?): Song {

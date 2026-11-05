@@ -117,31 +117,31 @@
         <item quantity="other">%1$d lagu • %2$s</item>
     </plurals>
     <string name="daily_mix_action_play_it">Putar</string>
-    <string name="daily_mix_cd_ai_playlist_generator">Generator Playlist AI</string>
+    
 
     <!-- DailyMixMenu -->
-    <string name="daily_mix_how_title">Bagaimana Daily Mix Anda dibuat</string>
-    <string name="daily_mix_how_body">Daily Mix Anda dibuat dari lagu-lagu favorit dan yang paling sering Anda putar. Kami juga menambahkan lagu dari artis dan genre yang Anda suka supaya Anda bisa menemukan musik baru.</string>
-    <string name="daily_mix_prompt_label">Beri tahu AI apa yang ingin Anda dengarkan hari ini</string>
-    <string name="daily_mix_cost_hint">Kami menggunakan sampel kecil untuk menjaga biaya tetap rendah</string>
-    <string name="daily_mix_updating">Memperbarui…</string>
-    <string name="daily_mix_update">Perbarui Daily Mix</string>
+    
+    
+    
+    
+    
+    
 
     <!-- AIPlaylistSheet -->
-    <string name="ai_playlist_headline_perfect">Perfectly Curated</string>
-    <string name="ai_playlist_headline_daily_mix">Daily Mix</string>
-    <string name="ai_playlist_subtitle_journey_ready">Perjalanan sonik Anda sudah siap</string>
-    <string name="ai_playlist_subtitle_generator">Generator Playlist AI</string>
-    <string name="ai_playlist_description">Jelaskan getaran, suasana hati, atau aktivitas dan biarkan AI menciptakan playlist yang sempurna dari pustaka Anda.</string>
-    <string name="ai_playlist_section_size">Ukuran playlist</string>
-    <string name="ai_playlist_min_songs">Lagu min</string>
-    <string name="ai_playlist_max_songs">Lagu maks</string>
-    <string name="ai_playlist_prompt_placeholder">misal. Getaran malam santai, energi latihan yang ceria…</string>
-    <string name="ai_playlist_tap_to_retry">Ketuk untuk Mencoba Lagi</string>
-    <string name="ai_playlist_status_default">Perjalanan sonik disintesis!</string>
-    <string name="ai_playlist_ready_to_play">Siap Diputar</string>
-    <string name="ai_playlist_generating">Menghasilkan…</string>
-    <string name="ai_playlist_generate">Hasilkan Playlist</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- RecentlyPlayedSection -->
     <string name="home_recently_played_title">Baru Diputar</string>

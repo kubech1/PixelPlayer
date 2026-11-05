@@ -119,31 +119,31 @@
         <item quantity="other">%1$d песни • %2$s</item>
     </plurals>
     <string name="daily_mix_action_play_it">Воспроизвести</string>
-    <string name="daily_mix_cd_ai_playlist_generator">Генератор плейлистов ИИ</string>
+    
 
     <!-- DailyMixMenu -->
-    <string name="daily_mix_how_title">Как создаётся ваш Daily Mix</string>
-    <string name="daily_mix_how_body">Ваш Daily Mix формируется на основе любимых и самых часто прослушиваемых песен. Мы также добавляем треки исполнителей и жанров, которые вам нравятся, чтобы помочь открыть новую музыку.</string>
-    <string name="daily_mix_prompt_label">Расскажите ИИ, что вы хотите послушать сегодня</string>
-    <string name="daily_mix_cost_hint">Мы используем небольшую выборку, чтобы снизить расходы</string>
-    <string name="daily_mix_updating">Обновление…</string>
-    <string name="daily_mix_update">Обновить Daily Mix</string>
+    
+    
+    
+    
+    
+    
 
     <!-- AIPlaylistSheet -->
-    <string name="ai_playlist_headline_perfect">Идеально подобранный</string>
-    <string name="ai_playlist_headline_daily_mix">Daily Mix</string>
-    <string name="ai_playlist_subtitle_journey_ready">Ваше музыкальное путешествие готово</string>
-    <string name="ai_playlist_subtitle_generator">Генератор плейлистов ИИ</string>
-    <string name="ai_playlist_description">Опишите атмосферу, настроение или занятие, а ИИ создаст идеальный плейлист из вашей библиотеки.</string>
-    <string name="ai_playlist_section_size">Размер плейлиста</string>
-    <string name="ai_playlist_min_songs">Мин. песен</string>
-    <string name="ai_playlist_max_songs">Макс. песен</string>
-    <string name="ai_playlist_prompt_placeholder">Например: спокойный вечер, энергичная тренировка…</string>
-    <string name="ai_playlist_tap_to_retry">Нажмите, чтобы повторить</string>
-    <string name="ai_playlist_status_default">Музыкальное путешествие синтезировано!</string>
-    <string name="ai_playlist_ready_to_play">Готово к воспроизведению</string>
-    <string name="ai_playlist_generating">Создание…</string>
-    <string name="ai_playlist_generate">Создать плейлист</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- RecentlyPlayedSection -->
     <string name="home_recently_played_title">Недавно прослушанные</string>

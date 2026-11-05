@@ -22,8 +22,6 @@ import com.theveloper.pixelplay.data.database.EngagementDao
 import com.theveloper.pixelplay.data.database.FavoritesDao
 import com.theveloper.pixelplay.data.database.GDriveDao
 import com.theveloper.pixelplay.data.database.LyricsDao
-import com.theveloper.pixelplay.data.database.AiCacheDao
-import com.theveloper.pixelplay.data.database.AiUsageDao
 import com.theveloper.pixelplay.data.database.LocalPlaylistDao
 import com.theveloper.pixelplay.data.database.MusicDao
 import com.theveloper.pixelplay.data.database.PixelPlayDatabase
@@ -67,6 +65,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    @Provides
+    @Singleton
+    fun provideAudioRouteSource(source: com.theveloper.pixelplay.data.audio.AndroidAudioRouteSource): com.theveloper.pixelplay.data.audio.AudioRouteSource = source
 
     @Singleton
     @Provides
@@ -165,17 +167,13 @@ object AppModule {
             PixelPlayDatabase.MIGRATION_38_39,
             PixelPlayDatabase.MIGRATION_39_40,
             PixelPlayDatabase.MIGRATION_40_41,
-            PixelPlayDatabase.MIGRATION_41_42
+            PixelPlayDatabase.MIGRATION_41_42,
+            PixelPlayDatabase.MIGRATION_42_43
         )
             .addCallback(PixelPlayDatabase.createRuntimeArtifactsCallback())
             .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
 
-        // P2-4: Only allow destructive migration in debug builds.
-        // In release, a migration bug will crash the app (revealing the problem)
-        // rather than silently wiping user data (playlists, favorites, statistics).
-        if (BuildConfig.DEBUG) {
-            builder.fallbackToDestructiveMigration(dropAllTables = true)
-        }
+        // Debug and release must validate the same migrations; never erase user data as a fallback.
 
         return builder.build()
     }
@@ -246,17 +244,6 @@ object AppModule {
         return database.navidromeDao()
     }
     
-    @Singleton
-    @Provides
-    fun provideAiCacheDao(database: PixelPlayDatabase): AiCacheDao {
-        return database.aiCacheDao()
-    }
-
-    @Provides
-    fun provideAiUsageDao(database: PixelPlayDatabase): AiUsageDao {
-        return database.aiUsageDao()
-    }
-
     @Singleton
     @Provides
     fun provideJellyfinDao(database: PixelPlayDatabase): com.theveloper.pixelplay.data.database.JellyfinDao {

@@ -16,8 +16,8 @@
 
     <!-- Library Toasts -->
     <string name="library_toast_playlist_created">Playlist berhasil dibuat</string>
-    <string name="library_toast_set_ai_provider_api_key_first">Atur API key penyedia AI Anda terlebih dahulu</string>
-    <string name="library_toast_set_gemini_api_key_first">Atur API key Gemini Anda terlebih dahulu</string>
+    
+    
     <string name="library_toast_added_to_queue">Ditambahkan ke antrean</string>
     <string name="library_toast_playing_next">Diputar berikutnya</string>
 
@@ -51,8 +51,8 @@
     <string name="library_cloud_sources_heading">Cloud</string>
     <string name="library_cloud_only_label">Hanya Cloud</string>
 
-    <!-- Library AI Metadata Processing -->
-    <string name="library_generating_ai_metadata">Menghasilkan metadata dengan AI…</string>
+    
+    
 
     <!-- Library list errors -->
     <string name="library_error_loading_songs">Gagal memuat lagu</string>
@@ -336,95 +336,73 @@
     <string name="playlist_dismissed_message">Playlist ditutup</string>
 
     <!-- PlaylistCreationDialogs -->
-    <string name="playlist_creation_create_playlist_title">Buat playlist</string>
-    <string name="playlist_creation_create_playlist_subtitle">Pilih alur pembuatan.</string>
-    <string name="playlist_creation_mode_manual_title">Manual</string>
-    <string name="playlist_creation_mode_manual_subtitle">Desain sampul, ikon, bentuk, dan pilih lagu sendiri.</string>
-    <string name="playlist_creation_mode_ai_title">Dengan AI</string>
-    <string name="playlist_creation_mode_ai_subtitle_enabled">Hasilkan playlist yang dikurasi dengan kontrol lanjutan.</string>
-    <string name="playlist_creation_mode_ai_subtitle_disabled">Memerlukan API key Gemini yang dikonfigurasi di pengaturan.</string>
-    <string name="playlist_creation_setup_api_key">Siapkan API key</string>
+    
+    
+    
+    
+    
+    
+    
+    
 
-    <!-- AI playlist lab -->
-    <string name="playlist_creation_ai_lab_title">Lab Playlist AI</string>
-    <string name="playlist_creation_ai_reset">Reset</string>
-    <string name="playlist_creation_ai_generating">Menghasilkan…</string>
-    <string name="playlist_creation_ai_generate">Hasilkan</string>
-    <string name="playlist_creation_ai_section_intent">Tujuan</string>
-    <string name="playlist_creation_ai_name_optional">Nama playlist (opsional)</string>
-    <string name="playlist_creation_ai_feel_label">Seperti apa suasana playlist ini?</string>
-    <string name="playlist_creation_ai_feel_placeholder">Contoh: berkendara saat matahari terbenam dengan synth hangat</string>
-    <string name="playlist_creation_ai_section_direction">Arahan</string>
-    <string name="playlist_creation_ai_mood_label">Suasana Hati</string>
-    <string name="playlist_creation_ai_activity_label">Aktivitas</string>
-    <string name="playlist_creation_ai_era_label">Era</string>
-    <string name="playlist_creation_ai_section_curation">Mesin kurasi</string>
-    <string name="playlist_creation_ai_energy_label">Energi</string>
-    <string name="playlist_creation_ai_energy_desc">Mengontrol intensitas dan tempo lagu. 1 = tenang/lambat, 5 = energi tinggi/cepat.</string>
-    <string name="playlist_creation_ai_discovery_label">Penemuan</string>
-    <string name="playlist_creation_ai_discovery_desc">Mengontrol seberapa familiar pilihannya. 1 = favorit yang paling sering diputar, 5 = lagu jarang diputar.</string>
-    <string name="playlist_creation_ai_min_songs">Lagu min</string>
-    <string name="playlist_creation_ai_max_songs">Lagu maks</string>
-    <string name="playlist_creation_ai_section_filters">Filter</string>
-    <string name="playlist_creation_ai_prioritize_genres">Prioritaskan genre (opsional)</string>
-    <string name="playlist_creation_ai_prioritize_genres_placeholder">misal. synthwave, indie pop</string>
-    <string name="playlist_creation_ai_avoid_genres">Hindari genre (opsional)</string>
-    <string name="playlist_creation_ai_avoid_genres_placeholder">misal. metal, hard trap</string>
-    <string name="playlist_creation_ai_preferred_language">Bahasa pilihan (opsional)</string>
-    <string name="playlist_creation_ai_preferred_language_placeholder">misal. Inggris, Spanyol, instrumental</string>
-    <string name="playlist_creation_ai_prioritize_favorites">Prioritaskan favorit</string>
-    <string name="playlist_creation_ai_avoid_explicit">Hindari lirik eksplisit</string>
-    <string name="playlist_creation_ai_section_prompt_preview">Pratinjau prompt</string>
-    <string name="playlist_creation_ai_prompt_preview_empty">Prompt akhir Anda akan muncul di sini setelah Anda menambahkan preferensi.</string>
-    <string name="playlist_creation_ai_hero_title">Kurasi dengan presisi</string>
-    <string name="playlist_creation_ai_hero_subtitle">Tentukan suasana hati, aktivitas, batasan, dan kedalaman.</string>
-    <string name="playlist_creation_ai_hero_library_note">AI hanya akan menggunakan lagu dari pustaka lokal Anda.</string>
-    <string name="playlist_creation_ai_error_add_instruction">Tambahkan setidaknya satu instruksi untuk AI.</string>
-    <string name="playlist_creation_ai_error_song_range">Atur rentang lagu yang valid.</string>
-    <string name="playlist_creation_ai_level_out_of_five">%1$d/5</string>
-    <string name="playlist_creation_ai_custom_chip">Kustom…</string>
-    <string name="playlist_creation_ai_enter_custom_title">Masukkan nilai kustom</string>
-    <string name="playlist_creation_ai_enter_custom_label">Masukkan nilai kustom Anda</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
-    <!-- AI prompt -->
+    
     <string name="playlist_creation_ai_era_any">Era apa pun</string>
-    <string name="playlist_creation_ai_prompt_core_request">Permintaan utama: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_mood">Target suasana hati: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_activity">Konteks aktivitas: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_era">Fokus era: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_prioritize_genres">Prioritaskan genre: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_avoid_genres">Hindari genre: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_preferred_language">Bahasa pilihan: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_energy">Target tingkat energi: %1$d/5.</string>
-    <string name="playlist_creation_ai_prompt_discovery">Target penemuan: %1$d/5 di mana 1 adalah familiar dan 5 adalah lagu jarang diputar.</string>
-    <string name="playlist_creation_ai_prompt_prioritize_favorites">Prioritaskan lagu yang mendekati favorit pendengar jika memungkinkan.</string>
-    <string name="playlist_creation_ai_prompt_avoid_explicit">Hindari lirik eksplisit jika ada alternatif.</string>
-    <string name="playlist_creation_ai_prompt_smooth_transitions">Jaga transisi tetap mulus dan hindari pengelompokan artis yang berulang.</string>
-    <string-array name="playlist_creation_ai_mood_options">
-        <item>Santai</item>
-        <item>Energik</item>
-        <item>Bahagia</item>
-        <item>Gelap</item>
-        <item>Romantis</item>
-        <item>Melankolis</item>
-    </string-array>
-    <string-array name="playlist_creation_ai_activity_options">
-        <item>Olahraga</item>
-        <item>Fokus</item>
-        <item>Perjalanan jauh</item>
-        <item>Pesta</item>
-        <item>Belajar</item>
-        <item>Larut malam</item>
-    </string-array>
-    <string-array name="playlist_creation_ai_era_options">
-        <item>@string/playlist_creation_ai_era_any</item>
-        <item>70-an</item>
-        <item>80-an</item>
-        <item>90-an</item>
-        <item>2000-an</item>
-        <item>2010-an</item>
-        <item>2020-an</item>
-    </string-array>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- PlaylistContainer -->
     <string name="playlist_container_no_playlist_created">Belum ada playlist yang dibuat.</string>
@@ -498,7 +476,7 @@
     <string name="playlist_view_model_none_to_export">Tidak ada playlist untuk diekspor</string>
     <string name="playlist_view_model_export_failed">Gagal mengekspor: %1$s</string>
     <string name="playlist_view_model_export_folder_display">Musik/Ekspor PixelPlayer</string>
-    <string name="playlist_view_model_ai_gemini_key_required">Silakan konfigurasi API key Gemini Anda di Pengaturan.</string>
+    
     <string name="playlist_view_model_restored_toast">Daftar putar dipulihkan</string>
     <plurals name="playlist_view_model_sharing_message">
         <item quantity="one">Membagikan %d playlist</item>
@@ -553,14 +531,14 @@
     <string name="metadata_edit_permission_denied_save_lyrics">Izin ditolak – tidak dapat menyimpan lirik</string>
     <string name="metadata_edit_permission_denied_edit_this_file">Izin ditolak – tidak dapat mengedit file ini</string>
 
-    <!-- AiStateHolder -->
-    <string name="ai_state_error_api_key">Silakan konfigurasi API key yang valid untuk penyedia AI yang dipilih di Pengaturan.</string>
-    <string name="ai_state_error_generic">Kesalahan AI: %s</string>
-    <string name="ai_state_error_quota">Penyedia AI yang dipilih menolak permintaan karena akun tidak memiliki kredit atau kuota yang tersedia.</string>
-    <string name="ai_state_error_model_unavailable">Model AI yang dipilih tidak lagi tersedia. PixelPlayer mencoba beralih ke model yang didukung secara otomatis.</string>
-    <string name="ai_state_no_songs_found">AI tidak dapat menemukan lagu apa pun untuk permintaan Anda.</string>
-    <string name="ai_state_prompt_empty">Tulis ide untuk Daily Mix Anda</string>
-    <string name="ai_state_daily_mix_updated">Daily Mix diperbarui dengan AI</string>
-    <string name="ai_state_could_not_update">Tidak dapat memperbarui: %s</string>
-    <string name="ai_state_no_songs_for_mix">AI tidak dapat menemukan lagu untuk mix ini</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 </resources>

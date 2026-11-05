@@ -129,7 +129,7 @@ class SleepTimerStateHolder @Inject constructor(
         val pendingIntent = sleepTimerPendingIntent()
 
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            run {
                 if (alarmManager.canScheduleExactAlarms()) {
                     alarmManager.setExactAndAllowWhileIdle(
                         AlarmManager.RTC_WAKEUP,
@@ -143,12 +143,6 @@ class SleepTimerStateHolder @Inject constructor(
                         pendingIntent,
                     )
                 }
-            } else {
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    endTime,
-                    pendingIntent,
-                )
             }
         } catch (e: SecurityException) {
             Timber.e(e, "Failed to schedule exact alarm for sleep timer")

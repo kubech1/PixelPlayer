@@ -204,7 +204,7 @@ fun SetupScreen(
     }
 
     val pages = remember {
-        buildSetupPages(Build.VERSION.SDK_INT)
+        buildSetupPages()
     }
 
     val pagerState = rememberPagerState(pageCount = { pages.size })
@@ -550,13 +550,13 @@ sealed class SetupPage {
     object Finish : SetupPage()
 }
 
-private fun buildSetupPages(sdkInt: Int): List<SetupPage> {
+private fun buildSetupPages(): List<SetupPage> {
     val pages = mutableListOf<SetupPage>(
         SetupPage.Welcome,
         SetupPage.MediaPermission
     )
 
-    if (sdkInt >= Build.VERSION_CODES.TIRAMISU) {
+    run {
         pages += SetupPage.NotificationsPermission
     }
 
@@ -566,7 +566,7 @@ private fun buildSetupPages(sdkInt: Int): List<SetupPage> {
     pages += SetupPage.LibraryLayout
     pages += SetupPage.NavBarLayout
 
-    if (sdkInt >= Build.VERSION_CODES.S) {
+    run {
         pages += SetupPage.AlarmsPermission
     }
 
@@ -599,7 +599,6 @@ private fun isPermissionGateSatisfied(
         }
         SetupPage.NotificationsPermission -> {
             uiState.notificationsPermissionGranted ||
-                Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
                 ContextCompat.checkSelfPermission(
                     context,
                     Manifest.permission.POST_NOTIFICATIONS
@@ -612,8 +611,7 @@ private fun isPermissionGateSatisfied(
 private fun allRequiredPermissionsGrantedNow(context: Context): Boolean {
     val mediaGranted = hasMediaPermissionNow(context)
     val notificationsGranted =
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-            ContextCompat.checkSelfPermission(
+        ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED
@@ -621,16 +619,13 @@ private fun allRequiredPermissionsGrantedNow(context: Context): Boolean {
 }
 
 private fun hasMediaPermissionNow(context: Context): Boolean {
-    val mediaPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    val mediaPermission = run {
         Manifest.permission.READ_MEDIA_AUDIO
-    } else {
-        Manifest.permission.READ_EXTERNAL_STORAGE
     }
     return ContextCompat.checkSelfPermission(context, mediaPermission) == PackageManager.PERMISSION_GRANTED
 }
 
 private fun hasExactAlarmPermissionNow(context: Context): Boolean {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return true
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
     return alarmManager.canScheduleExactAlarms()
 }
@@ -763,10 +758,8 @@ fun MediaPermissionPage(
     uiState: SetupUiState,
     onPermissionStateUpdated: () -> Unit
 ) {
-    val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    val permissions = run {
         listOf(Manifest.permission.READ_MEDIA_AUDIO)
-    } else {
-        listOf(Manifest.permission.READ_EXTERNAL_STORAGE)
     }
     val permissionState = rememberMultiplePermissionsState(permissions = permissions)
     val mediaIcons = persistentListOf(
@@ -805,7 +798,7 @@ fun NotificationsPermissionPage(
     uiState: SetupUiState,
     onPermissionStateUpdated: () -> Unit
 ) {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+
 
     val permissionState = rememberMultiplePermissionsState(permissions = listOf(Manifest.permission.POST_NOTIFICATIONS))
     val notificationIcons = persistentListOf(
@@ -843,7 +836,6 @@ fun AlarmsPermissionPage(
     uiState: SetupUiState,
     onSkip: () -> Unit
 ) {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
 
     val context = LocalContext.current
     val icons = persistentListOf(

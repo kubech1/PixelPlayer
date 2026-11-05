@@ -9,8 +9,8 @@
     <string name="settings_category_playback_subtitle">Audio behavior, crossfade, and background play</string>
     <string name="settings_category_behavior_title">Behavior</string>
     <string name="settings_category_behavior_subtitle">Gestures, haptics, and navigation behavior</string>
-    <string name="settings_category_ai_title">AI Integration (β)</string>
-    <string name="settings_category_ai_subtitle">AI providers, API keys, and model settings</string>
+    
+    
     <string name="settings_category_backup_title">Backup &amp; Restore</string>
     <string name="settings_category_backup_subtitle">Export and recover your personal app data</string>
     <string name="settings_category_developer_title">Developer Options</string>
@@ -303,55 +303,55 @@
     <string name="settings_haptic_feedback_title">Haptic feedback</string>
     <string name="settings_haptic_feedback_subtitle">Enable vibration feedback across the app.</string>
 
-    <!-- AI Integration category -->
-    <string name="settings_ai_provider_section">AI Provider</string>
-    <string name="settings_ai_provider_title">Provider</string>
-    <string name="settings_ai_provider_subtitle">Choose your AI provider</string>
-    <string name="settings_safe_token_title">Safe Token Mode</string>
-    <string name="settings_safe_token_on">ON — Fast &amp; cheap. Sends minimal data (~1K tokens) to AI.</string>
-    <string name="settings_safe_token_off">OFF — Deep context. Sends full listening profile (~8K tokens) for richer results.</string>
-    <string name="settings_credentials_section">Credentials</string>
-    <string name="settings_ai_api_key_title">%1$s API Key</string>
-    <string name="settings_ai_api_key_subtitle">Get from %1$s</string>
-    <string name="settings_ai_source_gemini">Google AI Studio (aistudio.google.com)</string>
-    <string name="settings_ai_source_deepseek">DeepSeek Platform (api.deepseek.com)</string>
-    <string name="settings_ai_source_groq">Groq Console (console.groq.com)</string>
-    <string name="settings_ai_source_mistral">Mistral AI Platform (console.mistral.ai)</string>
-    <string name="settings_ai_source_nvidia">NVIDIA Build (build.nvidia.com)</string>
-    <string name="settings_ai_source_kimi">Moonshot AI Platform (platform.moonshot.cn)</string>
-    <string name="settings_ai_source_glm">Zhipu AI Open Platform (bigmodel.cn)</string>
-    <string name="settings_ai_source_openai">OpenAI Platform (platform.openai.com)</string>
-    <string name="settings_model_selection_section">Model Selection</string>
-    <string name="settings_loading_models">Loading available models…</string>
-    <string name="settings_models_fetch_failed">Failed to load models</string>
-    <string name="settings_ai_model_title">AI Model</string>
-    <string name="settings_ai_model_subtitle">Select a model.</string>
-    <string name="settings_enter_api_key_placeholder">Enter API Key</string>
-    <string name="settings_prompt_behavior_section">Prompt Behavior</string>
-    <string name="settings_system_prompt_title">System Prompt</string>
-    <string name="settings_system_prompt_subtitle">Customize how the AI behaves.</string>
-    <string name="settings_preset_prompts">Preset Prompts</string>
-    <string name="settings_system_prompt_placeholder">Enter system prompt…</string>
-    <string name="settings_preset_professional_curator_name">Professional Curator</string>
-    <string name="settings_preset_professional_curator_prompt">You are \'Vibe-Engine\', a world-class music curator and master of sonic flow. Your goal is to construct seamless, high-fidelity listening experiences. Prioritize harmonic compatibility, logical BPM transitions, and a sophisticated balance between familiar favorites and tasteful, logic-driven discovery.</string>
-    <string name="settings_preset_creative_maverick_name">Creative Maverick</string>
-    <string name="settings_preset_creative_maverick_prompt">You are an avant-garde music explorer specializing in \'unexpected cohesion\'. Your mission is to break conventional genre boundaries by identifying non-obvious sonic parallels. Prioritize rare deep cuts, experimental textures, and artistic novelty while maintaining a surprising but undeniable transition logic.</string>
-    <string name="settings_preset_strict_librarian_name">Strict Librarian</string>
-    <string name="settings_preset_strict_librarian_prompt">You are a surgical music database architect. Your logic is driven by absolute metadata precision and rigid categorical adherence. Minimize algorithmic discovery in favor of strict genre consistency, energy-level matching, and maximizing the retrieval of highly specific user-defined preferences.</string>
-    <string name="settings_preset_atmospheric_guide_name">Atmospheric Guide</string>
-    <string name="settings_preset_atmospheric_guide_prompt">You are a master of ambient textures and low-energy flow. Focus exclusively on tracks that facilitate a \'deep focus\' or \'tranquility\' state. Prioritize acoustic warmth, minimalist arrangements, and gentle transitions, while strictly avoiding high-transient sounds or sudden shifts in dynamic range.</string>
-    <string name="settings_preset_sonic_enthusiast_name">Sonic Enthusiast</string>
-    <string name="settings_preset_sonic_enthusiast_prompt">You are an audiophile analyst focused on production complexity and instrumentation. Prioritize tracks characterized by high dynamic range, intricate polyrhythms, and superior soundstage quality. Favor active-listening pieces that reward the listener for paying attention to technical fidelity and arrangement detail.</string>
-    <string name="settings_preset_energy_catalyst_name">Energy Catalyst</string>
-    <string name="settings_preset_energy_catalyst_prompt">You are a high-momentum rhythm generator. Your philosophy centers on driving basslines, percussive intensity, and infectious grooves. Prioritize high-BPM club compatibility, syncopated energy, and continuous rhythmic tension to keep the listener\'s heart rate and motivation peak-level.</string>
-    <string name="settings_ai_usage_report_section">AI Usage Report</string>
-    <string name="settings_total_consumption_title">Total Consumption</string>
-    <string name="settings_ai_usage_tokens_subtitle">%1$s tokens tracking\nPrompt: %2$s | Output: %3$s | Thought: %4$s</string>
-    <string name="settings_ai_clear_logs">Clear Logs</string>
-    <string name="settings_ai_activity_log_title">AI Activity Log (%1$d)</string>
-    <string name="settings_ai_usage_provier_model">%1$s · %2$s</string>
-    <string name="settings_ai_show_logs">Show</string>
-    <string name="settings_ai_hide_logs">Hide</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- Backup & Restore category -->
     <string name="settings_backup_how_dialog_title">How backup works</string>

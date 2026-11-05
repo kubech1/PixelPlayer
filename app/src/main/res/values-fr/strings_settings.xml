@@ -9,8 +9,8 @@
     <string name="settings_category_playback_subtitle">Comportement audio, fondu enchaîné et lecture en arrière-plan</string>
     <string name="settings_category_behavior_title">Comportement</string>
     <string name="settings_category_behavior_subtitle">Gestes, retour haptique et comportement de navigation</string>
-    <string name="settings_category_ai_title">Intégration IA (β)</string>
-    <string name="settings_category_ai_subtitle">Fournisseurs d\'IA, clés API et paramètres du modèle</string>
+    
+    
     <string name="settings_category_backup_title">Sauvegarde et restauration</string>
     <string name="settings_category_backup_subtitle">Exporter et récupérer vos données personnelles de l\'application</string>
     <string name="settings_category_developer_title">Options développeur</string>
@@ -299,55 +299,55 @@
     <string name="settings_haptic_feedback_title">Retour haptique</string>
     <string name="settings_haptic_feedback_subtitle">Activer le retour par vibration dans toute l\'application.</string>
 
-    <!-- AI Integration category -->
-    <string name="settings_ai_provider_section">Fournisseur d\'IA</string>
-    <string name="settings_ai_provider_title">Fournisseur</string>
-    <string name="settings_ai_provider_subtitle">Choisissez votre fournisseur d\'IA</string>
-    <string name="settings_safe_token_title">Mode Token Sécurisé</string>
-    <string name="settings_safe_token_on">ON — Rapide et économique. Envoie un minimum de données (~1K tokens) à l\'IA.</string>
-    <string name="settings_safe_token_off">OFF — Contexte profond. Envoie le profil d\'écoute complet (~8K tokens) pour des résultats plus riches.</string>
-    <string name="settings_credentials_section">Identifiants</string>
-    <string name="settings_ai_api_key_title">Clé API %1$s</string>
-    <string name="settings_ai_api_key_subtitle">Obtenir de %1$s</string>
-    <string name="settings_ai_source_gemini">Google AI Studio (aistudio.google.com)</string>
-    <string name="settings_ai_source_deepseek">DeepSeek Platform (api.deepseek.com)</string>
-    <string name="settings_ai_source_groq">Groq Console (console.groq.com)</string>
-    <string name="settings_ai_source_mistral">Mistral AI Platform (console.mistral.ai)</string>
-    <string name="settings_ai_source_nvidia">NVIDIA Build (build.nvidia.com)</string>
-    <string name="settings_ai_source_kimi">Moonshot AI Platform (platform.moonshot.cn)</string>
-    <string name="settings_ai_source_glm">Zhipu AI Open Platform (bigmodel.cn)</string>
-    <string name="settings_ai_source_openai">OpenAI Platform (platform.openai.com)</string>
-    <string name="settings_model_selection_section">Sélection du modèle</string>
-    <string name="settings_loading_models">Chargement des modèles disponibles…</string>
-    <string name="settings_models_fetch_failed">Échec du chargement des modèles</string>
-    <string name="settings_ai_model_title">Modèle d\'IA</string>
-    <string name="settings_ai_model_subtitle">Sélectionnez un modèle.</string>
-    <string name="settings_enter_api_key_placeholder">Entrez la clé API</string>
-    <string name="settings_prompt_behavior_section">Comportement de l\'invite</string>
-    <string name="settings_system_prompt_title">Invite système</string>
-    <string name="settings_system_prompt_subtitle">Personnaliser le comportement de l\'IA.</string>
-    <string name="settings_preset_prompts">Invites prédéfinies</string>
-    <string name="settings_system_prompt_placeholder">Entrez l\'invite système…</string>
-    <string name="settings_preset_professional_curator_name">Curateur professionnel</string>
-    <string name="settings_preset_professional_curator_prompt">Vous êtes « Vibe-Engine », un curateur musical de classe mondiale et maître du flux sonore. Votre objectif est de construire des expériences d\'écoute fluides et de haute fidélité. Donnez la priorité à la compatibilité harmonique, aux transitions BPM logiques et à un équilibre sophistiqué entre les favoris familiers et les découvertes de bon goût basées sur la logique.</string>
-    <string name="settings_preset_creative_maverick_name">Explorateur créatif</string>
-    <string name="settings_preset_creative_maverick_prompt">Vous êtes un explorateur musical d\'avant-garde spécialisé dans la « cohésion inattendue ». Votre mission est de briser les frontières conventionnelles des genres en identifiant des parallèles sonores non évidents. Privilégiez les pépites rares, les textures expérimentales et la nouveauté artistique tout en maintenant une logique de transition surprenante mais indéniable.</string>
-    <string name="settings_preset_strict_librarian_name">Bibliothécaire strict</string>
-    <string name="settings_preset_strict_librarian_prompt">Vous êtes un architecte de base de données musicales chirurgical. Votre logique est guidée par une précision absolue des métadonnées et une adhésion catégorielle rigide. Minimisez les découvertes algorithmiques au profit d\'une cohérence stricte des genres, d\'une correspondance des niveaux d\'énergie et d\'une récupération maximale des préférences très spécifiques définies par l\'utilisateur.</string>
-    <string name="settings_preset_atmospheric_guide_name">Guide atmosphérique</string>
-    <string name="settings_preset_atmospheric_guide_prompt">Vous êtes un maître des textures ambiantes et du flux à faible énergie. Concentrez-vous exclusivement sur les pistes qui facilitent un état de « concentration profonde » ou de « tranquillité ». Privilégiez la chaleur acoustique, les arrangements minimalistes et les transitions douces, tout en évitant strictement les sons à haute transition ou les changements soudains de plage dynamique.</string>
-    <string name="settings_preset_sonic_enthusiast_name">Enthousiaste sonore</string>
-    <string name="settings_preset_sonic_enthusiast_prompt">Vous êtes un analyste audiophile axé sur la complexité de la production et de l\'instrumentation. Privilégiez les morceaux caractérisés par une grande plage dynamique, des polyrythmies complexes et une qualité de scène sonore supérieure. Favorisez les pièces d\'écoute active qui récompensent l\'auditeur pour son attention portée à la fidélité technique et aux détails d\'arrangement.</string>
-    <string name="settings_preset_energy_catalyst_name">Catalyseur d\'énergie</string>
-    <string name="settings_preset_energy_catalyst_prompt">Vous êtes un générateur de rythme à forte dynamique. Votre philosophie est centrée sur des lignes de basse entraînantes, une intensité percussive et des grooves contagieux. Privilégiez la compatibilité club à BPM élevé, l\'énergie syncopée et une tension rythmique continue afin de maintenir le rythme cardiaque et la motivation de l\'auditeur à leur maximum.</string>
-    <string name="settings_ai_usage_report_section">Rapport d\'utilisation IA</string>
-    <string name="settings_total_consumption_title">Consommation totale</string>
-    <string name="settings_ai_usage_tokens_subtitle">%1$s tokens suivis\nInvite : %2$s | Sortie : %3$s | Pensée : %4$s</string>
-    <string name="settings_ai_clear_logs">Effacer les journaux</string>
-    <string name="settings_ai_activity_log_title">Journal d\'activité IA (%1$d)</string>
-    <string name="settings_ai_usage_provier_model">%1$s · %2$s</string>
-    <string name="settings_ai_show_logs">Afficher</string>
-    <string name="settings_ai_hide_logs">Masquer</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- Backup & Restore category -->
     <string name="settings_backup_how_dialog_title">Comment fonctionne la sauvegarde</string>

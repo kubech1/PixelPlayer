@@ -8,7 +8,7 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        minSdk = 30 // Must match app module's minSdk; shared code is pure DTOs with no platform APIs
+        minSdk = 30 // Independent Wear compatibility; shared contracts contain no platform APIs
     }
 
     compileOptions {

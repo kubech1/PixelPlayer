@@ -489,12 +489,10 @@ fun FullPlayerContent(
 
     val onNextWithOptimisticCarousel = {
         requestSkip(SkipDirection.NEXT)
-        Unit
     }
 
     val onPreviousWithOptimisticCarousel = {
         requestSkip(SkipDirection.PREVIOUS)
-        Unit
     }
 
     val albumCoverSection: @Composable (Modifier) -> Unit = { modifier ->
@@ -963,7 +961,6 @@ fun FullPlayerContent(
             colorScheme = LocalMaterialTheme.current,
             onBackClick = { showLyricsSheet = false },
             onSaveLyricsToFile = playerViewModel::saveLyricsToFile,
-            onTranslateViaAi = { playerViewModel.translateLyricsViaAi() },
             onSeekTo = { playerViewModel.seekTo(it) },
             onPlayPause = {
                 playerViewModel.playPause()

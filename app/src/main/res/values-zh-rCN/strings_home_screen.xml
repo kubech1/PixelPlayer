@@ -117,31 +117,31 @@
         <item quantity="other">%1$d 首歌曲 • %2$s</item>
     </plurals>
     <string name="daily_mix_action_play_it">播放</string>
-    <string name="daily_mix_cd_ai_playlist_generator">AI 播放列表生成器</string>
+    
 
     <!-- DailyMixMenu -->
-    <string name="daily_mix_how_title">您的 Daily Mix 是如何生成的</string>
-    <string name="daily_mix_how_body">您的 Daily Mix 由您最喜爱和播放次数最多的歌曲组成。我们还会添加您喜欢的艺术家和流派的曲目，让您发现新音乐。</string>
-    <string name="daily_mix_prompt_label">告诉 AI 您今天想听什么</string>
-    <string name="daily_mix_cost_hint">我们使用小样本以保持较低的成本</string>
-    <string name="daily_mix_updating">正在更新…</string>
-    <string name="daily_mix_update">更新 Daily Mix</string>
+    
+    
+    
+    
+    
+    
 
     <!-- AIPlaylistSheet -->
-    <string name="ai_playlist_headline_perfect">完美精选</string>
-    <string name="ai_playlist_headline_daily_mix">Daily Mix</string>
-    <string name="ai_playlist_subtitle_journey_ready">您的声音之旅已就绪</string>
-    <string name="ai_playlist_subtitle_generator">AI 播放列表生成器</string>
-    <string name="ai_playlist_description">描述您的氛围、心情或活动，让 AI 从您的媒体库中精心挑选完美的播放列表。</string>
-    <string name="ai_playlist_section_size">播放列表大小</string>
-    <string name="ai_playlist_min_songs">最少歌曲数</string>
-    <string name="ai_playlist_max_songs">最多歌曲数</string>
-    <string name="ai_playlist_prompt_placeholder">例如：轻松的夜晚氛围，欢快的健身音乐…</string>
-    <string name="ai_playlist_tap_to_retry">点击重试</string>
-    <string name="ai_playlist_status_default">声音之旅合成完毕！</string>
-    <string name="ai_playlist_ready_to_play">准备播放</string>
-    <string name="ai_playlist_generating">正在生成…</string>
-    <string name="ai_playlist_generate">生成播放列表</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- RecentlyPlayedSection -->
     <string name="home_recently_played_title">最近播放</string>

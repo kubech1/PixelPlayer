@@ -16,8 +16,8 @@
 
     <!-- Library Toasts -->
     <string name="library_toast_playlist_created">Spilleliste opprettet</string>
-    <string name="library_toast_set_ai_provider_api_key_first">Angi API-nøkkel for AI-leverandøren først</string>
-    <string name="library_toast_set_gemini_api_key_first">Angi Gemini API-nøkkel først</string>
+    
+    
     <string name="library_toast_added_to_queue">Lagt til i kø</string>
     <string name="library_toast_playing_next">Spilles neste</string>
 
@@ -51,8 +51,8 @@
     <string name="library_cloud_sources_heading">Sky</string>
     <string name="library_cloud_only_label">Kun sky</string>
 
-    <!-- Library AI Metadata Processing -->
-    <string name="library_generating_ai_metadata">Genererer metadata med AI…</string>
+    
+    
 
     <!-- Library list errors -->
     <string name="library_error_loading_songs">Feil ved lasting av sanger</string>
@@ -336,95 +336,73 @@
     <string name="playlist_dismissed_message">Spilleliste lukket</string>
 
     <!-- PlaylistCreationDialogs -->
-    <string name="playlist_creation_create_playlist_title">Opprett spilleliste</string>
-    <string name="playlist_creation_create_playlist_subtitle">Velg opprettelsesmetode.</string>
-    <string name="playlist_creation_mode_manual_title">Manuelt</string>
-    <string name="playlist_creation_mode_manual_subtitle">Design grafikk, ikon og form, og velg sanger selv.</string>
-    <string name="playlist_creation_mode_ai_title">Med AI</string>
-    <string name="playlist_creation_mode_ai_subtitle_enabled">Generer en kuratert spilleliste med avanserte kontroller.</string>
-    <string name="playlist_creation_mode_ai_subtitle_disabled">Krever en Gemini API-nøkkel konfigurert i innstillingene.</string>
-    <string name="playlist_creation_setup_api_key">Sett opp API-nøkkel</string>
+    
+    
+    
+    
+    
+    
+    
+    
 
-    <!-- AI playlist lab -->
-    <string name="playlist_creation_ai_lab_title">AI-spillelistelaboratorium</string>
-    <string name="playlist_creation_ai_reset">Tilbakestill</string>
-    <string name="playlist_creation_ai_generating">Genererer…</string>
-    <string name="playlist_creation_ai_generate">Generer</string>
-    <string name="playlist_creation_ai_section_intent">Intensjon</string>
-    <string name="playlist_creation_ai_name_optional">Spillelistenavn (valgfritt)</string>
-    <string name="playlist_creation_ai_feel_label">Hvordan skal denne spillelisten føles?</string>
-    <string name="playlist_creation_ai_feel_placeholder">Eksempel: solnedgangstur med varme synther</string>
-    <string name="playlist_creation_ai_section_direction">Retning</string>
-    <string name="playlist_creation_ai_mood_label">Stemning</string>
-    <string name="playlist_creation_ai_activity_label">Aktivitet</string>
-    <string name="playlist_creation_ai_era_label">Epoke</string>
-    <string name="playlist_creation_ai_section_curation">Kurasjonsmotor</string>
-    <string name="playlist_creation_ai_energy_label">Energi</string>
-    <string name="playlist_creation_ai_energy_desc">Styrer intensiteten og tempoet til sanger. 1 = rolig/sakte, 5 = høy energi/raskt.</string>
-    <string name="playlist_creation_ai_discovery_label">Oppdagelse</string>
-    <string name="playlist_creation_ai_discovery_desc">Styrer hvor kjente valgene er. 1 = dine mest spilte favoritter, 5 = sjelden spilte perler.</string>
-    <string name="playlist_creation_ai_min_songs">Min. sanger</string>
-    <string name="playlist_creation_ai_max_songs">Maks. sanger</string>
-    <string name="playlist_creation_ai_section_filters">Filtre</string>
-    <string name="playlist_creation_ai_prioritize_genres">Prioriter sjangere (valgfritt)</string>
-    <string name="playlist_creation_ai_prioritize_genres_placeholder">f.eks. synthwave, indie pop</string>
-    <string name="playlist_creation_ai_avoid_genres">Unngå sjangere (valgfritt)</string>
-    <string name="playlist_creation_ai_avoid_genres_placeholder">f.eks. metal, hard trap</string>
-    <string name="playlist_creation_ai_preferred_language">Foretrukket språk (valgfritt)</string>
-    <string name="playlist_creation_ai_preferred_language_placeholder">f.eks. Norsk, Engelsk, instrumental</string>
-    <string name="playlist_creation_ai_prioritize_favorites">Prioriter favoritter</string>
-    <string name="playlist_creation_ai_avoid_explicit">Unngå eksplisitte sangtekster</string>
-    <string name="playlist_creation_ai_section_prompt_preview">Forhåndsvisning av prompt</string>
-    <string name="playlist_creation_ai_prompt_preview_empty">Den endelige prompten din vises her når du legger til preferanser.</string>
-    <string name="playlist_creation_ai_hero_title">Kurater med presisjon</string>
-    <string name="playlist_creation_ai_hero_subtitle">Definer stemning, aktivitet, begrensninger og dybde.</string>
-    <string name="playlist_creation_ai_hero_library_note">AI-en vil kun bruke sanger fra det lokale biblioteket ditt.</string>
-    <string name="playlist_creation_ai_error_add_instruction">Legg til minst én instruksjon for AI.</string>
-    <string name="playlist_creation_ai_error_song_range">Angi et gyldig sangantallsintervall.</string>
-    <string name="playlist_creation_ai_level_out_of_five">%1$d/5</string>
-    <string name="playlist_creation_ai_custom_chip">Egendefinert…</string>
-    <string name="playlist_creation_ai_enter_custom_title">Skriv inn egendefinert verdi</string>
-    <string name="playlist_creation_ai_enter_custom_label">Skriv inn din egendefinerte verdi</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
-    <!-- AI prompt -->
+    
     <string name="playlist_creation_ai_era_any">Alle epoker</string>
-    <string name="playlist_creation_ai_prompt_core_request">Kjerneforespørsel: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_mood">Stemningsmål: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_activity">Aktivitetskontekst: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_era">Epokefokus: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_prioritize_genres">Prioriter sjangere: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_avoid_genres">Unngå sjangere: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_preferred_language">Foretrukket språk: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_energy">Energinivåmål: %1$d/5.</string>
-    <string name="playlist_creation_ai_prompt_discovery">Oppdagelsesmål: %1$d/5 der 1 er kjent og 5 er sjeldne perler.</string>
-    <string name="playlist_creation_ai_prompt_prioritize_favorites">Prioriter sanger nærmere lytterens favoritter når mulig.</string>
-    <string name="playlist_creation_ai_prompt_avoid_explicit">Unngå eksplisitte sangtekster når alternativer finnes.</string>
-    <string name="playlist_creation_ai_prompt_smooth_transitions">Hold overgangene jevne og unngå repetitiv artistgruppering.</string>
-    <string-array name="playlist_creation_ai_mood_options">
-        <item>Avslappet</item>
-        <item>Energisk</item>
-        <item>Glad</item>
-        <item>Mørk</item>
-        <item>Romantisk</item>
-        <item>Melankolsk</item>
-    </string-array>
-    <string-array name="playlist_creation_ai_activity_options">
-        <item>Trening</item>
-        <item>Fokus</item>
-        <item>Biltur</item>
-        <item>Fest</item>
-        <item>Studere</item>
-        <item>Sen kveld</item>
-    </string-array>
-    <string-array name="playlist_creation_ai_era_options">
-        <item>@string/playlist_creation_ai_era_any</item>
-        <item>70-tallet</item>
-        <item>80-tallet</item>
-        <item>90-tallet</item>
-        <item>2000-tallet</item>
-        <item>2010-tallet</item>
-        <item>2020-tallet</item>
-    </string-array>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- PlaylistContainer -->
     <string name="playlist_container_no_playlist_created">Ingen spilleliste er opprettet.</string>
@@ -498,7 +476,7 @@
     <string name="playlist_view_model_none_to_export">Ingen spillelister å eksportere</string>
     <string name="playlist_view_model_export_failed">Eksport mislyktes: %1$s</string>
     <string name="playlist_view_model_export_folder_display">Musikk/PixelPlayer Eksporter</string>
-    <string name="playlist_view_model_ai_gemini_key_required">Konfigurer Gemini API-nøkkelen din i innstillingene.</string>
+    
     <string name="playlist_view_model_restored_toast">Spilleliste gjenopprettet</string>
     <plurals name="playlist_view_model_sharing_message">
         <item quantity="one">Deler %d spilleliste</item>
@@ -553,14 +531,14 @@
     <string name="metadata_edit_permission_denied_save_lyrics">Tilgang nektet – kan ikke lagre sangtekster</string>
     <string name="metadata_edit_permission_denied_edit_this_file">Tilgang nektet – kan ikke redigere denne filen</string>
 
-    <!-- AiStateHolder -->
-    <string name="ai_state_error_api_key">Konfigurer en gyldig API-nøkkel for den valgte AI-leverandøren i innstillingene.</string>
-    <string name="ai_state_error_generic">AI-feil: %s</string>
-    <string name="ai_state_error_quota">Den valgte AI-leverandøren avviste forespørselen fordi kontoen ikke har kreditter eller tilgjengelig kvote.</string>
-    <string name="ai_state_error_model_unavailable">Den valgte AI-modellen er ikke lenger tilgjengelig. PixelPlayer forsøkte å bytte til en støttet modell automatisk.</string>
-    <string name="ai_state_no_songs_found">AI kunne ikke finne noen sanger for prompten din.</string>
-    <string name="ai_state_prompt_empty">Skriv en idé for din Daily Mix</string>
-    <string name="ai_state_daily_mix_updated">Daily Mix oppdatert med AI</string>
-    <string name="ai_state_could_not_update">Kunne ikke oppdatere: %s</string>
-    <string name="ai_state_no_songs_for_mix">AI kunne ikke finne sanger for denne miksen</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 </resources>

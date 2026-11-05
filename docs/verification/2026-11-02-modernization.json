@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-02",
+  "jvm": {
+    "tests": 410,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "android": {
+    "api": 37,
+    "tests": 9,
+    "failures": 0,
+    "runnerSeconds": 52.249,
+    "coldBootAndInstallWithinFiveMinutes": true
+  },
+  "lint": {
+    "errorsIncludingFatal": 3413,
+    "warnings": 2412,
+    "hints": 46,
+    "newErrorDiagnosticsSinceStageOne": 0,
+    "scope": "Before final volume guard; not repeated after user requested bounded verification"
+  },
+  "roomStartupUpgrade": {
+    "version": 43,
+    "playlistPreserved": true,
+    "songOrderPreserved": true,
+    "favoritesPreserved": true,
+    "lyricsPreserved": true,
+    "engagementAndHistoryPreserved": true,
+    "retiredTablesAndColumnAbsent": true,
+    "integrity": "ok"
+  },
+  "physicalValidation": "Pending S24 and receivers",
+  "uiIncident": {
+    "type": "ANR",
+    "reason": "No response to onStartJob: WorkManager SystemJobService",
+    "observedCpuPressureAvg10": 92.98,
+    "causality": "Not established; both System UI and app stopped responding during cold boot; app later recovered",
+    "crashBuffer": "No new PixelPlayer Java exception; native crash_dump helper failure observed"
+  },
+  "artifacts": {
+    "app/build/outputs/apk/debug/app-debug.apk": {
+      "bytes": 261805465,
+      "sha256": "527658d89c49ab555b27c4cbf47eaf324bb64ec933c25e4aec9a75617b036892"
+    },
+    "wear/build/outputs/apk/debug/wear-debug.apk": {
+      "bytes": 95830632,
+      "sha256": "7cae10d4ed29cb1c0b5df3843d8d6ce7905525915b19fa1de8f0acb0ded5f587"
+    }
+  },
+  "finalMinifiedReleaseVerification": {
+    "exitCode": 124,
+    "timedOut": true,
+    "elapsedSeconds": 300.2,
+    "passed": false,
+    "previousMinifiedBuild": "Passed before final volume guard; existing release APK is not the final code"
+  }
+}

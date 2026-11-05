@@ -148,6 +148,7 @@ import javax.inject.Inject
 import kotlin.math.roundToInt
 
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
+import com.theveloper.pixelplay.presentation.utils.interactiveRefreshRate
 import com.theveloper.pixelplay.presentation.utils.AppHapticsConfig
 import com.theveloper.pixelplay.presentation.utils.LocalAppHapticsConfig
 import com.theveloper.pixelplay.presentation.utils.NoOpHapticFeedback
@@ -212,7 +213,7 @@ class MainActivity : ComponentActivity() {
                 android.graphics.Color.TRANSPARENT
             )
         )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        run {
             window.isNavigationBarContrastEnforced = false
         }
         super.onCreate(savedInstanceState)
@@ -255,10 +256,8 @@ class MainActivity : ComponentActivity() {
             var crashLogData by remember { mutableStateOf<CrashLogData?>(null) }
             
             // Permissions Logic
-            val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val permissions = run {
                 listOf(Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.POST_NOTIFICATIONS)
-            } else {
-                listOf(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
             @OptIn(ExperimentalPermissionsApi::class)
             val permissionState = rememberMultiplePermissionsState(permissions = permissions)
@@ -399,13 +398,8 @@ class MainActivity : ComponentActivity() {
             }
             
             intent.action == "com.theveloper.pixelplay.ACTION_PLAY_SONG" -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                run {
                      intent.getParcelableExtra("song", com.theveloper.pixelplay.data.model.Song::class.java)?.let { song ->
-                         playerViewModel.playSong(song)
-                     }
-                } else {
-                     @Suppress("DEPRECATION")
-                     intent.getParcelableExtra<com.theveloper.pixelplay.data.model.Song>("song")?.let { song ->
                          playerViewModel.playSong(song)
                      }
                 }
@@ -415,12 +409,8 @@ class MainActivity : ComponentActivity() {
     }
     
     private fun resolveStreamUri(intent: Intent): android.net.Uri? {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        run {
             intent.getParcelableExtra(android.content.Intent.EXTRA_STREAM, android.net.Uri::class.java)?.let { return it }
-        } else {
-            @Suppress("DEPRECATION")
-            val legacyUri = intent.getParcelableExtra<android.net.Uri>(android.content.Intent.EXTRA_STREAM)
-            if (legacyUri != null) return legacyUri
         }
 
         intent.clipData?.let { clipData ->
@@ -433,7 +423,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun persistUriPermissionIfNeeded(intent: Intent, uri: android.net.Uri) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        run {
             val hasPersistablePermission = intent.flags and android.content.Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION != 0
             if (hasPersistablePermission) {
                 val takeFlags = intent.flags and (android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
@@ -675,12 +665,12 @@ class MainActivity : ComponentActivity() {
         val disableBlurAllOver by playerViewModel.disableBlurAllOver.collectAsStateWithLifecycle()
         val predictiveBackCollapseFraction by playerViewModel.predictiveBackCollapseFraction.collectAsStateWithLifecycle()
         val rootView = LocalView.current
-        val platformHapticFeedback = LocalHapticFeedback.current
-        val appHapticsConfig = remember(hapticsEnabled) {
-            AppHapticsConfig(enabled = hapticsEnabled)
+        val hapticIntensity by playerViewModel.hapticIntensity.collectAsStateWithLifecycle()
+        val appHapticsConfig = remember(hapticsEnabled, hapticIntensity) {
+            AppHapticsConfig(enabled = hapticsEnabled, intensityScale = hapticIntensity.scale)
         }
-        val scopedHapticFeedback = remember(platformHapticFeedback, appHapticsConfig.enabled) {
-            if (appHapticsConfig.enabled) platformHapticFeedback else NoOpHapticFeedback
+        val scopedHapticFeedback = remember(rootView, appHapticsConfig) {
+            com.theveloper.pixelplay.presentation.utils.ExpressiveHapticFeedback(rootView, appHapticsConfig)
         }
 
         val systemNavBarInset = sanitizeNavigationBarBottomInset(
@@ -797,7 +787,7 @@ class MainActivity : ComponentActivity() {
         ) {
 
                 Scaffold(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().interactiveRefreshRate(),
                 bottomBar = {
                     if (shouldRenderNavigationBar) {
                         val currentSongId by remember {
@@ -950,7 +940,7 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier
                                 .fillMaxSize()
                                 .graphicsLayer {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                    run {
                                         if (disableBlurAllOver) {
                                             renderEffect = null
                                         } else {
@@ -991,7 +981,7 @@ class MainActivity : ComponentActivity() {
                                     .fillMaxSize()
                                     .background(
                                         MaterialTheme.colorScheme.surfaceContainerLowest.copy(
-                                            alpha = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) 0.35f else 0.6f
+                                            alpha = 0.35f
                                         )
                                     )
                                     .pointerInput(Unit) {

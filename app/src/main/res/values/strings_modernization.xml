@@ -1,0 +1,28 @@
+<resources>
+    <string name="settings_haptic_intensity">Haptic intensity</string>
+    <string name="settings_haptic_low">Low</string>
+    <string name="settings_haptic_medium">Medium</string>
+    <string name="settings_haptic_high">High</string>
+    <string name="settings_haptic_preview">Preview feedback</string>
+    <string name="widget_previous">Previous track</string>
+    <string name="widget_next">Next track</string>
+    <string name="widget_play_pause">Play or pause</string>
+    <string name="audio_route_title">Audio output and session</string>
+    <string name="audio_route_unknown">Unknown</string>
+    <string name="audio_route_yes">Yes</string>
+    <string name="audio_route_no">No</string>
+    <string name="audio_route_available">Available: %1$s</string>
+    <string name="audio_route_predicted">Predicted music route: %1$s</string>
+    <string name="audio_route_prediction_note">Android predicts this route; it does not certify the final signal path.</string>
+    <string name="audio_route_session">Local audio session: %1$d</string>
+    <string name="audio_route_sink">Media3 sink configuration: %1$s</string>
+    <string name="audio_route_float_requested">PCM float requested by player: %1$s</string>
+    <string name="audio_route_offload_requested">Offload requested: %1$s</string>
+    <string name="audio_route_offload_configured">Sink configured for offload: %1$s</string>
+    <string name="audio_route_offload_sleeping">Observed sleep for offload: %1$s</string>
+    <string name="audio_route_bluetooth_unknown">Bluetooth codec: unavailable through a reliable public API. PCM float does not identify the codec or DAC resolution.</string>
+    <string name="audio_route_format_query_note">Format offload support is queried at 44.1 kHz stereo. It is not an observation of the playing track.</string>
+    <string name="audio_route_query_failed">Audio route query unavailable; reconnect or reopen this screen to refresh.</string>
+    <string name="audio_route_sink_capabilities">Sink capabilities: %1$s</string>
+    <string name="audio_route_sink_value">%1$d Hz · %2$s · %3$d channels</string>
+</resources>

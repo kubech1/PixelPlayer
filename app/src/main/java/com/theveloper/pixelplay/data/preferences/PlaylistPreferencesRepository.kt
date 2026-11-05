@@ -52,7 +52,6 @@ class PlaylistPreferencesRepository @Inject constructor(
     suspend fun createPlaylist(
         name: String,
         songIds: List<String> = emptyList(),
-        isAiGenerated: Boolean = false,
         isQueueGenerated: Boolean = false,
         coverImageUri: String? = null,
         coverColorArgb: Int? = null,
@@ -73,7 +72,6 @@ class PlaylistPreferencesRepository @Inject constructor(
             songIds = songIds,
             createdAt = now,
             lastModified = now,
-            isAiGenerated = isAiGenerated,
             isQueueGenerated = isQueueGenerated,
             coverImageUri = coverImageUri,
             coverColorArgb = coverColorArgb,
@@ -83,7 +81,7 @@ class PlaylistPreferencesRepository @Inject constructor(
             coverShapeDetail2 = coverShapeDetail2,
             coverShapeDetail3 = coverShapeDetail3,
             coverShapeDetail4 = coverShapeDetail4,
-            source = source,
+            source = RetiredAiData.normalizePlaylistSource(source),
         )
         localPlaylistDao.upsertPlaylist(newPlaylist.toEntity())
         localPlaylistDao.replacePlaylistSongs(newPlaylist.id, newPlaylist.songIds)

@@ -352,7 +352,7 @@ class MetadataEditStateHolder @Inject constructor(
 
             // On Android 11+, request MediaStore write permission for local songs
             val songId = song.id.toLongOrNull()
-            if (songId != null && songId > 0 && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            if (songId != null && songId > 0) {
                 val intentSender = MediaStorePermissionHelper.createWriteRequestForSong(context, songId)
                 if (intentSender != null) {
                     // Store pending edit and request permission from the UI
@@ -399,12 +399,10 @@ class MetadataEditStateHolder @Inject constructor(
     ) {
         cb.scope.launch {
             // Check if we need MediaStore permission (Android 11+)
-            val localSongsNeedingPermission = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            val localSongsNeedingPermission = run {
                 songs.mapNotNull { song ->
                     song.id.toLongOrNull()?.takeIf { it > 0 }?.let { song to it }
                 }
-            } else {
-                emptyList()
             }
 
             // If we have local songs on Android 11+, request permission for batch edit
@@ -454,7 +452,7 @@ class MetadataEditStateHolder @Inject constructor(
 
         cb.scope.launch {
             // On Android 11+, request write permission for all local songs upfront
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            run {
                 val uris = songs.mapNotNull { song ->
                     song.id.toLongOrNull()?.takeIf { it > 0 }?.let { id ->
                         MediaStorePermissionHelper.getMediaStoreUri(context, id)
@@ -485,7 +483,7 @@ class MetadataEditStateHolder @Inject constructor(
         val lrcFile = java.io.File(songFile.parentFile, "${songFile.nameWithoutExtension}.lrc")
 
         // Android 11+ check: if file exists and we might not have permission
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && lrcFile.exists() && !lrcFile.canWrite()) {
+        if (lrcFile.exists() && !lrcFile.canWrite()) {
             val uri = MediaStorePermissionHelper.getMediaStoreUri(context, lrcFile.absolutePath)
             if (uri != null) {
                 val intentSender = MediaStorePermissionHelper.createWriteRequestIntentSender(context, listOf(uri))

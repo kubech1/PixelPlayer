@@ -42,7 +42,7 @@ class PlayerControlActionCallback : ActionCallback {
         }
 
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            run {
                 try {
                     context.startService(serviceIntent)
                 } catch (e: IllegalStateException) {
@@ -54,8 +54,6 @@ class PlayerControlActionCallback : ActionCallback {
                     serviceIntent.putExtra(MusicService.EXTRA_FORCE_FOREGROUND_ON_START, true)
                     context.startForegroundService(serviceIntent)
                 }
-            } else {
-                context.startService(serviceIntent)
             }
             Timber.tag(TAG).d("Service intent sent for action: $action")
         } catch (e: android.app.ForegroundServiceStartNotAllowedException) {

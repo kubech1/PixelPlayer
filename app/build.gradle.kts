@@ -79,9 +79,6 @@ android {
         }
     }
 
-    androidResources {
-        noCompress.add("tflite")
-    }
 
     packaging {
         resources {
@@ -102,7 +99,7 @@ android {
 
     defaultConfig {
         applicationId = "com.theveloper.pixelplay"
-        minSdk = 30
+        minSdk = 37
         targetSdk = 37
         versionCode = (project.findProperty("APP_VERSION_CODE") as? String)?.toInt() ?: 1
         versionName = (project.findProperty("APP_VERSION_NAME") as? String) ?: "1.0.0"
@@ -325,7 +322,6 @@ dependencies {
 
     // UI Utilities & Extra
     implementation(libs.timber)
-    implementation(libs.generativeai)
     implementation(libs.smooth.corner.rect.android.compose)
     implementation(libs.reorderables)
     implementation(libs.codeview)

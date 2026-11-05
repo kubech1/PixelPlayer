@@ -44,11 +44,11 @@
     <string name="equalizer_action_save_new">حفظ كجديد</string>
     <string name="action_rename">إعادة تسمية</string>
 
-    <!-- AI metadata sheet -->
-    <string name="ai_metadata_headline_success">تم تحديث البيانات الوصفية بنجاح!</string>
-    <string name="ai_metadata_headline_default">البيانات الوصفية بالذكاء الاصطناعي</string>
-    <string name="ai_metadata_subtitle_generating">جاري مراجعة دليل المزيج اليومي (Daily Mix)…</string>
-    <string name="ai_metadata_subtitle_review">مراجعة وتعديل التفاصيل التي تم إنشاؤها</string>
+    
+    
+    
+    
+    
     <string name="song_field_title">العنوان</string>
     <string name="song_field_artist">الفنان</string>
     <string name="song_field_album">الألبوم</string>
@@ -64,7 +64,7 @@
     <string name="edit_song_got_it">فهمت ذلك</string>
     <string name="cd_info_icon">معلومات</string>
     <string name="edit_song_toolbar_title">تعديل الأغنية</string>
-    <string name="cd_use_gemini_ai">استخدام ذكاء Gemini الاصطناعي</string>
+    
     <string name="cd_show_metadata_info">إظهار المعلومات</string>
     <string name="song_field_track_number">رقم المسار</string>
     <string name="song_field_disc_number">رقم القرص</string>

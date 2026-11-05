@@ -117,31 +117,31 @@
         <item quantity="other">%1$d songs • %2$s</item>
     </plurals>
     <string name="daily_mix_action_play_it">Play it</string>
-    <string name="daily_mix_cd_ai_playlist_generator">AI Playlist Generator</string>
+    
 
     <!-- DailyMixMenu -->
-    <string name="daily_mix_how_title">How your Daily Mix is built</string>
-    <string name="daily_mix_how_body">Your Daily Mix is built from your favorite and most-played songs. We also add tracks from artists and genres you like so you can discover new music.</string>
-    <string name="daily_mix_prompt_label">Tell the AI what you want to listen to today</string>
-    <string name="daily_mix_cost_hint">We use a small sample to keep costs low</string>
-    <string name="daily_mix_updating">Updating…</string>
-    <string name="daily_mix_update">Update Daily Mix</string>
+    
+    
+    
+    
+    
+    
 
     <!-- AIPlaylistSheet -->
-    <string name="ai_playlist_headline_perfect">Perfectly Curated</string>
-    <string name="ai_playlist_headline_daily_mix">Daily Mix</string>
-    <string name="ai_playlist_subtitle_journey_ready">Your sonic journey is ready</string>
-    <string name="ai_playlist_subtitle_generator">AI Playlist Generator</string>
-    <string name="ai_playlist_description">Describe the vibe, mood, or activity and let AI curate the perfect playlist from your library.</string>
-    <string name="ai_playlist_section_size">Playlist size</string>
-    <string name="ai_playlist_min_songs">Min songs</string>
-    <string name="ai_playlist_max_songs">Max songs</string>
-    <string name="ai_playlist_prompt_placeholder">e.g. Chill evening vibes, upbeat workout energy…</string>
-    <string name="ai_playlist_tap_to_retry">Tap to Retry</string>
-    <string name="ai_playlist_status_default">Sonic journey synthesized!</string>
-    <string name="ai_playlist_ready_to_play">Ready to Play</string>
-    <string name="ai_playlist_generating">Generating…</string>
-    <string name="ai_playlist_generate">Generate Playlist</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- RecentlyPlayedSection -->
     <string name="home_recently_played_title">Recently Played</string>

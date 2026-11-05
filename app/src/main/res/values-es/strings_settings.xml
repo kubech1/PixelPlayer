@@ -9,8 +9,8 @@
     <string name="settings_category_playback_subtitle">Comportamiento de audio, fundido cruzado y reproducción en segundo plano</string>
     <string name="settings_category_behavior_title">Comportamiento</string>
     <string name="settings_category_behavior_subtitle">Gestos, vibración y navegación</string>
-    <string name="settings_category_ai_title">Integración IA (β)</string>
-    <string name="settings_category_ai_subtitle">Proveedores de IA, claves API y modelos</string>
+    
+    
     <string name="settings_category_backup_title">Copia y restauración</string>
     <string name="settings_category_backup_subtitle">Exporta y recupera tus datos personales</string>
     <string name="settings_category_developer_title">Opciones de desarrollador</string>
@@ -303,55 +303,55 @@
     <string name="settings_haptic_feedback_title">Retroalimentación háptica</string>
     <string name="settings_haptic_feedback_subtitle">Habilitar la vibración de respuesta en toda la aplicación.</string>
 
-    <!-- AI Integration category -->
-    <string name="settings_ai_provider_section">Proveedor de IA</string>
-    <string name="settings_ai_provider_title">Proveedor</string>
-    <string name="settings_ai_provider_subtitle">Elige tu proveedor de IA</string>
-    <string name="settings_safe_token_title">Modo token seguro</string>
-    <string name="settings_safe_token_on">ACTIVADO — Rápido y barato. Envía datos mínimos (~1K tokens) a la IA.</string>
-    <string name="settings_safe_token_off">DESACTIVADO — Contexto profundo. Envía el perfil de escucha completo (~8K tokens).</string>
-    <string name="settings_credentials_section">Credenciales</string>
-    <string name="settings_ai_api_key_title">Clave API de %1$s</string>
-    <string name="settings_ai_api_key_subtitle">Obtener en %1$s</string>
-    <string name="settings_ai_source_gemini">Google AI Studio (aistudio.google.com)</string>
-    <string name="settings_ai_source_deepseek">DeepSeek Platform (api.deepseek.com)</string>
-    <string name="settings_ai_source_groq">Groq Console (console.groq.com)</string>
-    <string name="settings_ai_source_mistral">Mistral AI Platform (console.mistral.ai)</string>
-    <string name="settings_ai_source_nvidia">NVIDIA Build (build.nvidia.com)</string>
-    <string name="settings_ai_source_kimi">Moonshot AI Platform (platform.moonshot.cn)</string>
-    <string name="settings_ai_source_glm">Zhipu AI Open Platform (bigmodel.cn)</string>
-    <string name="settings_ai_source_openai">OpenAI Platform (platform.openai.com)</string>
-    <string name="settings_model_selection_section">Selección de modelo</string>
-    <string name="settings_loading_models">Cargando modelos disponibles…</string>
-    <string name="settings_models_fetch_failed">Error al cargar los modelos</string>
-    <string name="settings_ai_model_title">Modelo de IA</string>
-    <string name="settings_ai_model_subtitle">Selecciona un modelo.</string>
-    <string name="settings_enter_api_key_placeholder">Introduce la clave API</string>
-    <string name="settings_prompt_behavior_section">Comportamiento del prompt</string>
-    <string name="settings_system_prompt_title">Prompt del sistema</string>
-    <string name="settings_system_prompt_subtitle">Personaliza el comportamiento de la IA.</string>
-    <string name="settings_preset_prompts">Mensajes predefinidos</string>
-    <string name="settings_system_prompt_placeholder">Introduce el prompt del sistema…</string>
-    <string name="settings_preset_professional_curator_name">Curador profesional</string>
-    <string name="settings_preset_professional_curator_prompt">Eres \'Vibe-Engine\', un curador musical de primer nivel y maestro del flujo sonoro. Tu objetivo es construir experiencias de escucha fluidas y de alta fidelidad. Prioriza la compatibilidad armónica, transiciones lógicas de BPM y un equilibrio sofisticado entre favoritos conocidos y descubrimiento guiado por la lógica.</string>
-    <string name="settings_preset_creative_maverick_name">Inconformista creativo</string>
-    <string name="settings_preset_creative_maverick_prompt">Eres un explorador musical vanguardista especializado en \'cohesión inesperada\'. Tu misión es romper límites de género identificando paralelismos sónicos no obvios. Prioriza rarezas, texturas experimentales y novedad artística manteniendo una lógica de transición sorprendente pero clara.</string>
-    <string name="settings_preset_strict_librarian_name">Bibliotecario estricto</string>
-    <string name="settings_preset_strict_librarian_prompt">Eres un arquitecto quirúrgico de bases de datos musicales. Tu lógica se basa en precisión absoluta de metadatos y adherencia rígida a categorías. Minimiza el descubrimiento algorítmico en favor de coherencia de género, coincidencia de energía y maximizar preferences muy específicas del usuario.</string>
-    <string name="settings_preset_atmospheric_guide_name">Guía atmosférica</string>
-    <string name="settings_preset_atmospheric_guide_prompt">Eres un maestro de texturas ambientales y flujo de baja energía. Céntrate exclusivamente en pistas que faciliten un estado de \'concentración profunda\' o \'tranquilidad\'. Prioriza calidez acústica, arreglos minimalistas y transiciones suaves, evitando sonidos de alta transitoriedad o cambios bruscos de rango dinámico.</string>
-    <string name="settings_preset_sonic_enthusiast_name">Entusiasta del sonido</string>
-    <string name="settings_preset_sonic_enthusiast_prompt">Eres un analista audiófilo centrado en la complejidad de producción y la instrumentación. Prioriza pistas con alto rango dinámico, polirritmos intrincados y escena sonora superior. Favorece piezas de escucha activa que recompensen prestar atención a la fidelidad técnica y al detalle del arreglo.</string>
-    <string name="settings_preset_energy_catalyst_name">Catalizador de energía</string>
-    <string name="settings_preset_energy_catalyst_prompt">Eres un generador de ritmo de alto impulso. Tu filosofía se centra en líneas de bajo contundentes, intensidad percusiva y grooves contagiosos. Prioriza compatibilidad con club de BPM alto, energía sincopada y tensión rítmica continua para mantener el ritmo cardíaco y la motivación al máximo.</string>
-    <string name="settings_ai_usage_report_section">Informe de uso de IA</string>
-    <string name="settings_total_consumption_title">Consumo total</string>
-    <string name="settings_ai_usage_tokens_subtitle">%1$s tokens registrados\nPrompt: %2$s | Salida: %3$s | Pensamiento: %4$s</string>
-    <string name="settings_ai_clear_logs">Borrar registros</string>
-    <string name="settings_ai_activity_log_title">Registro de actividad de IA (%1$d)</string>
-    <string name="settings_ai_usage_provier_model">%1$s · %2$s</string>
-    <string name="settings_ai_show_logs">Mostrar</string>
-    <string name="settings_ai_hide_logs">Ocultar</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- Backup & Restore category -->
     <string name="settings_backup_how_dialog_title">Cómo funciona la copia</string>

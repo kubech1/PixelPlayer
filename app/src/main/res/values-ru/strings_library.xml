@@ -16,8 +16,8 @@
 
     <!-- Library Toasts -->
     <string name="library_toast_playlist_created">Плейлист успешно создан</string>
-    <string name="library_toast_set_ai_provider_api_key_first">Сначала укажите API-ключ AI-провайдера</string>
-    <string name="library_toast_set_gemini_api_key_first">Сначала укажите API-ключ Gemini</string>
+    
+    
     <string name="library_toast_added_to_queue">Добавлено в очередь</string>
     <string name="library_toast_playing_next">Будет воспроизведено следующим</string>
 
@@ -51,8 +51,8 @@
     <string name="library_cloud_sources_heading">Облако</string>
     <string name="library_cloud_only_label">Только облако</string>
 
-    <!-- Library AI Metadata Processing -->
-    <string name="library_generating_ai_metadata">Генерация метаданных с помощью ИИ…</string>
+    
+    
 
     <!-- Library list errors -->
     <string name="library_error_loading_songs">Ошибка загрузки треков</string>
@@ -336,95 +336,73 @@
     <string name="playlist_dismissed_message">Плейлист скрыт</string>
 
     <!-- PlaylistCreationDialogs -->
-    <string name="playlist_creation_create_playlist_title">Создать плейлист</string>
-    <string name="playlist_creation_create_playlist_subtitle">Выберите способ создания.</string>
-    <string name="playlist_creation_mode_manual_title">Вручную</string>
-    <string name="playlist_creation_mode_manual_subtitle">Создайте обложку, значок, форму и выберите песни самостоятельно.</string>
-    <string name="playlist_creation_mode_ai_title">С помощью ИИ</string>
-    <string name="playlist_creation_mode_ai_subtitle_enabled">Создайте тщательно подобранный плейлист с расширенными настройками.</string>
-    <string name="playlist_creation_mode_ai_subtitle_disabled">Требуется ключ API Gemini, настроенный в параметрах.</string>
-    <string name="playlist_creation_setup_api_key">Настроить ключ API</string>
+    
+    
+    
+    
+    
+    
+    
+    
 
-    <!-- AI playlist lab -->
-    <string name="playlist_creation_ai_lab_title">Лаборатория ИИ-плейлистов</string>
-    <string name="playlist_creation_ai_reset">Сбросить</string>
-    <string name="playlist_creation_ai_generating">Создание…</string>
-    <string name="playlist_creation_ai_generate">Создать</string>
-    <string name="playlist_creation_ai_section_intent">Замысел</string>
-    <string name="playlist_creation_ai_name_optional">Название плейлиста (необязательно)</string>
-    <string name="playlist_creation_ai_feel_label">Каким должно быть настроение этого плейлиста?</string>
-    <string name="playlist_creation_ai_feel_placeholder">Например: закатная поездка с тёплыми синтезаторами</string>
-    <string name="playlist_creation_ai_section_direction">Направление</string>
-    <string name="playlist_creation_ai_mood_label">Настроение</string>
-    <string name="playlist_creation_ai_activity_label">Активность</string>
-    <string name="playlist_creation_ai_era_label">Эпоха</string>
-    <string name="playlist_creation_ai_section_curation">Алгоритм подбора</string>
-    <string name="playlist_creation_ai_energy_label">Энергия</string>
-    <string name="playlist_creation_ai_energy_desc">Управляет интенсивностью и темпом песен. 1 = спокойно/медленно, 5 = энергично/быстро.</string>
-    <string name="playlist_creation_ai_discovery_label">Открытия</string>
-    <string name="playlist_creation_ai_discovery_desc">Определяет степень знакомости подборки. 1 = ваши самые любимые и часто прослушиваемые треки, 5 = редко воспроизводимые скрытые жемчужины.</string>
-    <string name="playlist_creation_ai_min_songs">Мин. песен</string>
-    <string name="playlist_creation_ai_max_songs">Макс. песен</string>
-    <string name="playlist_creation_ai_section_filters">Фильтры</string>
-    <string name="playlist_creation_ai_prioritize_genres">Предпочитаемые жанры (необязательно)</string>
-    <string name="playlist_creation_ai_prioritize_genres_placeholder">например: synthwave, indie pop</string>
-    <string name="playlist_creation_ai_avoid_genres">Исключить жанры (необязательно)</string>
-    <string name="playlist_creation_ai_avoid_genres_placeholder">например: metal, hard trap</string>
-    <string name="playlist_creation_ai_preferred_language">Предпочитаемый язык (необязательно)</string>
-    <string name="playlist_creation_ai_preferred_language_placeholder">например: английский, испанский, инструментальная музыка</string>
-    <string name="playlist_creation_ai_prioritize_favorites">Отдавать приоритет избранному</string>
-    <string name="playlist_creation_ai_avoid_explicit">Избегать нецензурного контента</string>
-    <string name="playlist_creation_ai_section_prompt_preview">Предпросмотр запроса</string>
-    <string name="playlist_creation_ai_prompt_preview_empty">Ваш итоговый запрос появится здесь после добавления предпочтений.</string>
-    <string name="playlist_creation_ai_hero_title">Точная настройка подборки</string>
-    <string name="playlist_creation_ai_hero_subtitle">Задайте настроение, активность, ограничения и глубину подбора.</string>
-    <string name="playlist_creation_ai_hero_library_note">ИИ будет использовать только песни из вашей локальной медиатеки.</string>
-    <string name="playlist_creation_ai_error_add_instruction">Добавьте хотя бы одну инструкцию для ИИ.</string>
-    <string name="playlist_creation_ai_error_song_range">Укажите допустимый диапазон количества песен.</string>
-    <string name="playlist_creation_ai_level_out_of_five">%1$d/5</string>
-    <string name="playlist_creation_ai_custom_chip">Другое…</string>
-    <string name="playlist_creation_ai_enter_custom_title">Введите своё значение</string>
-    <string name="playlist_creation_ai_enter_custom_label">Введите пользовательское значение</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
-    <!-- AI prompt -->
+    
     <string name="playlist_creation_ai_era_any">Любая эпоха</string>
-    <string name="playlist_creation_ai_prompt_core_request">Основной запрос: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_mood">Желаемое настроение: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_activity">Контекст активности: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_era">Фокус на эпохе: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_prioritize_genres">Предпочитаемые жанры: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_avoid_genres">Избегать жанров: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_preferred_language">Предпочитаемый язык: %1$s.</string>
-    <string name="playlist_creation_ai_prompt_energy">Целевой уровень энергии: %1$d/5.</string>
-    <string name="playlist_creation_ai_prompt_discovery">Уровень новизны: %1$d/5, где 1 — знакомые треки, а 5 — редкие находки.</string>
-    <string name="playlist_creation_ai_prompt_prioritize_favorites">По возможности отдавать приоритет любимым трекам пользователя.</string>
-    <string name="playlist_creation_ai_prompt_avoid_explicit">По возможности избегать треков с ненормативной лексикой.</string>
-    <string name="playlist_creation_ai_prompt_smooth_transitions">Обеспечить плавные переходы и избегать частого повторения одного исполнителя подряд.</string>
-    <string-array name="playlist_creation_ai_mood_options">
-        <item>Спокойное</item>
-        <item>Энергичное</item>
-        <item>Радостное</item>
-        <item>Мрачное</item>
-        <item>Романтичное</item>
-        <item>Меланхоличное</item>
-    </string-array>
-    <string-array name="playlist_creation_ai_activity_options">
-        <item>Тренировка</item>
-        <item>Концентрация</item>
-        <item>Поездка</item>
-        <item>Вечеринка</item>
-        <item>Учёба</item>
-        <item>Поздний вечер</item>
-    </string-array>
-    <string-array name="playlist_creation_ai_era_options">
-        <item>@string/playlist_creation_ai_era_any</item>
-        <item>70-е</item>
-        <item>80-е</item>
-        <item>90-е</item>
-        <item>2000-е</item>
-        <item>2010-е</item>
-        <item>2020-е</item>
-    </string-array>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- PlaylistContainer -->
     <string name="playlist_container_no_playlist_created">Плейлисты ещё не созданы.</string>
@@ -498,7 +476,7 @@
     <string name="playlist_view_model_none_to_export">Нет плейлистов для экспорта</string>
     <string name="playlist_view_model_export_failed">Ошибка экспорта: %1$s</string>
     <string name="playlist_view_model_export_folder_display">Music/PixelPlayer Exports</string>
-    <string name="playlist_view_model_ai_gemini_key_required">Пожалуйста, настройте ключ API Gemini в настройках.</string>
+    
     <string name="playlist_view_model_restored_toast">Плейлист восстановлен</string>
     <plurals name="playlist_view_model_sharing_message">
         <item quantity="one">Отправка %d плейлиста</item>
@@ -553,14 +531,14 @@
     <string name="metadata_edit_permission_denied_save_lyrics">Доступ запрещён — невозможно сохранить текст песни</string>
     <string name="metadata_edit_permission_denied_edit_this_file">Доступ запрещён — невозможно редактировать этот файл</string>
 
-    <!-- AiStateHolder -->
-    <string name="ai_state_error_api_key">Пожалуйста, настройте действительный API-ключ для выбранного AI-провайдера в настройках.</string>
-    <string name="ai_state_error_generic">Ошибка AI: %s</string>
-    <string name="ai_state_error_quota">Выбранный AI-провайдер отклонил запрос, поскольку на аккаунте отсутствуют кредиты или доступная квота.</string>
-    <string name="ai_state_error_model_unavailable">Выбранная AI-модель больше недоступна. PixelPlayer автоматически попытался переключиться на поддерживаемую модель.</string>
-    <string name="ai_state_no_songs_found">AI не смог подобрать треки по вашему запросу.</string>
-    <string name="ai_state_prompt_empty">Опишите идею для вашего Daily Mix</string>
-    <string name="ai_state_daily_mix_updated">Daily Mix обновлён с помощью AI</string>
-    <string name="ai_state_could_not_update">Не удалось обновить: %s</string>
-    <string name="ai_state_no_songs_for_mix">AI не смог подобрать треки для этого микса</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 </resources>

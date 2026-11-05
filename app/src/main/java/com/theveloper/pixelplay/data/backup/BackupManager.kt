@@ -71,11 +71,8 @@ class BackupManager @Inject constructor(
             val manifest = BackupManifest(
                 schemaVersion = BackupManifest.CURRENT_SCHEMA_VERSION,
                 appVersion = packageInfo?.versionName ?: "unknown",
-                appVersionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                appVersionCode = run {
                     packageInfo?.longVersionCode?.toInt() ?: 0
-                } else {
-                    @Suppress("DEPRECATION")
-                    packageInfo?.versionCode ?: 0
                 },
                 createdAt = System.currentTimeMillis(),
                 deviceInfo = DeviceInfo(

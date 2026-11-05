@@ -11,6 +11,9 @@ import com.theveloper.pixelplay.presentation.viewmodel.exts.DeckController
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -118,10 +121,15 @@ class MashupViewModel @Inject constructor(
     private fun startProgressUpdater() {
         progressJob?.cancel()
         progressJob = viewModelScope.launch {
-            while (isActive) {
-                updateDeckState(1) { it.copy(progress = deck1Controller.getProgress()) }
-                updateDeckState(2) { it.copy(progress = deck2Controller.getProgress()) }
-                delay(100)
+            combine(_uiState.subscriptionCount, com.theveloper.pixelplay.presentation.utils.AppVisibility.visible) { count, visible ->
+                count > 0 && visible
+            }.distinctUntilChanged().collectLatest { shouldPoll ->
+                if (!shouldPoll) return@collectLatest
+                while (isActive) {
+                    updateDeckState(1) { it.copy(progress = deck1Controller.getProgress()) }
+                    updateDeckState(2) { it.copy(progress = deck2Controller.getProgress()) }
+                    delay(100)
+                }
             }
         }
     }

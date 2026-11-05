@@ -117,31 +117,31 @@
         <item quantity="other">%1$d sanger • %2$s</item>
     </plurals>
     <string name="daily_mix_action_play_it">Spill den</string>
-    <string name="daily_mix_cd_ai_playlist_generator">AI-spillelistegenerator</string>
+    
 
     <!-- DailyMixMenu -->
-    <string name="daily_mix_how_title">Hvordan din Daily Mix bygges</string>
-    <string name="daily_mix_how_body">Din Daily Mix bygges fra dine favoritter og mest spilte sanger. Vi legger også til spor fra artister og sjangere du liker, slik at du kan oppdage ny musikk.</string>
-    <string name="daily_mix_prompt_label">Fortell AI-en hva du vil høre på i dag</string>
-    <string name="daily_mix_cost_hint">Vi bruker et lite utvalg for å holde kostnadene lave</string>
-    <string name="daily_mix_updating">Oppdaterer…</string>
-    <string name="daily_mix_update">Oppdater Daily Mix</string>
+    
+    
+    
+    
+    
+    
 
     <!-- AIPlaylistSheet -->
-    <string name="ai_playlist_headline_perfect">Perfekt kuratert</string>
-    <string name="ai_playlist_headline_daily_mix">Daily Mix</string>
-    <string name="ai_playlist_subtitle_journey_ready">Din lydreise er klar</string>
-    <string name="ai_playlist_subtitle_generator">AI-spillelistegenerator</string>
-    <string name="ai_playlist_description">Beskriv stemningen eller aktiviteten, og la AI kuratere den perfekte spillelisten fra biblioteket ditt.</string>
-    <string name="ai_playlist_section_size">Størrelse på spilleliste</string>
-    <string name="ai_playlist_min_songs">Min. antall sanger</string>
-    <string name="ai_playlist_max_songs">Maks. antall sanger</string>
-    <string name="ai_playlist_prompt_placeholder">f.eks. Rolig kveldsstemning, treningsenergi…</string>
-    <string name="ai_playlist_tap_to_retry">Trykk for å prøve på nytt</string>
-    <string name="ai_playlist_status_default">Lydreise ferdigstilt!</string>
-    <string name="ai_playlist_ready_to_play">Klar til avspilling</string>
-    <string name="ai_playlist_generating">Genererer…</string>
-    <string name="ai_playlist_generate">Generer spilleliste</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- RecentlyPlayedSection -->
     <string name="home_recently_played_title">Nylig spilt</string>

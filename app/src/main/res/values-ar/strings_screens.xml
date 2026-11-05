@@ -244,8 +244,8 @@
     <string name="qq_collected_playlists">قوائم التشغيل المجمعة</string>
     <string name="cd_user_avatar">الصورة الشخصية للمستخدم</string>
     <string name="toast_playlist_created">تم إنشاء قائمة التشغيل بنجاح</string>
-    <string name="toast_set_ai_provider_api_key_first">يرجى تعيين مفتاح API لمزود الذكاء الاصطناعي أولاً</string>
-    <string name="toast_set_gemini_api_key_first">يرجى تعيين مفتاح API لـ Gemini أولاً</string>
+    
+    
     <string name="toast_added_to_queue">تمت الإضافة إلى قائمة الانتظار</string>
     <string name="toast_playing_next">سيتم التشغيل تالياً</string>
     <string name="error_share_song_format">تعذر مشاركة الأغنية: %1$s</string>

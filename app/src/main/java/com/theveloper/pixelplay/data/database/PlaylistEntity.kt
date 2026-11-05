@@ -22,8 +22,6 @@ data class PlaylistEntity(
     val createdAt: Long = System.currentTimeMillis(),
     @ColumnInfo(name = "last_modified")
     val lastModified: Long = System.currentTimeMillis(),
-    @ColumnInfo(name = "is_ai_generated")
-    val isAiGenerated: Boolean = false,
     @ColumnInfo(name = "is_queue_generated")
     val isQueueGenerated: Boolean = false,
     @ColumnInfo(name = "cover_image_uri")
@@ -53,7 +51,6 @@ fun PlaylistEntity.toPlaylist(songIds: List<String>): Playlist {
         songIds = songIds,
         createdAt = createdAt,
         lastModified = lastModified,
-        isAiGenerated = isAiGenerated,
         isQueueGenerated = isQueueGenerated,
         coverImageUri = coverImageUri,
         coverColorArgb = coverColorArgb,
@@ -63,7 +60,7 @@ fun PlaylistEntity.toPlaylist(songIds: List<String>): Playlist {
         coverShapeDetail2 = coverShapeDetail2,
         coverShapeDetail3 = coverShapeDetail3,
         coverShapeDetail4 = coverShapeDetail4,
-        source = source,
+        source = com.theveloper.pixelplay.data.preferences.RetiredAiData.normalizePlaylistSource(source),
     )
 }
 
@@ -73,7 +70,6 @@ fun Playlist.toEntity(): PlaylistEntity {
         name = name,
         createdAt = createdAt,
         lastModified = lastModified,
-        isAiGenerated = isAiGenerated,
         isQueueGenerated = isQueueGenerated,
         coverImageUri = coverImageUri,
         coverColorArgb = coverColorArgb,
@@ -83,6 +79,6 @@ fun Playlist.toEntity(): PlaylistEntity {
         coverShapeDetail2 = coverShapeDetail2,
         coverShapeDetail3 = coverShapeDetail3,
         coverShapeDetail4 = coverShapeDetail4,
-        source = source,
+        source = com.theveloper.pixelplay.data.preferences.RetiredAiData.normalizePlaylistSource(source),
     )
 }

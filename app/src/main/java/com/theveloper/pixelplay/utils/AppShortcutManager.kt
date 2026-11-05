@@ -45,9 +45,6 @@ class AppShortcutManager @Inject constructor(
             userPreferencesRepository.setLastPlaylist(playlistId, playlistName)
         }
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
-            return // Launcher shortcuts not supported before API 25
-        }
 
         val intent = Intent(context, MainActivity::class.java).apply {
             action = MainActivityIntentContract.ACTION_OPEN_PLAYLIST

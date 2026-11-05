@@ -217,7 +217,6 @@ fun StatsScreen(
 
     val onPullRefresh: () -> Unit = {
         if (hasPendingPullRefresh || uiState.isLoading) {
-            Unit
         } else {
             hasPendingPullRefresh = true
             isPullRefreshAnimating = true

@@ -1,5 +1,7 @@
 # PixelPlayer 🎵
 
+Technical documentation for contributors and coding agents: [project guide](docs/README.md). It explains architecture, code navigation, build/testing and how to keep documentation current.
+
 <p align="center">
   <img src="assets/PixelPlayer.svg" alt="App Icon" height="250"/>
 </p>
@@ -25,7 +27,7 @@
     <a href="https://github.com/theovilardo/PixelPlayer/releases">
         <img src="https://img.shields.io/github/downloads/theovilardo/PixelPlayer/total?logo=github&style=for-the-badge" alt="Total Downloads">
     </a>
-    <img src="https://img.shields.io/badge/Android-11%2B-green?style=for-the-badge&logo=android" alt="Android 11+">
+    <img src="https://img.shields.io/badge/Android-17%2B-green?style=for-the-badge&logo=android" alt="Android 17+">
     <img src="https://img.shields.io/badge/Kotlin-100%25-purple?style=for-the-badge&logo=kotlin" alt="Kotlin">
 </p>
 
@@ -62,7 +64,7 @@
 
 ### 🔍 Discovery & Organization
 - **Full-text Search** - Search across your entire library
-- **Daily Mix** - AI-powered personalized playlist based on listening habits
+- **Daily Mix** - Local personalized mixes based on listening habits and favorites
 - **Playlists** - Create and manage custom playlists
 - **Statistics** - Track your listening history and habits
 
@@ -78,12 +80,11 @@
 
 ### 📲 Connectivity
 - **Chromecast** - Stream to your TV or smart speakers
-- **Android Auto** - Full Android Auto support for in-car playback (Soon)
+- **Android Auto** - Media browsing/session implementation is present; see [integration scope and validation limits](docs/integrations.md).
 - **Widgets** - Home screen control with Glance widgets
 
 ### ⚙️ Advanced Features
 - **Tag Editor** - Edit metadata with TagLib (MP3, FLAC, M4A support)
-- **AI Playlists** - Generate playlists with AI (Supports Gemini, Deepseek, OpenAI, etc.)
 
 ---
 
@@ -109,7 +110,7 @@
 
 ## 📱 Requirements
 
-- **Android 11** (API 30) or higher
+- **Android 17** (API 37) or higher
 - **6GB RAM** recommended for smooth performance
 
 ---
@@ -118,9 +119,11 @@
 
 ### Prerequisites
 
-- Android Studio Ladybug | 2024.2.1 or newer
-- Android SDK 29+
-- JDK 11+
+- Android Studio compatible with the Android Gradle Plugin declared in `gradle/libs.versions.toml`
+- Android SDK 37 (current `compileSdk`; see module build files)
+- JDK 21 (the project configures a Java 21 Gradle daemon and JVM target)
+
+See [build and testing](docs/build-and-testing.md) for the checked-in configuration, local commands, signing behavior and validation limits.
 
 ### Installation
 

@@ -209,12 +209,10 @@ object MultiLangRomanizer {
             val katakanaText = kataBuf.toString().replace("\\s+".toRegex(), " ").trim()
 
             // ── Pass 3: Katakana → Latin via ICU transliterator ───────────────
-            val latin = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val latin = run {
                 android.icu.text.Transliterator
                     .getInstance("Katakana-Latin; Lower")
                     .transliterate(katakanaText)
-            } else {
-                katakanaText
             }
 
             // ── Pass 4: context-sensitive post-processing ─────────────────────

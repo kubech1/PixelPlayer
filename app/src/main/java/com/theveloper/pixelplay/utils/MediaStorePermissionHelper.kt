@@ -31,7 +31,7 @@ object MediaStorePermissionHelper {
      */
     fun getMediaStoreUri(context: Context, songId: Long): Uri? {
         if (songId <= 0) return null
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        return run {
             val volumeName = try {
                 val projection = arrayOf(MediaStore.Audio.Media.VOLUME_NAME)
                 val selection = "${MediaStore.Audio.Media._ID} = ?"
@@ -59,8 +59,6 @@ object MediaStorePermissionHelper {
                 MediaStore.VOLUME_EXTERNAL_PRIMARY
             }
             MediaStore.Audio.Media.getContentUri(targetVolume, songId)
-        } else {
-            ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, songId)
         }
     }
 
@@ -70,18 +68,13 @@ object MediaStorePermissionHelper {
      */
     fun getMediaStoreUri(songId: Long): Uri? {
         if (songId <= 0) return null
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        return run {
             MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY, songId)
-        } else {
-            ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, songId)
         }
     }
 
     fun getAudioMediaStoreUris(context: Context, songId: Long): List<Uri> {
         if (songId <= 0) return emptyList()
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            return listOf(ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, songId))
-        }
 
         val specificVolumes = runCatching {
             MediaStore.getExternalVolumeNames(context)
@@ -94,9 +87,6 @@ object MediaStorePermissionHelper {
                 add(MediaStore.Audio.Media.getContentUri(volumeName, songId))
             }
             add(MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY, songId))
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-                add(MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL, songId))
-            }
         }.distinctBy { it.toString() }
     }
 
@@ -154,7 +144,7 @@ object MediaStorePermissionHelper {
      * Useful for non-audio files like .lrc that are indexed by MediaStore.
      */
     fun getMediaStoreUri(context: Context, filePath: String): Uri? {
-        val hasVolumeName = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+        val hasVolumeName = true
         val projection = if (hasVolumeName) {
             arrayOf(MediaStore.Files.FileColumns._ID, MediaStore.Files.FileColumns.VOLUME_NAME)
         } else {
@@ -172,7 +162,7 @@ object MediaStorePermissionHelper {
                 } else {
                     null
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                run {
                     val targetVolume = if (volumeName != null && volumeName != MediaStore.VOLUME_EXTERNAL) {
                         volumeName
                     } else {
@@ -180,8 +170,6 @@ object MediaStorePermissionHelper {
                     }
                     val baseVolumeUri = MediaStore.Files.getContentUri(targetVolume)
                     ContentUris.withAppendedId(baseVolumeUri, id)
-                } else {
-                    ContentUris.withAppendedId(queryUri, id)
                 }
             } else {
                 null

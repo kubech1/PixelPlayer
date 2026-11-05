@@ -34,13 +34,14 @@ fun PlayingEqIcon(
     wanderDurationMillis: Int = 12000, // patrón más largo
     gapFraction: Float = 0.30f
 ) {
+    val (visuallyActive, visibilityModifier) = com.theveloper.pixelplay.presentation.utils.visualAnimationActivity()
     val fullRotation = (2f * PI).toFloat()
     val phaseAnim = remember { Animatable(0f) }
     val wanderAnim = remember { Animatable(0f) }
 
-    LaunchedEffect(isPlaying, phaseDurationMillis) {
-        if (!isPlaying) return@LaunchedEffect
-        while (isActive) {
+    LaunchedEffect(isPlaying, visuallyActive, phaseDurationMillis) {
+        if (!isPlaying || !visuallyActive) return@LaunchedEffect
+        while (isActive && android.animation.ValueAnimator.areAnimatorsEnabled()) {
             val start = (phaseAnim.value % fullRotation).let { if (it < 0f) it + fullRotation else it }
             phaseAnim.snapTo(start)
             phaseAnim.animateTo(
@@ -50,9 +51,9 @@ fun PlayingEqIcon(
         }
     }
 
-    LaunchedEffect(isPlaying, wanderDurationMillis) {
-        if (!isPlaying) return@LaunchedEffect
-        while (isActive) {
+    LaunchedEffect(isPlaying, visuallyActive, wanderDurationMillis) {
+        if (!isPlaying || !visuallyActive) return@LaunchedEffect
+        while (isActive && android.animation.ValueAnimator.areAnimatorsEnabled()) {
             val start = (wanderAnim.value % fullRotation).let { if (it < 0f) it + fullRotation else it }
             wanderAnim.snapTo(start)
             wanderAnim.animateTo(
@@ -73,7 +74,7 @@ fun PlayingEqIcon(
     val speeds = remember(bars) { List(bars) { (it + 1).toFloat() } } // 1f, 2f, 3f
     val shifts = remember(bars) { List(bars) { i -> i * 0.9f } }
 
-    Canvas(modifier = modifier) {
+    Canvas(modifier = modifier.then(visibilityModifier)) {
         val phase = phaseAnim.value
         val wander = wanderAnim.value
         val w = size.width

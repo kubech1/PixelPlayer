@@ -21,7 +21,7 @@ fun LyricsPredictiveBackHandler(
     val scope = rememberCoroutineScope()
     val progressAnim = remember { Animatable(0f) }
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+    run {
         PredictiveBackHandler(enabled = enabled) { progressFlow ->
             try {
                 progressFlow.collect { backEvent ->
@@ -45,7 +45,5 @@ fun LyricsPredictiveBackHandler(
                 }
             }
         }
-    } else {
-        BackHandler(enabled = enabled, onBack = onBack)
     }
 }

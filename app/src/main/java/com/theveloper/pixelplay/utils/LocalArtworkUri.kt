@@ -45,6 +45,14 @@ object LocalArtworkUri {
         if (uriString.isNullOrBlank()) return null
         if (!looksLikeVolatileArtworkUri(uriString)) return null
 
+        // Shared artwork uses a numeric /song/<id> path rather than a cached filename.
+        val resource = uriString.substringBefore('?').substringBefore('#')
+        val authority = resource.removePrefix("content://").substringBefore('/')
+        if (resource.startsWith("content://") && authority.endsWith(".artwork")) {
+            val path = resource.removePrefix("content://$authority")
+            if (path.startsWith("/song/")) return path.removePrefix("/song/").toLongOrNull()
+        }
+
         val fileName = uriString.substringAfterLast('/').substringBefore('?')
         if (!fileName.startsWith("song_art_")) {
             return null

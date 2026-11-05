@@ -31,6 +31,9 @@ import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -39,7 +42,8 @@ data class CodecInfo(
     val name: String,
     val supportedTypes: List<String>,
     val isHardwareAccelerated: Boolean,
-    val maxSupportedInstances: Int
+    val maxSupportedInstances: Int,
+    val isVendor: Boolean = false
 )
 
 data class AudioOutputInfo(
@@ -130,6 +134,7 @@ data class ExoPlayerInfo(
 
 data class DeviceCapabilitiesState(
     val deviceInfo: Map<String, String> = emptyMap(),
+    val audioOutput: com.theveloper.pixelplay.data.audio.AudioOutputSnapshot = com.theveloper.pixelplay.data.audio.AudioOutputSnapshot(),
     val audioCapabilities: AudioCapabilities? = null,
     val exoPlayerInfo: ExoPlayerInfo? = null,
     val storageSummary: LocalMusicStorageSummary? = null,
@@ -156,13 +161,34 @@ class DeviceCapabilitiesViewModel @Inject constructor(
     private val engine: DualPlayerEngine,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val musicDao: MusicDao,
+    private val audioOutputs: com.theveloper.pixelplay.data.audio.AudioOutputRepository,
     private val reportCollector: com.theveloper.pixelplay.data.diagnostics.DebugPerformanceReportCollector
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DeviceCapabilitiesState())
     val state = _state.asStateFlow()
 
+    private val codecInventory by lazy { runCatching { getSupportedAudioCodecs() }.getOrDefault(emptyList()) }
+
     init {
+        audioOutputs.acquire()
+        viewModelScope.launch {
+            audioOutputs.state.collect { output -> _state.value = _state.value.copy(audioOutput = output) }
+        }
+        viewModelScope.launch {
+            kotlinx.coroutines.flow.combine(
+                audioOutputs.state.map { it.routeRevision }.distinctUntilChanged(),
+                _state.map { it.isLoading }.distinctUntilChanged()
+            ) { revision, loading -> revision to loading }.distinctUntilChanged().collectLatest { (_, loading) ->
+                if (!loading) {
+                    val caps = withContext(Dispatchers.IO) { runCatching { getAudioCapabilities() }.getOrNull() }
+                    _state.value = _state.value.copy(audioCapabilities = caps,
+                        formatSupport = _state.value.formatSupport.map { format ->
+                            format.copy(isOffloadSupported = format.label in caps?.offloadSupportedFormats.orEmpty())
+                        })
+                }
+            }
+        }
         observeAdvancedDiagnostics()
         loadCapabilities()
     }
@@ -224,17 +250,18 @@ class DeviceCapabilitiesViewModel @Inject constructor(
             val exoInfo = getExoPlayerInfo()
             val loadedState = withContext(Dispatchers.IO) {
                 val deviceInfo = getDeviceInfo()
-                val audioCaps = getAudioCapabilities()
+                val audioCaps = runCatching { getAudioCapabilities() }.getOrNull()
                 val libraryRows = musicDao.getDeviceCapabilitySongRows()
                 val storage = getLocalMusicStorageSummary(libraryRows)
-                val playback = getPlaybackCompatibilitySummary(libraryRows, audioCaps)
-                val formatSupport = getFormatSupport(libraryRows, audioCaps)
+                val playback = audioCaps?.let { getPlaybackCompatibilitySummary(libraryRows, it) }
+                val formatSupport = audioCaps?.let { getFormatSupport(libraryRows, it) }.orEmpty()
                 val memorySummary = getMemorySummary()
                 val decoderInfo = engine.activeDecoderInfo.value
 
                 val current = _state.value
                 DeviceCapabilitiesState(
                     deviceInfo = deviceInfo,
+                    audioOutput = audioOutputs.state.value,
                     audioCapabilities = audioCaps,
                     exoPlayerInfo = exoInfo,
                     storageSummary = storage,
@@ -253,6 +280,13 @@ class DeviceCapabilitiesViewModel @Inject constructor(
         }
     }
 
+    fun refreshAudioRoute() = audioOutputs.refresh()
+
+    override fun onCleared() {
+        audioOutputs.release()
+        super.onCleared()
+    }
+
     private fun getDeviceInfo(): Map<String, String> {
         return mapOf(
             "Manufacturer" to Build.MANUFACTURER.replaceFirstChar { it.uppercase() },
@@ -261,7 +295,16 @@ class DeviceCapabilitiesViewModel @Inject constructor(
             "Device" to Build.DEVICE,
             "Android Version" to Build.VERSION.RELEASE,
             "SDK Version" to Build.VERSION.SDK_INT.toString(),
-            "Hardware" to Build.HARDWARE
+            "Hardware" to Build.HARDWARE,
+            "Adaptive refresh rate" to runCatching {
+                context.getSystemService(android.hardware.display.DisplayManager::class.java)
+                    .getDisplay(android.view.Display.DEFAULT_DISPLAY)?.hasArrSupport()?.toString() ?: "Unknown"
+            }.getOrDefault("Unknown"),
+            "Display modes (Hz)" to runCatching {
+                context.getSystemService(android.hardware.display.DisplayManager::class.java)
+                    .getDisplay(android.view.Display.DEFAULT_DISPLAY)?.supportedModes
+                    ?.map { it.refreshRate }?.distinct()?.sorted()?.joinToString() ?: "Unknown"
+            }.getOrDefault("Unknown")
         )
     }
 
@@ -273,7 +316,7 @@ class DeviceCapabilitiesViewModel @Inject constructor(
         val hasLowLatency = packageManager.hasSystemFeature(PackageManager.FEATURE_AUDIO_LOW_LATENCY)
         val hasProAudio = packageManager.hasSystemFeature(PackageManager.FEATURE_AUDIO_PRO)
         val offloadSupportedFormats = getOffloadSupportedFormats()
-        val supportedCodecs = getSupportedAudioCodecs()
+        val supportedCodecs = codecInventory
 
         return AudioCapabilities(
             outputSampleRate = sampleRate,
@@ -282,7 +325,7 @@ class DeviceCapabilitiesViewModel @Inject constructor(
             isProAudioSupported = hasProAudio,
             isPcmFloatSupported = HiFiCapabilityChecker.isSupported(),
             offloadSupportedFormats = offloadSupportedFormats,
-            outputRoutes = getOutputRoutes(audioManager),
+            outputRoutes = audioOutputs.state.value.anticipated.map { AudioOutputInfo(it.label, it.type.toAudioOutputCategory()) },
             supportedCodecs = supportedCodecs
         )
     }
@@ -290,7 +333,6 @@ class DeviceCapabilitiesViewModel @Inject constructor(
     private fun getSupportedAudioCodecs(): List<CodecInfo> {
         val codecList = android.media.MediaCodecList(android.media.MediaCodecList.ALL_CODECS)
         val codecs = mutableListOf<CodecInfo>()
-        val isSamsung = Build.MANUFACTURER.lowercase(Locale.US) == "samsung"
 
         for (codecInfo in codecList.codecInfos) {
             if (codecInfo.isEncoder) continue
@@ -301,14 +343,7 @@ class DeviceCapabilitiesViewModel @Inject constructor(
                 .distinct()
             if (types.isEmpty()) continue
 
-            // On many Samsung devices, c2.sec.* codecs are high-performance hardware paths,
-            // but the platform doesn't always flag them as hardwareAccelerated in the manifest.
-            // We force report them as hardware in the UI if the name starts with c2.sec.
-            val isHardware = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                codecInfo.isHardwareAccelerated || (isSamsung && codecInfo.name.startsWith("c2.sec."))
-            } else {
-                isSamsung && codecInfo.name.startsWith("c2.sec.")
-            }
+            val isHardware = codecInfo.isHardwareAccelerated
 
             val instances = try {
                 codecInfo.getCapabilitiesForType(codecInfo.supportedTypes.first { it.startsWith("audio/") })
@@ -322,7 +357,8 @@ class DeviceCapabilitiesViewModel @Inject constructor(
                     name = codecInfo.name,
                     supportedTypes = types,
                     isHardwareAccelerated = isHardware,
-                    maxSupportedInstances = instances
+                    maxSupportedInstances = instances,
+                    isVendor = codecInfo.isVendor
                 )
             )
         }
@@ -456,7 +492,7 @@ class DeviceCapabilitiesViewModel @Inject constructor(
     }
 
     private fun getOffloadSupportedFormats(): List<String> {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return emptyList()
+
 
         val attributes = android.media.AudioAttributes.Builder()
             .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
@@ -472,7 +508,8 @@ class DeviceCapabilitiesViewModel @Inject constructor(
                         .setSampleRate(44_100)
                         .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
                         .build()
-                    AudioManager.isOffloadedPlaybackSupported(audioFormat, attributes)
+                    AudioManager.getDirectPlaybackSupport(audioFormat, attributes) and
+                        (AudioManager.DIRECT_PLAYBACK_OFFLOAD_SUPPORTED or AudioManager.DIRECT_PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED) != 0
                 }.getOrDefault(false)
 
                 if (isSupported) candidate.label else null
@@ -573,10 +610,8 @@ private fun audioFormatCandidates(): List<AudioFormatCandidate> {
         add(AudioFormatCandidate("FLAC", "audio/flac", null))
         add(AudioFormatCandidate("Vorbis", "audio/vorbis", null))
         add(AudioFormatCandidate("WAV", "audio/wav", AudioFormat.ENCODING_PCM_16BIT))
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        run {
             add(AudioFormatCandidate("Opus", "audio/opus", AudioFormat.ENCODING_OPUS))
-        } else {
-            add(AudioFormatCandidate("Opus", "audio/opus", null))
         }
         add(AudioFormatCandidate("ALAC", "audio/alac", null))
         add(AudioFormatCandidate("AIFF", "audio/x-aiff", null))

@@ -25,9 +25,7 @@ object AlbumArtBitmapCache {
         }
     }
 
-    fun getKey(byteArray: ByteArray): String {
-        return byteArray.contentHashCode().toString()
-    }
+
 }
 
 data class WidgetColors(

@@ -304,7 +304,7 @@ class PixelPlayDatabaseMigrationTest {
     }
 
     private object PixelPlayDatabaseVersion {
-        const val LATEST = 42
+        const val LATEST = 43
     }
 
     companion object {
@@ -330,7 +330,8 @@ class PixelPlayDatabaseMigrationTest {
             PixelPlayDatabase.MIGRATION_38_39,
             PixelPlayDatabase.MIGRATION_39_40,
             PixelPlayDatabase.MIGRATION_40_41,
-            PixelPlayDatabase.MIGRATION_41_42
+            PixelPlayDatabase.MIGRATION_41_42,
+            PixelPlayDatabase.MIGRATION_42_43
         )
     }
 }

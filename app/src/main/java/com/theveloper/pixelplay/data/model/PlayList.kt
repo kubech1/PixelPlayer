@@ -12,7 +12,6 @@ data class Playlist(
     val songIds: List<String>,
     val createdAt: Long = System.currentTimeMillis(),
     val lastModified: Long = System.currentTimeMillis(),
-    val isAiGenerated: Boolean = false,
     val isQueueGenerated: Boolean = false,
     val coverImageUri: String? = null,
     val coverColorArgb: Int? = null,
@@ -22,7 +21,7 @@ data class Playlist(
     val coverShapeDetail2: Float? = null, // e.g., Smoothness / StarRotation
     val coverShapeDetail3: Float? = null, // e.g., StarScale
     val coverShapeDetail4: Float? = null, // e.g., Star Sides (Int)
-    val source: String = "LOCAL" // Source: "LOCAL", "NETEASE", "TELEGRAM", "AI", etc.
+    val source: String = "LOCAL" // Source: "LOCAL", "NETEASE", "TELEGRAM", etc.
 )
 
 enum class PlaylistShapeType {

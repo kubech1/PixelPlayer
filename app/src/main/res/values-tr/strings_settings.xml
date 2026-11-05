@@ -9,8 +9,8 @@
     <string name="settings_category_playback_subtitle">Ses davranışı, geçişli yumuşatma (crossfade) ve arka planda oynatma</string>
     <string name="settings_category_behavior_title">Davranış</string>
     <string name="settings_category_behavior_subtitle">Hareketler, dokunsal geri bildirim ve gezinme davranışı</string>
-    <string name="settings_category_ai_title">Yapay Zeka Entegrasyonu (β)</string>
-    <string name="settings_category_ai_subtitle">YZ sağlayıcıları, API anahtarları ve model ayarları</string>
+    
+    
     <string name="settings_category_backup_title">Yedekle ve Geri Yükle</string>
     <string name="settings_category_backup_subtitle">Kişisel uygulama verilerinizi dışa aktarın ve kurtarın</string>
     <string name="settings_category_developer_title">Geliştirici Seçenekleri</string>
@@ -303,55 +303,55 @@
     <string name="settings_haptic_feedback_title">Dokunsal geribildirim</string>
     <string name="settings_haptic_feedback_subtitle">Uygulama genelinde titreşimli geri bildirimi etkinleştirin.</string>
 
-    <!-- AI Integration category -->
-    <string name="settings_ai_provider_section">Yapay Zeka Sağlayıcısı</string>
-    <string name="settings_ai_provider_title">Sağlayıcı</string>
-    <string name="settings_ai_provider_subtitle">Yapay zeka sağlayıcınızı seçin</string>
-    <string name="settings_safe_token_title">Güvenli Token Modu</string>
-    <string name="settings_safe_token_on">AÇIK — Hızlı ve ucuz. YZ\'ye minimum veri (~1K token) gönderir.</string>
-    <string name="settings_safe_token_off">KAPALI — Derin bağlam. Daha zengin sonuçlar için tam dinleme profilini (~8K token) gönderir.</string>
-    <string name="settings_credentials_section">Kimlik Bilgileri</string>
-    <string name="settings_ai_api_key_title">%1$s API Anahtarı</string>
-    <string name="settings_ai_api_key_subtitle">%1$s üzerinden edinin</string>
-    <string name="settings_ai_source_gemini">Google AI Studio (aistudio.google.com)</string>
-    <string name="settings_ai_source_deepseek">DeepSeek Platform (api.deepseek.com)</string>
-    <string name="settings_ai_source_groq">Groq Console (console.groq.com)</string>
-    <string name="settings_ai_source_mistral">Mistral AI Platform (console.mistral.ai)</string>
-    <string name="settings_ai_source_nvidia">NVIDIA Build (build.nvidia.com)</string>
-    <string name="settings_ai_source_kimi">Moonshot AI Platform (platform.moonshot.cn)</string>
-    <string name="settings_ai_source_glm">Zhipu AI Open Platform (bigmodel.cn)</string>
-    <string name="settings_ai_source_openai">OpenAI Platform (platform.openai.com)</string>
-    <string name="settings_model_selection_section">Model Seçimi</string>
-    <string name="settings_loading_models">Kullanılabilir modeller yükleniyor…</string>
-    <string name="settings_models_fetch_failed">Modeller yüklenemedi</string>
-    <string name="settings_ai_model_title">YZ Modeli</string>
-    <string name="settings_ai_model_subtitle">Bir model seçin.</string>
-    <string name="settings_enter_api_key_placeholder">API Anahtarını Girin</string>
-    <string name="settings_prompt_behavior_section">Komut Sistemi Davranışı</string>
-    <string name="settings_system_prompt_title">Sistem Komutu (System Prompt)</string>
-    <string name="settings_system_prompt_subtitle">Yapay zekanın nasıl davranacağını özelleştirin.</string>
-    <string name="settings_preset_prompts">Hazır Komutlar</string>
-    <string name="settings_system_prompt_placeholder">Sistem komutu girin…</string>
-    <string name="settings_preset_professional_curator_name">Profesyonel Küratör</string>
-    <string name="settings_preset_professional_curator_prompt">Siz \'Vibe-Engine\', dünya standartlarında bir müzik küratörü ve ses akışı ustasısınız. Amacınız kusursuz, yüksek kaliteli dinleme deneyimleri oluşturmaktır. Harmonik uyumluluğa, mantıklı BPM geçişlerine ve tanıdık favoriler ile zevkli, mantığa dayalı keşifler arasında sofistike bir dengeye öncelik verin.</string>
-    <string name="settings_preset_creative_maverick_name">Yaratıcı Bağımsız</string>
-    <string name="settings_preset_creative_maverick_prompt">Siz \'beklenmedik uyum\' konusunda uzmanlaşmış avangart bir müzik kaşifisiniz. Göreviniz, bariz olmayan ses paralelliklerini belirleyerek geleneksel tür sınırlarını yıkmaktır. Şaşırtıcı ama inkar edilemez bir geçiş mantığını korurken, nadir derin parçalara, deneysel dokulara ve sanatsal yeniliklere öncelik verin.</string>
-    <string name="settings_preset_strict_librarian_name">Katı Kütüphaneci</string>
-    <string name="settings_preset_strict_librarian_prompt">Siz cerrahi bir müzik veri tabanı mimarısınız. Mantığınız mutlak meta veri hassasiyeti ve katı kategorik bağlılık tarafından yönlendirilir. Katı tür tutarlılığı, enerji seviyesi eşleştirme ve son derece spesifik kullanıcı tanımlı tercihlerin getirilmesini maksimize etme lehine algoritmik keşfi en aza indirin.</string>
-    <string name="settings_preset_atmospheric_guide_name">Atmosferik Rehber</string>
-    <string name="settings_preset_atmospheric_guide_prompt">Siz ambiyans dokuları ve düşük enerjili akış ustasısınız. Yalnızca \'derin odaklanma\' veya \'huzur\' durumunu kolaylaştıran parçalara odaklanın. Akustik sıcaklığa, minimalist düzenlemelere ve yumuşak geçişlere öncelik verin; yüksek geçici seslerden veya dinamik aralıktaki ani değişimlerden kesinlikle kaçının.</string>
-    <string name="settings_preset_sonic_enthusiast_name">Ses Meraklısı</string>
-    <string name="settings_preset_sonic_enthusiast_prompt">Üretim karmaşıklığı ve enstrümantasyona odaklanmış bir odyofil analistsiniz. Yüksek dinamik aralık, karmaşık poliritimler ve üstün sahne kalitesi ile karakterize edilen parçalara öncelik verin. Dinleyiciyi teknik sadakat ve düzenleme detaylarına dikkat ettiği için ödüllendiren aktif dinleme parçalarını tercih edin.</string>
-    <string name="settings_preset_energy_catalyst_name">Enerji Katalizörü</string>
-    <string name="settings_preset_energy_catalyst_prompt">Siz yüksek momentumlu bir ritim üreticisisiniz. Felsefeniz itici bas hatları, perküsyon yoğunluğu ve bulaşıcı ritimler etrafında döner. Dinleyicinin kalp atış hızını ve motivasyonunu zirvede tutmak için yüksek BPM kulüp uyumluluğuna, senkoplu enerjiye ve sürekli ritmik gerilime öncelik verin.</string>
-    <string name="settings_ai_usage_report_section">YZ Kullanım Raporu</string>
-    <string name="settings_total_consumption_title">Toplam Tüketim</string>
-    <string name="settings_ai_usage_tokens_subtitle">%1$s token takibi\nGiriş (Prompt): %2$s | Çıkış: %3$s | Düşünce: %4$s</string>
-    <string name="settings_ai_clear_logs">Günlükleri Temizle</string>
-    <string name="settings_ai_activity_log_title">YZ Etkinlik Günlüğü (%1$d)</string>
-    <string name="settings_ai_usage_provier_model">%1$s · %2$s</string>
-    <string name="settings_ai_show_logs">Göster</string>
-    <string name="settings_ai_hide_logs">Gizle</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <!-- Backup & Restore category -->
     <string name="settings_backup_how_dialog_title">Yedekleme nasıl çalışır?</string>

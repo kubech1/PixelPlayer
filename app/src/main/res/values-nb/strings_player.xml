@@ -153,12 +153,12 @@
 
     <!-- LyricsMoreBottomSheet -->
     <string name="lyrics_save_title">Lagre sangtekster</string>
-    <string name="lyrics_translate_via_ai">Oversett via AI</string>
-    <string name="lyrics_translate_already_translated">Disse sangtekstene har allerede en oversettelse</string>
-    <string name="lyrics_translate_already_in_target_language">Disse sangtekstene er allerede på dette språket</string>
-    <string name="lyrics_translate_api_not_configured">API er ikke konfigurert</string>
-    <string name="lyrics_translate_success">Sangtekster oversatt!</string>
-    <string name="lyrics_translate_progress">Oversetter sangtekster...</string>
+    
+    
+    
+    
+    
+    
     <string name="lyrics_reset_imported">Nullstill importerte sangtekster</string>
     <string name="lyrics_reset_dialog_title">Nullstill sangtekst?</string>
     <string name="lyrics_reset_dialog_message">Er du sikker på at du vil nullstille sangteksten for denne sangen?</string>

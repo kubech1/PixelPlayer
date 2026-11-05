@@ -24,7 +24,6 @@
         <item>播放器的全面重新设计。</item>
         <item>媒体库性能改进。</item>
         <item>提升了应用的启动速度。</item>
-        <item>AI 现在能提供更好的结果。</item>
     </string-array>
     <string-array name="changelog_020_fixes">
         <item>修复了标签编辑器中的各种错误。</item>
@@ -42,7 +41,6 @@
         <item>优化了应用内的动画和过渡效果，使导航更加流畅。</item>
         <item>增强了艺术家界面的布局，细节更丰富且更精美。</item>
         <item>升级了 DailyMix 和 YourMix 的生成，选择更加智能且多样化。</item>
-        <item>强化了 AI 播放列表的生成能力。</item>
         <item>改进了搜索相关性和展示方式，以便更快地发现内容。</item>
         <item>扩大了对更多音频文件格式的支持。</item>
     </string-array>
@@ -70,7 +68,6 @@
         <item>Material 3 Expressive UI 全面升级</item>
         <item>10 段均衡器与音效</item>
         <item>全新的媒体库同步流程</item>
-        <item>AI 集成（Gemini 模型）</item>
         <item>M3U 播放列表导入/导出</item>
         <item>集成 Deezer 艺术家封面</item>
         <item>自定义播放列表封面</item>
@@ -108,7 +105,6 @@
     </string-array>
     <string-array name="changelog_070_whats_new">
         <item>Wear OS：支持音乐传输、本地播放、队列同步以及从手表进行远程控制。</item>
-        <item>AI：集成了 Groq AI 和 OpenRouter（实验性），并进行了 Token 优化。</item>
         <item>云端：新增了 Jellyfin 支持。</item>
         <item>歌词：带有专属开关的同步翻译，支持酷狗 LRC 格式，自定义文本对齐方式，以及改进了远程加载。</item>
         <item>UI/UX：紧凑的导航栏模式，从专辑封面提取调色板的动态主题，长标题跑马灯效果，以及全新的排序选项。</item>

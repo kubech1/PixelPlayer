@@ -119,6 +119,10 @@ fun DeviceCapabilitiesScreen(
     playerViewModel: PlayerViewModel
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    androidx.lifecycle.compose.LifecycleEventEffect(androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+        viewModel.refreshAudioRoute()
+    }
+
 
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
@@ -242,6 +246,8 @@ private fun DeviceCapabilitiesContent(
                 playbackCompatibility = state.playbackCompatibility
             )
         }
+
+        item { AudioRouteStatusCard(state.audioOutput) }
 
         state.storageSummary?.let { storage ->
             item {

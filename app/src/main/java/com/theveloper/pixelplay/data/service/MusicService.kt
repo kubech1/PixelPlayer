@@ -64,6 +64,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -183,6 +185,8 @@ class MusicService : MediaLibraryService() {
         )
     }
 
+    @Inject lateinit var audioOutputs: com.theveloper.pixelplay.data.audio.AudioOutputRepository
+
     private var favoriteSongIds = emptySet<String>()
     private var mediaSession: MediaLibrarySession? = null
     private val controllerLastBrowsedParent = mutableMapOf<String, String>()
@@ -190,8 +194,6 @@ class MusicService : MediaLibraryService() {
     private var keepPlayingInBackground = true
     private var isManualShuffleEnabled = false
     private var persistentShuffleEnabled = false
-    // Holds the previous main-thread UncaughtExceptionHandler so we can restore it in onDestroy.
-    private var previousMainThreadExceptionHandler: Thread.UncaughtExceptionHandler? = null
     // --- Counted Play State ---
     private var countedPlayActive = false
     private var countedPlayTarget = 0
@@ -236,6 +238,7 @@ class MusicService : MediaLibraryService() {
     private var resumeOnHeadsetReconnectEnabled = false
     private var pauseOnVolumeZeroEnabled = false
     private var temporaryForegroundStartedInOnCreate = false
+    private var foregroundPlaybackRejected = false
 
     // Observes the device's media stream volume and pauses playback when it
     // reaches 0, if the user has enabled the "pause on volume zero" preference.
@@ -396,39 +399,24 @@ class MusicService : MediaLibraryService() {
     }
 
     override fun onCreate() {
-        // Media3's Cast SDK callback path (MediaSessionImpl$$ExternalSyntheticLambda →
-        // Util.postOrRun → MediaNotificationManager.updateNotificationInternal) calls
-        // Service.startForeground() directly, bypassing onUpdateNotification() entirely.
-        // Since startForeground() is final we cannot override it. Instead we intercept
-        // ForegroundServiceStartNotAllowedException on the main thread before it reaches
-        // ActivityThread and crashes the process.
-        val existingHandler = Thread.currentThread().uncaughtExceptionHandler
-        previousMainThreadExceptionHandler = existingHandler
-        Thread.currentThread().setUncaughtExceptionHandler { thread, throwable ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-                throwable is ForegroundServiceStartNotAllowedException
-            ) {
-                Timber.tag(TAG).w(throwable, "Suppressed ForegroundServiceStartNotAllowedException from Media3/Cast internal path")
-            } else {
-                existingHandler?.uncaughtException(thread, throwable)
-            }
-        }
-
         // A media-button startForegroundService() can reach MusicService directly (not always
         // through PixelPlayMediaButtonReceiver), so the pending counter is only a hint. Promote
         // immediately on cold start before super.onCreate(): Hilt injection and MediaLibraryService
         // startup can otherwise consume Android's 5-second FGS deadline before onStartCommand()
         // receives the media-button intent.
-        temporaryForegroundStartedInOnCreate =
-            consumePendingMediaButtonForegroundStart() || Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-        if (temporaryForegroundStartedInOnCreate) {
-            startTemporaryForegroundForCommand()
-        }
+        consumePendingMediaButtonForegroundStart()
+        temporaryForegroundStartedInOnCreate = startTemporaryForegroundForCommand()
 
         super.onCreate()
+        setListener(object : androidx.media3.session.MediaSessionService.Listener {
+            override fun onForegroundServiceStartNotAllowedException() {
+                pauseAfterForegroundRejection()
+            }
+        })
         listeningStatsTracker.initialize(appScope)
         
         // Ensure engine is ready (re-initialize if service was restarted)
+        audioOutputs.acquire()
         engine.initialize()
         replayGainProcessor.captureUserVolume(engine.masterPlayer.volume)
         syncLocalListeningStatsFromPlayer(engine.masterPlayer)
@@ -482,16 +470,12 @@ class MusicService : MediaLibraryService() {
                 loudnessEnabled, loudnessStrength
             )
 
-            val sessionId = engine.getAudioSessionId()
-            if (sessionId != 0) {
-                equalizerManager.attachToAudioSessionIfNeeded(sessionId)
-            }
-
-            // Re-attach equalizer whenever the active audio session changes (e.g. crossfade)
-            engine.activeAudioSessionId.collect { newSessionId ->
-                if (newSessionId != 0) {
-                    equalizerManager.attachToAudioSessionIfNeeded(newSessionId)
-                }
+            kotlinx.coroutines.flow.combine(
+                engine.activeAudioSessionId,
+                audioOutputs.state.map { it.routeRevision }.distinctUntilChanged()
+            ) { session, revision -> session to revision }.collect { (session, revision) ->
+                equalizerManager.onAudioRouteChanged(revision)
+                if (session != 0) equalizerManager.attachToAudioSessionIfNeeded(session)
             }
         }
 
@@ -980,7 +964,7 @@ class MusicService : MediaLibraryService() {
         val pendingIntent = createSleepTimerPendingIntent()
 
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            run {
                 if (alarmManager.canScheduleExactAlarms()) {
                     alarmManager.setExactAndAllowWhileIdle(
                         AlarmManager.RTC_WAKEUP,
@@ -994,12 +978,7 @@ class MusicService : MediaLibraryService() {
                         pendingIntent,
                     )
                 }
-            } else
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    triggerAtMillis,
-                    pendingIntent,
-                )
+            }
             Timber.tag(TAG).d("Sleep timer set from Wear for %d minutes", minutes)
         } catch (e: SecurityException) {
             Timber.tag(TAG).w(e, "Exact alarm denied; using inexact sleep timer")
@@ -1030,7 +1009,7 @@ class MusicService : MediaLibraryService() {
         Timber.tag(TAG).d("Sleep timers cancelled from Wear")
     }
 
-    private fun startTemporaryForegroundForCommand() {
+    private fun startTemporaryForegroundForCommand(): Boolean {
         val notification = NotificationCompat.Builder(
             this,
             PixelPlayApplication.NOTIFICATION_CHANNEL_ID
@@ -1054,9 +1033,22 @@ class MusicService : MediaLibraryService() {
                 notification,
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
             )
+            foregroundPlaybackRejected = false
+            return true
         } catch (e: Exception) {
+            foregroundPlaybackRejected = true
             Timber.tag(TAG).w(e, "Failed to promote service to foreground for external command")
+            return false
         }
+    }
+
+    private fun pauseAfterForegroundRejection() {
+        foregroundPlaybackRejected = true
+        // Publish the real paused state through the player/session, without retrying the start.
+        engine.pauseAfterPlaybackRejection()
+        mediaSession?.player?.pause()
+        widgetUpdateManager.requestFullUpdate(true)
+        Timber.tag(TAG).w("Foreground playback rejected; waiting for a new user action")
     }
 
     private fun isServiceAlreadyForeground(): Boolean {
@@ -1093,8 +1085,10 @@ class MusicService : MediaLibraryService() {
                 PlayerActions.REPEAT -> true
                 else -> false
             }
-        if (needsTemporaryForeground && !startedTemporaryForegroundInOnCreate) {
-            startTemporaryForegroundForCommand()
+        if (needsTemporaryForeground && !startedTemporaryForegroundInOnCreate && !startTemporaryForegroundForCommand()) {
+            pauseAfterForegroundRejection()
+            stopSelfResult(startId)
+            return START_NOT_STICKY
         }
 
         intent?.action?.let { action ->
@@ -1262,7 +1256,7 @@ class MusicService : MediaLibraryService() {
             val player = mediaSession?.player ?: engine.masterPlayer
             Timber.tag(TAG).d("onIsPlayingChanged: $isPlaying. Duration: ${player.duration}, Seekable: ${player.isCurrentMediaItemSeekable}")
             // Surface playback state to background workers so they can defer
-            // non-urgent work (AI generation, incremental sync) while audio
+            // non-urgent incremental sync work while audio
             // is producing — keeps thermal headroom and battery for playback.
             PlaybackActivityTracker.setPlaybackActive(isPlaying)
             syncLocalListeningStatsFromPlayer(player)
@@ -1517,10 +1511,10 @@ class MusicService : MediaLibraryService() {
             mediaSession = null
         }
         engine.release()
+        audioOutputs.selectSession(0)
+        audioOutputs.release()
         controller.release()
         serviceScope.cancel()
-        Thread.currentThread().setUncaughtExceptionHandler(previousMainThreadExceptionHandler)
-        previousMainThreadExceptionHandler = null
         super.onDestroy()
     }
 
@@ -1794,7 +1788,7 @@ class MusicService : MediaLibraryService() {
                 player.repeatMode = safeRepeatMode
                 player.shuffleModeEnabled = false
                 isManualShuffleEnabled = snapshot.shuffleEnabled
-                if (shouldRestorePlaying) {
+                if (shouldRestorePlaying && !foregroundPlaybackRejected) {
                     player.playWhenReady = true
                 } else {
                     player.playWhenReady = false
@@ -2007,7 +2001,7 @@ class MusicService : MediaLibraryService() {
         }
 
         val schemePair: ColorSchemePair? = when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && playerTheme == ThemePreference.DYNAMIC ->
+            playerTheme == ThemePreference.DYNAMIC ->
                 ColorSchemePair(
                     light = dynamicLightColorScheme(applicationContext),
                     dark = dynamicDarkColorScheme(applicationContext)
@@ -2405,10 +2399,8 @@ class MusicService : MediaLibraryService() {
         // even if an OEM offload path reports READY/BUFFERING without audio for a moment.
         // That gives the generic offload fallback time to rebuild the player instead of
         // letting task removal/backgrounding tear the session down first.
-        val shouldStartInForeground = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val shouldStartInForeground = run {
             startInForegroundRequired || hasPlaybackIntent
-        } else {
-            startInForegroundRequired
         }
 
         try {
@@ -2427,7 +2419,7 @@ class MusicService : MediaLibraryService() {
         // which Media3 does not handle and crashes the process. If the service is
         // already foreground, Media3's subsequent startForeground() call will simply
         // update the notification.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        run {
             return try {
                 super.startForegroundService(serviceIntent)
             } catch (e: ForegroundServiceStartNotAllowedException) {
@@ -2435,16 +2427,18 @@ class MusicService : MediaLibraryService() {
                     e,
                     "startForegroundService not allowed; ignoring redundant self-start request"
                 )
-                serviceIntent?.component ?: ComponentName(this, javaClass)
+                pauseAfterForegroundRejection()
+                null
             } catch (e: BackgroundServiceStartNotAllowedException) {
                 // Thrown when startForegroundService() itself is called while the app is in a
                 // background-cached state (distinct from ForegroundServiceStartNotAllowedException).
-                // Safe to swallow: the service is either already running or Media3 will retry.
+                // Playback is paused until a new authorized user action.
                 Timber.tag(TAG).w(
                     e,
                     "startForegroundService blocked (app in background); ignoring self-start request"
                 )
-                serviceIntent?.component ?: ComponentName(this, javaClass)
+                pauseAfterForegroundRejection()
+                null
             }
         }
         return super.startForegroundService(serviceIntent)

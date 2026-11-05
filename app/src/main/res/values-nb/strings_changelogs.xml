@@ -24,7 +24,6 @@
         <item>Fullstendig redesign av spilleren.</item>
         <item>Ytelsesforbedringer i biblioteket.</item>
         <item>Forbedret oppstartshastighet.</item>
-        <item>AI-en gir nå bedre resultater.</item>
     </string-array>
     <string-array name="changelog_020_fixes">
         <item>Fikset diverse feil i metadataredigereren.</item>
@@ -42,7 +41,6 @@
         <item>Jevnere animasjoner og overganger på tvers av appen for smidigere navigasjon.</item>
         <item>Forbedret artistskjermoppsettet med rikere detaljer og finpuss.</item>
         <item>Oppgradert DailyMix og YourMix med smartere og mer mangfoldig utvalg.</item>
-        <item>Styrket AI-spillelistegenerering.</item>
         <item>Forbedret søkerelevans og presentasjon for raskere oppdagelse.</item>
         <item>Utvidet støtte for et bredere spekter av lydfilformater.</item>
     </string-array>
@@ -70,7 +68,6 @@
         <item>Material 3 Expressive UI-oppdatering</item>
         <item>10-bånds equalizer og effekter</item>
         <item>Ny biblioteksynkroniseringsflyt</item>
-        <item>AI-integrasjon (Gemini-modeller)</item>
         <item>M3U spilleliste import/eksport</item>
         <item>Deezer artistbildeintegrasjon</item>
         <item>Egendefinerte spillelistebilder</item>
@@ -108,7 +105,6 @@
     </string-array>
     <string-array name="changelog_070_whats_new">
         <item>Wear OS: Musikkoverføring, lokal avspilling, køsynkronisering og fjernkontroll fra klokken.</item>
-        <item>AI: Groq AI og OpenRouter (eksperimentell) integrasjon med token-optimalisering.</item>
         <item>Sky: Jellyfin-støtte lagt til.</item>
         <item>Sangtekster: Synkronisert oversettelse med egen bryter, Kugou LRC-formatstøtte, tekstjusteringstilpasning og forbedret fjernlasting.</item>
         <item>UI/UX: Kompakt navigasjonslinje, dynamiske temaer fra albumkunstpalett, rullende tekst for lange titler og nye sorteringsalternativer.</item>

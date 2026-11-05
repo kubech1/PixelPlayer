@@ -52,7 +52,7 @@ data class SetupUiState(
     val allPermissionsGranted: Boolean
         get() {
             val mediaOk = mediaPermissionGranted
-            val notificationsOk = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) notificationsPermissionGranted else true
+            val notificationsOk = notificationsPermissionGranted
             return mediaOk && notificationsOk
         }
 }
@@ -142,23 +142,17 @@ class SetupViewModel @Inject constructor(
     )
 
     fun checkPermissions(context: Context) {
-        val mediaPermissionGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val mediaPermissionGranted = run {
             ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED
-        } else {
-            ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
         }
 
-        val notificationsPermissionGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val notificationsPermissionGranted = run {
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-        } else {
-            true // Not required before Android 13 (Tiramisu)
         }
 
-        val alarmsPermissionGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val alarmsPermissionGranted = run {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
             alarmManager.canScheduleExactAlarms()
-        } else {
-            true
         }
 
         _uiState.update {
