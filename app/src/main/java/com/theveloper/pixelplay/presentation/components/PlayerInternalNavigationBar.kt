@@ -22,6 +22,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -108,6 +110,8 @@ private fun PlayerInternalNavigationItemsRow(
     val latestCurrentRoute by rememberUpdatedState(currentRoute)
     val latestOnSearchIconDoubleTap by rememberUpdatedState(onSearchIconDoubleTap)
     val latestNavigationEnabled by rememberUpdatedState(currentRoute != null)
+    val hapticFeedback = LocalHapticFeedback.current
+    val latestHapticFeedback by rememberUpdatedState(hapticFeedback)
 
     val rowModifier = if (navBarStyle == NavBarStyle.FULL_WIDTH) {
         modifier
@@ -181,10 +185,12 @@ private fun PlayerInternalNavigationItemsRow(
                                 lastSearchTapTimestamp = 0L
                                 return@click
                             }
+                            latestHapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentTick)
                         }
 
                         if (isDoubleTap) {
                             lastSearchTapTimestamp = 0L
+                            latestHapticFeedback.performHapticFeedback(HapticFeedbackType.Confirm)
                             if (isAlreadySelected) {
                                 latestOnSearchIconDoubleTap()
                             } else {
@@ -196,7 +202,9 @@ private fun PlayerInternalNavigationItemsRow(
                         }
                     } else if (!isAlreadySelected) {
                         lastSearchTapTimestamp = 0L
-                        navController.navigateToTopLevelSafely(itemRoute)
+                        if (navController.navigateToTopLevelSafely(itemRoute)) {
+                            latestHapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                        }
                     } else {
                         lastSearchTapTimestamp = 0L
                     }

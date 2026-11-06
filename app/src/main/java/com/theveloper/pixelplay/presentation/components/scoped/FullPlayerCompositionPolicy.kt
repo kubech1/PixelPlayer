@@ -31,37 +31,31 @@ internal fun rememberFullPlayerCompositionPolicy(
     currentSongId: String?,
     currentSheetState: PlayerSheetState,
     expansionFraction: Animatable<Float, AnimationVector1D>,
-    collapsedWarmDelayMs: Long = 650L
+    collapsedWarmDelayMs: Long = 200L
 ): FullPlayerCompositionPolicy {
-    var keepFullPlayerComposed by remember(currentSongId) { mutableStateOf(false) }
+    // Keep the full-player tree warm across song changes once composed; tearing down
+    // and recreating the entire FullPlayerContent tree on every song change causes jank.
+    var keepFullPlayerComposed by remember { mutableStateOf(false) }
 
-    LaunchedEffect(currentSongId, currentSheetState) {
+    LaunchedEffect(currentSongId != null, currentSheetState) {
         if (currentSongId == null) {
             keepFullPlayerComposed = false
             return@LaunchedEffect
         }
 
-        if (currentSheetState == PlayerSheetState.EXPANDED) {
+        if (keepFullPlayerComposed || currentSheetState == PlayerSheetState.EXPANDED) {
             keepFullPlayerComposed = true
         } else {
-            // Warm the hidden full-player tree after the collapsed state settles.
-            // This moves the expensive first composition out of the expand animation.
+            // Warm the hidden full-player tree shortly after the collapsed state settles.
             delay(collapsedWarmDelayMs)
             keepFullPlayerComposed = true
         }
     }
 
-    // Monitor expansion fraction via snapshotFlow instead of using it as a
-    // LaunchedEffect key. Once either condition is satisfied
-    // (expansion crossed 0.12f, or the warm-delay coroutine flipped
-    // keepFullPlayerComposed itself) we can exit. The previous `collect`
-    // never terminated — it kept reading expansionFraction on every frame
-    // for the rest of the song's lifetime, even though there was nothing
-    // left to do once keepFullPlayerComposed was true.
-    LaunchedEffect(currentSongId) {
-        if (currentSongId == null) return@LaunchedEffect
+    LaunchedEffect(currentSongId != null) {
+        if (currentSongId == null || keepFullPlayerComposed) return@LaunchedEffect
         snapshotFlow {
-            keepFullPlayerComposed || expansionFraction.value > 0.12f
+            keepFullPlayerComposed || expansionFraction.value > 0.05f
         }.first { it }
         if (!keepFullPlayerComposed) keepFullPlayerComposed = true
     }

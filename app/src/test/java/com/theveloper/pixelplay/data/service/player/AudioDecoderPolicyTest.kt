@@ -34,6 +34,27 @@ class AudioDecoderPolicyTest {
     }
 
     @Test
+    fun selectPlatformDecoders_deprioritizesSamsungVendorCodecsBehindAosp() {
+        val flacDecoders = listOf("c2.sec.flac.decoder", "c2.android.flac.decoder")
+        val mp3Decoders = listOf("c2.sec.mp3.decoder.mpeg", "c2.android.mp3.decoder")
+
+        assertThat(AudioDecoderPolicy.selectPlatformDecoders(MimeTypes.AUDIO_FLAC, flacDecoders))
+            .containsExactly("c2.android.flac.decoder", "c2.sec.flac.decoder")
+            .inOrder()
+        assertThat(AudioDecoderPolicy.selectPlatformDecoders(MimeTypes.AUDIO_MPEG, mp3Decoders))
+            .containsExactly("c2.android.mp3.decoder", "c2.sec.mp3.decoder.mpeg")
+            .inOrder()
+    }
+
+    @Test
+    fun selectPlatformDecoders_retainsSamsungVendorCodecWhenOnlyOption() {
+        val apeDecoders = listOf("c2.sec.ape.decoder")
+
+        assertThat(AudioDecoderPolicy.selectPlatformDecoders("audio/x-ape", apeDecoders))
+            .containsExactly("c2.sec.ape.decoder")
+    }
+
+    @Test
     fun isLikelyHardwareDecoder_marksSoftwareRenderersAsSoftware() {
         assertThat(AudioDecoderPolicy.isLikelyHardwareDecoder("OMX.google.aac.decoder")).isFalse()
         assertThat(AudioDecoderPolicy.isLikelyHardwareDecoder("c2.android.aac.decoder")).isFalse()

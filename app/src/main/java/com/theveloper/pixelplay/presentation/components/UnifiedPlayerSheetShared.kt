@@ -159,7 +159,7 @@ internal fun MiniPlayerContentInternal(
                     indication = miniPlayerIndication,
                     enabled = controlsEnabled
                 ) {
-                    hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
                     onPrevious()
                 },
             contentAlignment = Alignment.Center
@@ -184,7 +184,9 @@ internal fun MiniPlayerContentInternal(
                     indication = miniPlayerIndication,
                     enabled = controlsEnabled
                 ) {
-                    hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    hapticFeedback.performHapticFeedback(
+                        if (isPlaying) HapticFeedbackType.ToggleOff else HapticFeedbackType.ToggleOn
+                    )
                     onPlayPause()
                 },
             contentAlignment = Alignment.Center
@@ -208,7 +210,10 @@ internal fun MiniPlayerContentInternal(
                     interactionSource = nextInteraction,
                     indication = miniPlayerIndication,
                     enabled = controlsEnabled
-                ) { onNext() },
+                ) {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
+                    onNext()
+                },
             contentAlignment = Alignment.Center
         ) {
             Icon(

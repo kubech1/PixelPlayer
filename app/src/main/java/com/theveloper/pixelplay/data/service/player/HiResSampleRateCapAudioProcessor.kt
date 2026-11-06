@@ -23,20 +23,28 @@ class HiResSampleRateCapAudioProcessor(
     private companion object {
         private val NATIVE_ORDER = ByteOrder.nativeOrder()
         private val NATIVE_ORDER_IS_BIG_ENDIAN = NATIVE_ORDER == ByteOrder.BIG_ENDIAN
+        private const val MIN_PCM_24 = -8_388_608L
+        private const val MAX_PCM_24 = 8_388_607L
     }
 
     private var inputFormat: AudioFormat = AudioFormat.NOT_SET
     private var outputFormat: AudioFormat = AudioFormat.NOT_SET
     private var downsampleFactor: Int = 1
+    private var reusableBuffer: ByteBuffer = AudioProcessor.EMPTY_BUFFER
     private var outputBuffer: ByteBuffer = AudioProcessor.EMPTY_BUFFER
     private var pendingBytes = ByteArray(0)
     private var pendingSize = 0
     private var shortAccumulators = IntArray(0)
+    private var longAccumulators = LongArray(0)
     private var floatAccumulators = FloatArray(0)
     private var inputEnded = false
 
     override fun configure(inputAudioFormat: AudioFormat): AudioFormat {
-        val shouldDownsample = (inputAudioFormat.encoding == C.ENCODING_PCM_16BIT || inputAudioFormat.encoding == C.ENCODING_PCM_FLOAT) &&
+        val isSupportedEncoding = inputAudioFormat.encoding == C.ENCODING_PCM_16BIT ||
+            inputAudioFormat.encoding == C.ENCODING_PCM_24BIT ||
+            inputAudioFormat.encoding == C.ENCODING_PCM_32BIT ||
+            inputAudioFormat.encoding == C.ENCODING_PCM_FLOAT
+        val shouldDownsample = isSupportedEncoding &&
             inputAudioFormat.channelCount > 0 &&
             inputAudioFormat.sampleRate > maxOutputSampleRateHz
 
@@ -69,10 +77,11 @@ class HiResSampleRateCapAudioProcessor(
     override fun queueInput(inputBuffer: ByteBuffer) {
         if (!isActive()) return
 
-        if (inputFormat.encoding == C.ENCODING_PCM_FLOAT) {
-            processFloat(inputBuffer)
-        } else {
-            process16Bit(inputBuffer)
+        when (inputFormat.encoding) {
+            C.ENCODING_PCM_FLOAT -> processFloat(inputBuffer)
+            C.ENCODING_PCM_24BIT -> process24Bit(inputBuffer)
+            C.ENCODING_PCM_32BIT -> process32Bit(inputBuffer)
+            else -> process16Bit(inputBuffer)
         }
         inputBuffer.position(inputBuffer.limit())
     }
@@ -116,6 +125,88 @@ class HiResSampleRateCapAudioProcessor(
         outputBuffer.flip()
     }
 
+    private fun process24Bit(inputBuffer: ByteBuffer) {
+        val bytesPerSample = 3
+        val bytesPerFrame = inputFormat.channelCount * bytesPerSample
+        val processableFrameCount = processableFrameCount(bytesPerFrame, inputBuffer.remaining())
+        if (processableFrameCount == 0) {
+            outputBuffer = AudioProcessor.EMPTY_BUFFER
+            stashPendingBytes(inputBuffer)
+            return
+        }
+
+        outputBuffer = ensureOutputBuffer(processableFrameCount * bytesPerFrame)
+        val source = inputBuffer.duplicate().order(NATIVE_ORDER)
+        var pendingReadOffset = 0
+
+        repeat(processableFrameCount) {
+            java.util.Arrays.fill(longAccumulators, 0L)
+            repeat(downsampleFactor) {
+                if (pendingReadOffset < pendingSize) {
+                    for (ch in 0 until inputFormat.channelCount) {
+                        longAccumulators[ch] += readPcm24FromPending(pendingReadOffset).toLong()
+                        pendingReadOffset += 3
+                    }
+                } else {
+                    for (ch in 0 until inputFormat.channelCount) {
+                        val b0 = source.get().toInt() and 0xFF
+                        val b1 = source.get().toInt() and 0xFF
+                        val b2 = source.get().toInt()
+                        longAccumulators[ch] += ((b2 shl 16) or (b1 shl 8) or b0).toLong()
+                    }
+                }
+            }
+            for (ch in 0 until inputFormat.channelCount) {
+                val sample = (longAccumulators[ch] / downsampleFactor).coerceIn(MIN_PCM_24, MAX_PCM_24).toInt()
+                outputBuffer.put((sample and 0xFF).toByte())
+                outputBuffer.put(((sample shr 8) and 0xFF).toByte())
+                outputBuffer.put(((sample shr 16) and 0xFF).toByte())
+            }
+        }
+        storePendingRemainder(pendingReadOffset, source)
+        outputBuffer.flip()
+    }
+
+    private fun process32Bit(inputBuffer: ByteBuffer) {
+        val bytesPerSample = Int.SIZE_BYTES
+        val bytesPerFrame = inputFormat.channelCount * bytesPerSample
+        val processableFrameCount = processableFrameCount(bytesPerFrame, inputBuffer.remaining())
+        if (processableFrameCount == 0) {
+            outputBuffer = AudioProcessor.EMPTY_BUFFER
+            stashPendingBytes(inputBuffer)
+            return
+        }
+
+        outputBuffer = ensureOutputBuffer(processableFrameCount * bytesPerFrame)
+        val intInput = inputBuffer.duplicate().order(NATIVE_ORDER)
+        var pendingReadOffset = 0
+
+        repeat(processableFrameCount) {
+            java.util.Arrays.fill(longAccumulators, 0L)
+            repeat(downsampleFactor) {
+                if (pendingReadOffset < pendingSize) {
+                    for (ch in 0 until inputFormat.channelCount) {
+                        longAccumulators[ch] += readIntFromPending(pendingReadOffset).toLong()
+                        pendingReadOffset += Int.SIZE_BYTES
+                    }
+                } else {
+                    for (ch in 0 until inputFormat.channelCount) {
+                        longAccumulators[ch] += intInput.int.toLong()
+                    }
+                }
+            }
+            for (ch in 0 until inputFormat.channelCount) {
+                outputBuffer.putInt(
+                    (longAccumulators[ch] / downsampleFactor)
+                        .coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong())
+                        .toInt()
+                )
+            }
+        }
+        storePendingRemainder(pendingReadOffset, intInput)
+        outputBuffer.flip()
+    }
+
     private fun processFloat(inputBuffer: ByteBuffer) {
         val bytesPerSample = Float.SIZE_BYTES
         val bytesPerFrame = inputFormat.channelCount * bytesPerSample
@@ -135,17 +226,20 @@ class HiResSampleRateCapAudioProcessor(
             repeat(downsampleFactor) {
                 if (pendingReadOffset < pendingSize) {
                     for (ch in 0 until inputFormat.channelCount) {
-                        floatAccumulators[ch] += readFloatFromPending(pendingReadOffset)
+                        val s = readFloatFromPending(pendingReadOffset)
+                        floatAccumulators[ch] += if (s.isFinite()) s else 0f
                         pendingReadOffset += Float.SIZE_BYTES
                     }
                 } else {
                     for (ch in 0 until inputFormat.channelCount) {
-                        floatAccumulators[ch] += floatInput.float
+                        val s = floatInput.float
+                        floatAccumulators[ch] += if (s.isFinite()) s else 0f
                     }
                 }
             }
             for (ch in 0 until inputFormat.channelCount) {
-                outputBuffer.putFloat((floatAccumulators[ch] / downsampleFactor).coerceIn(-1f, 1f))
+                val avg = floatAccumulators[ch] / downsampleFactor
+                outputBuffer.putFloat(if (avg.isFinite()) avg.coerceIn(-1f, 1f) else 0f)
             }
         }
         storePendingRemainder(pendingReadOffset, floatInput)
@@ -158,7 +252,12 @@ class HiResSampleRateCapAudioProcessor(
     }
 
     private fun maxPendingBytes(): Int {
-        val sampleBytes = if (inputFormat.encoding == C.ENCODING_PCM_FLOAT) Float.SIZE_BYTES else Short.SIZE_BYTES
+        val sampleBytes = when (inputFormat.encoding) {
+            C.ENCODING_PCM_FLOAT -> Float.SIZE_BYTES
+            C.ENCODING_PCM_32BIT -> Int.SIZE_BYTES
+            C.ENCODING_PCM_24BIT -> 3
+            else -> Short.SIZE_BYTES
+        }
         return inputFormat.channelCount * sampleBytes * downsampleFactor
     }
 
@@ -171,20 +270,22 @@ class HiResSampleRateCapAudioProcessor(
         if (shortAccumulators.size < channelCount) {
             shortAccumulators = IntArray(channelCount)
         }
+        if (longAccumulators.size < channelCount) {
+            longAccumulators = LongArray(channelCount)
+        }
         if (floatAccumulators.size < channelCount) {
             floatAccumulators = FloatArray(channelCount)
         }
     }
 
     private fun ensureOutputBuffer(requiredCapacity: Int): ByteBuffer {
-        return if (outputBuffer.capacity() < requiredCapacity) {
-            ByteBuffer.allocateDirect(requiredCapacity).order(NATIVE_ORDER).also {
-                outputBuffer = it
-            }
+        if (reusableBuffer.capacity() < requiredCapacity) {
+            reusableBuffer = ByteBuffer.allocateDirect(requiredCapacity).order(NATIVE_ORDER)
         } else {
-            outputBuffer.clear()
-            outputBuffer
+            reusableBuffer.clear()
         }
+        outputBuffer = reusableBuffer
+        return reusableBuffer
     }
 
     private fun stashPendingBytes(inputBuffer: ByteBuffer) {
@@ -221,6 +322,13 @@ class HiResSampleRateCapAudioProcessor(
             (byte1 shl 8) or byte0
         }
         return bits.toShort()
+    }
+
+    private fun readPcm24FromPending(offset: Int): Int {
+        val byte0 = pendingBytes[offset].toInt() and 0xFF
+        val byte1 = pendingBytes[offset + 1].toInt() and 0xFF
+        val byte2 = pendingBytes[offset + 2].toInt() // sign-extended MSB in little-endian
+        return (byte2 shl 16) or (byte1 shl 8) or byte0
     }
 
     private fun readFloatFromPending(offset: Int): Float {

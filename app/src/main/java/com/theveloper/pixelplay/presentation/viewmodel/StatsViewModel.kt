@@ -2,6 +2,7 @@ package com.theveloper.pixelplay.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.theveloper.pixelplay.data.database.EngagementDao
 import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.data.repository.MusicRepository
 import com.theveloper.pixelplay.data.stats.PlaybackStatsRepository
@@ -23,7 +24,8 @@ import timber.log.Timber
 @HiltViewModel
 class StatsViewModel @Inject constructor(
     private val playbackStatsRepository: PlaybackStatsRepository,
-    private val musicRepository: MusicRepository
+    private val musicRepository: MusicRepository,
+    private val engagementDao: EngagementDao
 ) : ViewModel() {
 
     data class StatsUiState(
@@ -163,8 +165,19 @@ class StatsViewModel @Inject constructor(
     }
 
     fun forceRegenerateStats() {
-        cachedSongs = null
-        playbackStatsRepository.requestRefresh()
+        resetAllStats()
+    }
+
+    fun resetAllStats() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                runCatching { engagementDao.clearAllEngagements() }
+                    .onFailure { Timber.e(it, "Failed to clear engagement stats") }
+                playbackStatsRepository.clearAllEvents()
+            }
+            cachedSongs = null
+            playbackStatsRepository.requestRefresh()
+        }
     }
 
     private suspend fun loadSongs(): List<Song> {

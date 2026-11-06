@@ -22,7 +22,7 @@ import java.nio.ByteOrder
  * - 5.1: FL, FR, FC, LFE, SL, SR
  * - 7.1: FL, FR, FC, LFE, SL, SR, SBL, SBR
  *
- * This processor is only active for 6-channel or 8-channel 16-bit PCM input.
+ * This processor is active for 6-channel or 8-channel 16-bit, 24-bit, 32-bit, or float PCM input.
  * All other formats are passed through without modification.
  */
 @UnstableApi
@@ -37,6 +37,9 @@ class SurroundDownmixProcessor : AudioProcessor {
 
         /** Largest supported surround layout (7.1). */
         private const val MAX_SUPPORTED_CHANNELS = 8
+
+        private const val MIN_PCM_24 = -8_388_608
+        private const val MAX_PCM_24 = 8_388_607
 
         // 5.1 channel indices (FFmpeg order)
         private const val FL_51  = 0
@@ -59,14 +62,20 @@ class SurroundDownmixProcessor : AudioProcessor {
 
     private var inputFormat: AudioFormat = AudioFormat.NOT_SET
     private var outputFormat: AudioFormat = AudioFormat.NOT_SET
+    private var reusableBuffer: ByteBuffer = AudioProcessor.EMPTY_BUFFER
     private var outputBuffer: ByteBuffer = AudioProcessor.EMPTY_BUFFER
     private var inputEnded = false
     private val floatScratch = FloatArray(MAX_SUPPORTED_CHANNELS)
     private val shortScratch = ShortArray(MAX_SUPPORTED_CHANNELS)
+    private val intScratch = IntArray(MAX_SUPPORTED_CHANNELS)
 
     override fun configure(inputAudioFormat: AudioFormat): AudioFormat {
-        val isSupported = (inputAudioFormat.channelCount == 6 || inputAudioFormat.channelCount == 8)
-                && (inputAudioFormat.encoding == C.ENCODING_PCM_16BIT || inputAudioFormat.encoding == C.ENCODING_PCM_FLOAT)
+        val isSupportedEncoding = inputAudioFormat.encoding == C.ENCODING_PCM_16BIT ||
+            inputAudioFormat.encoding == C.ENCODING_PCM_24BIT ||
+            inputAudioFormat.encoding == C.ENCODING_PCM_32BIT ||
+            inputAudioFormat.encoding == C.ENCODING_PCM_FLOAT
+        val isSupported = (inputAudioFormat.channelCount == 6 || inputAudioFormat.channelCount == 8) &&
+            isSupportedEncoding
 
         return if (isSupported) {
             inputFormat = inputAudioFormat
@@ -90,61 +99,108 @@ class SurroundDownmixProcessor : AudioProcessor {
 
         val channelCount = inputFormat.channelCount
 
-        if (inputFormat.encoding == C.ENCODING_PCM_FLOAT) {
-            val bytesPerFrame = channelCount * Float.SIZE_BYTES
-            val frameCount = inputBuffer.remaining() / bytesPerFrame
-            outputBuffer = ensureOutputBuffer(frameCount * 2 * Float.SIZE_BYTES)
+        when (inputFormat.encoding) {
+            C.ENCODING_PCM_FLOAT -> {
+                val bytesPerFrame = channelCount * Float.SIZE_BYTES
+                val frameCount = inputBuffer.remaining() / bytesPerFrame
+                outputBuffer = ensureOutputBuffer(frameCount * 2 * Float.SIZE_BYTES)
 
-            val floatInput = inputBuffer.duplicate().order(ByteOrder.nativeOrder()).asFloatBuffer()
-            repeat(frameCount) {
-                floatInput.get(floatScratch, 0, channelCount)
-                val left: Float
-                val right: Float
-                if (channelCount == 6) {
-                    left = downmix51Left(floatScratch)
-                    right = downmix51Right(floatScratch)
-                } else {
-                    left = downmix71Left(floatScratch)
-                    right = downmix71Right(floatScratch)
+                val floatInput = inputBuffer.duplicate().order(ByteOrder.nativeOrder()).asFloatBuffer()
+                repeat(frameCount) {
+                    floatInput.get(floatScratch, 0, channelCount)
+                    for (ch in 0 until channelCount) {
+                        val s = floatScratch[ch]
+                        if (!s.isFinite()) floatScratch[ch] = 0f
+                    }
+                    val left: Float
+                    val right: Float
+                    if (channelCount == 6) {
+                        left = downmix51Left(floatScratch)
+                        right = downmix51Right(floatScratch)
+                    } else {
+                        left = downmix71Left(floatScratch)
+                        right = downmix71Right(floatScratch)
+                    }
+                    outputBuffer.putFloat(if (left.isFinite()) left.coerceIn(-1f, 1f) else 0f)
+                    outputBuffer.putFloat(if (right.isFinite()) right.coerceIn(-1f, 1f) else 0f)
                 }
-                outputBuffer.putFloat(left.coerceIn(-1f, 1f))
-                outputBuffer.putFloat(right.coerceIn(-1f, 1f))
+                inputBuffer.position(inputBuffer.limit())
             }
-            inputBuffer.position(inputBuffer.limit())
-        } else {
-            val bytesPerFrame = channelCount * Short.SIZE_BYTES
-            val frameCount = inputBuffer.remaining() / bytesPerFrame
-            outputBuffer = ensureOutputBuffer(frameCount * 2 * Short.SIZE_BYTES)
+            C.ENCODING_PCM_24BIT -> {
+                val bytesPerFrame = channelCount * 3
+                val frameCount = inputBuffer.remaining() / bytesPerFrame
+                outputBuffer = ensureOutputBuffer(frameCount * 2 * 3)
 
-            val shortInput = inputBuffer.duplicate().order(ByteOrder.nativeOrder()).asShortBuffer()
-            repeat(frameCount) {
-                shortInput.get(shortScratch, 0, channelCount)
-                val left: Float
-                val right: Float
-                if (channelCount == 6) {
-                    left = downmix51Left(shortScratch)
-                    right = downmix51Right(shortScratch)
-                } else {
-                    left = downmix71Left(shortScratch)
-                    right = downmix71Right(shortScratch)
+                val source = inputBuffer.duplicate().order(ByteOrder.nativeOrder())
+                repeat(frameCount) {
+                    for (ch in 0 until channelCount) {
+                        val b0 = source.get().toInt() and 0xFF
+                        val b1 = source.get().toInt() and 0xFF
+                        val b2 = source.get().toInt()
+                        intScratch[ch] = (b2 shl 16) or (b1 shl 8) or b0
+                    }
+                    val left = if (channelCount == 6) downmix51Left(intScratch) else downmix71Left(intScratch)
+                    val right = if (channelCount == 6) downmix51Right(intScratch) else downmix71Right(intScratch)
+                    putPcm24Sample(outputBuffer, left.toInt().coerceIn(MIN_PCM_24, MAX_PCM_24))
+                    putPcm24Sample(outputBuffer, right.toInt().coerceIn(MIN_PCM_24, MAX_PCM_24))
                 }
-                outputBuffer.putShort(left.toInt().coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()).toShort())
-                outputBuffer.putShort(right.toInt().coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()).toShort())
+                inputBuffer.position(inputBuffer.limit())
             }
-            inputBuffer.position(inputBuffer.limit())
+            C.ENCODING_PCM_32BIT -> {
+                val bytesPerFrame = channelCount * Int.SIZE_BYTES
+                val frameCount = inputBuffer.remaining() / bytesPerFrame
+                outputBuffer = ensureOutputBuffer(frameCount * 2 * Int.SIZE_BYTES)
+
+                val intInput = inputBuffer.duplicate().order(ByteOrder.nativeOrder()).asIntBuffer()
+                repeat(frameCount) {
+                    intInput.get(intScratch, 0, channelCount)
+                    val left = if (channelCount == 6) downmix51LeftDouble(intScratch) else downmix71LeftDouble(intScratch)
+                    val right = if (channelCount == 6) downmix51RightDouble(intScratch) else downmix71RightDouble(intScratch)
+                    outputBuffer.putInt(left.toLong().coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong()).toInt())
+                    outputBuffer.putInt(right.toLong().coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong()).toInt())
+                }
+                inputBuffer.position(inputBuffer.limit())
+            }
+            else -> {
+                val bytesPerFrame = channelCount * Short.SIZE_BYTES
+                val frameCount = inputBuffer.remaining() / bytesPerFrame
+                outputBuffer = ensureOutputBuffer(frameCount * 2 * Short.SIZE_BYTES)
+
+                val shortInput = inputBuffer.duplicate().order(ByteOrder.nativeOrder()).asShortBuffer()
+                repeat(frameCount) {
+                    shortInput.get(shortScratch, 0, channelCount)
+                    val left: Float
+                    val right: Float
+                    if (channelCount == 6) {
+                        left = downmix51Left(shortScratch)
+                        right = downmix51Right(shortScratch)
+                    } else {
+                        left = downmix71Left(shortScratch)
+                        right = downmix71Right(shortScratch)
+                    }
+                    outputBuffer.putShort(left.toInt().coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()).toShort())
+                    outputBuffer.putShort(right.toInt().coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()).toShort())
+                }
+                inputBuffer.position(inputBuffer.limit())
+            }
         }
         outputBuffer.flip()
     }
 
+    private fun putPcm24Sample(buffer: ByteBuffer, sample: Int) {
+        buffer.put((sample and 0xFF).toByte())
+        buffer.put(((sample shr 8) and 0xFF).toByte())
+        buffer.put(((sample shr 16) and 0xFF).toByte())
+    }
+
     private fun ensureOutputBuffer(requiredCapacity: Int): ByteBuffer {
-        return if (outputBuffer.capacity() < requiredCapacity) {
-            ByteBuffer.allocateDirect(requiredCapacity).order(ByteOrder.nativeOrder()).also {
-                outputBuffer = it
-            }
+        if (reusableBuffer.capacity() < requiredCapacity) {
+            reusableBuffer = ByteBuffer.allocateDirect(requiredCapacity).order(ByteOrder.nativeOrder())
         } else {
-            outputBuffer.clear()
-            outputBuffer
+            reusableBuffer.clear()
         }
+        outputBuffer = reusableBuffer
+        return reusableBuffer
     }
 
     override fun getOutput(): ByteBuffer {
@@ -166,6 +222,7 @@ class SurroundDownmixProcessor : AudioProcessor {
 
     override fun reset() {
         flush()
+        reusableBuffer = AudioProcessor.EMPTY_BUFFER
         inputFormat = AudioFormat.NOT_SET
         outputFormat = AudioFormat.NOT_SET
     }
@@ -204,5 +261,37 @@ class SurroundDownmixProcessor : AudioProcessor {
 
     private fun downmix71Right(s: FloatArray): Float {
         return s[FR_71] + COEFF_SURROUND * s[FC_71] + COEFF_SURROUND * s[SR_71] + COEFF_SURROUND * s[SBR_71] + COEFF_LFE * s[LFE_71]
+    }
+
+    private fun downmix51Left(s: IntArray): Float {
+        return s[FL_51] + COEFF_SURROUND * s[FC_51] + COEFF_SURROUND * s[SL_51] + COEFF_LFE * s[LFE_51]
+    }
+
+    private fun downmix51Right(s: IntArray): Float {
+        return s[FR_51] + COEFF_SURROUND * s[FC_51] + COEFF_SURROUND * s[SR_51] + COEFF_LFE * s[LFE_51]
+    }
+
+    private fun downmix71Left(s: IntArray): Float {
+        return s[FL_71] + COEFF_SURROUND * s[FC_71] + COEFF_SURROUND * s[SL_71] + COEFF_SURROUND * s[SBL_71] + COEFF_LFE * s[LFE_71]
+    }
+
+    private fun downmix71Right(s: IntArray): Float {
+        return s[FR_71] + COEFF_SURROUND * s[FC_71] + COEFF_SURROUND * s[SR_71] + COEFF_SURROUND * s[SBR_71] + COEFF_LFE * s[LFE_71]
+    }
+
+    private fun downmix51LeftDouble(s: IntArray): Double {
+        return s[FL_51].toDouble() + COEFF_SURROUND * s[FC_51].toDouble() + COEFF_SURROUND * s[SL_51].toDouble() + COEFF_LFE * s[LFE_51].toDouble()
+    }
+
+    private fun downmix51RightDouble(s: IntArray): Double {
+        return s[FR_51].toDouble() + COEFF_SURROUND * s[FC_51].toDouble() + COEFF_SURROUND * s[SR_51].toDouble() + COEFF_LFE * s[LFE_51].toDouble()
+    }
+
+    private fun downmix71LeftDouble(s: IntArray): Double {
+        return s[FL_71].toDouble() + COEFF_SURROUND * s[FC_71].toDouble() + COEFF_SURROUND * s[SL_71].toDouble() + COEFF_SURROUND * s[SBL_71].toDouble() + COEFF_LFE * s[LFE_71].toDouble()
+    }
+
+    private fun downmix71RightDouble(s: IntArray): Double {
+        return s[FR_71].toDouble() + COEFF_SURROUND * s[FC_71].toDouble() + COEFF_SURROUND * s[SR_71].toDouble() + COEFF_SURROUND * s[SBR_71].toDouble() + COEFF_LFE * s[LFE_71].toDouble()
     }
 }

@@ -3,22 +3,12 @@ package com.theveloper.pixelplay.presentation.viewmodel
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.net.Uri
-import android.os.Build
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.theveloper.pixelplay.R
-import com.theveloper.pixelplay.data.backup.BackupManager
-import com.theveloper.pixelplay.data.backup.model.BackupTransferProgressUpdate
-import com.theveloper.pixelplay.data.backup.model.BackupOperationType
-import com.theveloper.pixelplay.data.backup.model.BackupSection
-import com.theveloper.pixelplay.data.backup.model.RestorePlan
-import com.theveloper.pixelplay.data.backup.model.RestoreResult
 import com.theveloper.pixelplay.data.preferences.AppThemeMode
 import com.theveloper.pixelplay.data.preferences.ThemePreferencesRepository
 import com.theveloper.pixelplay.data.preferences.UserPreferencesRepository
-import com.theveloper.pixelplay.data.repository.MusicRepository
 import com.theveloper.pixelplay.data.worker.SyncManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -43,11 +33,7 @@ data class SetupUiState(
     val navBarStyle: String = "default",
     val navBarCornerRadius: Int = 28,
     val alarmsPermissionGranted: Boolean = false,
-    val appThemeMode: String = AppThemeMode.DARK,
-    val isInspectingBackup: Boolean = false,
-    val isRestoringBackup: Boolean = false,
-    val restorePlan: RestorePlan? = null,
-    val backupTransferProgress: BackupTransferProgressUpdate? = null
+    val appThemeMode: String = AppThemeMode.DARK
 ) {
     val allPermissionsGranted: Boolean
         get() {
@@ -59,7 +45,6 @@ data class SetupUiState(
 
 sealed interface SetupEvent {
     data class Message(val value: String) : SetupEvent
-    data class RestoreCompleted(val message: String) : SetupEvent
 }
 
 @HiltViewModel
@@ -67,8 +52,6 @@ class SetupViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val themePreferencesRepository: ThemePreferencesRepository,
     private val syncManager: SyncManager,
-    private val backupManager: BackupManager,
-    private val musicRepository: MusicRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -262,120 +245,6 @@ class SetupViewModel @Inject constructor(
     fun retrySync() {
         viewModelScope.launch {
             syncManager.fullSync()
-        }
-    }
-
-    fun inspectBackupFile(uri: Uri) {
-        if (_uiState.value.isInspectingBackup || _uiState.value.isRestoringBackup) return
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    isInspectingBackup = true,
-                    restorePlan = null,
-                    backupTransferProgress = null
-                )
-            }
-            val result = backupManager.inspectBackup(uri)
-            result.fold(
-                onSuccess = { plan ->
-                    _uiState.update {
-                        it.copy(
-                            isInspectingBackup = false,
-                            restorePlan = plan
-                        )
-                    }
-                },
-                onFailure = { error ->
-                    _uiState.update { it.copy(isInspectingBackup = false) }
-                    _events.emit(
-                        SetupEvent.Message(
-                            context.getString(
-                                R.string.settings_backup_invalid_format,
-                                error.localizedMessage ?: context.getString(R.string.common_error_unknown),
-                            )
-                        )
-                    )
-                }
-            )
-        }
-    }
-
-    fun updateRestorePlanSelection(selectedModules: Set<BackupSection>) {
-        _uiState.update { state ->
-            state.restorePlan?.let { plan ->
-                state.copy(restorePlan = plan.copy(selectedModules = selectedModules))
-            } ?: state
-        }
-    }
-
-    fun clearRestorePlan() {
-        _uiState.update {
-            it.copy(
-                restorePlan = null,
-                isInspectingBackup = false,
-                isRestoringBackup = false,
-                backupTransferProgress = null
-            )
-        }
-    }
-
-    fun restoreFromPlan(uri: Uri) {
-        val plan = _uiState.value.restorePlan ?: return
-        if (plan.selectedModules.isEmpty() || _uiState.value.isRestoringBackup) return
-
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    isRestoringBackup = true,
-                    backupTransferProgress = BackupTransferProgressUpdate(
-                        operation = BackupOperationType.IMPORT,
-                        step = 0,
-                        totalSteps = 1,
-                        title = context.getString(R.string.settings_backup_progress_preparing_restore),
-                        detail = context.getString(R.string.settings_backup_progress_starting_task),
-                    )
-                )
-            }
-
-            val result = backupManager.restore(uri, plan) { progress ->
-                _uiState.update { state -> state.copy(backupTransferProgress = progress) }
-            }
-
-            when (result) {
-                is RestoreResult.Success -> {
-                    _events.emit(SetupEvent.RestoreCompleted(context.getString(R.string.settings_restore_completed_success)))
-                }
-                is RestoreResult.PartialFailure -> {
-                    val canFinishSetup = result.succeeded.isNotEmpty() || !result.rolledBack
-                    if (canFinishSetup) {
-                        _events.emit(
-                            SetupEvent.RestoreCompleted(
-                                context.getString(R.string.settings_restore_completed_partial_issues),
-                            )
-                        )
-                    } else {
-                        _events.emit(
-                            SetupEvent.Message(
-                                context.getString(
-                                    R.string.settings_restore_could_not_complete,
-                                    result.failed.values.joinToString(),
-                                ),
-                            )
-                        )
-                    }
-                }
-                is RestoreResult.TotalFailure -> {
-                    _events.emit(SetupEvent.Message(context.getString(R.string.settings_restore_failed_format, result.error)))
-                }
-            }
-
-            _uiState.update {
-                it.copy(
-                    isRestoringBackup = false,
-                    restorePlan = null,
-                    backupTransferProgress = null
-                )
-            }
         }
     }
 

@@ -53,9 +53,13 @@ El códec disponible depende de la intersección teléfono/receptor y de la pol�
 
 ## Motor de vibración y háptica
 
-La existencia de vibración no establece su geometría ni capacidad de control. No se halló evidencia primaria suficiente para fijar **modelo del actuador, eje X/Z, frecuencia resonante, fuerza, tiempos de arranque/frenado o número exacto de actuadores** del SM-S921B. Las descripciones contradictorias de vendedores de repuestos no se adoptan como especificación.
+La inspección directa en el `SM-S921B` conectado (`dumpsys vibrator_manager` en One UI 9 / Android 17, 6 de noviembre de 2026) determinó:
 
-La alternativa útil para software es consultar capacidades reales: `hasVibrator()`, `hasAmplitudeControl()`, `areEffectsSupported()` y `arePrimitivesSupported()`. En API 36+, `getFrequencyProfile()` puede describir frecuencias/aceleraciones soportadas o devolver `null`; las consultas de envelopes requieren también soporte efectivo. No se han ejecutado estas consultas en este teléfono. [Referencia oficial Vibrator](https://developer.android.com/reference/android/os/Vibrator).
+- **Actuador lineal:** `mVibratorGroup: MOTOR_LINEAR_INDEX (5)`, `SEM_SUPPORTED_VIBRATION_TYPE_D`, `supportAch : true`.
+- **Envelopes PWLE:** `mMaxEnvelopeEffectSize: 0`, `mMinEnvelopeEffectControlPointDurationMillis: 0` (`Vibrator.areEnvelopeEffectsSupported() == false`).
+- **Primitivas de composición soportadas (`mCompositionPrimitiveMaxLength: 100`):** `CLICK` (20 ms), `TICK` (20 ms), `LOW_TICK` (20 ms), `QUICK_FALL` (100 ms), `SPIN` (130 ms), `QUICK_RISE` (150 ms), `THUD` (300 ms) y `SLOW_RISE` (500 ms).
+
+[HapticPolicy](../../app/src/main/java/com/theveloper/pixelplay/presentation/utils/HapticPolicy.kt) prioriza por ello secuencias multi-primitiva expresivas basadas en `CLICK`, `TICK`, `LOW_TICK`, `QUICK_FALL`, `SPIN` y `QUICK_RISE` (descartando `THUD` de 300 ms para acciones de UI por su duración excesiva), conservando `BasicEnvelopeBuilder` para dispositivos que expongan soporte de envelopes y el feedback estándar del sistema como fallback. [Referencia oficial Vibrator](https://developer.android.com/reference/android/os/Vibrator).
 
 `HapticGenerator` puede generar háptica a partir del audio desde API 31, pero requiere soporte de hardware/HAL y `isAvailable()`, además de sesión y permisos adecuados. Que la clase exista no demuestra que funcione en este S24. Sería una función a evaluar solo si los próximos requisitos la justifican, incluyendo consumo, preferencias y las dos sesiones del motor. [API HapticGenerator](https://developer.android.com/reference/android/media/audiofx/HapticGenerator).
 

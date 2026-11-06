@@ -63,6 +63,7 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
     currentPositionProvider: () -> Long,
     isFavorite: Boolean,
     shouldRenderFullPlayer: Boolean = true,
+    collapsedStateHorizontalPaddingPx: Int = 0,
     currentHorizontalPaddingStartPxProvider: () -> Float,
     currentHorizontalPaddingEndPxProvider: () -> Float,
     onShowQueueClicked: () -> Unit,
@@ -93,15 +94,8 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
                                 .coerceIn(0f, 1f)
                         }
                         .layout { measurable, constraints ->
-                            val fraction = playerContentExpansionFraction.value
-                            val startPaddingPx = currentHorizontalPaddingStartPxProvider().toInt().coerceAtLeast(0)
-                            val endPaddingPx = currentHorizontalPaddingEndPxProvider().toInt().coerceAtLeast(0)
-                            
-                            val targetWidth = if (fraction > 0f) {
-                                (constraints.maxWidth - startPaddingPx - endPaddingPx).coerceAtLeast(0)
-                            } else {
-                                constraints.maxWidth
-                            }
+                            val targetWidth = (constraints.maxWidth - collapsedStateHorizontalPaddingPx * 2)
+                                .coerceAtLeast(0)
                             val placeable = measurable.measure(
                                 constraints.copy(
                                     minWidth = targetWidth,
@@ -109,8 +103,8 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
                                 )
                             )
                             layout(constraints.maxWidth, constraints.maxHeight) {
-                                val xOffset = if (fraction > 0f) startPaddingPx else 0
-                                placeable.placeRelative(xOffset, 0)
+                                val startPaddingPx = currentHorizontalPaddingStartPxProvider().toInt().coerceAtLeast(0)
+                                placeable.placeRelative(startPaddingPx, 0)
                             }
                         }
                         .zIndex(miniPlayerZIndex)

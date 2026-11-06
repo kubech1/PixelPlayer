@@ -70,4 +70,45 @@ Cuando se implemente un cambio, seleccionar build, tests, lint y pruebas física
 
 ## Estado después de implementar
 
-La observación de salida es compartida y conserva desconocidos. XM5, Buds FE, XB100 y receptores ajenos utilizan la negociación normal de Android/Media3; no hay selección por nombre. Las pruebas automatizadas y de emulador figuran en [modernización](../modernization-status.md). La matriz física de esta página continúa pendiente de S24 y receptores: no inferir mejoras de sonido, latencia, jank, autonomía o temperatura a partir de la compilación. Cast y reproducción local Wear mantienen propietarios y rutas independientes.
+La observación de salida es compartida y conserva desconocidos. XM5, Buds FE, XB100 y receptores ajenos utilizan la negociación normal de Android/Media3; no hay selección por nombre. Las pruebas automatizadas y de emulador figuran en [modernización](../modernization-status.md). La matriz física de receptores externos continúa pendiente: no inferir mejoras de sonido, latencia, jank, autonomía o temperatura a partir de la compilación. Cast y reproducción local Wear mantienen propietarios y rutas independientes.
+
+### Verificación física registrada en SM-S921B (5 de noviembre de 2026)
+
+- **Pregunta:** ¿El modo Hi-Fi (`PCM_FLOAT`) reproduce pistas FLAC masterizadas al límite digital (`0.0 dBFS` con picos inter-muestra superiores a `1.0`) sin distorsión en los altavoces integrados del SM-S921B con One UI 9 / Android 17?
+- **Condiciones:** Samsung Galaxy S24 (`SM-S921B`), Android 17 (SDK 37), One UI 9 (`mOneUIversion=90000`), salida por altavoces internos (`AUDIO_DEVICE_OUT_SPEAKER`) en el hilo `AudioOut_15` (`AUDIO_OUTPUT_FLAG_DEEP_BUFFER`, `48000 Hz`, `HAL format: AUDIO_FORMAT_PCM_8_24_BIT`), efectos del sistema (`Dolby_FX`, `SoundAlivePlus`, `SoundBoosterPlus`, `SoundBoosterEQ`) activos en el mezclador.
+- **Método:** Inspección de `logcat` (`DualPlayerEngine`, `HiFiAudio`, `CCodec`, `CCodecConfig`, `AudioTrack`), `dumpsys media.player` y `dumpsys media.audio_flinger` (`Signal power history` a 1000 ms y 50 ms) antes y después de desplegar la build debug actualizada.
+- **Resultado:**
+  - En `dumpsys media.player`, el sistema registra el decodificador propietario `c2.sec.flac.decoder` (`rank: 1`, `software-only: 1`) por delante del decodificador AOSP `c2.android.flac.decoder` (`rank: 8`).
+  - Tras actualizar [AudioDecoderPolicy](../../app/src/main/java/com/theveloper/pixelplay/data/service/player/AudioDecoderPolicy.kt), [ObservedAudioSink](../../app/src/main/java/com/theveloper/pixelplay/data/audio/ObservedAudioSink.kt) y [HiFiAudioProcessor](../../app/src/main/java/com/theveloper/pixelplay/data/service/player/HiFiAudioProcessor.kt), `logcat` confirmó la selección de `c2.android.flac.decoder`, la configuración `in(enc=4, sr=44100, ch=2) -> out(enc=4, sr=44100, ch=2)` con `preGain=0.7943` (`-2.0 dB`), `ispGain=1.0000` y `outPeak=0.6187` en el primer bloque de 4608 cuadros, y `AudioFlinger` registró un `AudioTrack` en `AUDIO_FORMAT_PCM_FLOAT` (`00000005`) con `Underruns=0` y potencia de señal dinámica (`-24.9 dB` a `-14.7 dB` con `PortVol=-9 dB`) sin saturación plana.
+- **Incertidumbre:** La verificación física cubre la ruta de altavoz interno del SM-S921B; las rutas Bluetooth (WH-1000XM5, Buds FE, SRS-XB100) y USB-C siguen pendientes de medición en dispositivo.
+- **Decisión:** Mantener `HiFiAudioProcessor` como único propietario del acondicionamiento `PCM_FLOAT` dentro de `ObservedAudioSink` y priorizar los decodificadores software de referencia AOSP (`c2.android.*` / `omx.google.*`) frente a los decodificadores software propietarios `c2.sec.*` / `omx.sec.*`.
+### S24 con WH-1000XM5 por Bluetooth (5 de noviembre de 2026)
+
+En el SM-S921B con SDK 37, la build debug reprodujo por MediaStore los tres FLAC con Hi-Fi activo. El track activo de PixelPlayer en AudioFlinger usó PCM float estéreo a 44 100 Hz. El hilo de salida A2DP mezcló a 96 000 Hz con HAL PCM de 32 bits. Android registró LDAC a 96 000 Hz. Una prueba adicional con un FLAC sintético de 24 bits/192 kHz registró entrada, salida del procesador y track a 192 000 Hz en la misma ruta. Las capturas puntuales mostraron cero underruns. Quedan sin medir el bitrate LDAC instantáneo, la resolución efectiva y la señal acústica de los auriculares.
+
+Se decodificaron las pistas completas a float estéreo y se procesaron con la clase compilada de la app en JVM, EQ plano y bloques de 4608 cuadros. Se midió el pico reconstruido con FFmpeg `ebur128=peak=true` antes y después del procesador. El margen anterior de 2 dB dejaba la Muestra A en +2,1 dBTP.
+
+| Muestra | FLAC | Pico original | Pico con margen de 5,5 dB | Ataque de grave analizado |
+| --- | --- | ---: | ---: | --- |
+| Muestra A | 16 bits/44,1 kHz | +4,8 dBTP | −0,7 dBTP | 3:02,29 |
+| Muestra B | 24 bits/44,1 kHz | −1,1 dBTP | −6,6 dBTP | 2:25,68 |
+| Muestra C | 16 bits/44,1 kHz | +1,9 dBTP | −3,6 dBTP | 0:43,50 |
+
+Para localizar ataques, se filtró la banda de 30–120 Hz y se comparó la energía estéreo en ventanas contiguas de 50 ms, con paso de 10 ms. En dos segundos alrededor de cada marca, tras compensar los 5,5 dB, la diferencia máxima muestra a muestra entre el original y el PCM procesado quedó por debajo de −144 dBFS. Los picos de la tabla corresponden a cada canción completa. Esta comparación termina antes de AudioFlinger, de la compresión LDAC y del procesado interno de Sony.
+
+#### Reproducción continua de los fragmentos con beats en el dispositivo
+
+Se reprodujeron dos veces cuatro tramos de los archivos de prueba por MediaStore con HiFi activo. En la primera pasada, con el APK habitual, AudioFlinger registró un único track activo del reproductor, PCM float estéreo a 44,1 kHz, en el mezclador A2DP a 96 kHz con los XM5 activos y LDAC. El contador de underruns del track marcó cero en las 92 capturas. Los máximos de potencia digital de banda completa en ventanas de 50 ms fueron −6,8 dB en la Muestra A (2:10–2:55), −10,5 dB en la Muestra B (2:20–2:51) y −10,6 / −10,3 dB en la Muestra C (0:40–1:02 / 1:48–1:56). Las posiciones de estos máximos se alinearon con MediaSession y son aproximadas.
+
+En la segunda pasada, una build temporal comparó las muestras de entrada y salida del procesador directamente en el S24, por bloque con timestamp de presentación. Se incluyeron los bloques completos que tocan los límites de cada tramo (hasta 105 ms por bloque). Los 1019 bloques cubrieron los cuatro intervalos sin huecos. La máxima diferencia respecto de la entrada multiplicada por la ganancia fija de −5,5 dB quedó por debajo de −150 dBFS. Esto verifica la conservación de la forma de onda en estos tramos hasta la entrega al sink. La potencia del mezclador y los picos de muestra miden magnitudes distintas. La distorsión posterior al códec y la salida acústica quedan fuera de esta medición.
+
+### Háptica expresiva y refresco 120 Hz en SM-S921B con One UI 9 (6 de noviembre de 2026)
+
+- **Pregunta:** ¿Qué capacidades reales de actuador háptico y refresco adaptativo expone el `SM-S921B` en One UI 9 / Android 17, y cómo afectan a `HapticPolicy` e `InteractiveRefreshRate`?
+- **Condiciones:** Samsung Galaxy S24 (`SM-S921B`), Android 17 (SDK 37), One UI 9 (`mOneUIversion=90000`), modo de fluidez de movimiento adaptativo (`REFRESH_RATE_MODE_SEAMLESS`).
+- **Método:** Consulta directa mediante `adb shell dumpsys vibrator_manager` y `adb shell dumpsys display` sobre la unidad conectada, pruebas unitarias JVM en [HapticPolicyTest](../../app/src/test/java/com/theveloper/pixelplay/presentation/utils/HapticPolicyTest.kt) y despliegue de la build debug.
+- **Resultado:**
+  - `vibrator_manager` reporta `MOTOR_LINEAR_INDEX (5)` (`SEM_SUPPORTED_VIBRATION_TYPE_D`), sin soporte de envelopes PWLE (`mMaxEnvelopeEffectSize: 0`), y primitivas calibradas de 20 ms (`CLICK`, `TICK`, `LOW_TICK`), 100 ms (`QUICK_FALL`), 130 ms (`SPIN`), 150 ms (`QUICK_RISE`), 300 ms (`THUD`) y 500 ms (`SLOW_RISE`). Se reemplazó el uso de `THUD` (300 ms) y los pulsos simples por composiciones multi-primitiva expresivas en [HapticPolicy](../../app/src/main/java/com/theveloper/pixelplay/presentation/utils/HapticPolicy.kt) y se conectaron los eventos semánticos a los controles de transporte, toggles, barra de progreso y navegación inferior.
+  - `display` reporta `hasArrSupport false`, `frameRateCategoryRate {normal=60.0, high=90.0}` y `renderFrameRate 120.00001` bajo `REFRESH_RATE_MODE_SEAMLESS` (`10–120 Hz`). En [InteractiveRefreshRate](../../app/src/main/java/com/theveloper/pixelplay/presentation/utils/InteractiveRefreshRate.kt) se condicionó `Modifier.preferredFrameRate(FrameRateCategory.High)` a `view.display?.hasArrSupport() == true` para no degradar la ventana de 120 Hz a 90 Hz en One UI 9.
+- **Incertidumbre:** La preferencia subjetiva de intensidad (`LOW`/`MEDIUM`/`HIGH`) depende del usuario; el selector y previsualizador en Ajustes permiten ajustarla en vivo.
+- **Decisión:** Conservar la prioridad de composiciones multi-primitiva sobre `MOTOR_LINEAR_INDEX (5)` sin `THUD`, y delegar el refresco de 120 Hz al modo `SEAMLESS` de One UI 9 cuando `hasArrSupport()` sea `false`.

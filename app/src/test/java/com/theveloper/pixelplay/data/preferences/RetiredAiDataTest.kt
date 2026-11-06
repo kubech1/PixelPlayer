@@ -37,32 +37,6 @@ class RetiredAiDataTest {
     }
 
     @Test
-    fun `old backup cannot restore retired credentials but keeps unrelated settings`() = runTest {
-        val directory = Files.createTempDirectory("retired-ai-backup")
-        try {
-            val dataStore = PreferenceDataStoreFactory.create(
-                scope = backgroundScope,
-                produceFile = { directory.resolve("settings.preferences_pb").toFile() }
-            )
-            // Also test exclusion when stale values are present outside the normal migration path.
-            dataStore.edit { it[stringPreferencesKey("gemini_api_key")] = "synthetic-old-token" }
-            val repository = UserPreferencesRepository(dataStore, Json)
-            repository.importPreferencesFromBackup(listOf(
-                PreferenceBackupEntry("openai_api_key", "string", stringValue = "synthetic-token"),
-                PreferenceBackupEntry("navidrome_password", "string", stringValue = "synthetic-password"),
-                PreferenceBackupEntry("haptics_enabled", "boolean", booleanValue = false)
-            ), clearExisting = true)
-            val exported = repository.exportPreferencesForBackup()
-            assertTrue(exported.none { RetiredAiData.isPreferenceKey(it.key) })
-            assertTrue(dataStore.data.first().asMap().keys.none { RetiredAiData.isPreferenceKey(it.name) })
-            assertEquals("synthetic-password", exported.single { it.key == "navidrome_password" }.stringValue)
-            assertEquals(false, repository.hapticsEnabledFlow.first())
-        } finally {
-            directory.toFile().deleteRecursively()
-        }
-    }
-
-    @Test
     fun `old generated playlist keeps identity songs cover and order as local playlist`() {
         val playlist = Gson().fromJson(
             """{"id":"existing-list","name":"Existing list","songIds":["remote:2","17"],"createdAt":100,"lastModified":200,"isAiGenerated":true,"isQueueGenerated":false,"coverImageUri":"content://synthetic/cover","coverColorArgb":42,"source":"AI"}""",

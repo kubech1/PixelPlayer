@@ -73,6 +73,42 @@ class HiResSampleRateCapAudioProcessorTest {
         assertThat(output[1]).isWithin(1e-6f).of(0.3f)
     }
 
+    @Test
+    fun queueInput_downsamples24BitAnd32Bit384KhzTo192Khz() {
+        val processor24 = HiResSampleRateCapAudioProcessor()
+        val outFormat24 = processor24.configure(AudioFormat(384_000, 2, C.ENCODING_PCM_24BIT))
+        assertThat(processor24.isActive()).isTrue()
+        assertThat(outFormat24.sampleRate).isEqualTo(192_000)
+
+        val buf24 = ByteBuffer.allocateDirect(4 * 3).order(ByteOrder.LITTLE_ENDIAN)
+        val vals = intArrayOf(100_000, -100_000, 300_000, 100_000)
+        for (v in vals) {
+            buf24.put((v and 0xFF).toByte())
+            buf24.put(((v shr 8) and 0xFF).toByte())
+            buf24.put(((v shr 16) and 0xFF).toByte())
+        }
+        buf24.flip()
+        processor24.queueInput(buf24)
+        val out24 = processor24.getOutput()
+        assertThat(out24.remaining()).isEqualTo(2 * 3)
+
+        val processor32 = HiResSampleRateCapAudioProcessor()
+        val outFormat32 = processor32.configure(AudioFormat(384_000, 2, C.ENCODING_PCM_32BIT))
+        assertThat(processor32.isActive()).isTrue()
+        assertThat(outFormat32.sampleRate).isEqualTo(192_000)
+
+        val buf32 = ByteBuffer.allocateDirect(4 * 4).order(ByteOrder.LITTLE_ENDIAN)
+        for (v in vals) {
+            buf32.putInt(v * 16)
+        }
+        buf32.flip()
+        processor32.queueInput(buf32)
+        val out32 = processor32.getOutput()
+        assertThat(out32.remaining()).isEqualTo(2 * 4)
+        assertThat(out32.int).isEqualTo(200_000 * 16)
+        assertThat(out32.int).isEqualTo(0)
+    }
+
     private fun shortBufferOf(vararg samples: Int): ByteBuffer {
         val buffer = ByteBuffer.allocateDirect(samples.size * Short.SIZE_BYTES)
             .order(ByteOrder.nativeOrder())

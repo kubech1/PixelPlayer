@@ -10,6 +10,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.preferredFrameRate
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -18,9 +19,18 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/** Ask the system for a high category only during active interaction, never a fixed 120 Hz. */
+/**
+ * Ask the system for a high category only during active interaction when Android ARR
+ * (`Display.hasArrSupport()`) is active. On One UI 9 devices such as SM-S921B where
+ * `hasArrSupport()` is false and `REFRESH_RATE_MODE_SEAMLESS` (10–120 Hz) is managed natively,
+ * voting `FrameRateCategory.High` caps SurfaceFlinger to `frameRateCategoryRate.high = 90.0 Hz`,
+ * so we defer to the system seamless controller.
+ */
 @Composable
 fun Modifier.interactiveRefreshRate(directTouch: Boolean = false): Modifier {
+    val view = LocalView.current
+    if (view.display?.hasArrSupport() != true) return this
+
     val lifecycle by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
     var touching by remember { mutableStateOf(false) }
     var scrolling by remember { mutableStateOf(false) }

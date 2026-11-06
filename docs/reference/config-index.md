@@ -4,7 +4,7 @@
 
 Regenerar desde la raíz: `python scripts/context_docs.py generate`.
 
-Archivos: **415**. Huella de rutas y contenido: `f303440080bceb655c1798f07b36fa79c3a03d5a0c9796824aad1f960e0b24eb`.
+Archivos: **415**. Huella de rutas y contenido: `70410cabce90f457e54376b7fedc2affdbe1889b93b5311a7dd0a58a2174af13`.
 
 Este índice permite localizar archivos; no certifica su comportamiento ni sustituye los documentos temáticos. Los símbolos son una extracción léxica parcial, no un análisis del compilador. Se excluyen cachés, salidas de build, entornos virtuales y archivos locales de credenciales.
 
@@ -30,7 +30,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | Archivo | Líneas |
 | --- | ---: |
 | [.gitignore](../../.gitignore) | 51 |
-| [gradle.properties](../../gradle.properties) | 32 |
+| [gradle.properties](../../gradle.properties) | 35 |
 
 ## .github
 

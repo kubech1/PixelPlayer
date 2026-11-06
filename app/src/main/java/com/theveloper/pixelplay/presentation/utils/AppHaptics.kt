@@ -46,8 +46,11 @@ class ExpressiveHapticFeedback(private val view: View, private val config: AppHa
 
 fun View.performAppHapticFeedback(config: AppHapticsConfig, event: AppHapticEvent): Boolean =
     performAppHapticFeedback(config, when (event) {
-        AppHapticEvent.SELECTION -> HapticFeedbackConstants.SEGMENT_TICK
+        AppHapticEvent.SELECTION -> HapticFeedbackConstants.SEGMENT_FREQUENT_TICK
+        AppHapticEvent.NAVIGATION_STEP -> HapticFeedbackConstants.SEGMENT_TICK
         AppHapticEvent.ACTION -> HapticFeedbackConstants.CONTEXT_CLICK
+        AppHapticEvent.TOGGLE_ON -> HapticFeedbackConstants.TOGGLE_ON
+        AppHapticEvent.TOGGLE_OFF -> HapticFeedbackConstants.TOGGLE_OFF
         AppHapticEvent.CONFIRMATION -> HapticFeedbackConstants.CONFIRM
         AppHapticEvent.REJECTION -> HapticFeedbackConstants.REJECT
         AppHapticEvent.DRAG_START -> HapticFeedbackConstants.DRAG_START
@@ -88,8 +91,10 @@ private class AppHapticEngine(private val view: View) {
             HapticFeedbackConstants.GESTURE_START, HapticFeedbackConstants.DRAG_START, HapticFeedbackConstants.LONG_PRESS -> AppHapticEvent.DRAG_START
             HapticFeedbackConstants.GESTURE_END -> AppHapticEvent.DRAG_END
             HapticFeedbackConstants.GESTURE_THRESHOLD_ACTIVATE -> AppHapticEvent.LIMIT
-            HapticFeedbackConstants.CONTEXT_CLICK, HapticFeedbackConstants.VIRTUAL_KEY,
-            HapticFeedbackConstants.TOGGLE_ON, HapticFeedbackConstants.TOGGLE_OFF -> AppHapticEvent.ACTION
+            HapticFeedbackConstants.TOGGLE_ON -> AppHapticEvent.TOGGLE_ON
+            HapticFeedbackConstants.TOGGLE_OFF -> AppHapticEvent.TOGGLE_OFF
+            HapticFeedbackConstants.SEGMENT_TICK -> AppHapticEvent.NAVIGATION_STEP
+            HapticFeedbackConstants.CONTEXT_CLICK, HapticFeedbackConstants.VIRTUAL_KEY -> AppHapticEvent.ACTION
             else -> AppHapticEvent.SELECTION
         }
         if (!limiter.accept(event, SystemClock.uptimeMillis())) return false
@@ -110,18 +115,19 @@ private class AppHapticEngine(private val view: View) {
     }
 
     private fun primitiveEffect(hardware: Vibrator, event: AppHapticEvent, scale: Float): VibrationEffect? {
-        val primitive = when (event) {
-            AppHapticEvent.SELECTION -> VibrationEffect.Composition.PRIMITIVE_LOW_TICK
-            AppHapticEvent.REJECTION, AppHapticEvent.LIMIT -> VibrationEffect.Composition.PRIMITIVE_THUD
-            else -> VibrationEffect.Composition.PRIMITIVE_CLICK
+        val steps = HapticPolicy.composition(event, scale) ?: return null
+        val requiredPrimitives = steps.map { it.primitiveId }.distinct().toIntArray()
+        if (hardware.areAllPrimitivesSupported(*requiredPrimitives)) {
+            return VibrationEffect.startComposition().apply {
+                steps.forEach { step ->
+                    addPrimitive(step.primitiveId, step.scale, step.delayMs)
+                }
+            }.compose()
         }
-        if (!hardware.areAllPrimitivesSupported(primitive)) return null
-        val strength = scale.takeIf { it.isFinite() }?.coerceIn(0f, 1f) ?: HapticIntensity.MEDIUM.scale
+        if (!hardware.areAllPrimitivesSupported(VibrationEffect.Composition.PRIMITIVE_CLICK)) return null
+        val fallbackStrength = (scale.takeIf { it.isFinite() } ?: HapticIntensity.MEDIUM.scale).coerceIn(0.05f, 1f)
         return VibrationEffect.startComposition().apply {
-            addPrimitive(primitive, strength)
-            if (event == AppHapticEvent.CONFIRMATION || event == AppHapticEvent.REJECTION) {
-                addPrimitive(primitive, strength, if (event == AppHapticEvent.REJECTION) 80 else 50)
-            }
+            addPrimitive(VibrationEffect.Composition.PRIMITIVE_CLICK, fallbackStrength)
         }.compose()
     }
 }

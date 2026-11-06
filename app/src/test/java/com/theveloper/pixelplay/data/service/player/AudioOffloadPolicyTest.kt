@@ -195,4 +195,62 @@ class AudioOffloadPolicyTest {
 
         assertThat(shouldDisable).isFalse()
     }
+
+    @Test
+    fun resolveEffectiveAudioOffloadEnabled_disablesOffloadWhenHiFiModeEnabled() {
+        assertThat(
+            resolveEffectiveAudioOffloadEnabled(
+                audioOffloadEnabled = true,
+                hiFiModeEnabled = true
+            )
+        ).isFalse()
+
+        assertThat(
+            resolveEffectiveAudioOffloadEnabled(
+                audioOffloadEnabled = true,
+                hiFiModeEnabled = false
+            )
+        ).isTrue()
+
+        assertThat(
+            resolveEffectiveAudioOffloadEnabled(
+                audioOffloadEnabled = false,
+                hiFiModeEnabled = false
+            )
+        ).isFalse()
+    }
+
+    @Test
+    fun resolvePlayerRebuildPositionMs_preservesSubFiveSecondPositionsWhenNotResetting() {
+        assertThat(
+            resolvePlayerRebuildPositionMs(
+                currentPositionMs = 0L,
+                resetPositionUnderFiveSeconds = false
+            )
+        ).isEqualTo(0L)
+        assertThat(
+            resolvePlayerRebuildPositionMs(
+                currentPositionMs = -250L,
+                resetPositionUnderFiveSeconds = false
+            )
+        ).isEqualTo(0L)
+        assertThat(
+            resolvePlayerRebuildPositionMs(
+                currentPositionMs = 2_350L,
+                resetPositionUnderFiveSeconds = false
+            )
+        ).isEqualTo(2_350L)
+        assertThat(
+            resolvePlayerRebuildPositionMs(
+                currentPositionMs = 2_350L,
+                resetPositionUnderFiveSeconds = true
+            )
+        ).isEqualTo(0L)
+        assertThat(
+            resolvePlayerRebuildPositionMs(
+                currentPositionMs = 5_001L,
+                resetPositionUnderFiveSeconds = true
+            )
+        ).isEqualTo(5_001L)
+    }
 }

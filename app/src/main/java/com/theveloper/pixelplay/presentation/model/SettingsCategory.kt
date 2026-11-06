@@ -43,18 +43,6 @@ enum class SettingsCategory(
         subtitleRes = R.string.settings_category_behavior_subtitle,
         iconRes = R.drawable.rounded_touch_app_24
     ),
-    BACKUP_RESTORE(
-        id = "backup_restore",
-        titleRes = R.string.settings_category_backup_title,
-        subtitleRes = R.string.settings_category_backup_subtitle,
-        iconRes = R.drawable.rounded_upload_file_24
-    ),
-    DEVELOPER(
-        id = "developer",
-        titleRes = R.string.settings_category_developer_title,
-        subtitleRes = R.string.settings_category_developer_subtitle,
-        icon = Icons.Rounded.DeveloperMode
-    ),
     EQUALIZER(
         id = "equalizer",
         titleRes = R.string.settings_category_equalizer_title,

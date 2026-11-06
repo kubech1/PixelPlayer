@@ -458,8 +458,11 @@ class PlaybackStatsRepository @Inject constructor(
         )
     }
 
-    suspend fun exportEventsForBackup(): List<PlaybackEvent> = withContext(Dispatchers.IO) {
-        readEvents().map { event -> sanitizeEvent(event) }
+    suspend fun clearAllEvents() = withContext(Dispatchers.IO) {
+        val writeSucceeded = updateEventsAtomically { mutableListOf() }
+        if (writeSucceeded) {
+            notifyStatsChanged()
+        }
     }
 
     suspend fun loadPlaybackHistory(limit: Int = DEFAULT_PLAYBACK_HISTORY_LIMIT): List<PlaybackHistoryEntry> = withContext(Dispatchers.IO) {
@@ -476,30 +479,6 @@ class PlaybackStatsRepository @Inject constructor(
                 )
             }
             .toList()
-    }
-
-    suspend fun importEventsFromBackup(
-        events: List<PlaybackEvent>,
-        clearExisting: Boolean = true
-    ) = withContext(Dispatchers.IO) {
-        val writeSucceeded = updateEventsAtomically { existingEvents ->
-            val base = if (clearExisting) {
-                emptyList()
-            } else {
-                existingEvents
-            }
-            val merged = (base + events)
-                .map { event -> sanitizeEvent(event) }
-                .distinctBy { event ->
-                    "${event.songId}:${event.startMillis()}:${event.endMillis()}:${event.durationMs}"
-                }
-                .sortedBy { event -> event.timestamp }
-                .toMutableList()
-            merged
-        }
-        if (writeSucceeded) {
-            notifyStatsChanged()
-        }
     }
 
     fun requestRefresh() {

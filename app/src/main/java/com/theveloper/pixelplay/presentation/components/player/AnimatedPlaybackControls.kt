@@ -156,6 +156,7 @@ fun AnimatedPlaybackControls(
                     .clickable {
                         lastClicked = PlaybackButtonType.PREVIOUS
                         clickTrigger++
+                        hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
                         coroutineScope.launch {
                             delay(180)
                             onPrevious()
@@ -202,7 +203,9 @@ fun AnimatedPlaybackControls(
                     .clickable {
                         lastClicked = PlaybackButtonType.PLAY_PAUSE
                         clickTrigger++
-                        hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        hapticFeedback.performHapticFeedback(
+                            if (isPlaying) HapticFeedbackType.ToggleOff else HapticFeedbackType.ToggleOn
+                        )
                         onPlayPause()
                     },
                 contentAlignment = Alignment.Center
@@ -229,6 +232,7 @@ fun AnimatedPlaybackControls(
                     .clickable {
                         lastClicked = PlaybackButtonType.NEXT
                         clickTrigger++
+                        hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
                         coroutineScope.launch {
                             delay(180)
                             onNext()

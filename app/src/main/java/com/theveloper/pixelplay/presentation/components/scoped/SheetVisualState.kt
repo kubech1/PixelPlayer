@@ -20,6 +20,7 @@ private const val PREDICTIVE_BACK_SWIPE_EDGE_RIGHT = 1
 internal data class SheetVisualState(
     val currentBottomPadding: Dp,
     val baseBottomPadding: Dp,
+    val collapsedStateHorizontalPaddingPx: Int,
     /** Draw-phase provider: read this inside graphicsLayer to avoid layout relayout per frame. */
     val playerContentAreaHeightPxProvider: () -> Float,
     /** Layout-phase provider: read inside .offset { } to avoid recomposition per drag frame. */
@@ -261,6 +262,7 @@ internal fun rememberSheetVisualState(
     return SheetVisualState(
         currentBottomPadding = currentBottomPadding,
         baseBottomPadding = baseBottomPadding,
+        collapsedStateHorizontalPaddingPx = collapsedStateHorizontalPaddingPx.toInt().coerceAtLeast(0),
         playerContentAreaHeightPxProvider = playerContentAreaHeightPxProvider,
         visualSheetTranslationYProvider = visualSheetTranslationYProvider,
         overallSheetTopCornerRadiusProvider = overallSheetTopCornerRadiusProvider,

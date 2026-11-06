@@ -17,13 +17,6 @@ annotation class DeezerRetrofit
 annotation class FastOkHttpClient
 
 /**
- * Qualifier for Gson instance configured for backup serialization.
- */
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class BackupGson
-
-/**
  * Qualifier for application-lifetime coroutine scope.
  */
 @Qualifier

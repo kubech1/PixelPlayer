@@ -30,6 +30,8 @@ Android ARR necesita soporte de plataforma/HAL; no basta tener OLED LTPO. La gu�
 
 `Display.hasArrSupport()` existe desde API 36. `getSupportedModes()`, tasas de render y capacidades HDR deben consultarse sobre la pantalla activa; una pantalla externa o un cambio de modo puede modificar resultados. No confundir el mínimo físico 1 Hz anunciado con un modo disponible para renderizar la app. [Referencia Display](https://developer.android.com/reference/android/view/Display).
 
+En la lectura directa sobre el `SM-S921B` con One UI 9 (`dumpsys display`, 6 de noviembre de 2026), el panel principal reporta `renderFrameRate 120.00001`, `REFRESH_RATE_MODE_SEAMLESS`, `mHighSpeedRefreshRates: min=10, max=120, passiveList[24, 10, 30, 60, 120]`, pero `hasArrSupport false` y `frameRateCategoryRate FrameRateCategoryRate {normal=60.0, high=90.0}`. Invocar `Modifier.preferredFrameRate(FrameRateCategory.High)` cuando `hasArrSupport` es `false` limita la ventana a `90.0 Hz`; por ello [InteractiveRefreshRate](../../app/src/main/java/com/theveloper/pixelplay/presentation/utils/InteractiveRefreshRate.kt) comprueba `view.display?.hasArrSupport() == true` antes de aplicar el modificador, permitiendo que One UI 9 mantenga los 120 Hz nativos en modo `SEAMLESS`.
+
 **Criterio:** interacción y scroll pueden beneficiarse del refresco alto; una vista quieta o reproducción con pantalla apagada no requieren animación permanente. No forzar 120 Hz globales, brillo pico o efectos HDR para «aprovechar» la pantalla. Medir cuadro, consumo y temperatura; respetar movimiento reducido y escala de animación.
 
 ## One UI: efectos y políticas fuera de PixelPlayer

@@ -1861,6 +1861,7 @@ private fun EfficientSlider(
 ) {
     val haptics = LocalHapticFeedback.current
     val currentOnValueChange = rememberUpdatedState(onValueChange)
+    val currentOnValueCommit = rememberUpdatedState(onValueCommit)
     val currentHaptics = rememberUpdatedState(haptics)
     val lastHapticStep = remember { intArrayOf(-1) }
     val onValueChangeWithHaptics = remember {
@@ -1868,16 +1869,28 @@ private fun EfficientSlider(
             val quantized = (newValue.coerceIn(0f, 1f) * 20f).toInt()
             if (quantized != lastHapticStep[0]) {
                 lastHapticStep[0] = quantized
-                currentHaptics.value.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                currentHaptics.value.performHapticFeedback(
+                    if (quantized == 0 || quantized == 20) {
+                        HapticFeedbackType.GestureThresholdActivate
+                    } else {
+                        HapticFeedbackType.SegmentFrequentTick
+                    }
+                )
             }
             currentOnValueChange.value(newValue)
+        }
+    }
+    val onValueCommitWithHaptics = remember {
+        { finalValue: Float ->
+            currentHaptics.value.performHapticFeedback(HapticFeedbackType.GestureEnd)
+            currentOnValueCommit.value(finalValue)
         }
     }
 
     WavySliderExpressive(
         value = { valueState.value },
         onValueChange = onValueChangeWithHaptics,
-        onValueCommit = onValueCommit,
+        onValueCommit = onValueCommitWithHaptics,
         interactionSource = interactionSource,
         activeTrackColor = activeTrackColor,
         inactiveTrackColor = inactiveTrackColor,
@@ -1980,6 +1993,22 @@ private fun DelayedContent(
     placeholder: @Composable () -> Unit,
     content: @Composable () -> Unit
 ) {
+    val baseAlphaProvider = remember(normalStartThreshold, expansionFractionProvider) {
+        {
+            ((expansionFractionProvider().coerceIn(0f, 1f) - normalStartThreshold) /
+                (1f - normalStartThreshold).coerceAtLeast(0.001f))
+                .coerceIn(0f, 1f)
+        }
+    }
+    if (!shouldDelay) {
+        Box(
+            modifier = sharedBoundsModifier.graphicsLayer { alpha = baseAlphaProvider() }
+        ) {
+            content()
+        }
+        return
+    }
+
     val appearThreshold = delayAppearThreshold.coerceIn(0f, 1f)
     val closeThreshold = delayCloseThreshold.coerceIn(0f, 1f)
     var isDelayGateOpen by remember(shouldDelay) { mutableStateOf(!shouldDelay) }
@@ -2063,13 +2092,6 @@ private fun DelayedContent(
         }
     }
 
-    val baseAlphaProvider = remember(normalStartThreshold, expansionFractionProvider) {
-        {
-            ((expansionFractionProvider().coerceIn(0f, 1f) - normalStartThreshold) /
-                (1f - normalStartThreshold).coerceAtLeast(0.001f))
-                .coerceIn(0f, 1f)
-        }
-    }
     val contentBlendAlpha by animateFloatAsState(
         targetValue = if (isDelayGateOpen) 1f else 0f,
         animationSpec = if (isDelayGateOpen) {
@@ -2550,6 +2572,7 @@ private fun BottomToggleRow(
     onFavoriteToggle: () -> Unit
 ) {
     val isFavorite = isFavoriteProvider()
+    val hapticFeedback = LocalHapticFeedback.current
     val rowCorners = 60.dp
     val inactiveBg = LocalMaterialTheme.current.onSurface.copy(alpha = 0.07f)
     val inactiveContentColor = LocalMaterialTheme.current.onSurface
@@ -2601,7 +2624,12 @@ private fun BottomToggleRow(
                 activeContentColor = LocalMaterialTheme.current.onPrimaryFixed,
                 inactiveColor = inactiveBg,
                 inactiveContentColor = inactiveContentColor,
-                onClick = onShuffleToggle,
+                onClick = {
+                    hapticFeedback.performHapticFeedback(
+                        if (isShuffleEnabled) HapticFeedbackType.ToggleOff else HapticFeedbackType.ToggleOn
+                    )
+                    onShuffleToggle()
+                },
                 iconId = R.drawable.rounded_shuffle_24,
                 contentDesc = "Aleatorio"
             )
@@ -2619,7 +2647,10 @@ private fun BottomToggleRow(
                 activeContentColor = LocalMaterialTheme.current.onSecondaryFixed,
                 inactiveColor = inactiveBg,
                 inactiveContentColor = inactiveContentColor,
-                onClick = onRepeatToggle,
+                onClick = {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                    onRepeatToggle()
+                },
                 iconId = repeatIcon,
                 contentDesc = "Repetir"
             )
@@ -2631,7 +2662,12 @@ private fun BottomToggleRow(
                 activeContentColor = LocalMaterialTheme.current.onTertiaryFixed,
                 inactiveColor = inactiveBg,
                 inactiveContentColor = inactiveContentColor,
-                onClick = onFavoriteToggle,
+                onClick = {
+                    hapticFeedback.performHapticFeedback(
+                        if (isFavorite) HapticFeedbackType.ToggleOff else HapticFeedbackType.Confirm
+                    )
+                    onFavoriteToggle()
+                },
                 iconId = if (isFavorite) R.drawable.round_favorite_24 else R.drawable.rounded_favorite_24,
                 contentDesc = "Favorito"
             )

@@ -1,5 +1,6 @@
 package com.theveloper.pixelplay.presentation.utils
 
+import android.os.VibrationEffect
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
@@ -23,6 +24,33 @@ class HapticPolicyTest {
             assertTrue(points.all { it.intensity in 0f..1f && it.sharpness in 0f..1f && it.durationMs in 20..100 })
             assertTrue(points.sumOf { it.durationMs } <= 500)
         }
+    }
+
+    @Test
+    fun `every event produces a valid primitive composition for SM-S921B linear motor without 300ms THUD`() {
+        val supportedPrimitives = setOf(
+            VibrationEffect.Composition.PRIMITIVE_CLICK,
+            VibrationEffect.Composition.PRIMITIVE_TICK,
+            VibrationEffect.Composition.PRIMITIVE_LOW_TICK,
+            VibrationEffect.Composition.PRIMITIVE_QUICK_RISE,
+            VibrationEffect.Composition.PRIMITIVE_QUICK_FALL,
+            VibrationEffect.Composition.PRIMITIVE_SPIN
+        )
+        AppHapticEvent.entries.forEach { event ->
+            val steps = requireNotNull(HapticPolicy.composition(event, HapticIntensity.HIGH.scale))
+            assertTrue(steps.isNotEmpty() && steps.size <= 10)
+            assertTrue(steps.all { it.primitiveId in supportedPrimitives })
+            assertTrue(steps.none { it.primitiveId == VibrationEffect.Composition.PRIMITIVE_THUD })
+            assertTrue(steps.all { it.scale in 0.05f..1f && it.delayMs in 0..1000 })
+        }
+    }
+
+    @Test
+    fun `toggle on and toggle off have distinct tactile trajectories`() {
+        val toggleOn = requireNotNull(HapticPolicy.composition(AppHapticEvent.TOGGLE_ON, 1f))
+        val toggleOff = requireNotNull(HapticPolicy.composition(AppHapticEvent.TOGGLE_OFF, 1f))
+        assertTrue(toggleOn.first().scale < toggleOn.last().scale)
+        assertTrue(toggleOff.first().scale > toggleOff.last().scale)
     }
 
     @Test

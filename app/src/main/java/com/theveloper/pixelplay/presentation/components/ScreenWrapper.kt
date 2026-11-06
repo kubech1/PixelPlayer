@@ -81,6 +81,16 @@ fun ScreenWrapper(
         entry.destination.route?.let { route -> !isMainRootRoute(route) } == true
     }
     val shouldRunDepthEffects = !isMainRootScreen || hasVisibleNonMainRootScreen
+    if (!shouldRunDepthEffects) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            content()
+        }
+        return
+    }
 
     // Dim/Blur Logic: the screen "behind" during any transition — forward push, committed pop,
     // or an in-progress predictive back gesture — is always the entry directly below the top of

@@ -361,15 +361,6 @@ fun UnifiedPlayerSheetV2(
             scope.launch {
                 if (targetExpanded) {
                     visualOvershootScaleY.snapTo(1f)
-                    visualOvershootScaleY.animateTo(
-                        targetValue = 1f,
-                        animationSpec = keyframes {
-                            durationMillis = 250
-                            1.0f at 0
-                            1.05f at 125
-                            1.0f at 250
-                        }
-                    )
                 } else if (shouldBounceCollapse) {
                     visualOvershootScaleY.snapTo(0.96f)
                     visualOvershootScaleY.animateTo(
@@ -622,20 +613,14 @@ fun UnifiedPlayerSheetV2(
         modifier = Modifier
             .fillMaxWidth()
             .layout { measurable, constraints ->
-                val translationY = visualSheetTranslationYProvider().roundToInt()
-                val overshoot = if (currentSheetContentState == PlayerSheetState.EXPANDED && !isDragging) {
-                    -translationY
-                } else {
-                    if (translationY < 0) -translationY else 0
-                }
-                val targetHeight = constraints.maxHeight + overshoot
                 val placeable = measurable.measure(
                     constraints.copy(
-                        minHeight = targetHeight,
-                        maxHeight = targetHeight
+                        minHeight = constraints.maxHeight,
+                        maxHeight = constraints.maxHeight
                     )
                 )
                 layout(constraints.maxWidth, constraints.maxHeight) {
+                    val translationY = visualSheetTranslationYProvider().roundToInt()
                     placeable.placeRelative(0, translationY)
                 }
             },
@@ -707,13 +692,7 @@ fun UnifiedPlayerSheetV2(
                             // During drag/animation, we measure at stable full-screen constraints to prevent jank.
                             .layout { measurable, constraints ->
                                 val targetContentHeightPx = containerHeight.roundToPx()
-                                val fraction = playerContentExpansionFraction.value
-                                val startPaddingPx = currentHorizontalPaddingStartPxProvider().toInt()
-                                val measureWidth = if (fraction > 0f) {
-                                    screenWidthPx.roundToInt()
-                                } else {
-                                    constraints.maxWidth
-                                }
+                                val measureWidth = screenWidthPx.roundToInt()
                                 val placeable = measurable.measure(
                                     constraints.copy(
                                         minWidth = measureWidth,
@@ -723,8 +702,8 @@ fun UnifiedPlayerSheetV2(
                                     )
                                 )
                                 layout(constraints.maxWidth, constraints.maxHeight) {
-                                    val xOffset = if (fraction > 0f) -startPaddingPx else 0
-                                    placeable.placeRelative(xOffset, 0)
+                                    val startPaddingPx = currentHorizontalPaddingStartPxProvider().toInt()
+                                    placeable.placeRelative(-startPaddingPx, 0)
                                 }
                             }
                             .miniPlayerDismissHorizontalGesture(
@@ -767,6 +746,7 @@ fun UnifiedPlayerSheetV2(
                             currentPositionProvider = positionToDisplayProvider,
                             isFavorite = isFavorite,
                             shouldRenderFullPlayer = shouldRenderFullPlayer,
+                            collapsedStateHorizontalPaddingPx = sheetVisualState.collapsedStateHorizontalPaddingPx,
                             currentHorizontalPaddingStartPxProvider = currentHorizontalPaddingStartPxProvider,
                             currentHorizontalPaddingEndPxProvider = currentHorizontalPaddingEndPxProvider,
                             onShowQueueClicked = sheetActionHandlers.openQueueSheet,

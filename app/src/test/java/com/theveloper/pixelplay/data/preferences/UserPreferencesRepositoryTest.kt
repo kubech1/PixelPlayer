@@ -64,39 +64,6 @@ class UserPreferencesRepositoryTest {
     }
 
     @Test
-    fun `importPreferencesFromBackup clearExisting preserves initial setup completion`() = runTest {
-        val tempDir = Files.createTempDirectory("user-preferences-repository-test")
-        try {
-            val repository = UserPreferencesRepository(
-                dataStore = PreferenceDataStoreFactory.create(
-                    scope = backgroundScope,
-                    produceFile = { tempDir.resolve("settings.preferences_pb").toFile() }
-                ),
-                json = Json
-            )
-
-            repository.setInitialSetupDone(true)
-            repository.setNavBarStyle("compact")
-
-            repository.importPreferencesFromBackup(
-                entries = listOf(
-                    PreferenceBackupEntry(
-                        key = "nav_bar_style",
-                        type = "string",
-                        stringValue = "restored"
-                    )
-                ),
-                clearExisting = true
-            )
-
-            assertTrue(repository.initialSetupDoneFlow.first())
-            assertEquals("restored", repository.navBarStyleFlow.first())
-        } finally {
-            tempDir.toFile().deleteRecursively()
-        }
-    }
-
-    @Test
     fun `navBarCornerRadiusFlow clamps values outside the supported UI range`() = runTest {
         val tempDir = Files.createTempDirectory("user-preferences-repository-test")
         try {
@@ -113,18 +80,6 @@ class UserPreferencesRepositoryTest {
 
             repository.setNavBarCornerRadius(999)
             assertEquals(MAX_NAV_BAR_CORNER_RADIUS, repository.navBarCornerRadiusFlow.first())
-
-            repository.importPreferencesFromBackup(
-                entries = listOf(
-                    PreferenceBackupEntry(
-                        key = "nav_bar_corner_radius",
-                        type = "int",
-                        intValue = -1
-                    )
-                ),
-                clearExisting = false
-            )
-            assertEquals(MIN_NAV_BAR_CORNER_RADIUS, repository.navBarCornerRadiusFlow.first())
         } finally {
             tempDir.toFile().deleteRecursively()
         }

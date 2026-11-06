@@ -30,7 +30,46 @@ class EqualizerManager @Inject constructor() {
         private const val MIN_LEVEL = -15
         private const val MAX_LEVEL = 15
         private const val MAX_LOUDNESS_GAIN_MB = 1000
+        private const val MAX_COMPENSATION_HEADROOM_DB = 12.0f
+
+        /**
+         * Computes pre-attenuation headroom (dB) required to prevent downstream Android
+         * `Equalizer`, `BassBoost`, and `Virtualizer` effects from clipping 0 dBFS signals.
+         */
+        internal fun computeRequiredHeadroomDb(
+            eqEnabled: Boolean,
+            bandLevels: List<Int>,
+            maxEqLevelMillibels: Int = 1500,
+            bassBoostEnabled: Boolean,
+            bassBoostStrength: Int,
+            virtualizerEnabled: Boolean,
+            virtualizerStrength: Int
+        ): Float {
+            var totalHeadroomDb = 0f
+            if (eqEnabled && bandLevels.isNotEmpty()) {
+                val maxPositiveLevel = (bandLevels.maxOrNull() ?: 0).coerceIn(0, MAX_LEVEL)
+                if (maxPositiveLevel > 0) {
+                    val maxDeviceBoostDb = (maxEqLevelMillibels.coerceAtLeast(0) / 100f)
+                        .takeIf { it > 0f } ?: 15f
+                    val peakBandBoostDb = (maxPositiveLevel.toFloat() / MAX_LEVEL) * maxDeviceBoostDb
+                    // Narrow peaking filters do not sum across the entire spectrum; 0.75x of the
+                    // highest boosted band prevents saturation without over-attenuating the mix.
+                    totalHeadroomDb += peakBandBoostDb * 0.75f
+                }
+            }
+            if (bassBoostEnabled && bassBoostStrength > 0) {
+                totalHeadroomDb += (bassBoostStrength.coerceIn(0, 1000) / 1000f) * 4.5f
+            }
+            if (virtualizerEnabled && virtualizerStrength > 0) {
+                totalHeadroomDb += (virtualizerStrength.coerceIn(0, 1000) / 1000f) * 1.5f
+            }
+            return totalHeadroomDb.coerceIn(0f, MAX_COMPENSATION_HEADROOM_DB)
+        }
     }
+
+    @Volatile
+    var requiredHeadroomDb: Float = 0f
+        private set
     
     private var equalizer: Equalizer? = null
     private var bassBoost: BassBoost? = null
@@ -117,6 +156,7 @@ class EqualizerManager @Inject constructor() {
         isBassBoostSupportedGlobal = false
         bassBoost?.runCatching { release() }
         bassBoost = null
+        refreshRequiredHeadroomDb()
         Timber.tag(TAG).w("BassBoost unavailable for this route/session: %s", reason)
     }
 
@@ -126,6 +166,7 @@ class EqualizerManager @Inject constructor() {
         isVirtualizerSupportedGlobal = false
         virtualizer?.runCatching { release() }
         virtualizer = null
+        refreshRequiredHeadroomDb()
         Timber.tag(TAG).w("Virtualizer unavailable for this route/session: %s", reason)
     }
 
@@ -285,6 +326,7 @@ class EqualizerManager @Inject constructor() {
             Timber.tag(TAG).d("Device supports $deviceBandCount bands, UI has ${_bandLevels.value.size} bands")
             applyBandLevels(_bandLevels.value)
             applyCurrentEffectStateToAttachedEffects()
+            refreshRequiredHeadroomDb()
             
             Timber.tag(TAG).d("Effects attached successfully. EQ bands: ${equalizer?.numberOfBands}, Range: $minEqLevel to $maxEqLevel")
             AdvancedPerformanceDiagnostics.recordEventIfEnabled(
@@ -335,6 +377,7 @@ class EqualizerManager @Inject constructor() {
      */
     fun setEnabled(enabled: Boolean) {
         _isEnabled.value = enabled
+        refreshRequiredHeadroomDb()
         try {
             equalizer?.enabled = enabled
             Timber.tag(TAG).d("Equalizer enabled: $enabled")
@@ -356,6 +399,7 @@ class EqualizerManager @Inject constructor() {
         val newLevels = _bandLevels.value.toMutableList()
         newLevels[bandIndex] = clampedLevel
         _bandLevels.value = newLevels
+        refreshRequiredHeadroomDb()
         
         applyBandLevel(bandIndex, clampedLevel)
         
@@ -369,6 +413,7 @@ class EqualizerManager @Inject constructor() {
     fun applyPreset(preset: EqualizerPreset) {
         _currentPresetName.value = preset.name
         _bandLevels.value = preset.bandLevels
+        refreshRequiredHeadroomDb()
         applyBandLevels(preset.bandLevels)
         Timber.tag(TAG).d("Applied preset: ${preset.displayName}")
     }
@@ -378,6 +423,7 @@ class EqualizerManager @Inject constructor() {
      */
     fun setBassBoostEnabled(enabled: Boolean) {
         _bassBoostEnabled.value = enabled
+        refreshRequiredHeadroomDb()
         try {
             bassBoost?.enabled = enabled
         } catch (e: Exception) {
@@ -392,6 +438,7 @@ class EqualizerManager @Inject constructor() {
     fun setBassBoostStrength(strength: Int) {
         val clampedStrength = strength.coerceIn(0, 1000)
         _bassBoostStrength.value = clampedStrength
+        refreshRequiredHeadroomDb()
         
         try {
             bassBoost?.apply {
@@ -410,6 +457,7 @@ class EqualizerManager @Inject constructor() {
      */
     fun setVirtualizerEnabled(enabled: Boolean) {
         _virtualizerEnabled.value = enabled
+        refreshRequiredHeadroomDb()
         try {
             virtualizer?.enabled = enabled
         } catch (e: Exception) {
@@ -424,6 +472,7 @@ class EqualizerManager @Inject constructor() {
     fun setVirtualizerStrength(strength: Int) {
         val clampedStrength = strength.coerceIn(0, 1000)
         _virtualizerStrength.value = clampedStrength
+        refreshRequiredHeadroomDb()
         
         try {
             virtualizer?.apply {
@@ -496,6 +545,7 @@ class EqualizerManager @Inject constructor() {
         
         _currentPresetName.value = preset.name
         _bandLevels.value = preset.bandLevels
+        refreshRequiredHeadroomDb()
         
         // Apply if already attached
         if (equalizer != null) {
@@ -507,6 +557,18 @@ class EqualizerManager @Inject constructor() {
             applyBandLevels(preset.bandLevels)
             applyCurrentEffectStateToAttachedEffects()
         }
+    }
+
+    private fun refreshRequiredHeadroomDb() {
+        requiredHeadroomDb = computeRequiredHeadroomDb(
+            eqEnabled = _isEnabled.value,
+            bandLevels = _bandLevels.value,
+            maxEqLevelMillibels = maxEqLevel.toInt(),
+            bassBoostEnabled = _bassBoostEnabled.value && isBassBoostSupportedGlobal,
+            bassBoostStrength = _bassBoostStrength.value,
+            virtualizerEnabled = _virtualizerEnabled.value && isVirtualizerSupportedGlobal,
+            virtualizerStrength = _virtualizerStrength.value
+        )
     }
 
     private fun releaseIfUnused() {
@@ -652,6 +714,7 @@ class EqualizerManager @Inject constructor() {
         virtualizer = null
         loudnessEnhancer = null
         currentAudioSessionId = 0
+        refreshRequiredHeadroomDb()
         Timber.tag(TAG).d("Audio effects released")
     }
 }

@@ -202,6 +202,19 @@ internal fun loadControlBufferProfileFor(isLowRamDevice: Boolean): LoadControlBu
     }
 }
 
+internal fun resolveEffectiveAudioOffloadEnabled(
+    audioOffloadEnabled: Boolean,
+    hiFiModeEnabled: Boolean
+): Boolean = audioOffloadEnabled && !hiFiModeEnabled
+
+internal fun resolvePlayerRebuildPositionMs(
+    currentPositionMs: Long,
+    resetPositionUnderFiveSeconds: Boolean
+): Long {
+    val safePosition = currentPositionMs.coerceAtLeast(0L)
+    return if (resetPositionUnderFiveSeconds && safePosition <= 5_000L) 0L else safePosition
+}
+
 /**
  * Manages two ExoPlayer instances (A and B) to enable seamless transitions.
  *
@@ -223,7 +236,8 @@ class DualPlayerEngine @Inject constructor(
     private val gdriveStreamProxy: com.theveloper.pixelplay.data.gdrive.GDriveStreamProxy,
     private val telegramCacheManager: com.theveloper.pixelplay.data.telegram.TelegramCacheManager,
     private val connectivityStateHolder: com.theveloper.pixelplay.presentation.viewmodel.ConnectivityStateHolder,
-    private val audioOutputs: com.theveloper.pixelplay.data.audio.AudioOutputRepository
+    private val audioOutputs: com.theveloper.pixelplay.data.audio.AudioOutputRepository,
+    private val equalizerManager: com.theveloper.pixelplay.data.equalizer.EqualizerManager
 ) {
     private companion object {
         private const val AUDIO_OFFLOAD_STALL_FALLBACK_MS = 4_000L
@@ -312,7 +326,7 @@ class DualPlayerEngine @Inject constructor(
      * when a HAL stall/reset is detected (see [disableAudioOffloadForSession]).
      */
     val isAudioOffloadEnabled: Boolean
-        get() = audioOffloadEnabled
+        get() = resolveEffectiveAudioOffloadEnabled(audioOffloadEnabled, hiFiModeEnabled)
 
     /** Lightweight, allocation-cheap snapshot of the live audio format, for diagnostics. */
     data class AudioFormatSnapshot(
@@ -601,7 +615,7 @@ class DualPlayerEngine @Inject constructor(
                     val isPostMediaItemTransition = lastMediaItemTransitionAtMs > 0L &&
                         timeSinceMediaItemTransitionMs < 2_000L
                     if (shouldDisableAudioOffloadOnEarlyBuffering(
-                            audioOffloadEnabled = audioOffloadEnabled,
+                            audioOffloadEnabled = isAudioOffloadEnabled,
                             transitionRunning = transitionRunning,
                             lastPlayingAtMs = lastPlayingAtMs,
                             timeSincePlayingMs = timeSincePlayingMs,
@@ -865,7 +879,7 @@ class DualPlayerEngine @Inject constructor(
 
     private fun scheduleAudioOffloadFallbackIfNeeded(player: ExoPlayer) {
         cancelAudioOffloadFallback()
-        if (!audioOffloadEnabled || transitionRunning || !player.playWhenReady || player.isPlaying) return
+        if (!isAudioOffloadEnabled || transitionRunning || !player.playWhenReady || player.isPlaying) return
         if (!isLikelyLocalMedia(player.currentMediaItem)) return
 
         val watchedMediaId = player.currentMediaItem?.mediaId ?: return
@@ -875,7 +889,7 @@ class DualPlayerEngine @Inject constructor(
 
             val currentMediaId = player.currentMediaItem?.mediaId
             val shouldFallback = shouldTriggerAudioOffloadStallFallback(
-                audioOffloadEnabled = audioOffloadEnabled,
+                audioOffloadEnabled = isAudioOffloadEnabled,
                 transitionRunning = transitionRunning,
                 isCurrentMasterPlayer = player === playerA,
                 mediaIdMatches = currentMediaId == watchedMediaId,
@@ -949,11 +963,15 @@ class DualPlayerEngine @Inject constructor(
         audioOffloadEnabled = false
         PerformanceMetrics.recordOffloadFallback(reason, SystemClock.elapsedRealtime())
         rebuildPlayersPreservingMasterState(
-            logMessage = "Audio offload disabled for current session. $reason"
+            logMessage = "Audio offload disabled for current session. $reason",
+            resetPositionUnderFiveSeconds = true
         )
     }
 
-    private fun rebuildPlayersPreservingMasterState(logMessage: String) {
+    private fun rebuildPlayersPreservingMasterState(
+        logMessage: String,
+        resetPositionUnderFiveSeconds: Boolean = false
+    ) {
         cancelAudioOffloadFallback()
         AdvancedPerformanceDiagnostics.recordEventIfEnabled(
             type = AdvancedPerformanceDiagnostics.EventTypes.PLAYBACK,
@@ -965,8 +983,12 @@ class DualPlayerEngine @Inject constructor(
         val desiredPlayWhenReady = playerA.playWhenReady
         // Guard against snapshotting a position that landed during a bad early-startup seek
         // (e.g. an offload stall rebuild firing while the player is at a spurious offset).
-        // Positions under 5s on first playback are more likely noise than intent.
-        val positionMs = if (playerA.currentPosition > 5_000L) playerA.currentPosition else 0L
+        // When rebuilding for an explicit mode change (such as toggling Hi-Fi mode), preserve
+        // the exact playback position even within the first 5 seconds of a track.
+        val positionMs = resolvePlayerRebuildPositionMs(
+            currentPositionMs = playerA.currentPosition,
+            resetPositionUnderFiveSeconds = resetPositionUnderFiveSeconds
+        )
         val currentIndex = playerA.currentMediaItemIndex.coerceAtLeast(0)
         // Pre-sized ArrayList avoids the IntRange object and the extra copy produced by .map.
         val mediaItemCount = playerA.mediaItemCount
@@ -1055,7 +1077,8 @@ class DualPlayerEngine @Inject constructor(
     }
 
     private fun buildPlayer(): ExoPlayer {
-        audioOutputs.requested(float = hiFiModeEnabled, offload = audioOffloadEnabled)
+        val effectiveOffloadEnabled = isAudioOffloadEnabled
+        audioOutputs.requested(float = hiFiModeEnabled, offload = effectiveOffloadEnabled)
         val mediaCodecSelector = MediaCodecSelector { mimeType, requiresSecureDecoder, requiresTunnelingDecoder ->
             val decoderInfos = MediaCodecSelector.DEFAULT.getDecoderInfos(
                 mimeType,
@@ -1071,16 +1094,21 @@ class DualPlayerEngine @Inject constructor(
                 enableFloatOutput: Boolean,
                 enableAudioOutputPlaybackParams: Boolean
             ): AudioSink {
-                return com.theveloper.pixelplay.data.audio.ObservedAudioSink(DefaultAudioSink.Builder(context)
+                val hiResSampleRateCap = HiResSampleRateCapAudioProcessor()
+                val surroundDownmix = SurroundDownmixProcessor()
+                val hiFiProcessor = HiFiAudioProcessor(
+                    hiFiEnabledProvider = { hiFiModeEnabled },
+                    eqHeadroomDbProvider = { equalizerManager.requiredHeadroomDb }
+                )
+                val delegateSink = DefaultAudioSink.Builder(context)
                     .setEnableFloatOutput(hiFiModeEnabled)
-                    .setEnableAudioOutputPlaybackParameters(enableAudioOutputPlaybackParams)
-                    .setAudioProcessorChain(
-                        DefaultAudioSink.DefaultAudioProcessorChain(
-                            HiResSampleRateCapAudioProcessor(),
-                            SurroundDownmixProcessor()
-                        )
-                    )
-                    .build(), audioOutputs)
+                    .setEnableAudioOutputPlaybackParameters(enableAudioOutputPlaybackParams || hiFiModeEnabled)
+                    .build()
+                return com.theveloper.pixelplay.data.audio.ObservedAudioSink(
+                    sink = delegateSink,
+                    outputs = audioOutputs,
+                    pcmProcessors = listOf(hiResSampleRateCap, surroundDownmix, hiFiProcessor)
+                )
             }
 
             override fun buildVideoRenderers(
@@ -1114,6 +1142,7 @@ class DualPlayerEngine @Inject constructor(
                 // Audio-only player: skip camera motion renderers.
             }
         }.setEnableAudioFloatOutput(hiFiModeEnabled)
+         .setEnableAudioTrackPlaybackParams(hiFiModeEnabled)
          .setMediaCodecSelector(mediaCodecSelector)
          .setEnableDecoderFallback(true)
          .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
@@ -1160,7 +1189,7 @@ class DualPlayerEngine @Inject constructor(
             setAudioAttributes(audioAttributes, false)
             val offloadPreferences = TrackSelectionParameters.AudioOffloadPreferences.Builder()
                 .setAudioOffloadMode(
-                    if (audioOffloadEnabled) {
+                    if (effectiveOffloadEnabled) {
                         TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED
                     } else {
                         TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_DISABLED

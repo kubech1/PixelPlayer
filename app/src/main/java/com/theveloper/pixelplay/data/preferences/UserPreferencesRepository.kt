@@ -94,8 +94,6 @@ class UserPreferencesRepository @Inject constructor(
 
     private object PreferencesKeys {
         val APP_REBRAND_DIALOG_SHOWN = booleanPreferencesKey("app_rebrand_dialog_shown")
-        val BETA_05_CLEAN_INSTALL_DISCLAIMER_DISMISSED =
-            booleanPreferencesKey("beta_05_clean_install_disclaimer_dismissed")
         val ALLOWED_DIRECTORIES = stringSetPreferencesKey("allowed_directories")
         val BLOCKED_DIRECTORIES = stringSetPreferencesKey("blocked_directories")
         val INITIAL_SETUP_DONE = booleanPreferencesKey("initial_setup_done")
@@ -193,7 +191,6 @@ class UserPreferencesRepository @Inject constructor(
         val BASS_BOOST_DISMISSED = booleanPreferencesKey("bass_boost_dismissed")
         val VIRTUALIZER_DISMISSED = booleanPreferencesKey("virtualizer_dismissed")
         val LOUDNESS_DISMISSED = booleanPreferencesKey("loudness_dismissed")
-        val BACKUP_INFO_DISMISSED = booleanPreferencesKey("backup_info_dismissed")
 
         // Equalizer view
         val VIEW_MODE = stringPreferencesKey("equalizer_view_mode")
@@ -286,20 +283,6 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun setAppRebrandDialogShown(wasShown: Boolean) {
         dataStore.edit { it[PreferencesKeys.APP_REBRAND_DIALOG_SHOWN] = wasShown }
-    }
-
-    val beta05CleanInstallDisclaimerDismissedFlow: Flow<Boolean> =
-        pref { it[PreferencesKeys.BETA_05_CLEAN_INSTALL_DISCLAIMER_DISMISSED] ?: false }
-
-    suspend fun setBeta05CleanInstallDisclaimerDismissed(dismissed: Boolean) {
-        dataStore.edit { it[PreferencesKeys.BETA_05_CLEAN_INSTALL_DISCLAIMER_DISMISSED] = dismissed }
-    }
-
-    val backupInfoDismissedFlow: Flow<Boolean> =
-        pref { it[PreferencesKeys.BACKUP_INFO_DISMISSED] ?: false }
-
-    suspend fun setBackupInfoDismissed(dismissed: Boolean) {
-        dataStore.edit { it[PreferencesKeys.BACKUP_INFO_DISMISSED] = dismissed }
     }
 
     val initialSetupDoneFlow: Flow<Boolean> =
@@ -411,30 +394,7 @@ class UserPreferencesRepository @Inject constructor(
     }
 
     val fullPlayerLoadingTweaksFlow: Flow<FullPlayerLoadingTweaks> =
-        pref { preferences ->
-            val delayAlbum = preferences[PreferencesKeys.FULL_PLAYER_DELAY_ALBUM] ?: true
-            val delayMetadata = preferences[PreferencesKeys.FULL_PLAYER_DELAY_METADATA] ?: true
-            val delayProgress = preferences[PreferencesKeys.FULL_PLAYER_DELAY_PROGRESS] ?: true
-            val delayControls = preferences[PreferencesKeys.FULL_PLAYER_DELAY_CONTROLS] ?: true
-            FullPlayerLoadingTweaks(
-                delayAll = delayAlbum && delayMetadata && delayProgress && delayControls,
-                delayAlbumCarousel = delayAlbum,
-                delaySongMetadata = delayMetadata,
-                delayProgressBar = delayProgress,
-                delayControls = delayControls,
-                showPlaceholders = preferences[PreferencesKeys.FULL_PLAYER_PLACEHOLDERS] ?: true,
-                transparentPlaceholders =
-                    preferences[PreferencesKeys.FULL_PLAYER_PLACEHOLDER_TRANSPARENT] ?: false,
-                applyPlaceholdersOnClose =
-                    preferences[PreferencesKeys.FULL_PLAYER_PLACEHOLDERS_ON_CLOSE] ?: false,
-                switchOnDragRelease =
-                    preferences[PreferencesKeys.FULL_PLAYER_SWITCH_ON_DRAG_RELEASE] ?: true,
-                contentAppearThresholdPercent =
-                    preferences[PreferencesKeys.FULL_PLAYER_DELAY_THRESHOLD] ?: 98,
-                contentCloseThresholdPercent =
-                    preferences[PreferencesKeys.FULL_PLAYER_CLOSE_THRESHOLD] ?: 0
-            )
-        }
+        kotlinx.coroutines.flow.flowOf(FullPlayerLoadingTweaks())
 
     /** Sets all four delay flags to [enabled] atomically. */
     suspend fun setDelayAllFullPlayerContent(enabled: Boolean) {
@@ -1317,58 +1277,6 @@ suspend fun markDirectoryRulesVersionApplied(version: Int) {
                     @Suppress("UNCHECKED_CAST")
                     preferences.remove(key as Preferences.Key<Any>)
                 }
-        }
-    }
-
-    suspend fun exportPreferencesForBackup(): List<PreferenceBackupEntry> {
-        val snapshot = dataStore.data.first().asMap()
-        return snapshot.mapNotNull { (key, value) ->
-            if (key.name in backupExcludedKeyNames || RetiredAiData.isPreferenceKey(key.name)) return@mapNotNull null
-            when (value) {
-                is String  -> PreferenceBackupEntry(key = key.name, type = "string",     stringValue = value)
-                is Int     -> PreferenceBackupEntry(key = key.name, type = "int",        intValue = value)
-                is Long    -> PreferenceBackupEntry(key = key.name, type = "long",       longValue = value)
-                is Boolean -> PreferenceBackupEntry(key = key.name, type = "boolean",    booleanValue = value)
-                is Float   -> PreferenceBackupEntry(key = key.name, type = "float",      floatValue = value)
-                is Double  -> PreferenceBackupEntry(key = key.name, type = "double",     doubleValue = value)
-                is Set<*>  -> PreferenceBackupEntry(
-                    key = key.name, type = "string_set",
-                    stringSetValue = value.filterIsInstance<String>().toSet()
-                )
-                else -> null
-            }
-        }
-    }
-
-    suspend fun importPreferencesFromBackup(
-        entries: List<PreferenceBackupEntry>,
-        clearExisting: Boolean = true
-    ) {
-        dataStore.edit { preferences ->
-            if (clearExisting) {
-                preferences.asMap().keys
-                    .filterNot { key -> key.name in backupExcludedKeyNames }
-                    .forEach { key ->
-                        @Suppress("UNCHECKED_CAST")
-                        preferences.remove(key as Preferences.Key<Any>)
-                    }
-            }
-            entries.forEach { entry ->
-                if (entry.key in backupExcludedKeyNames || RetiredAiData.isPreferenceKey(entry.key)) return@forEach
-                when (entry.type) {
-                    "string"     -> entry.stringValue?.let { preferences[stringPreferencesKey(entry.key)] = it }
-                    "int"        -> (entry.intValue ?: entry.doubleValue?.toInt() ?: entry.longValue?.toInt())
-                        ?.let { preferences[intPreferencesKey(entry.key)] = it }
-                    "long"       -> (entry.longValue ?: entry.doubleValue?.toLong() ?: entry.intValue?.toLong())
-                        ?.let { preferences[longPreferencesKey(entry.key)] = it }
-                    "boolean"    -> entry.booleanValue?.let { preferences[booleanPreferencesKey(entry.key)] = it }
-                    "float"      -> (entry.floatValue ?: entry.doubleValue?.toFloat())
-                        ?.let { preferences[floatPreferencesKey(entry.key)] = it }
-                    "double"     -> (entry.doubleValue ?: entry.floatValue?.toDouble())
-                        ?.let { preferences[androidx.datastore.preferences.core.doublePreferencesKey(entry.key)] = it }
-                    "string_set" -> entry.stringSetValue?.let { preferences[stringSetPreferencesKey(entry.key)] = it }
-                }
-            }
         }
     }
 

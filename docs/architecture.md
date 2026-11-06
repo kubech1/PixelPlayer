@@ -47,7 +47,6 @@ El diagrama resume responsabilidades; no representa cada dependencia Hilt ni tod
 | `data/preferences` | Persistencia de ajustes y configuración de funciones |
 | `data/audio` | Instantánea de salidas previstas, sesiones/sinks y recuperación acotada de efectos |
 | `data/service` | Sesión multimedia, motor, notificaciones, HTTP, Cast, Auto, tiles y Wear |
-| `data/backup` | Formatos, validación, planificación y ejecución de restauraciones |
 | `data/network` y carpetas por proveedor | Integraciones externas y protocolos |
 | `data/diagnostics`, `data/stats` | Medición y estadísticas de uso |
 | `di` | Construcción y cualificadores de dependencias Hilt |
@@ -61,7 +60,7 @@ El [índice de código](reference/source-index.md) desglosa todos los directorio
 
 ## Construcción de dependencias y vida útil
 
-[AppModule](../app/src/main/java/com/theveloper/pixelplay/di/AppModule.kt) proporciona Room, DAOs, DataStore, repositorios, clientes HTTP, Coil, token de sesión y scope de aplicación. [Qualifiers](../app/src/main/java/com/theveloper/pixelplay/di/Qualifiers.kt) distingue dependencias del mismo tipo. [BackupModule](../app/src/main/java/com/theveloper/pixelplay/di/BackupModule.kt) registra handlers de backup. Wear tiene su propio [WearModule](../wear/src/main/java/com/theveloper/pixelplay/di/WearModule.kt).
+[AppModule](../app/src/main/java/com/theveloper/pixelplay/di/AppModule.kt) proporciona Room, DAOs, DataStore, repositorios, clientes HTTP, Coil, token de sesión y scope de aplicación. [Qualifiers](../app/src/main/java/com/theveloper/pixelplay/di/Qualifiers.kt) distingue dependencias del mismo tipo. Wear tiene su propio [WearModule](../wear/src/main/java/com/theveloper/pixelplay/di/WearModule.kt).
 
 No presupongas que todos los objetos duran lo mismo: hay singletons, scopes de ViewModel, trabajos del servicio y coroutines de UI. Para cambiar un listener o job, identifica quién lo crea, quién lo cancela y qué ocurre al destruir el servicio, salir de la pantalla o reconstruir el player.
 

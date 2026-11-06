@@ -85,9 +85,6 @@ import com.theveloper.pixelplay.R
 import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.data.preferences.CollagePattern
 import com.theveloper.pixelplay.presentation.components.AlbumArtCollage
-import com.theveloper.pixelplay.presentation.components.BetaInfoBottomSheet
-import com.theveloper.pixelplay.presentation.components.Beta05CleanInstallDisclaimerDialog
-import com.theveloper.pixelplay.presentation.components.ChangelogBottomSheet
 import com.theveloper.pixelplay.presentation.netease.dashboard.NeteaseDashboardViewModel
 import com.theveloper.pixelplay.presentation.jellyfin.dashboard.JellyfinDashboardViewModel
 import com.theveloper.pixelplay.presentation.navidrome.dashboard.NavidromeDashboardViewModel
@@ -131,10 +128,6 @@ fun HomeScreen(
     paddingValuesParent: PaddingValues,
     playerViewModel: PlayerViewModel = hiltViewModel(),
     settingsViewModel: SettingsViewModel = hiltViewModel(),
-    neteaseViewModel: NeteaseDashboardViewModel = hiltViewModel(),
-    qqMusicViewModel: QqMusicDashboardViewModel = hiltViewModel(),
-    navidromeViewModel: NavidromeDashboardViewModel = hiltViewModel(),
-    jellyfinViewModel: JellyfinDashboardViewModel = hiltViewModel(),
     onOpenSidebar: () -> Unit
 ) {
     val context = LocalContext.current
@@ -248,12 +241,8 @@ fun HomeScreen(
     val bottomGradientHeight = resolveMainScreenBottomGradientHeight(navBarCompactMode)
 
     var showOptionsBottomSheet by remember { mutableStateOf(false) }
-    var showChangelogBottomSheet by remember { mutableStateOf(false) }
-    var showBetaInfoBottomSheet by remember { mutableStateOf(false) }
     var showStreamingProviderSheet by remember { mutableStateOf(false) }
-    var cleanInstallDisclaimerDismissedThisSession by rememberSaveable { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
-    val betaSheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     LocalContext.current
 
@@ -302,9 +291,6 @@ fun HomeScreen(
 
     // Drawer state for sidebar
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val shouldShowCleanInstallDisclaimer =
-        settingsUiState.beta05CleanInstallDisclaimerDismissed == false &&
-            !cleanInstallDisclaimerDismissedThisSession
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -316,14 +302,8 @@ fun HomeScreen(
                     onNavigationIconClick = {
                         navController.navigateSafely(Screen.Settings.route)
                     },
-                    onMoreOptionsClick = {
-                        showChangelogBottomSheet = true
-                    },
-                    onBetaClick = {
-                        showBetaInfoBottomSheet = true
-                    },
                     onTelegramClick = {
-                         showStreamingProviderSheet = true
+                        showStreamingProviderSheet = true
                     },
                     onMenuClick = {
                         // onOpenSidebar() // Disabled
@@ -395,8 +375,10 @@ fun HomeScreen(
                         val patterns = remember { CollagePattern.entries }
 
                         val activePattern = if (isAutoRotate) {
-                            var rotationIndex by rememberSaveable { mutableIntStateOf(-1) }
-                            LaunchedEffect(Unit) { rotationIndex++ }
+                            var rotationIndex by rememberSaveable { mutableIntStateOf(0) }
+                            DisposableEffect(Unit) {
+                                onDispose { rotationIndex++ }
+                            }
                             remember(rotationIndex) {
                                 patterns[rotationIndex.coerceAtLeast(0) % patterns.size]
                             }
@@ -531,24 +513,11 @@ fun HomeScreen(
             )
         }
     }
-    if (showChangelogBottomSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showChangelogBottomSheet = false },
-            sheetState = sheetState
-        ) {
-            ChangelogBottomSheet()
-        }
-    }
-    if (showBetaInfoBottomSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showBetaInfoBottomSheet = false },
-            sheetState = betaSheetState,
-            //contentWindowInsets = { WindowInsets.statusBars.only(WindowInsets.statusBars) }
-        ) {
-            BetaInfoBottomSheet()
-        }
-    }
     if (showStreamingProviderSheet) {
+        val neteaseViewModel: NeteaseDashboardViewModel = hiltViewModel()
+        val qqMusicViewModel: QqMusicDashboardViewModel = hiltViewModel()
+        val navidromeViewModel: NavidromeDashboardViewModel = hiltViewModel()
+        val jellyfinViewModel: JellyfinDashboardViewModel = hiltViewModel()
         val isNeteaseLoggedIn by neteaseViewModel.isLoggedIn.collectAsStateWithLifecycle()
         val isQqMusicLoggedIn by qqMusicViewModel.isLoggedIn.collectAsStateWithLifecycle()
         val isNavidromeLoggedIn by navidromeViewModel.isLoggedIn.collectAsStateWithLifecycle()
@@ -570,16 +539,6 @@ fun HomeScreen(
             isJellyfinLoggedIn = isJellyfinLoggedIn,
             onNavigateToJellyfinDashboard = {
                 navController.navigateSafely(Screen.JellyfinDashboard.route)
-            }
-        )
-    }
-    if (shouldShowCleanInstallDisclaimer) {
-        Beta05CleanInstallDisclaimerDialog(
-            onDismiss = { dontShowAgain ->
-                cleanInstallDisclaimerDismissedThisSession = true
-                if (dontShowAgain) {
-                    settingsViewModel.setBeta05CleanInstallDisclaimerDismissed(true)
-                }
             }
         )
     }

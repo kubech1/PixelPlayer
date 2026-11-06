@@ -1,17 +1,8 @@
 package com.theveloper.pixelplay.presentation.viewmodel
 
 import android.content.Context
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.theveloper.pixelplay.data.backup.BackupManager
-import com.theveloper.pixelplay.data.backup.model.BackupSection
-import com.theveloper.pixelplay.data.backup.model.BackupOperationType
-import com.theveloper.pixelplay.data.backup.model.BackupTransferProgressUpdate
-import com.theveloper.pixelplay.data.backup.model.BackupHistoryEntry
-import com.theveloper.pixelplay.data.backup.model.RestorePlan
-import com.theveloper.pixelplay.data.backup.model.RestoreResult
-import com.theveloper.pixelplay.data.backup.model.ValidationError
 import com.theveloper.pixelplay.data.preferences.AppThemeMode
 import com.theveloper.pixelplay.data.preferences.CarouselStyle
 import com.theveloper.pixelplay.data.preferences.LibraryNavigationMode
@@ -75,10 +66,8 @@ data class SettingsUiState(
     val autoScanLrcFiles: Boolean = false,
     val blockedDirectories: Set<String> = emptySet(),
     val appRebrandDialogShown: Boolean = false,
-    val beta05CleanInstallDisclaimerDismissed: Boolean? = null,
     val fullPlayerLoadingTweaks: FullPlayerLoadingTweaks = FullPlayerLoadingTweaks(),
     val showPlayerFileInfo: Boolean = true,
-    // Developer Options
     val albumArtQuality: AlbumArtQuality = AlbumArtQuality.MEDIUM,
     val albumArtCacheLimitMb: Int = 200,
     val tapBackgroundClosesPlayer: Boolean = false,
@@ -90,12 +79,6 @@ data class SettingsUiState(
     val animatedLyricsBlurEnabled: Boolean = true,
     val animatedLyricsBlurStrength: Float = 2.5f,
     val disableBlurAllOver: Boolean = false,
-    val backupInfoDismissed: Boolean = false,
-    val isDataTransferInProgress: Boolean = false,
-    val restorePlan: RestorePlan? = null,
-    val backupHistory: List<BackupHistoryEntry> = emptyList(),
-    val backupValidationErrors: List<ValidationError> = emptyList(),
-    val isInspectingBackup: Boolean = false,
     val collagePattern: CollagePattern = CollagePattern.default,
     val collageAutoRotate: Boolean = false,
     val minSongDuration: Int = 10000,
@@ -176,7 +159,6 @@ class SettingsViewModel @Inject constructor(
     private val syncManager: SyncManager,
     private val lyricsRepository: LyricsRepository,
     private val musicRepository: MusicRepository,
-    private val backupManager: BackupManager,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -211,21 +193,10 @@ class SettingsViewModel @Inject constructor(
             initialValue = SyncProgress()
         )
 
-    private val _dataTransferEvents = MutableSharedFlow<String>()
-    val dataTransferEvents: SharedFlow<String> = _dataTransferEvents.asSharedFlow()
-
-    private val _dataTransferProgress = MutableStateFlow<BackupTransferProgressUpdate?>(null)
-    val dataTransferProgress: StateFlow<BackupTransferProgressUpdate?> = _dataTransferProgress.asStateFlow()
-
     init {
         viewModelScope.launch {
             userPreferencesRepository.hapticIntensityFlow.collect { intensity ->
                 _uiState.update { it.copy(hapticIntensity = intensity) }
-            }
-        }
-        viewModelScope.launch {
-            backupManager.getBackupHistory().collect { history ->
-                _uiState.update { it.copy(backupHistory = history) }
             }
         }
 
@@ -393,18 +364,6 @@ class SettingsViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            userPreferencesRepository.backupInfoDismissedFlow.collect { dismissed ->
-                _uiState.update { it.copy(backupInfoDismissed = dismissed) }
-            }
-        }
-
-        viewModelScope.launch {
-            userPreferencesRepository.beta05CleanInstallDisclaimerDismissedFlow.collect { dismissed ->
-                _uiState.update { it.copy(beta05CleanInstallDisclaimerDismissed = dismissed) }
-            }
-        }
-
-        viewModelScope.launch {
             fileExplorerStateHolder.isLoading.collect { loading ->
                 _uiState.update { it.copy(isLoadingDirectories = loading) }
             }
@@ -458,12 +417,6 @@ class SettingsViewModel @Inject constructor(
     fun setAppRebrandDialogShown(wasShown: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setAppRebrandDialogShown(wasShown)
-        }
-    }
-
-    fun setBeta05CleanInstallDisclaimerDismissed(dismissed: Boolean) {
-        viewModelScope.launch {
-            userPreferencesRepository.setBeta05CleanInstallDisclaimerDismissed(dismissed)
         }
     }
 
@@ -855,21 +808,6 @@ class SettingsViewModel @Inject constructor(
     fun setNavBarCornerRadius(radius: Int) {
         viewModelScope.launch { userPreferencesRepository.setNavBarCornerRadius(radius) }
     }
-    /**
-     * Triggers a test crash to verify the crash handler is working correctly.
-     * This should only be used for testing in Developer Options.
-     */
-    fun triggerTestCrash() {
-        throw RuntimeException(context.getString(R.string.settings_dev_test_crash_message))
-    }
-
-    fun resetSetupFlow() {
-        viewModelScope.launch {
-            userPreferencesRepository.setInitialSetupDone(false)
-        }
-    }
-
-    // ===== Developer Options =====
 
     val albumArtQuality: StateFlow<AlbumArtQuality> = userPreferencesRepository.albumArtQualityFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AlbumArtQuality.MEDIUM)
@@ -912,122 +850,6 @@ class SettingsViewModel @Inject constructor(
     fun setHapticsEnabled(enabled: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setHapticsEnabled(enabled)
-        }
-    }
-
-    fun setBackupInfoDismissed(dismissed: Boolean) {
-        viewModelScope.launch {
-            userPreferencesRepository.setBackupInfoDismissed(dismissed)
-        }
-    }
-
-    fun exportAppData(uri: Uri, sections: Set<BackupSection>) {
-        if (sections.isEmpty() || _uiState.value.isDataTransferInProgress) return
-        viewModelScope.launch {
-            _uiState.update { it.copy(isDataTransferInProgress = true) }
-            _dataTransferProgress.value = BackupTransferProgressUpdate(
-                operation = BackupOperationType.EXPORT,
-                step = 0,
-                totalSteps = 1,
-                title = context.getString(R.string.settings_backup_progress_preparing_backup),
-                detail = context.getString(R.string.settings_backup_progress_starting_backup_task),
-            )
-            val result = backupManager.export(uri, sections) { progress ->
-                _dataTransferProgress.value = progress
-            }
-            result.fold(
-                onSuccess = { _dataTransferEvents.emit(context.getString(R.string.settings_data_exported_successfully)) },
-                onFailure = {
-                    _dataTransferEvents.emit(
-                        context.getString(
-                            R.string.settings_export_failed_format,
-                            it.localizedMessage ?: context.getString(R.string.common_error_unknown),
-                        ),
-                    )
-                },
-            )
-            delay(300)
-            _uiState.update { it.copy(isDataTransferInProgress = false) }
-            _dataTransferProgress.value = null
-        }
-    }
-
-    fun inspectBackupFile(uri: Uri) {
-        if (_uiState.value.isInspectingBackup) return
-        viewModelScope.launch {
-            _uiState.update { it.copy(isInspectingBackup = true, backupValidationErrors = emptyList(), restorePlan = null) }
-            val result = backupManager.inspectBackup(uri)
-            result.fold(
-                onSuccess = { plan ->
-                    _uiState.update { it.copy(restorePlan = plan, isInspectingBackup = false) }
-                },
-                onFailure = { error ->
-                    _dataTransferEvents.emit(
-                        context.getString(
-                            R.string.settings_backup_invalid_format,
-                            error.localizedMessage ?: context.getString(R.string.common_error_unknown),
-                        ),
-                    )
-                    _uiState.update { it.copy(isInspectingBackup = false) }
-                }
-            )
-        }
-    }
-
-    fun updateRestorePlanSelection(selectedModules: Set<BackupSection>) {
-        _uiState.update { state ->
-            state.restorePlan?.let { plan ->
-                state.copy(restorePlan = plan.copy(selectedModules = selectedModules))
-            } ?: state
-        }
-    }
-
-    fun restoreFromPlan(uri: Uri) {
-        val plan = _uiState.value.restorePlan ?: return
-        if (plan.selectedModules.isEmpty() || _uiState.value.isDataTransferInProgress) return
-        viewModelScope.launch {
-            _uiState.update { it.copy(isDataTransferInProgress = true) }
-            _dataTransferProgress.value = BackupTransferProgressUpdate(
-                operation = BackupOperationType.IMPORT,
-                step = 0,
-                totalSteps = 1,
-                title = context.getString(R.string.settings_backup_progress_preparing_restore),
-                detail = context.getString(R.string.settings_backup_progress_starting_task),
-            )
-            val result = backupManager.restore(uri, plan) { progress ->
-                _dataTransferProgress.value = progress
-            }
-            when (result) {
-                is RestoreResult.Success -> {
-                    _dataTransferEvents.emit(context.getString(R.string.settings_data_restored_successfully))
-                    syncManager.sync()
-                }
-                is RestoreResult.PartialFailure -> {
-                    val failedNames = result.failed.entries.joinToString { "${it.key.label}: ${it.value}" }
-                    _dataTransferEvents.emit(
-                        context.getString(R.string.settings_restore_partial_unresolved_format, failedNames),
-                    )
-                    if (result.succeeded.isNotEmpty() || !result.rolledBack) {
-                        syncManager.sync()
-                    }
-                }
-                is RestoreResult.TotalFailure -> {
-                    _dataTransferEvents.emit(context.getString(R.string.settings_restore_failed_format, result.error))
-                }
-            }
-            delay(300)
-            _uiState.update { it.copy(isDataTransferInProgress = false, restorePlan = null) }
-            _dataTransferProgress.value = null
-        }
-    }
-
-    fun clearRestorePlan() {
-        _uiState.update { it.copy(restorePlan = null, backupValidationErrors = emptyList()) }
-    }
-
-    fun removeBackupHistoryEntry(entry: BackupHistoryEntry) {
-        viewModelScope.launch {
-            backupManager.removeBackupHistoryEntry(entry.uri)
         }
     }
 

@@ -104,8 +104,6 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
-import com.theveloper.pixelplay.data.github.GitHubAnnouncementPropertiesService
-import com.theveloper.pixelplay.data.github.PlayStoreAnnouncementRemoteConfig
 import com.theveloper.pixelplay.data.preferences.AppThemeMode
 import com.theveloper.pixelplay.data.preferences.NavBarStyle
 import com.theveloper.pixelplay.data.preferences.sanitizeNavBarCornerRadius
@@ -122,9 +120,6 @@ import com.theveloper.pixelplay.presentation.components.DrawerDestination
 import com.theveloper.pixelplay.presentation.components.MiniPlayerBottomSpacer
 import com.theveloper.pixelplay.presentation.components.MiniPlayerHeight
 import com.theveloper.pixelplay.presentation.components.PlayerInternalNavigationBar
-import com.theveloper.pixelplay.presentation.components.PlayStoreAnnouncementDefaults
-import com.theveloper.pixelplay.presentation.components.PlayStoreAnnouncementDialog
-import com.theveloper.pixelplay.presentation.components.PlayStoreAnnouncementUiModel
 import com.theveloper.pixelplay.presentation.components.UnifiedPlayerSheetV2
 import com.theveloper.pixelplay.presentation.components.calculatePlayerSheetCollapsedTargetY
 import com.theveloper.pixelplay.presentation.components.resolveNavBarOccupiedHeight
@@ -446,41 +441,6 @@ class MainActivity : ComponentActivity() {
         intent.removeExtra(android.content.Intent.EXTRA_STREAM)
     }
 
-    private fun openExternalUrl(url: String) {
-        // Defense in depth: the announcement URL is fetched from a remote
-        // properties file on GitHub. If that file is ever tampered with, we
-        // must not let it launch arbitrary intents (`intent://...`,
-        // `javascript:`, custom schemes, etc.). Allow only the Play Store host.
-        val parsed = runCatching { url.toUri() }.getOrNull()
-        val scheme = parsed?.scheme?.lowercase()
-        val host = parsed?.host?.lowercase()
-        val isPlayStore = scheme == "https" &&
-            (host == "play.google.com" || host == "market.android.com")
-        if (!isPlayStore) {
-            LogUtils.w(this, "Refusing to open non-Play-Store announcement URL: $url")
-            return
-        }
-        val intent = Intent(Intent.ACTION_VIEW, parsed)
-        try {
-            startActivity(intent)
-        } catch (_: ActivityNotFoundException) {
-            LogUtils.w(this, "No activity available to open URL: $url")
-        }
-    }
-
-    private fun PlayStoreAnnouncementRemoteConfig.toUiModel(context: Context): PlayStoreAnnouncementUiModel {
-        val fallback = PlayStoreAnnouncementDefaults.localizedTemplate(context)
-        return fallback.copy(
-            enabled = enabled,
-            playStoreUrl = playStoreUrl ?: fallback.playStoreUrl,
-            title = title ?: fallback.title,
-            body = body ?: fallback.body,
-            primaryActionLabel = primaryActionLabel ?: fallback.primaryActionLabel,
-            dismissActionLabel = dismissActionLabel ?: fallback.dismissActionLabel,
-            linkPendingMessage = linkPendingMessage ?: fallback.linkPendingMessage,
-        )
-    }
-
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     private fun SetupGateLoadingScreen() {
@@ -625,7 +585,6 @@ class MainActivity : ComponentActivity() {
                 Screen.OpenSourceLicenses.route,
                 Screen.Stats.route,
                 Screen.EditTransition.route,
-                Screen.Experimental.route,
                 Screen.ArtistSettings.route,
                 Screen.Equalizer.route,
                 Screen.SettingsCategory.route,
@@ -731,33 +690,6 @@ class MainActivity : ComponentActivity() {
 
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()
-        val announcementService = remember { GitHubAnnouncementPropertiesService() }
-        val context = LocalContext.current
-        var playStoreAnnouncement by remember {
-            mutableStateOf(PlayStoreAnnouncementDefaults.localizedTemplate(context))
-        }
-        var showPlayStoreAnnouncement by remember { mutableStateOf(false) }
-
-        LaunchedEffect(Unit) {
-            if (PlayStoreAnnouncementDefaults.LOCAL_PREVIEW_ENABLED) {
-                playStoreAnnouncement = PlayStoreAnnouncementDefaults.hardcodedPreview(this@MainActivity)
-                showPlayStoreAnnouncement = true
-                return@LaunchedEffect
-            }
-
-            announcementService.fetchPlayStoreAnnouncement()
-                .onSuccess { remoteConfig ->
-                    val resolvedAnnouncement = remoteConfig.toUiModel(this@MainActivity)
-                    playStoreAnnouncement = resolvedAnnouncement
-                    showPlayStoreAnnouncement = resolvedAnnouncement.enabled
-                }
-                .onFailure { throwable ->
-                    LogUtils.w(
-                        this@MainActivity,
-                        "Remote announcement unavailable. Keeping popup disabled. ${throwable.message ?: ""}",
-                    )
-                }
-        }
 
         LaunchedEffect(userPreferencesRepository) {
             userPreferencesRepository.clearDeprecatedPlayerSheetPreference()
@@ -934,26 +866,9 @@ class MainActivity : ComponentActivity() {
                         val expansionFractionProvider = remember(playerViewModel.playerContentExpansionFraction) {
                             { playerViewModel.playerContentExpansionFraction.value }
                         }
-                        val blurEffectCache = remember { BlurEffectCache() }
 
                         Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .graphicsLayer {
-                                    run {
-                                        if (disableBlurAllOver) {
-                                            renderEffect = null
-                                        } else {
-                                            val expansion = expansionFractionProvider()
-                                            val fraction = (expansion * (1f - predictiveBackCollapseFraction)).coerceIn(0f, 1f)
-                                            // Quantize to 2px steps: rebuild the RenderEffect only
-                                            // when the blur crosses a step, reuse the cached object
-                                            // every other frame.
-                                            val quantizedBlurPx = (fraction * 120f / 2f).roundToInt() * 2f
-                                            renderEffect = blurEffectCache.get(quantizedBlurPx)
-                                        }
-                                    }
-                                }
+                            modifier = Modifier.fillMaxSize()
                         ) {
                             AppNavigation(
                                 playerViewModel = playerViewModel,
@@ -970,27 +885,28 @@ class MainActivity : ComponentActivity() {
                                 playerViewModel.playerContentExpansionFraction.value > 0.01f
                             }
                         }
-                        AnimatedVisibility(
-                            visible = isExpandedOrExpanding,
-                            enter = fadeIn(animationSpec = tween(durationMillis = 350)),
-                            exit = fadeOut(animationSpec = tween(durationMillis = 350)),
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(
-                                        MaterialTheme.colorScheme.surfaceContainerLowest.copy(
-                                            alpha = 0.35f
-                                        )
-                                    )
-                                    .pointerInput(Unit) {
-                                        detectTapGestures {
-                                            playerViewModel.collapsePlayerSheet()
+                        val scrimBaseColor = MaterialTheme.colorScheme.surfaceContainerLowest
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .graphicsLayer {
+                                    val expansion = expansionFractionProvider()
+                                    val fraction = (expansion * (1f - predictiveBackCollapseFraction)).coerceIn(0f, 1f)
+                                    alpha = fraction * 0.35f
+                                }
+                                .background(scrimBaseColor)
+                                .then(
+                                    if (isExpandedOrExpanding) {
+                                        Modifier.pointerInput(Unit) {
+                                            detectTapGestures {
+                                                playerViewModel.collapsePlayerSheet()
+                                            }
                                         }
+                                    } else {
+                                        Modifier
                                     }
-                            )
-                        }
+                                )
+                        )
 
                         UnifiedPlayerSheetV2(
                             playerViewModel = playerViewModel,
@@ -1036,17 +952,6 @@ class MainActivity : ComponentActivity() {
                                 onUndo = onUndoDismissPlaylist,
                                 onClose = onCloseDismissUndoBar,
                                 durationMillis = dismissUndoBarSlice.durationMillis
-                            )
-                        }
-
-                        if (showPlayStoreAnnouncement) {
-                            PlayStoreAnnouncementDialog(
-                                announcement = playStoreAnnouncement,
-                                onDismiss = { showPlayStoreAnnouncement = false },
-                                onOpenPlayStore = { url ->
-                                    showPlayStoreAnnouncement = false
-                                    openExternalUrl(url)
-                                }
                             )
                         }
                     }
