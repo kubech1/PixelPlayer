@@ -181,8 +181,12 @@
     <string name="settings_theme_follow_system">Følg system</string>
     <string name="settings_smooth_corners_title">Bruk glatte hjørner</string>
     <string name="settings_smooth_corners_subtitle">Bruker kompleks formede hjørner for å forbedre estetikken, men kan påvirke ytelsen på eldre enheter</string>
-    <string name="settings_disable_blur_all_over_title">Deaktiver sløringseffekter</string>
-    <string name="settings_disable_blur_all_over_subtitle">Slå av sløringseffekter i appen for å spare batteri og ressurser.</string>
+    <string name="settings_visual_effects_title">Visuelle effekter</string>
+    <string name="settings_visual_effects_subtitle">Kontroller dybde, overganger og sløring i appen. Batterisparing senker automatisk ett nivå.</string>
+    <string name="settings_visual_effects_full">Full</string>
+    <string name="settings_visual_effects_balanced">Balansert</string>
+    <string name="settings_visual_effects_minimal">Minimal</string>
+
     <string name="settings_show_scrollbar_title">Vis rullefelt</string>
     <string name="settings_show_scrollbar_subtitle">Vis rullefelt på siden av musikklisten for rask rulling</string>
     <string name="settings_now_playing_section">Spilles nå</string>
@@ -204,14 +208,6 @@
     <string name="settings_auto_rotate_patterns_title">Roter mønstre automatisk</string>
     <string name="settings_auto_rotate_patterns_subtitle">Bytt mønster hver gang du besøker Hjem-skjermen.</string>
     <string name="settings_navigation_bar_section">Navigasjonslinje</string>
-    <string name="settings_navbar_style_title">NavBar-stil</string>
-    <string name="settings_navbar_style_subtitle">Velg utseende for navigasjonslinjen.</string>
-    <string name="settings_navbar_style_default">Standard</string>
-    <string name="settings_navbar_style_full_width">Full bredde</string>
-    <string name="settings_compact_mode_title">Kompakt modus</string>
-    <string name="settings_compact_mode_subtitle">Vis bare ikoner og reduser høyden på NavBar.</string>
-    <string name="settings_navbar_corner_title">NavBar hjørneradius</string>
-    <string name="settings_navbar_corner_subtitle">Juster hjørneradius for navigasjonslinjen.</string>
     <string name="settings_lyrics_screen_section">Sangtekst-skjerm</string>
     <string name="settings_immersive_lyrics_title">Immersiv sangtekst</string>
     <string name="settings_immersive_lyrics_subtitle">Skjul kontroller automatisk og forstørr tekst.</string>
@@ -254,10 +250,6 @@
     <string name="settings_palette_style_accuracy_summary_precise">%1$d • Presis</string>
 
     <!-- NavBarCornerRadiusScreen -->
-    <string name="navbar_adjust_title">Juster hjørneradius</string>
-    <string name="navbar_adjust_subtitle">Match NavBar-hjørnene med enhetens fysiske hjørner for et sømløst utseende.</string>
-    <string name="navbar_corner_radius_label">Hjørneradius</string>
-    <string name="navbar_corner_dp_format">%1$d dp</string>
 
     <!-- Playback category -->
     <string name="settings_background_playback_section">Bakgrunnsavspilling</string>
@@ -646,4 +638,7 @@
     <string name="settings_volume_section">Volum</string>
     <string name="settings_pause_on_volume_zero">Sett på pause når volumet er null</string>
     <string name="settings_pause_on_volume_zero_desc">Sett automatisk avspillingen på pause når volumet settes til 0</string>
+    <string name="show_navigation_current_tab">Vis navigasjon, gjeldende fane: %1$s</string>
+    <string name="settings_compact_scroll_title">Komprimer ved rulling</string>
+    <string name="settings_compact_scroll_subtitle">Slå sammen navigasjon og spiller ved rulling</string>
 </resources>

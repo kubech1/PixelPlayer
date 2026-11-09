@@ -181,8 +181,12 @@
     <string name="settings_theme_follow_system">Segui sistema</string>
     <string name="settings_smooth_corners_title">Usa angoli morbidi</string>
     <string name="settings_smooth_corners_subtitle">Usa angoli a forma complessa che migliorano l\'estetica ma possono influire sulle prestazioni su dispositivi di fascia bassa</string>
-    <string name="settings_disable_blur_all_over_title">Disattiva effetti sfocatura</string>
-    <string name="settings_disable_blur_all_over_subtitle">Disattiva gli effetti di sfocatura nell\'app per risparmiare batteria e risorse.</string>
+    <string name="settings_visual_effects_title">Effetti visivi</string>
+    <string name="settings_visual_effects_subtitle">Controlla profondità, gradienti e sfocatura nell\'app. Il risparmio energetico riduce automaticamente di un livello.</string>
+    <string name="settings_visual_effects_full">Completi</string>
+    <string name="settings_visual_effects_balanced">Bilanciati</string>
+    <string name="settings_visual_effects_minimal">Minimi</string>
+
     <string name="settings_show_scrollbar_title">Mostra barra di scorrimento</string>
     <string name="settings_show_scrollbar_subtitle">Mostra la barra di scorrimento laterale sulle liste di musica per uno scorrimento rapido</string>
     <string name="settings_now_playing_section">In riproduzione</string>
@@ -204,14 +208,6 @@
     <string name="settings_auto_rotate_patterns_title">Rotazione automatica pattern</string>
     <string name="settings_auto_rotate_patterns_subtitle">Cicla tra i pattern collage ogni volta che visiti Home.</string>
     <string name="settings_navigation_bar_section">Barra di navigazione</string>
-    <string name="settings_navbar_style_title">Stile barra navigazione</string>
-    <string name="settings_navbar_style_subtitle">Scegli l\'aspetto per la barra di navigazione.</string>
-    <string name="settings_navbar_style_default">Predefinito</string>
-    <string name="settings_navbar_style_full_width">Larghezza piena</string>
-    <string name="settings_compact_mode_title">Modalità compatta</string>
-    <string name="settings_compact_mode_subtitle">Mostra solo icone e riduci l\'altezza della barra di navigazione.</string>
-    <string name="settings_navbar_corner_title">Raggio angoli barra navigazione</string>
-    <string name="settings_navbar_corner_subtitle">Regola il raggio degli angoli della barra di navigazione.</string>
     <string name="settings_lyrics_screen_section">Schermata testi</string>
     <string name="settings_immersive_lyrics_title">Testi immersivi</string>
     <string name="settings_immersive_lyrics_subtitle">Nascondi automaticamente controlli e ingrandisci testo.</string>
@@ -254,10 +250,6 @@
     <string name="settings_palette_style_accuracy_summary_precise">%1$d • Preciso</string>
 
     <!-- NavBarCornerRadiusScreen -->
-    <string name="navbar_adjust_title">Regola raggio angoli</string>
-    <string name="navbar_adjust_subtitle">Abbina gli angoli della barra di navigazione con quelli del tuo dispositivo per un aspetto senza soluzione di continuità.</string>
-    <string name="navbar_corner_radius_label">Raggio angoli</string>
-    <string name="navbar_corner_dp_format">%1$d dp</string>
 
     <!-- Playback category -->
     <string name="settings_background_playback_section">Riproduzione in background</string>
@@ -646,4 +638,7 @@
     <string name="settings_volume_section">Volume</string>
     <string name="settings_pause_on_volume_zero">Metti in pausa quando il volume raggiunge zero</string>
     <string name="settings_pause_on_volume_zero_desc">Metti automaticamente in pausa la riproduzione quando il volume è 0</string>
+    <string name="show_navigation_current_tab">Mostra navigazione, scheda attuale: %1$s</string>
+    <string name="settings_compact_scroll_title">Compatta durante lo scorrimento</string>
+    <string name="settings_compact_scroll_subtitle">Unisci navigazione e lettore durante lo scorrimento</string>
 </resources>

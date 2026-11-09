@@ -52,6 +52,7 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularWavyProgressIndicator
@@ -90,6 +91,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import com.theveloper.pixelplay.presentation.viewmodel.PlayerSheetState
 
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.core.net.toUri
@@ -105,8 +107,6 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import com.theveloper.pixelplay.data.preferences.AppThemeMode
-import com.theveloper.pixelplay.data.preferences.NavBarStyle
-import com.theveloper.pixelplay.data.preferences.sanitizeNavBarCornerRadius
 import com.theveloper.pixelplay.data.preferences.ThemePreferencesRepository
 import com.theveloper.pixelplay.data.preferences.UserPreferencesRepository
 import com.theveloper.pixelplay.data.service.MusicService
@@ -122,14 +122,24 @@ import com.theveloper.pixelplay.presentation.components.MiniPlayerHeight
 import com.theveloper.pixelplay.presentation.components.PlayerInternalNavigationBar
 import com.theveloper.pixelplay.presentation.components.UnifiedPlayerSheetV2
 import com.theveloper.pixelplay.presentation.components.calculatePlayerSheetCollapsedTargetY
-import com.theveloper.pixelplay.presentation.components.resolveNavBarOccupiedHeight
-import com.theveloper.pixelplay.presentation.components.resolveNavBarSurfaceHeight
+import com.theveloper.pixelplay.presentation.components.bottomchrome.BottomChromeMetrics
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import com.theveloper.pixelplay.presentation.components.bottomchrome.rememberBottomChromeState
+import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottomChromeState
+import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottomChrome
 import com.theveloper.pixelplay.presentation.components.sanitizeNavigationBarBottomInset
 import com.theveloper.pixelplay.presentation.navigation.AppNavigation
 import com.theveloper.pixelplay.presentation.navigation.Screen
 import com.theveloper.pixelplay.presentation.screens.SetupScreen
+import com.theveloper.pixelplay.presentation.utils.EffectiveVisualEffects
+import com.theveloper.pixelplay.presentation.utils.LocalVisualEffects
+import com.theveloper.pixelplay.presentation.utils.rememberPowerSaveMode
+import com.theveloper.pixelplay.presentation.utils.rememberSystemAnimationsEnabled
+import com.theveloper.pixelplay.presentation.utils.rememberTouchExplorationEnabled
 import com.theveloper.pixelplay.presentation.viewmodel.MainViewModel
 import com.theveloper.pixelplay.presentation.viewmodel.PlayerViewModel
+import com.theveloper.pixelplay.ui.theme.LocalMotionPreferences
+import com.theveloper.pixelplay.ui.theme.MotionPreferences
 import com.theveloper.pixelplay.ui.theme.PixelPlayTheme
 import com.theveloper.pixelplay.ui.theme.LocalShowScrollbar
 import com.theveloper.pixelplay.utils.CrashHandler
@@ -580,7 +590,6 @@ class MainActivity : ComponentActivity() {
                 Screen.AlbumDetail.route,
                 Screen.ArtistDetail.route,
                 Screen.DJSpace.route,
-                Screen.NavBarCrRad.route,
                 Screen.About.route,
                 Screen.OpenSourceLicenses.route,
                 Screen.Stats.route,
@@ -614,14 +623,25 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        val navBarStyle by playerViewModel.navBarStyle.collectAsStateWithLifecycle()
-        val navBarCompactMode by playerViewModel.navBarCompactMode.collectAsStateWithLifecycle()
-        val navBarCornerRadiusRaw by playerViewModel.navBarCornerRadius.collectAsStateWithLifecycle()
-        val navBarCornerRadius = sanitizeNavBarCornerRadius(navBarCornerRadiusRaw)
-        val useSmoothCorners by playerViewModel.useSmoothCorners.collectAsStateWithLifecycle()
-        val isMiniPlayerDismissing by playerViewModel.isMiniPlayerDismissing.collectAsStateWithLifecycle()
+        val navCompactOnScroll by playerViewModel.navCompactOnScroll.collectAsStateWithLifecycle()
+        val chromeState = rememberBottomChromeState()
         val hapticsEnabled by playerViewModel.hapticsEnabled.collectAsStateWithLifecycle()
-        val disableBlurAllOver by playerViewModel.disableBlurAllOver.collectAsStateWithLifecycle()
+        val visualEffectsLevel by playerViewModel.visualEffectsLevel.collectAsStateWithLifecycle()
+        val isPowerSaveMode by rememberPowerSaveMode()
+        val effectiveVisualEffects = remember(visualEffectsLevel, isPowerSaveMode) {
+            EffectiveVisualEffects(
+                configuredLevel = visualEffectsLevel,
+                isPowerSaveMode = isPowerSaveMode
+            )
+        }
+        val animationsEnabled by rememberSystemAnimationsEnabled()
+        val touchExplorationEnabled by rememberTouchExplorationEnabled()
+        val motionPreferences = remember(animationsEnabled, touchExplorationEnabled) {
+            MotionPreferences(
+                animationsEnabled = animationsEnabled,
+                touchExplorationEnabled = touchExplorationEnabled
+            )
+        }
         val predictiveBackCollapseFraction by playerViewModel.predictiveBackCollapseFraction.collectAsStateWithLifecycle()
         val rootView = LocalView.current
         val hapticIntensity by playerViewModel.hapticIntensity.collectAsStateWithLifecycle()
@@ -641,20 +661,20 @@ class MainActivity : ComponentActivity() {
             rootView.rootView?.isHapticFeedbackEnabled = hapticsEnabled
         }
 
-        val horizontalPadding = if (navBarStyle == NavBarStyle.DEFAULT) {
-            if (systemNavBarInset > 30.dp) 14.dp else systemNavBarInset
-        } else {
-            0.dp
+        val horizontalPadding = 16.dp
+        val bottomBarPadding = systemNavBarInset + 8.dp
+        val densityForChrome = LocalDensity.current
+        val navBarHeight = maxOf(64.dp, with(densityForChrome) { 24.dp + 16.sp.toDp() + 16.dp })
+        val navBarOccupiedHeight = navBarHeight + bottomBarPadding
+        val miniPlayerRestingHeight = maxOf(64.dp, with(densityForChrome) { 36.sp.toDp() + 8.dp })
+        val sheetOpenForChrome by remember {
+            derivedStateOf { playerViewModel.playerContentExpansionFraction.value > 0.01f }
         }
-        val animatedBottomBarPadding by animateDpAsState(
-            targetValue = if (navBarStyle == NavBarStyle.FULL_WIDTH) 0.dp else systemNavBarInset,
-            animationSpec = tween(400),
-            label = "BottomBarPadding"
-        )
-        val bottomBarPadding = animatedBottomBarPadding
-        val navBarHeight = resolveNavBarSurfaceHeight(navBarStyle, systemNavBarInset, navBarCompactMode)
-        val navBarOccupiedHeight by remember(systemNavBarInset, navBarCompactMode) {
-            derivedStateOf { resolveNavBarOccupiedHeight(systemNavBarInset, navBarCompactMode) }
+        val imeVisibleForChrome = WindowInsets.ime.getBottom(densityForChrome) > 0
+        LaunchedEffect(currentRoute, navCompactOnScroll, touchExplorationEnabled, animationsEnabled, sheetOpenForChrome, imeVisibleForChrome) {
+            chromeState.enabled = navCompactOnScroll && !touchExplorationEnabled && !sheetOpenForChrome && !imeVisibleForChrome
+            chromeState.animationsEnabled = animationsEnabled
+            chromeState.reset()
         }
         val navBarVisibilityProgressState = animateFloatAsState(
             targetValue = if (shouldHideNavigationBar) 0f else 1f,
@@ -695,9 +715,56 @@ class MainActivity : ComponentActivity() {
             userPreferencesRepository.clearDeprecatedPlayerSheetPreference()
         }
 
+        val hasActiveSongForChrome by remember {
+            playerViewModel.stablePlayerState
+                .map { it.currentSong?.id != null }
+                .distinctUntilChanged()
+        }.collectAsStateWithLifecycle(initialValue = false)
+        val restingBottomGradientHeight = navBarOccupiedHeight + miniPlayerRestingHeight + MiniPlayerBottomSpacer + 24.dp
+        val restingContentBottomPadding = remember(
+            shouldHideNavigationBar,
+            systemNavBarInset,
+            navBarOccupiedHeight,
+            hasActiveSongForChrome,
+            miniPlayerRestingHeight,
+            currentRoute
+        ) {
+            val navChrome = if (shouldHideNavigationBar) systemNavBarInset else navBarOccupiedHeight
+            val miniChrome = if (hasActiveSongForChrome) {
+                miniPlayerRestingHeight + MiniPlayerBottomSpacer
+            } else {
+                0.dp
+            }
+            navChrome + miniChrome
+        }
+        val activeChromeSchemePair by playerViewModel.activePlayerColorSchemePair.collectAsStateWithLifecycle()
+        val chromeDark = com.theveloper.pixelplay.ui.theme.LocalPixelPlayDarkTheme.current
+        val chromeScheme = activeChromeSchemePair?.let { if (chromeDark) it.dark else it.light } ?: MaterialTheme.colorScheme
+        val chromeGradientColors = com.theveloper.pixelplay.presentation.components.bottomchrome.PillGradientColors(chromeScheme.primary, chromeScheme.primaryContainer)
+        val bottomChromeMetrics = remember(
+            systemNavBarInset,
+            navBarOccupiedHeight,
+            restingContentBottomPadding,
+            restingBottomGradientHeight
+        ) {
+            BottomChromeMetrics(
+                systemNavBarInset = systemNavBarInset,
+                navBarOccupiedHeight = navBarOccupiedHeight,
+                contentBottomPadding = restingContentBottomPadding,
+                miniPlayerRestingHeight = miniPlayerRestingHeight,
+                bottomGradientHeight = restingBottomGradientHeight,
+                mergeFractionProvider = chromeState.mergeFractionProvider
+            )
+        }
+
         CompositionLocalProvider(
             LocalAppHapticsConfig provides appHapticsConfig,
-            LocalHapticFeedback provides scopedHapticFeedback
+            LocalHapticFeedback provides scopedHapticFeedback,
+            LocalMotionPreferences provides motionPreferences,
+            LocalVisualEffects provides effectiveVisualEffects,
+            com.theveloper.pixelplay.presentation.components.bottomchrome.LocalPillGradientColors provides chromeGradientColors,
+            LocalBottomChromeState provides chromeState,
+            LocalBottomChrome provides bottomChromeMetrics
         ) {
             AppSidebarDrawer(
                 drawerState = drawerState,
@@ -722,112 +789,24 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize().interactiveRefreshRate(),
                 bottomBar = {
                     if (shouldRenderNavigationBar) {
-                        val currentSongId by remember {
-                            playerViewModel.stablePlayerState
-                                .map { it.currentSong?.id }
-                                .distinctUntilChanged()
-                        }.collectAsStateWithLifecycle(initialValue = null)
-                        val showPlayerContentArea = currentSongId != null
-                        val navBarElevation = 3.dp
-
-                        val animatedNavBarCornerRadius = animateDpAsState(
-                            targetValue = navBarCornerRadius.dp,
-                            animationSpec = tween(400),
-                            label = "NavBarCornerRadius"
-                        )
-
-                        val animatedDefaultTopCornerRadius = animateDpAsState(
-                            targetValue = if (showPlayerContentArea && !isMiniPlayerDismissing) 10.dp else navBarCornerRadius.dp,
-                            animationSpec = tween(400),
-                            label = "NavBarDefaultTopCornerRadius"
-                        )
-
-                        // Shape is now resolved per quantized radius in the draw phase
-                        // (see the Surface graphicsLayer below) instead of being
-                        // re-remembered every animation frame.
-
-                        var componentHeightPx by remember { mutableStateOf(0) }
-                        val density = LocalDensity.current
-                        val shadowOverflowPx = remember(navBarElevation, density) {
-                            with(density) { (navBarElevation * 8).toPx() }
-                        }
-                        val bottomBarPaddingPx = remember(bottomBarPadding, density) {
-                            with(density) { bottomBarPadding.toPx() }
-                        }
-                        val navBarElevationPx = remember(navBarElevation, density) {
-                            with(density) { navBarElevation.toPx() }
-                        }
-                        val navBarShapeCache = remember { NavBarShapeCache() }
-
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(navBarOccupiedHeight)
-                                .clipToBounds()
-                        ) {
-                            val onSearchIconDoubleTap = remember(playerViewModel) {
-                                { playerViewModel.onSearchNavIconDoubleTapped() }
-                            }
-
-                            Surface(
-                                modifier = Modifier
-                                    .align(Alignment.BottomCenter)
-                                    .fillMaxWidth()
-                                    .padding(bottom = bottomBarPadding)
-                                    .onSizeChanged { componentHeightPx = it.height }
+                        Box(Modifier.fillMaxWidth().height(navBarOccupiedHeight)) {
+                            PlayerInternalNavigationBar(
+                                navController = navController,
+                                navItems = commonNavItems,
+                                currentRoute = currentRoute,
+                                hasSong = hasActiveSongForChrome,
+                                albumTint = chromeScheme.primary,
+                                mergeFractionProvider = chromeState.mergeFractionProvider,
+                                onSearchIconDoubleTap = playerViewModel::onSearchNavIconDoubleTapped,
+                                modifier = Modifier.align(Alignment.BottomCenter)
+                                    .padding(start = 16.dp, end = 16.dp, bottom = bottomBarPadding)
+                                    .fillMaxWidth().height(navBarHeight)
                                     .graphicsLayer {
-                                        // Slide-down hide: covers both the player-expansion
-                                        // hide and the route-based hide as a pure translation,
-                                        // so child items never resize or get clipped/squished.
-                                        val expansionHide = if (showPlayerContentArea) {
-                                            playerViewModel.playerContentExpansionFraction.value.coerceIn(0f, 1f)
-                                        } else {
-                                            0f
-                                        }
-                                        val routeHide = (1f - navBarVisibilityProgressState.value).coerceIn(0f, 1f)
-                                        val hideFraction = maxOf(expansionHide, routeHide)
-                                        translationY = (componentHeightPx + shadowOverflowPx + bottomBarPaddingPx) * hideFraction
-                                        alpha = 1f
+                                        val expansion = if (hasActiveSongForChrome) playerViewModel.playerContentExpansionFraction.value else 0f
+                                        val hide = maxOf(expansion, 1f - navBarVisibilityProgressState.value)
+                                        translationY = (size.height + bottomBarPadding.toPx() + 48.dp.toPx()) * hide
                                     }
-                                    .height(navBarHeight)
-                                    .padding(horizontal = horizontalPadding)
-                                    .graphicsLayer {
-                                        // Animated corner shape resolved in the draw phase:
-                                        // animating the radius re-clips this layer only — no
-                                        // recomposition and no layout pass for the bar.
-                                        val fraction = playerViewModel.playerContentExpansionFraction.value
-                                        val safeFraction = fraction.coerceIn(0f, 1f)
-                                        val topDp = when {
-                                            navBarStyle == NavBarStyle.DEFAULT -> animatedDefaultTopCornerRadius.value
-                                            navBarStyle == NavBarStyle.FULL_WIDTH -> lerp(navBarCornerRadius.dp, 26.dp, safeFraction)
-                                            showPlayerContentArea -> if (fraction < 0.2f) {
-                                                lerp(navBarCornerRadius.dp, 26.dp, (fraction / 0.2f).coerceIn(0f, 1f))
-                                            } else {
-                                                26.dp
-                                            }
-                                            else -> navBarCornerRadius.dp
-                                        }
-                                        val bottomDp = when (navBarStyle) {
-                                            NavBarStyle.FULL_WIDTH -> 0.dp
-                                            else -> animatedNavBarCornerRadius.value
-                                        }
-                                        shape = navBarShapeCache.get(this, topDp.toPx(), bottomDp.toPx(), useSmoothCorners)
-                                        clip = true
-                                        shadowElevation = navBarElevationPx
-                                    },
-                                color = NavigationBarDefaults.containerColor
-                            ) {
-                                PlayerInternalNavigationBar(
-                                    navController = navController,
-                                    navItems = commonNavItems,
-                                    currentRoute = currentRoute,
-                                    navBarStyle = navBarStyle,
-                                    compactMode = navBarCompactMode,
-                                    bottomBarPadding = bottomBarPadding,
-                                    onSearchIconDoubleTap = onSearchIconDoubleTap,
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            }
+                            )
                         }
                     }
                 }
@@ -844,12 +823,12 @@ class MainActivity : ComponentActivity() {
                                 .map { it.currentSong?.id != null }
                                 .distinctUntilChanged()
                         }.collectAsStateWithLifecycle(initialValue = false)
-                        val routesWithHiddenMiniPlayer = remember { setOf(Screen.NavBarCrRad.route) }
+                        val routesWithHiddenMiniPlayer = remember { emptySet<String>() }
                         val shouldHideMiniPlayer by remember(currentRoute) {
                             derivedStateOf { currentRoute in routesWithHiddenMiniPlayer }
                         }
 
-                        val miniPlayerH = with(density) { MiniPlayerHeight.toPx() }
+                        val miniPlayerH = with(density) { miniPlayerRestingHeight.toPx() }
                         val totalSheetHeightWhenContentCollapsedPx = if (showPlayerContentInitially && !shouldHideMiniPlayer) miniPlayerH else 0f
 
                         val bottomMargin = miniPlayerBottomMargin
@@ -868,7 +847,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         Box(
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxSize().nestedScroll(chromeState.nestedScrollConnection)
                         ) {
                             AppNavigation(
                                 playerViewModel = playerViewModel,
@@ -1065,99 +1044,5 @@ private class BlurEffectCache {
                 .asComposeRenderEffect()
         }
         return cached
-    }
-}
-
-/**
- * Returns a cached Shape instance for a quantized (top, bottom) radius pair.
- * Because the instance identity is stable while the radii don't move past a
- * sub-pixel threshold, the graphics layer reuses its cached Outline between
- * frames and only re-clips when the radius actually changes.
- */
-private class NavBarShapeCache {
-    private var lastTopPx: Float = Float.NaN
-    private var lastBottomPx: Float = Float.NaN
-    private var lastSmooth: Boolean = true
-    private var cached: androidx.compose.ui.graphics.Shape = RectangleShape
-
-    fun get(
-        density: androidx.compose.ui.unit.Density,
-        topPx: Float,
-        bottomPx: Float,
-        smooth: Boolean
-    ): androidx.compose.ui.graphics.Shape {
-        if (smooth == lastSmooth &&
-            !lastTopPx.isNaN() &&
-            kotlin.math.abs(topPx - lastTopPx) < 0.5f &&
-            kotlin.math.abs(bottomPx - lastBottomPx) < 0.5f
-        ) {
-            return cached
-        }
-        lastTopPx = topPx
-        lastBottomPx = bottomPx
-        lastSmooth = smooth
-        cached = with(density) {
-            DynamicSmoothCornerShape(
-                useSmoothCorners = smooth,
-                topRadius = topPx.toDp(),
-                bottomRadius = bottomPx.toDp()
-            )
-        }
-        return cached
-    }
-}
-
-/**
- * Fixed-radius corner shape. Swaps AbsoluteSmoothCornerShape for a plain
- * RoundedCornerShape when smooth corners are disabled in settings. The radius
- * values are identical in both branches, so the animated radius behavior is
- * unchanged regardless of which delegate is active. The resulting Outline is
- * cached per (size, layoutDirection) so repeated draws are cheap.
- */
-private class DynamicSmoothCornerShape(
-    private val useSmoothCorners: Boolean,
-    private val topRadius: androidx.compose.ui.unit.Dp,
-    private val bottomRadius: androidx.compose.ui.unit.Dp
-) : androidx.compose.ui.graphics.Shape {
-
-    private var cachedSize: androidx.compose.ui.geometry.Size =
-        androidx.compose.ui.geometry.Size.Unspecified
-    private var cachedLayoutDirection: androidx.compose.ui.unit.LayoutDirection? = null
-    private var cachedOutline: androidx.compose.ui.graphics.Outline? = null
-
-    override fun createOutline(
-        size: androidx.compose.ui.geometry.Size,
-        layoutDirection: androidx.compose.ui.unit.LayoutDirection,
-        density: androidx.compose.ui.unit.Density
-    ): androidx.compose.ui.graphics.Outline {
-        cachedOutline?.let {
-            if (cachedSize == size && cachedLayoutDirection == layoutDirection) return it
-        }
-
-        val delegate: androidx.compose.ui.graphics.Shape = if (useSmoothCorners) {
-            AbsoluteSmoothCornerShape(
-                cornerRadiusTL = topRadius,
-                smoothnessAsPercentTL = 60,
-                cornerRadiusTR = topRadius,
-                smoothnessAsPercentTR = 60,
-                cornerRadiusBL = bottomRadius,
-                smoothnessAsPercentBL = 60,
-                cornerRadiusBR = bottomRadius,
-                smoothnessAsPercentBR = 60
-            )
-        } else {
-            RoundedCornerShape(
-                topStart = topRadius,
-                topEnd = topRadius,
-                bottomEnd = bottomRadius,
-                bottomStart = bottomRadius
-            )
-        }
-
-        return delegate.createOutline(size, layoutDirection, density).also {
-            cachedSize = size
-            cachedLayoutDirection = layoutDirection
-            cachedOutline = it
-        }
     }
 }

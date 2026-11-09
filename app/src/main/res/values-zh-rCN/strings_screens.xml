@@ -58,13 +58,6 @@
     <string name="setup_tab_albums">专辑</string>
     <string name="setup_tab_artists">艺术家</string>
     <string name="setup_library_layout_footer">您稍后可以在“设置 &gt; 外观 &gt; 媒体库导航”中更改此设置。</string>
-    <string name="setup_app_navigation_title">应用导航</string>
-    <string name="setup_app_navigation_subtitle">选择底部导航栏的样式。</string>
-    <string name="setup_navbar_default_style">默认样式</string>
-    <string name="setup_nav_floating_pill_description">带有圆角的悬浮胶囊</string>
-    <string name="setup_nav_full_width_description">标准全宽栏</string>
-    <string name="setup_customize_corner_radius">自定义圆角半径</string>
-    <string name="setup_navbar_footer">您稍后可以在“设置 &gt; 外观 &gt; 导航栏样式”中更改此设置。</string>
     <string name="setup_permission_alarms_title">闹钟和提醒</string>
     <string name="setup_permission_alarms_description">可选，但如果您使用睡眠定时器并希望 PixelPlayer 准时停止播放，则推荐使用。</string>
     <string name="setup_grant_permission_generic">授予权限</string>

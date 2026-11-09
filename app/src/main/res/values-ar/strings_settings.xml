@@ -79,8 +79,12 @@
     <string name="setcat_theme_follow_system">حسب النظام</string>
     <string name="setcat_smooth_corners_title">حواف ناعمة ومرنة</string>
     <string name="setcat_smooth_corners_subtitle">استخدام زوايا وحواف دائرية معقدة لتحسين الجمالية؛ قد يؤثر على الأداء في الأجهزة الضعيفة</string>
-    <string name="setcat_disable_blur_all_over_title">تعطيل تأثيرات الضبابية (Blur)</string>
-    <string name="setcat_disable_blur_all_over_subtitle">إيقاف تشغيل تأثيرات التغبيش والضبابية لتوفير البطارية وموارد الجهاز.</string>
+    <string name="settings_visual_effects_title">المؤثرات البصرية</string>
+    <string name="settings_visual_effects_subtitle">تحكم في العمق والتدرجات والضبابية. يخفض موفر البطارية المستوى تلقائياً.</string>
+    <string name="settings_visual_effects_full">كامل</string>
+    <string name="settings_visual_effects_balanced">متوازن</string>
+    <string name="settings_visual_effects_minimal">أدنى</string>
+
     <string name="setcat_show_scrollbar_title">إظهار شريط التمرير</string>
     <string name="setcat_show_scrollbar_subtitle">عرض شريط تمرير جانبي في قوائم الموسيقى للتنقل السريع</string>
     <string name="setcat_now_playing">شاشة المشغل الحالي</string>
@@ -306,4 +310,7 @@
     <string name="settings_volume_section">مستوى الصوت</string>
     <string name="settings_pause_on_volume_zero">إيقاف مؤقت عند وصول مستوى الصوت إلى الصفر</string>
     <string name="settings_pause_on_volume_zero_desc">إيقاف التشغيل تلقائيًا مؤقتًا عندما يكون مستوى الصوت 0</string>
+    <string name="show_navigation_current_tab">إظهار التنقل، علامة التبويب الحالية: %1$s</string>
+    <string name="settings_compact_scroll_title">تصغير أثناء التمرير</string>
+    <string name="settings_compact_scroll_subtitle">دمج التنقل والمشغّل أثناء التمرير</string>
 </resources>

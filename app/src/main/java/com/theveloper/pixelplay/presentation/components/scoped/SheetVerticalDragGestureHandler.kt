@@ -42,8 +42,11 @@ internal class SheetVerticalDragGestureHandler(
         initialVelocity: Float
     ) -> Unit,
     private val onExpandSheetState: () -> Unit,
+    private val onDismissPlaylist: () -> Unit,
+    private val animationsEnabled: () -> Boolean,
     private val onCollapseSheetState: () -> Unit
 ) {
+    private var startedCollapsed = false
     private var initialFractionOnDragStart = 0f
     private var initialYOnDragStart = 0f
     private var accumulatedDragYSinceStart = 0f
@@ -57,6 +60,7 @@ internal class SheetVerticalDragGestureHandler(
         onDraggingChange(true)
         onDraggingPlayerAreaChange(true)
         velocityTracker.resetTracking()
+        startedCollapsed = currentSheetStateProvider() == PlayerSheetState.COLLAPSED
         initialFractionOnDragStart = playerContentExpansionFraction.value
         initialYOnDragStart = currentSheetTranslationY.value
         accumulatedDragYSinceStart = 0f
@@ -87,18 +91,31 @@ internal class SheetVerticalDragGestureHandler(
         velocityTracker.addPosition(uptimeMillis, position)
     }
 
-    fun onDragEnd() {
+    fun onDragEnd(cancelled: Boolean = false) {
         dragSnapJob?.cancel()
         dragSnapJob = null
         onDraggingChange(false)
         onDraggingPlayerAreaChange(false)
 
         val verticalVelocity = velocityTracker.calculateVelocity().y
+        if (!cancelled && shouldDismissCollapsedPlayer(startedCollapsed, accumulatedDragYSinceStart, verticalVelocity, densityProvider().density)) {
+            accumulatedDragYSinceStart = 0f
+            scope.launch {
+                if (animationsEnabled()) currentSheetTranslationY.animateTo(
+                    collapsedYProvider() + miniHeightPxProvider() * 2f,
+                    com.theveloper.pixelplay.ui.theme.PixelMotion.structural()
+                )
+                onDismissPlaylist()
+                sheetMotionController.snapTo(collapsedYProvider(), 0f)
+            }
+            return
+        }
+        if (cancelled) accumulatedDragYSinceStart = 0f
         val currentFraction = playerContentExpansionFraction.value
         val minDragThresholdPx = with(densityProvider()) { 5.dp.toPx() }
         val velocityThreshold = 150f
 
-        val targetState = resolveVerticalSheetTargetState(
+        val targetState = if (cancelled) (if (startedCollapsed) PlayerSheetState.COLLAPSED else PlayerSheetState.EXPANDED) else resolveVerticalSheetTargetState(
             currentSheetContentState = currentSheetStateProvider(),
             accumulatedDragY = accumulatedDragYSinceStart,
             minDragThresholdPx = minDragThresholdPx,
@@ -144,7 +161,7 @@ internal class SheetVerticalDragGestureHandler(
     }
 
     fun onDragCancel() {
-        onDragEnd()
+        onDragEnd(cancelled = true)
     }
 }
 

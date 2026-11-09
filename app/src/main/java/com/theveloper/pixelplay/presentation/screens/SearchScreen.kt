@@ -1,5 +1,9 @@
 package com.theveloper.pixelplay.presentation.screens
 
+import com.theveloper.pixelplay.presentation.components.bottomchrome.BottomChromeGradient
+
+import com.theveloper.pixelplay.presentation.components.bottomchrome.NavigationReselectionEffect
+
 import com.theveloper.pixelplay.presentation.navigation.navigateSafely
 import com.theveloper.pixelplay.presentation.navigation.navigateSafelyReplacing
 
@@ -130,8 +134,7 @@ import com.theveloper.pixelplay.data.repository.MusicRepository
 import com.theveloper.pixelplay.presentation.components.MiniPlayerHeight
 import com.theveloper.pixelplay.presentation.components.PlaylistBottomSheet
 import com.theveloper.pixelplay.presentation.components.PlaylistCover
-import com.theveloper.pixelplay.presentation.components.resolveMainScreenBottomGradientHeight
-import com.theveloper.pixelplay.presentation.components.resolveNavBarOccupiedHeight
+import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottomChrome
 import com.theveloper.pixelplay.presentation.navigation.Screen
 import com.theveloper.pixelplay.presentation.screens.search.components.GenreCategoriesGrid
 import com.theveloper.pixelplay.presentation.viewmodel.PlaylistViewModel
@@ -168,10 +171,9 @@ fun SearchScreen(
 ) {
     var searchQuery by rememberSaveable { mutableStateOf(playerViewModel.searchQuery) }
     val statusBarTopInset = WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
-    val systemNavBarInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    val navBarCompactMode by playerViewModel.navBarCompactMode.collectAsStateWithLifecycle()
-    val bottomBarHeightDp = resolveNavBarOccupiedHeight(systemNavBarInset, navBarCompactMode)
-    val bottomGradientHeight = resolveMainScreenBottomGradientHeight(navBarCompactMode)
+    val bottomChrome = LocalBottomChrome.current
+    val bottomBarHeightDp = bottomChrome.navBarOccupiedHeight
+    val bottomGradientHeight = bottomChrome.bottomGradientHeight
     var showPlaylistBottomSheet by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
@@ -663,14 +665,9 @@ fun SearchScreen(
             }
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .height(bottomGradientHeight)
-                .background(brush = bottomGradientBrush)
-        )
-
+        BottomChromeGradient(
+                Modifier.align(Alignment.BottomCenter)
+            )
 
     }
 
@@ -1155,7 +1152,10 @@ fun SearchResultsList(
     val imePadding = WindowInsets.ime.getBottom(localDensity).dp
     val systemBarPaddingBottom = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding() + 94.dp
 
+    val resultsListState = androidx.compose.foundation.lazy.rememberLazyListState()
+    NavigationReselectionEffect(Screen.Search.route) { resultsListState.animateScrollToItem(0) }
     LazyColumn(
+        state = resultsListState,
         modifier = Modifier
             .fillMaxSize()
             .clip(

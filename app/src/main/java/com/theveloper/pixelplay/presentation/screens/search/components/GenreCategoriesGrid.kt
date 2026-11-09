@@ -1,5 +1,9 @@
 package com.theveloper.pixelplay.presentation.screens.search.components
 
+import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottomChrome
+
+import com.theveloper.pixelplay.presentation.components.bottomchrome.NavigationReselectionEffect
+
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -45,7 +49,6 @@ import com.theveloper.pixelplay.data.model.Genre
 import com.theveloper.pixelplay.presentation.components.MiniPlayerHeight
 import com.theveloper.pixelplay.presentation.components.SmartImage
 import com.theveloper.pixelplay.presentation.components.getNavigationBarHeight
-import com.theveloper.pixelplay.presentation.components.resolveNavBarOccupiedHeight
 import com.theveloper.pixelplay.presentation.utils.GenreIconProvider
 import com.theveloper.pixelplay.presentation.viewmodel.PlayerViewModel
 import com.theveloper.pixelplay.ui.theme.LocalPixelPlayDarkTheme
@@ -93,9 +96,11 @@ fun GenreCategoriesGrid(
 
     // Persistence: Collect from ViewModel
     val isGridView by playerViewModel.isGenreGridView.collectAsStateWithLifecycle()
-    val navBarCompactMode by playerViewModel.navBarCompactMode.collectAsStateWithLifecycle()
 
+    val browseState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
+    NavigationReselectionEffect(com.theveloper.pixelplay.presentation.navigation.Screen.Search.route) { browseState.animateScrollToItem(0) }
     LazyVerticalGrid(
+        state = browseState,
         columns = if (isGridView) GridCells.Fixed(2) else GridCells.Fixed(1),
         modifier = modifier
             .fillMaxSize()
@@ -112,7 +117,7 @@ fun GenreCategoriesGrid(
             )),
         contentPadding = PaddingValues(
             top = 8.dp,
-            bottom = 28.dp + resolveNavBarOccupiedHeight(systemNavBarHeight, navBarCompactMode) + MiniPlayerHeight
+            bottom = 28.dp + LocalBottomChrome.current.navBarOccupiedHeight + MiniPlayerHeight
         ),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)

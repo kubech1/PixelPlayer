@@ -1,5 +1,7 @@
 package com.theveloper.pixelplay.presentation.components
 
+import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottomChrome
+
 import androidx.annotation.OptIn
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
@@ -72,6 +74,8 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
     onQueueRelease: (Float, Float) -> Unit,
     onShowCastClicked: () -> Unit
 ) {
+    val chrome = LocalBottomChrome.current
+    val compactFractionProvider = chrome.mergeFractionProvider
     currentSong?.let { currentSongNonNull ->
         miniPlayerScheme?.let { readyScheme ->
             CompositionLocalProvider(
@@ -86,7 +90,11 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .fillMaxWidth()
-                        .height(MiniPlayerHeight)
+                        .layout { measurable, constraints ->
+                            val height = androidx.compose.ui.util.lerp(chrome.miniPlayerRestingHeight.toPx(), 56.dp.toPx(), compactFractionProvider()).toInt()
+                            val child = measurable.measure(constraints.copy(minHeight = height, maxHeight = height))
+                            layout(child.width, height) { child.placeRelative(0, 0) }
+                        }
                         .graphicsLayer {
                             // Compute miniAlpha in the draw phase from the Animatable,
                             // avoiding per-frame recomposition during gestures.
@@ -94,7 +102,7 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
                                 .coerceIn(0f, 1f)
                         }
                         .layout { measurable, constraints ->
-                            val targetWidth = (constraints.maxWidth - collapsedStateHorizontalPaddingPx * 2)
+                            val targetWidth = (constraints.maxWidth - currentHorizontalPaddingStartPxProvider().toInt() - currentHorizontalPaddingEndPxProvider().toInt())
                                 .coerceAtLeast(0)
                             val placeable = measurable.measure(
                                 constraints.copy(
@@ -120,6 +128,7 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
                         onPlayPause = { playerViewModel.playPause() },
                         onPrevious = { playerViewModel.previousSong() },
                         onNext = { playerViewModel.nextSong() },
+                        compactFractionProvider = compactFractionProvider,
                         canScroll = isMiniPlayerVisible && infrequentPlayerState.isPlaying,
                         modifier = Modifier.fillMaxSize()
                     )

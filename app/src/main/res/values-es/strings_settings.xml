@@ -181,8 +181,12 @@
     <string name="settings_theme_follow_system">Seguir el sistema</string>
     <string name="settings_smooth_corners_title">Usar esquinas suaves</string>
     <string name="settings_smooth_corners_subtitle">Esquinas con forma compleja que mejoran el aspecto; puede afectar al rendimiento en dispositivos modestos.</string>
-    <string name="settings_disable_blur_all_over_title">Desactivar efectos de desenfoque</string>
-    <string name="settings_disable_blur_all_over_subtitle">Desactiva los efectos de desenfoque en toda la aplicación para ahorrar batería y recursos.</string>
+    <string name="settings_visual_effects_title">Efectos visuales</string>
+    <string name="settings_visual_effects_subtitle">Controla la profundidad, los gradientes y el desenfoque. El ahorro de batería reduce un nivel automáticamente.</string>
+    <string name="settings_visual_effects_full">Completo</string>
+    <string name="settings_visual_effects_balanced">Equilibrado</string>
+    <string name="settings_visual_effects_minimal">Mínimo</string>
+
     <string name="settings_show_scrollbar_title">Mostrar barra de desplazamiento</string>
     <string name="settings_show_scrollbar_subtitle">Muestra una barra de desplazamiento lateral en las listas de música para un desplazamiento rápido.</string>
     <string name="settings_now_playing_section">Reproduciendo ahora</string>
@@ -204,14 +208,6 @@
     <string name="settings_auto_rotate_patterns_title">Rotar patrones automáticamente</string>
     <string name="settings_auto_rotate_patterns_subtitle">Ciclar a través de los patrones de collage cada vez que visitas el Inicio.</string>
     <string name="settings_navigation_bar_section">Barra de navegación</string>
-    <string name="settings_navbar_style_title">Estilo de la barra</string>
-    <string name="settings_navbar_style_subtitle">Elige la apariencia para la barra de navegación.</string>
-    <string name="settings_navbar_style_default">Predeterminado</string>
-    <string name="settings_navbar_style_full_width">Ancho completo</string>
-    <string name="settings_compact_mode_title">Modo compacto</string>
-    <string name="settings_compact_mode_subtitle">Mostrar solo iconos y reducir la altura de la barra de navegación.</string>
-    <string name="settings_navbar_corner_title">Radio de esquinas de la barra</string>
-    <string name="settings_navbar_corner_subtitle">Ajusta el radio de esquinas de la barra de navegación.</string>
     <string name="settings_lyrics_screen_section">Pantalla de letras</string>
     <string name="settings_immersive_lyrics_title">Letras inmersivas</string>
     <string name="settings_immersive_lyrics_subtitle">Ocultar controles automáticamente y agrandar el texto.</string>
@@ -254,10 +250,6 @@
     <string name="settings_palette_style_accuracy_summary_precise">%1$d • Preciso</string>
 
     <!-- NavBarCornerRadiusScreen -->
-    <string name="navbar_adjust_title">Ajustar radio de esquinas</string>
-    <string name="navbar_adjust_subtitle">Haz coincidir las esquinas de la barra de navegación con las esquinas físicas de tu dispositivo para un aspecto impecable.</string>
-    <string name="navbar_corner_radius_label">Radio de esquina</string>
-    <string name="navbar_corner_dp_format">%1$d dp</string>
 
     <!-- Playback category -->
     <string name="settings_background_playback_section">Reproducción en segundo plano</string>
@@ -646,4 +638,7 @@
     <string name="settings_volume_section">Volumen</string>
     <string name="settings_pause_on_volume_zero">Pausar cuando el volumen llegue a cero</string>
     <string name="settings_pause_on_volume_zero_desc">Pausar automáticamente la reproducción cuando el volumen sea 0</string>
+    <string name="show_navigation_current_tab">Mostrar navegación, pestaña actual: %1$s</string>
+    <string name="settings_compact_scroll_title">Compactar al desplazar</string>
+    <string name="settings_compact_scroll_subtitle">Fusionar la navegación y el reproductor al desplazar</string>
 </resources>

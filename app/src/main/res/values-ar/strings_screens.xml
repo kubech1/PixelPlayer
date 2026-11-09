@@ -68,10 +68,6 @@
     <string name="unknown_version">إصدار غير معروف</string>
     <string name="setup_lets_go">هيا بنا!</string>
     <string name="setup_step_format">الخطوة %1$d من أصل %2$d</string>
-    <string name="setup_app_navigation_title">التنقل داخل التطبيق</string>
-    <string name="setup_app_navigation_subtitle">اختر نمط شريط التنقل السفلي.</string>
-    <string name="setup_navbar_default_style">النمط الافتراضي</string>
-    <string name="setup_navbar_footer">يمكنك تغيير هذا لاحقاً من الإعدادات &gt; المظهر &gt; نمط شريط التنقل.</string>
     <string name="skip_for_now">تخطي في الوقت الحالي</string>
     <string name="skip_not_now">تخطي / ليس الآن</string>
     <string name="restoring">جاري الاستعادة</string>
@@ -122,8 +118,6 @@
     <string name="setup_battery_optimization_title">تحسين استهلاك البطارية</string>
     <string name="setup_battery_optimization_description">تقوم بعض أجهزة Android بإغلاق تطبيقات الخلفية بشكل حاد. قم بتعطيل تحسين البطارية لتطبيق PixelPlayer لمنع انقطاع التشغيل غير المتوقع.</string>
     <string name="setup_disable_battery_optimization">تعطيل التحسين</string>
-    <string name="setup_nav_floating_pill_description">شريط كبسولة عائم بزوايا مستديرة</string>
-    <string name="setup_nav_full_width_description">شريط قياسي بالعرض الكامل</string>
 
     <!-- Delete song (Material dialog from ViewModel) -->
     <string name="dialog_delete_song_title">حذف الأغنية؟</string>

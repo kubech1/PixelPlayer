@@ -58,13 +58,6 @@
     <string name="setup_tab_albums">ALBÜMLER</string>
     <string name="setup_tab_artists">ARTISTS</string>
     <string name="setup_library_layout_footer">Bunu daha sonra Ayarlar &gt; Görünüm &gt; Kitaplık Navigasyonu bölümünden değiştirebilirsiniz.</string>
-    <string name="setup_app_navigation_title">Uygulama Navigasyonu</string>
-    <string name="setup_app_navigation_subtitle">Alt navigasyon çubuğunun stilini seçin.</string>
-    <string name="setup_navbar_default_style">Varsayılan Stil</string>
-    <string name="setup_nav_floating_pill_description">Yuvarlatılmış köşeli duran hap (floating pill)</string>
-    <string name="setup_nav_full_width_description">Standart tam genişlikte çubuk</string>
-    <string name="setup_customize_corner_radius">Köşe Yuvarlama Çapını Özelleştir</string>
-    <string name="setup_navbar_footer">Bunu daha sonra Ayarlar &gt; Görünüm &gt; Navigasyon Çubuğu Stili bölümünden değiştirebilirsiniz.</string>
     <string name="setup_permission_alarms_title">Alarmlar ve Hatırlatıcılar</string>
     <string name="setup_permission_alarms_description">İsteğe bağlıdır, ancak Uyku Zamanlayıcısı kullanıyorsanız ve PixelPlayer\'ın oynatmayı tam zamanında durdurmasını istiyorsanız önerilir.</string>
     <string name="setup_grant_permission_generic">İzin Ver</string>

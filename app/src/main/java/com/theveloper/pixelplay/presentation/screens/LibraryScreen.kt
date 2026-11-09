@@ -2,6 +2,12 @@
 
 package com.theveloper.pixelplay.presentation.screens
 
+import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalNavigationReselectionActive
+
+import com.theveloper.pixelplay.presentation.components.bottomchrome.BottomChromeGradient
+
+import com.theveloper.pixelplay.presentation.components.bottomchrome.NavigationReselectionEffect
+
 import com.theveloper.pixelplay.presentation.navigation.navigateSafely
 import com.theveloper.pixelplay.presentation.navigation.navigateSafelyReplacing
 
@@ -140,8 +146,8 @@ import com.theveloper.pixelplay.data.model.SortOption
 import com.theveloper.pixelplay.data.model.StorageFilter
 import com.theveloper.pixelplay.presentation.components.MiniPlayerHeight
 import com.theveloper.pixelplay.presentation.components.SmartImage
-import com.theveloper.pixelplay.presentation.components.resolveMainScreenBottomGradientHeight
-import com.theveloper.pixelplay.presentation.components.resolveNavBarOccupiedHeight
+import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottomChrome
+
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.asPaddingValues
@@ -767,10 +773,10 @@ fun LibraryScreen(
         label = "Action Button Icon Transition"
     ) // UI sin cambios
 
-    val systemNavBarInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    val navBarCompactMode by playerViewModel.navBarCompactMode.collectAsStateWithLifecycle()
-    val bottomBarHeightDp = resolveNavBarOccupiedHeight(systemNavBarInset, navBarCompactMode)
-    val bottomGradientHeight = resolveMainScreenBottomGradientHeight(navBarCompactMode)
+    val bottomChrome = LocalBottomChrome.current
+    val bottomBarHeightDp = bottomChrome.navBarOccupiedHeight
+    val bottomGradientHeight = bottomChrome.bottomGradientHeight
+
 
     val dm = LocalPixelPlayDarkTheme.current
 
@@ -1479,6 +1485,9 @@ fun LibraryScreen(
                                     tabCount = tabTitles.size,
                                     compactMode = isCompactNavigation
                                 )
+                                androidx.compose.runtime.CompositionLocalProvider(
+                                    LocalNavigationReselectionActive provides (page == pagerState.currentPage)
+                                ) {
                                 when (tabTitles.getOrNull(tabIndex)?.toLibraryTabIdOrNull()) {
                                     LibraryTabId.SONGS -> {
                                         val allSongsLazyPagingItems = libraryViewModel.songsPagingFlow.collectAsLazyPagingItems()
@@ -1654,6 +1663,7 @@ fun LibraryScreen(
 
                                     null -> Unit
                                 }
+                                }
                             }
 
                             // Floating selection count pill overlay
@@ -1687,24 +1697,9 @@ fun LibraryScreen(
                 }
             }
             //Grad box
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .height(bottomGradientHeight)
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colorStops = arrayOf(
-                                0.0f to Color.Transparent,
-                                0.2f to Color.Transparent,
-                                0.8f to MaterialTheme.colorScheme.surfaceContainerLowest,
-                                1.0f to MaterialTheme.colorScheme.surfaceContainerLowest
-                            )
-                        )
-                    )
-            ) {
-
-            }
+            BottomChromeGradient(
+                Modifier.align(Alignment.BottomCenter)
+            )
         }
     }
 
@@ -2796,6 +2791,7 @@ fun LibraryFoldersTab(
     ) { (playlistMode, targetPath) ->
         // Each navigation destination gets its own independant ListState
         val listState = rememberLazyListState()
+    NavigationReselectionEffect(com.theveloper.pixelplay.presentation.navigation.Screen.Library.route) { listState.animateScrollToItem(0) }
         val coroutineScope = rememberCoroutineScope()
         val visibilityCallback by rememberUpdatedState(onLocateCurrentSongVisibilityChanged)
         val registerActionCallback by rememberUpdatedState(onRegisterLocateCurrentSongAction)
@@ -2989,7 +2985,7 @@ fun LibraryFoldersTab(
                                 state = listState,
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                                 contentPadding = PaddingValues(
-                                    bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap,
+                                    bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + ListExtraBottomGap,
                                     top = 0.dp
                                 )
                             ) {
@@ -3031,7 +3027,7 @@ fun LibraryFoldersTab(
 
                             // ScrollBar Overlay
                             val bottomPadding = if (hasCurrentSong)
-                                bottomBarHeight + MiniPlayerHeight + 16.dp
+                                bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + 16.dp
                             else
                                 bottomBarHeight + 16.dp
 

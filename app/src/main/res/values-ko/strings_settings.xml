@@ -181,8 +181,12 @@
     <string name="settings_theme_follow_system">시스템 설정 따르기</string>
     <string name="settings_smooth_corners_title">부드러운 모서리 사용</string>
     <string name="settings_smooth_corners_subtitle">복잡한 모양의 모서리를 사용하여 미적 감각을 효과적으로 개선하지만, 저사양 기기에서는 성능에 영향을 줄 수 있습니다.</string>
-    <string name="settings_disable_blur_all_over_title">블러 효과 비활성화</string>
-    <string name="settings_disable_blur_all_over_subtitle">배터리와 리소스를 절약하기 위해 앱 전체의 블러 효과를 끕니다.</string>
+    <string name="settings_visual_effects_title">시각 효과</string>
+    <string name="settings_visual_effects_subtitle">앱 전반의 깊이감, 그라데이션 및 블러 효과를 조절합니다. 절전 모드 시 자동으로 한 단계 낮아집니다.</string>
+    <string name="settings_visual_effects_full">최대</string>
+    <string name="settings_visual_effects_balanced">균형</string>
+    <string name="settings_visual_effects_minimal">최소</string>
+
     <string name="settings_show_scrollbar_title">스크롤바 표시</string>
     <string name="settings_show_scrollbar_subtitle">빠른 스크롤을 위해 음악 목록에 측면 스크롤바를 표시합니다.</string>
     <string name="settings_now_playing_section">현재 재생 중</string>
@@ -204,14 +208,6 @@
     <string name="settings_auto_rotate_patterns_title">패턴 자동 회전</string>
     <string name="settings_auto_rotate_patterns_subtitle">홈을 방문할 때마다 콜라주 패턴을 순환합니다.</string>
     <string name="settings_navigation_bar_section">내비게이션 바</string>
-    <string name="settings_navbar_style_title">내비게이션 바 스타일</string>
-    <string name="settings_navbar_style_subtitle">내비게이션 바의 디자인을 선택하세요.</string>
-    <string name="settings_navbar_style_default">기본값</string>
-    <string name="settings_navbar_style_full_width">전체 너비</string>
-    <string name="settings_compact_mode_title">컴팩트 모드</string>
-    <string name="settings_compact_mode_subtitle">아이콘만 표시하고 내비게이션 바 높이를 줄입니다.</string>
-    <string name="settings_navbar_corner_title">내비게이션 바 모서리 반경</string>
-    <string name="settings_navbar_corner_subtitle">내비게이션 바의 모서리 반경을 조정합니다.</string>
     <string name="settings_lyrics_screen_section">가사 화면</string>
     <string name="settings_immersive_lyrics_title">몰입형 가사</string>
     <string name="settings_immersive_lyrics_subtitle">컨트롤을 자동으로 숨기고 텍스트를 확대합니다.</string>
@@ -254,10 +250,6 @@
     <string name="settings_palette_style_accuracy_summary_precise">%1$d • 정밀함</string>
 
     <!-- NavBarCornerRadiusScreen -->
-    <string name="navbar_adjust_title">모서리 반경 조정</string>
-    <string name="navbar_adjust_subtitle">자연스러운 디자인을 위해 기기의 실제 모서리에 맞게 내비게이션 바 모서리 반경을 조정하세요.</string>
-    <string name="navbar_corner_radius_label">모서리 반경</string>
-    <string name="navbar_corner_dp_format">%1$d dp</string>
 
     <!-- Playback category -->
     <string name="settings_background_playback_section">백그라운드 재생</string>
@@ -646,4 +638,7 @@
     <string name="settings_volume_section">볼륨</string>
     <string name="settings_pause_on_volume_zero">볼륨이 0이 되면 일시정지</string>
     <string name="settings_pause_on_volume_zero_desc">볼륨이 0으로 설정되면 자동으로 재생을 일시정지합니다</string>
+    <string name="show_navigation_current_tab">탐색 표시, 현재 탭: %1$s</string>
+    <string name="settings_compact_scroll_title">스크롤 시 축소</string>
+    <string name="settings_compact_scroll_subtitle">스크롤할 때 탐색과 플레이어 통합</string>
 </resources>

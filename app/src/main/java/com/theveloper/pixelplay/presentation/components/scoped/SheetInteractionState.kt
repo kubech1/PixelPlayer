@@ -52,6 +52,7 @@ internal fun rememberSheetInteractionState(
     ) -> Unit,
     onExpandSheetState: () -> Unit,
     onCollapseSheetState: () -> Unit,
+    onDismissPlaylist: () -> Unit,
     onDraggingChange: (Boolean) -> Unit,
     onDraggingPlayerAreaChange: (Boolean) -> Unit
 ): SheetInteractionState {
@@ -67,6 +68,7 @@ internal fun rememberSheetInteractionState(
             bottomRadiusProvider = playerContentActualBottomRadiusProvider,
             useSmoothShapeProvider = {
                 useSmoothCornersState.value &&
+                    playerContentExpansionFraction.value > 0.01f &&
                     !isDraggingState.value &&
                     !playerContentExpansionFraction.isRunning
             }
@@ -80,6 +82,8 @@ internal fun rememberSheetInteractionState(
     val currentSheetState = rememberUpdatedState(currentSheetContentState)
     val onAnimateSheetState = rememberUpdatedState(onAnimateSheet)
     val onExpandSheetStateState = rememberUpdatedState(onExpandSheetState)
+    val dismissState = rememberUpdatedState(onDismissPlaylist)
+    val motionState = rememberUpdatedState(com.theveloper.pixelplay.ui.theme.LocalMotionPreferences.current.animationsEnabled)
     val onCollapseSheetStateState = rememberUpdatedState(onCollapseSheetState)
     val onDraggingChangeState = rememberUpdatedState(onDraggingChange)
     val onDraggingPlayerAreaChangeState = rememberUpdatedState(onDraggingPlayerAreaChange)
@@ -110,7 +114,9 @@ internal fun rememberSheetInteractionState(
                 onAnimateSheetState.value(targetExpanded, animationSpec, initialVelocity)
             },
             onExpandSheetState = { onExpandSheetStateState.value() },
-            onCollapseSheetState = { onCollapseSheetStateState.value() }
+            onCollapseSheetState = { onCollapseSheetStateState.value() },
+            onDismissPlaylist = { dismissState.value() },
+            animationsEnabled = { motionState.value }
         )
     }
 

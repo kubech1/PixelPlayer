@@ -177,8 +177,12 @@
     <string name="settings_theme_follow_system">Suivre le système</string>
     <string name="settings_smooth_corners_title">Utiliser des angles lisses</string>
     <string name="settings_smooth_corners_subtitle">Utilise des formes d\'angles complexes pour une meilleure esthétique, mais peut affecter les performances sur les appareils bas de gamme</string>
-    <string name="settings_disable_blur_all_over_title">Désactiver les effets de flou</string>
-    <string name="settings_disable_blur_all_over_subtitle">Désactiver les effets de flou dans toute l\'application pour économiser de la batterie et des ressources.</string>
+    <string name="settings_visual_effects_title">Effets visuels</string>
+    <string name="settings_visual_effects_subtitle">Contrôler la profondeur, les dégradés et le flou. L\'économiseur de batterie réduit automatiquement d\'un niveau.</string>
+    <string name="settings_visual_effects_full">Complet</string>
+    <string name="settings_visual_effects_balanced">Équilibré</string>
+    <string name="settings_visual_effects_minimal">Minimal</string>
+
     <string name="settings_show_scrollbar_title">Afficher la barre de défilement</string>
     <string name="settings_show_scrollbar_subtitle">Afficher la barre de défilement latérale sur les listes de musique pour un défilement rapide</string>
     <string name="settings_now_playing_section">En cours de lecture</string>
@@ -200,14 +204,6 @@
     <string name="settings_auto_rotate_patterns_title">Rotation auto des motifs</string>
     <string name="settings_auto_rotate_patterns_subtitle">Changer de motif de pêle-mêle à chaque visite de l\'Accueil.</string>
     <string name="settings_navigation_bar_section">Barre de navigation</string>
-    <string name="settings_navbar_style_title">Style de la barre de navigation</string>
-    <string name="settings_navbar_style_subtitle">Choisissez l\'apparence de la barre de navigation.</string>
-    <string name="settings_navbar_style_default">Par défaut</string>
-    <string name="settings_navbar_style_full_width">Pleine largeur</string>
-    <string name="settings_compact_mode_title">Mode compact</string>
-    <string name="settings_compact_mode_subtitle">Afficher uniquement les icônes et réduire la hauteur de la barre de navigation.</string>
-    <string name="settings_navbar_corner_title">Rayon des angles de la barre</string>
-    <string name="settings_navbar_corner_subtitle">Ajuster le rayon des angles de la barre de navigation.</string>
     <string name="settings_lyrics_screen_section">Écran des paroles</string>
     <string name="settings_immersive_lyrics_title">Paroles immersives</string>
     <string name="settings_immersive_lyrics_subtitle">Masquer auto les contrôles et agrandir le texte.</string>
@@ -250,10 +246,6 @@
     <string name="settings_palette_style_accuracy_summary_precise">%1$d • Précis</string>
 
     <!-- NavBarCornerRadiusScreen -->
-    <string name="navbar_adjust_title">Ajuster le rayon des angles</string>
-    <string name="navbar_adjust_subtitle">Faites correspondre les angles de la barre de navigation avec les angles physiques de votre appareil pour un rendu uniforme.</string>
-    <string name="navbar_corner_radius_label">Rayon des angles</string>
-    <string name="navbar_corner_dp_format">%1$d dp</string>
 
     <!-- Playback category -->
     <string name="settings_background_playback_section">Lecture en arrière-plan</string>
@@ -642,4 +634,7 @@
     <string name="settings_volume_section">Volume</string>
     <string name="settings_pause_on_volume_zero">Mettre en pause quand le volume atteint zéro</string>
     <string name="settings_pause_on_volume_zero_desc">Mettre automatiquement en pause la lecture lorsque le volume est à 0</string>
+    <string name="show_navigation_current_tab">Afficher la navigation, onglet actuel : %1$s</string>
+    <string name="settings_compact_scroll_title">Réduire pendant le défilement</string>
+    <string name="settings_compact_scroll_subtitle">Fusionner la navigation et le lecteur pendant le défilement</string>
 </resources>

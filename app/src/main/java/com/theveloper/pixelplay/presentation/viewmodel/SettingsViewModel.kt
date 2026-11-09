@@ -30,7 +30,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 import com.theveloper.pixelplay.R
-import com.theveloper.pixelplay.data.preferences.NavBarStyle
 import com.theveloper.pixelplay.data.preferences.LaunchTab
 import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.data.service.player.HiFiCapabilityChecker
@@ -45,9 +44,7 @@ data class SettingsUiState(
     val albumArtPaletteStyle: AlbumArtPaletteStyle = AlbumArtPaletteStyle.default,
     val albumArtColorAccuracy: Int = AlbumArtColorAccuracy.DEFAULT,
     val mockGenresEnabled: Boolean = false,
-    val navBarCornerRadius: Int = 32,
-    val navBarStyle: String = NavBarStyle.DEFAULT,
-    val navBarCompactMode: Boolean = false,
+    val navCompactOnScroll: Boolean = true,
     val carouselStyle: String = CarouselStyle.NO_PEEK,
     val libraryNavigationMode: String = LibraryNavigationMode.TAB_ROW,
     val launchTab: String = LaunchTab.HOME,
@@ -78,7 +75,8 @@ data class SettingsUiState(
     val useAnimatedLyrics: Boolean = false,
     val animatedLyricsBlurEnabled: Boolean = true,
     val animatedLyricsBlurStrength: Float = 2.5f,
-    val disableBlurAllOver: Boolean = false,
+    val visualEffectsLevel: com.theveloper.pixelplay.data.preferences.VisualEffectsLevel =
+        com.theveloper.pixelplay.data.preferences.VisualEffectsLevel.DEFAULT,
     val collagePattern: CollagePattern = CollagePattern.default,
     val collageAutoRotate: Boolean = false,
     val minSongDuration: Int = 10000,
@@ -117,9 +115,7 @@ private sealed interface SettingsUiUpdate {
         val albumArtPaletteStyle: AlbumArtPaletteStyle,
         val albumArtColorAccuracy: Int,
         val mockGenresEnabled: Boolean,
-        val navBarCornerRadius: Int,
-        val navBarStyle: String,
-        val navBarCompactMode: Boolean,
+        val navCompactOnScroll: Boolean,
         val libraryNavigationMode: String,
         val carouselStyle: String,
         val launchTab: String,
@@ -145,7 +141,7 @@ private sealed interface SettingsUiUpdate {
         val immersiveLyricsTimeout: Long,
         val animatedLyricsBlurEnabled: Boolean,
         val animatedLyricsBlurStrength: Float,
-        val disableBlurAllOver: Boolean,
+        val visualEffectsLevel: com.theveloper.pixelplay.data.preferences.VisualEffectsLevel,
         val showScrollbar: Boolean
     ) : SettingsUiUpdate
 }
@@ -232,9 +228,7 @@ class SettingsViewModel @Inject constructor(
                 themePreferencesRepository.albumArtPaletteStyleFlow,
                 themePreferencesRepository.albumArtColorAccuracyFlow,
                 userPreferencesRepository.mockGenresEnabledFlow,
-                userPreferencesRepository.navBarCornerRadiusFlow,
-                userPreferencesRepository.navBarStyleFlow,
-                userPreferencesRepository.navBarCompactModeFlow,
+                userPreferencesRepository.navCompactOnScrollFlow,
                 userPreferencesRepository.libraryNavigationModeFlow,
                 userPreferencesRepository.carouselStyleFlow,
                 userPreferencesRepository.launchTabFlow,
@@ -247,13 +241,11 @@ class SettingsViewModel @Inject constructor(
                     albumArtPaletteStyle = values[3] as AlbumArtPaletteStyle,
                     albumArtColorAccuracy = values[4] as Int,
                     mockGenresEnabled = values[5] as Boolean,
-                    navBarCornerRadius = values[6] as Int,
-                    navBarStyle = values[7] as String,
-                    navBarCompactMode = values[8] as Boolean,
-                    libraryNavigationMode = values[9] as String,
-                    carouselStyle = values[10] as String,
-                    launchTab = values[11] as String,
-                    showPlayerFileInfo = values[12] as Boolean
+                    navCompactOnScroll = values[6] as Boolean,
+                    libraryNavigationMode = values[7] as String,
+                    carouselStyle = values[8] as String,
+                    launchTab = values[9] as String,
+                    showPlayerFileInfo = values[10] as Boolean
                 )
             }.collect { update ->
                 _uiState.update { state ->
@@ -264,9 +256,7 @@ class SettingsViewModel @Inject constructor(
                         albumArtPaletteStyle = update.albumArtPaletteStyle,
                         albumArtColorAccuracy = update.albumArtColorAccuracy,
                         mockGenresEnabled = update.mockGenresEnabled,
-                        navBarCornerRadius = update.navBarCornerRadius,
-                        navBarStyle = update.navBarStyle,
-                        navBarCompactMode = update.navBarCompactMode,
+                        navCompactOnScroll = update.navCompactOnScroll,
                         libraryNavigationMode = update.libraryNavigationMode,
                         carouselStyle = update.carouselStyle,
                         launchTab = update.launchTab,
@@ -297,7 +287,7 @@ class SettingsViewModel @Inject constructor(
                 userPreferencesRepository.immersiveLyricsTimeoutFlow,
                 userPreferencesRepository.animatedLyricsBlurEnabledFlow,
                 userPreferencesRepository.animatedLyricsBlurStrengthFlow,
-                userPreferencesRepository.disableBlurAllOverFlow,
+                userPreferencesRepository.visualEffectsLevelFlow,
                 userPreferencesRepository.showScrollbarFlow
             ) { values ->
                 SettingsUiUpdate.Group2(
@@ -319,7 +309,7 @@ class SettingsViewModel @Inject constructor(
                     immersiveLyricsTimeout = values[15] as Long,
                     animatedLyricsBlurEnabled = values[16] as Boolean,
                     animatedLyricsBlurStrength = values[17] as Float,
-                    disableBlurAllOver = values[18] as Boolean,
+                    visualEffectsLevel = values[18] as com.theveloper.pixelplay.data.preferences.VisualEffectsLevel,
                     showScrollbar = values[19] as Boolean
                 )
             }.collect { update ->
@@ -343,7 +333,7 @@ class SettingsViewModel @Inject constructor(
                         immersiveLyricsTimeout = update.immersiveLyricsTimeout,
                         animatedLyricsBlurEnabled = update.animatedLyricsBlurEnabled,
                         animatedLyricsBlurStrength = update.animatedLyricsBlurStrength,
-                        disableBlurAllOver = update.disableBlurAllOver,
+                        visualEffectsLevel = update.visualEffectsLevel,
                         showScrollbar = update.showScrollbar
                     )
                 }
@@ -526,15 +516,11 @@ class SettingsViewModel @Inject constructor(
         _uiState.update { it.copy(appLanguageTag = normalized) }
     }
 
-    fun setNavBarStyle(style: String) {
-        viewModelScope.launch {
-            userPreferencesRepository.setNavBarStyle(style)
-        }
-    }
 
-    fun setNavBarCompactMode(enabled: Boolean) {
+
+    fun setNavCompactOnScroll(enabled: Boolean) {
         viewModelScope.launch {
-            userPreferencesRepository.setNavBarCompactMode(enabled)
+            userPreferencesRepository.setNavCompactOnScroll(enabled)
         }
     }
 
@@ -727,9 +713,9 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun setDisableBlurAllOver(disabled: Boolean) {
+    fun setVisualEffectsLevel(level: com.theveloper.pixelplay.data.preferences.VisualEffectsLevel) {
         viewModelScope.launch {
-            userPreferencesRepository.setDisableBlurAllOver(disabled)
+            userPreferencesRepository.setVisualEffectsLevel(level)
         }
     }
 
@@ -805,9 +791,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun setNavBarCornerRadius(radius: Int) {
-        viewModelScope.launch { userPreferencesRepository.setNavBarCornerRadius(radius) }
-    }
+
 
     val albumArtQuality: StateFlow<AlbumArtQuality> = userPreferencesRepository.albumArtQualityFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AlbumArtQuality.MEDIUM)

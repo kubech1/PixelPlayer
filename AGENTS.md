@@ -15,6 +15,7 @@ Entrada técnica: [docs/README.md](docs/README.md). Lee solo los temas pertinent
 | Media3, cola, sesión, audio y transiciones | [Reproducción](docs/playback.md) |
 | SM-S921B, equipos de audio, Android 17/One UI 9 y compatibilidad por ruta | [Hardware y validación](docs/hardware/README.md) |
 | Pantallas, navegación, temas y estado | [Interfaz](docs/ui-and-state.md) |
+| Rediseño visual por fases (píldoras, movimiento, profundidad) | [Lenguaje visual](docs/design-language.md) |
 | Proveedores, streaming, Cast, Auto/widgets | [Integraciones](docs/integrations.md) |
 | Teléfono/reloj, DTO, rutas y transferencias | [Wear](docs/wear-protocol.md) |
 | Backup/restore y entradas externas | [Backup y seguridad](docs/backup-and-security.md) |

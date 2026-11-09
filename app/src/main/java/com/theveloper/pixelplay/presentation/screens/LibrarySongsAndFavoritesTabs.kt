@@ -2,6 +2,10 @@
 
 package com.theveloper.pixelplay.presentation.screens
 
+import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottomChrome
+
+import com.theveloper.pixelplay.presentation.components.bottomchrome.NavigationReselectionEffect
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -90,6 +94,7 @@ fun LibraryFavoritesTab(
     hasCurrentSong: Boolean = false
 ) {
     val listState = rememberLazyListState()
+    NavigationReselectionEffect(com.theveloper.pixelplay.presentation.navigation.Screen.Library.route) { listState.animateScrollToItem(0) }
     val coroutineScope = rememberCoroutineScope()
     val visibilityCallback by rememberUpdatedState(onLocateCurrentSongVisibilityChanged)
     val registerActionCallback by rememberUpdatedState(onRegisterLocateCurrentSongAction)
@@ -237,7 +242,7 @@ fun LibraryFavoritesTab(
                             ),
                         state = listState,
                         verticalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + 30.dp)
+                        contentPadding = PaddingValues(bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + 30.dp)
                     ) {
                         items(
                             count = favoriteSongs.itemCount,
@@ -276,7 +281,7 @@ fun LibraryFavoritesTab(
                     }
 
                     val bottomPadding = if (hasCurrentSong)
-                        bottomBarHeight + MiniPlayerHeight + 16.dp
+                        bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + 16.dp
                     else
                         bottomBarHeight + 16.dp
 
@@ -305,6 +310,7 @@ fun LibrarySongsTabPaginated(
     onRefresh: () -> Unit
 ) {
     val listState = rememberLazyListState()
+    NavigationReselectionEffect(com.theveloper.pixelplay.presentation.navigation.Screen.Library.route) { listState.animateScrollToItem(0) }
     val dummyListState = rememberLazyListState()
     val pullToRefreshState = rememberPullToRefreshState()
 
@@ -323,7 +329,7 @@ fun LibrarySongsTabPaginated(
                     )
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap)
+                contentPadding = PaddingValues(bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + ListExtraBottomGap)
             ) {
                 items(12, key = { "skeleton_song_$it" }) {
                     EnhancedSongListItem(
@@ -420,7 +426,7 @@ fun LibrarySongsTabPaginated(
                                 ),
                             state = activeListState,
                             verticalArrangement = Arrangement.spacedBy(8.dp),
-                            contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + 30.dp)
+                            contentPadding = PaddingValues(bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + 30.dp)
                         ) {
                             item(
                                 key = "songs_top_spacer",
@@ -478,7 +484,7 @@ fun LibrarySongsTabPaginated(
                         }
 
                         val bottomPadding = if (stablePlayerState.currentSong != null && stablePlayerState.currentSong != Song.emptySong())
-                            bottomBarHeight + MiniPlayerHeight + 16.dp
+                            bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + 16.dp
                         else
                             bottomBarHeight + 16.dp
 

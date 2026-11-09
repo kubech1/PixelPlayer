@@ -70,6 +70,7 @@ import androidx.compose.material.icons.outlined.Style
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.BlurOff
+import androidx.compose.material.icons.rounded.BlurOn
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Close
@@ -153,8 +154,8 @@ import com.theveloper.pixelplay.data.preferences.CollagePattern
 import com.theveloper.pixelplay.data.preferences.CarouselStyle
 import com.theveloper.pixelplay.data.preferences.LaunchTab
 import com.theveloper.pixelplay.data.preferences.LibraryNavigationMode
-import com.theveloper.pixelplay.data.preferences.NavBarStyle
 import com.theveloper.pixelplay.data.preferences.ThemePreference
+import com.theveloper.pixelplay.data.preferences.VisualEffectsLevel
 import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.data.model.LyricsSourcePreference
 import com.theveloper.pixelplay.presentation.components.CollapsibleCommonTopBar
@@ -552,12 +553,19 @@ fun SettingsCategoryScreen(
                                     onCheckedChange = settingsViewModel::setUseSmoothCorners,
                                     leadingIcon = { Icon(painterResource(R.drawable.rounded_rounded_corner_24), null, tint = MaterialTheme.colorScheme.secondary) }
                                 )
-                                SwitchSettingItem(
-                                    title = stringResource(R.string.settings_disable_blur_all_over_title),
-                                    subtitle = stringResource(R.string.settings_disable_blur_all_over_subtitle),
-                                    checked = uiState.disableBlurAllOver,
-                                    onCheckedChange = { settingsViewModel.setDisableBlurAllOver(it) },
-                                    leadingIcon = { Icon(Icons.Rounded.BlurOff, null, tint = MaterialTheme.colorScheme.secondary) }
+                                ThemeSelectorItem(
+                                    label = stringResource(R.string.settings_visual_effects_title),
+                                    description = stringResource(R.string.settings_visual_effects_subtitle),
+                                    options = mapOf(
+                                        VisualEffectsLevel.FULL.storageKey to stringResource(R.string.settings_visual_effects_full),
+                                        VisualEffectsLevel.BALANCED.storageKey to stringResource(R.string.settings_visual_effects_balanced),
+                                        VisualEffectsLevel.MINIMAL.storageKey to stringResource(R.string.settings_visual_effects_minimal)
+                                    ),
+                                    selectedKey = uiState.visualEffectsLevel.storageKey,
+                                    onSelectionChanged = { key ->
+                                        settingsViewModel.setVisualEffectsLevel(VisualEffectsLevel.fromStorageKey(key))
+                                    },
+                                    leadingIcon = { Icon(Icons.Rounded.BlurOn, null, tint = MaterialTheme.colorScheme.secondary) }
                                 )
                                 SwitchSettingItem(
                                     title = stringResource(R.string.settings_show_scrollbar_title),
@@ -636,22 +644,11 @@ fun SettingsCategoryScreen(
                             }
 
                             SettingsSubsection(title = stringResource(R.string.settings_navigation_bar_section)) {
-                                ThemeSelectorItem(
-                                    label = stringResource(R.string.settings_navbar_style_title),
-                                    description = stringResource(R.string.settings_navbar_style_subtitle),
-                                    options = mapOf(
-                                        NavBarStyle.DEFAULT to stringResource(R.string.settings_navbar_style_default),
-                                        NavBarStyle.FULL_WIDTH to stringResource(R.string.settings_navbar_style_full_width)
-                                    ),
-                                    selectedKey = uiState.navBarStyle,
-                                    onSelectionChanged = { settingsViewModel.setNavBarStyle(it) },
-                                    leadingIcon = { Icon(Icons.Outlined.Style, null, tint = MaterialTheme.colorScheme.secondary) }
-                                )
                                 SwitchSettingItem(
-                                    title = stringResource(R.string.settings_compact_mode_title),
-                                    subtitle = stringResource(R.string.settings_compact_mode_subtitle),
-                                    checked = uiState.navBarCompactMode,
-                                    onCheckedChange = { settingsViewModel.setNavBarCompactMode(it) },
+                                    title = stringResource(R.string.settings_compact_scroll_title),
+                                    subtitle = stringResource(R.string.settings_compact_scroll_subtitle),
+                                    checked = uiState.navCompactOnScroll,
+                                    onCheckedChange = { settingsViewModel.setNavCompactOnScroll(it) },
                                     leadingIcon = {
                                         Icon(
                                             painterResource(R.drawable.rounded_view_week_24),
@@ -660,13 +657,7 @@ fun SettingsCategoryScreen(
                                         )
                                     }
                                 )
-                                SettingsItem(
-                                    title = stringResource(R.string.settings_navbar_corner_title),
-                                    subtitle = stringResource(R.string.settings_navbar_corner_subtitle),
-                                    leadingIcon = { Icon(painterResource(R.drawable.rounded_rounded_corner_24), null, tint = MaterialTheme.colorScheme.secondary) },
-                                    trailingIcon = { Icon(Icons.Rounded.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
-                                    onClick = { navController.navigateSafely("nav_bar_corner_radius") }
-                                )
+
                             }
 
                             SettingsSubsection(title = stringResource(R.string.settings_lyrics_screen_section)) {

@@ -14,7 +14,6 @@ sealed class Screen(val route: String) {
         fun createRoute(categoryId: String) = "settings_category/$categoryId"
     }
     object PaletteStyle : Screen("palette_style_settings")
-    object NavBarCrRad : Screen("nav_bar_corner_radius")
     object PlaylistDetail : Screen("playlist_detail/{playlistId}") {
         fun createRoute(playlistId: String) = "playlist_detail/$playlistId"
     }

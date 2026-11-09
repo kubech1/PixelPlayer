@@ -181,8 +181,12 @@
     <string name="settings_theme_follow_system">Sistemi Takip Et</string>
     <string name="settings_smooth_corners_title">Yumuşak Köşeleri Kullan</string>
     <string name="settings_smooth_corners_subtitle">Estetiği etkili bir şekilde artırmak için karmaşık şekilli köşeler kullanır ancak düşük donanımlı cihazlarda performansı etkileyebilir</string>
-    <string name="settings_disable_blur_all_over_title">Bulanıklık Efektlerini Devre Dışı Bırak</string>
-    <string name="settings_disable_blur_all_over_subtitle">Pil ve kaynak tasarrufu sağlamak için uygulama genelindeki bulanıklık efektlerini kapatın.</string>
+    <string name="settings_visual_effects_title">Görsel Efektler</string>
+    <string name="settings_visual_effects_subtitle">Uygulama genelinde derinlik, gradyan ve bulanıklık efektlerini kontrol edin. Pil Tasarrufu otomatik olarak bir seviye düşürür.</string>
+    <string name="settings_visual_effects_full">Tam</string>
+    <string name="settings_visual_effects_balanced">Dengeli</string>
+    <string name="settings_visual_effects_minimal">Minimal</string>
+
     <string name="settings_show_scrollbar_title">Kaydırma Çubuğunu Göster</string>
     <string name="settings_show_scrollbar_subtitle">Hızlı kaydırma için müzik listesinin kenarında kaydırma çubuğunu göster</string>
     <string name="settings_now_playing_section">Şu An Çalınan</string>
@@ -204,14 +208,6 @@
     <string name="settings_auto_rotate_patterns_title">Desenleri Otomatik Döndür</string>
     <string name="settings_auto_rotate_patterns_subtitle">Ana Sayfa\'yı her ziyaret ettiğinizde kolaj desenleri arasında geçiş yapın.</string>
     <string name="settings_navigation_bar_section">Gezinme Çubuğu</string>
-    <string name="settings_navbar_style_title">Gezinme Çubuğu Stili</string>
-    <string name="settings_navbar_style_subtitle">Gezinme çubuğunun görünümünü seçin.</string>
-    <string name="settings_navbar_style_default">Varsayılan</string>
-    <string name="settings_navbar_style_full_width">Tam Genişlik</string>
-    <string name="settings_compact_mode_title">Kompakt mod</string>
-    <string name="settings_compact_mode_subtitle">Yalnızca simgeleri gösterir ve gezinme çubuğu yüksekliğini azaltır.</string>
-    <string name="settings_navbar_corner_title">Gezinme Çubuğu Köşe Yarıçapı</string>
-    <string name="settings_navbar_corner_subtitle">Gezinme çubuğunun köşe yarıçapını ayarlayın.</string>
     <string name="settings_lyrics_screen_section">Şarkı Sözü Ekranı</string>
     <string name="settings_immersive_lyrics_title">Sarmalayıcı Şarkı Sözleri</string>
     <string name="settings_immersive_lyrics_subtitle">Kontrolleri otomatik olarak gizler ve metni büyütür.</string>
@@ -254,10 +250,6 @@
     <string name="settings_palette_style_accuracy_summary_precise">%1$d • Hassas</string>
 
     <!-- NavBarCornerRadiusScreen -->
-    <string name="navbar_adjust_title">Köşe Yarıçapını Ayarla</string>
-    <string name="navbar_adjust_subtitle">Kusursuz bir görünüm için gezinme çubuğunun köşelerini cihazınızın fiziksel köşeleriyle eşleştirin.</string>
-    <string name="navbar_corner_radius_label">Köşe Yarıçapı</string>
-    <string name="navbar_corner_dp_format">%1$d dp</string>
 
     <!-- Playback category -->
     <string name="settings_background_playback_section">Arka Planda Oynatma</string>
@@ -646,4 +638,7 @@
     <string name="settings_volume_section">Ses</string>
     <string name="settings_pause_on_volume_zero">Ses sıfıra ulaştığında duraklat</string>
     <string name="settings_pause_on_volume_zero_desc">Ses seviyesi 0\'a ayarlandığında oynatmayı otomatik olarak duraklat</string>
+    <string name="show_navigation_current_tab">Gezinmeyi göster, geçerli sekme: %1$s</string>
+    <string name="settings_compact_scroll_title">Kaydırırken küçült</string>
+    <string name="settings_compact_scroll_subtitle">Kaydırırken gezinmeyi ve oynatıcıyı birleştir</string>
 </resources>

@@ -52,19 +52,19 @@ class UserPreferencesRepositoryTest {
             )
 
             repository.setInitialSetupDone(true)
-            repository.setNavBarStyle("compact")
+            repository.setNavCompactOnScroll(false)
 
             repository.clearPreferencesExceptKeys(emptySet())
 
             assertTrue(repository.initialSetupDoneFlow.first())
-            assertEquals(NavBarStyle.DEFAULT, repository.navBarStyleFlow.first())
+            assertEquals(true, repository.navCompactOnScrollFlow.first())
         } finally {
             tempDir.toFile().deleteRecursively()
         }
     }
 
     @Test
-    fun `navBarCornerRadiusFlow clamps values outside the supported UI range`() = runTest {
+    fun `navCompactOnScroll defaults to true and persists changes`() = runTest {
         val tempDir = Files.createTempDirectory("user-preferences-repository-test")
         try {
             val repository = UserPreferencesRepository(
@@ -75,11 +75,11 @@ class UserPreferencesRepositoryTest {
                 json = Json
             )
 
-            repository.setNavBarCornerRadius(-1)
-            assertEquals(MIN_NAV_BAR_CORNER_RADIUS, repository.navBarCornerRadiusFlow.first())
-
-            repository.setNavBarCornerRadius(999)
-            assertEquals(MAX_NAV_BAR_CORNER_RADIUS, repository.navBarCornerRadiusFlow.first())
+            assertEquals(true, repository.navCompactOnScrollFlow.first())
+            repository.setNavCompactOnScroll(false)
+            assertEquals(false, repository.navCompactOnScrollFlow.first())
+            repository.setNavCompactOnScroll(true)
+            assertEquals(true, repository.navCompactOnScrollFlow.first())
         } finally {
             tempDir.toFile().deleteRecursively()
         }

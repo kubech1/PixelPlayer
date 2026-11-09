@@ -58,13 +58,6 @@
     <string name="setup_tab_albums">АЛЬБОМЫ</string>
     <string name="setup_tab_artists">ИСПОЛНИТЕЛИ</string>
     <string name="setup_library_layout_footer">Позже это можно изменить в Настройки &gt; Внешний вид &gt; Навигация по медиатеке.</string>
-    <string name="setup_app_navigation_title">Навигация приложения</string>
-    <string name="setup_app_navigation_subtitle">Выберите стиль нижней панели навигации.</string>
-    <string name="setup_navbar_default_style">Стиль по умолчанию</string>
-    <string name="setup_nav_floating_pill_description">Плавающая пилюля со скруглёнными углами</string>
-    <string name="setup_nav_full_width_description">Стандартная панель на всю ширину</string>
-    <string name="setup_customize_corner_radius">Настроить радиус скругления</string>
-    <string name="setup_navbar_footer">Позже это можно изменить в Настройки &gt; Внешний вид &gt; Стиль панели навигации.</string>
     <string name="setup_permission_alarms_title">Будильники и напоминания</string>
     <string name="setup_permission_alarms_description">Необязательно, но рекомендуется, если вы используете таймер сна и хотите, чтобы PixelPlayer останавливал воспроизведение точно вовремя.</string>
     <string name="setup_grant_permission_generic">Предоставить разрешение</string>

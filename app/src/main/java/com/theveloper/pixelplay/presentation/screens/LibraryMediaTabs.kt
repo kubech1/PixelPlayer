@@ -6,6 +6,10 @@
 
 package com.theveloper.pixelplay.presentation.screens
 
+import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottomChrome
+
+import com.theveloper.pixelplay.presentation.components.bottomchrome.NavigationReselectionEffect
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -101,7 +105,9 @@ fun LibraryAlbumsTab(
     }.collectAsStateWithLifecycle(initialValue = false)
 
     val gridState = rememberLazyGridState()
+    NavigationReselectionEffect(com.theveloper.pixelplay.presentation.navigation.Screen.Library.route) { gridState.animateScrollToItem(0) }
     val listState = rememberLazyListState()
+    NavigationReselectionEffect(com.theveloper.pixelplay.presentation.navigation.Screen.Library.route) { listState.animateScrollToItem(0) }
     val dummyListState = rememberLazyListState()
     val dummyGridState = rememberLazyGridState()
     val context = LocalContext.current
@@ -256,7 +262,7 @@ fun LibraryAlbumsTab(
                             )
                         )
                         .fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap + 4.dp),
+                    contentPadding = PaddingValues(bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + ListExtraBottomGap + 4.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(8, key = { "skeleton_album_list_$it" }) {
@@ -282,7 +288,7 @@ fun LibraryAlbumsTab(
                         )
                         .fillMaxSize(),
                     columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap + 4.dp),
+                    contentPadding = PaddingValues(bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + ListExtraBottomGap + 4.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                     horizontalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
@@ -337,7 +343,7 @@ fun LibraryAlbumsTab(
                                         )
                                     ),
                                 state = activeListState,
-                                contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap + 4.dp),
+                                contentPadding = PaddingValues(bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + ListExtraBottomGap + 4.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 items(
@@ -380,7 +386,7 @@ fun LibraryAlbumsTab(
                                 }
                             }
                             val bottomPadding = if (hasCurrentSong)
-                                bottomBarHeight + MiniPlayerHeight + 16.dp
+                                bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + 16.dp
                             else
                                 bottomBarHeight + 16.dp
 
@@ -406,7 +412,7 @@ fun LibraryAlbumsTab(
                                     ),
                                 state = activeGridState,
                                 columns = GridCells.Fixed(2),
-                                contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap + 4.dp),
+                                contentPadding = PaddingValues(bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + ListExtraBottomGap + 4.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
@@ -451,7 +457,7 @@ fun LibraryAlbumsTab(
                             }
 
                             val bottomPadding = if (hasCurrentSong)
-                                bottomBarHeight + MiniPlayerHeight + 16.dp
+                                bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + 16.dp
                             else
                                 bottomBarHeight + 16.dp
 
@@ -490,6 +496,7 @@ fun LibraryArtistsTab(
     }.collectAsStateWithLifecycle(initialValue = false)
 
     val listState = rememberLazyListState()
+    NavigationReselectionEffect(com.theveloper.pixelplay.presentation.navigation.Screen.Library.route) { listState.animateScrollToItem(0) }
     val dummyListState = rememberLazyListState()
     val artistFastScrollLabelProvider = remember(artists, currentArtistSortOption) {
         { index: Int ->
@@ -567,7 +574,7 @@ fun LibraryArtistsTab(
                     )
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap)
+                contentPadding = PaddingValues(bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + ListExtraBottomGap)
             ) {
                 item(key = "skeleton_top_spacer") { Spacer(Modifier.height(4.dp)) }
                 items(10, key = { "skeleton_artist_$it" }) {
@@ -621,7 +628,7 @@ fun LibraryArtistsTab(
                                 ),
                             state = activeListState,
                             verticalArrangement = Arrangement.spacedBy(8.dp),
-                            contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap)
+                            contentPadding = PaddingValues(bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + ListExtraBottomGap)
                         ) {
                             items(
                                 count = artists.itemCount,
@@ -645,7 +652,7 @@ fun LibraryArtistsTab(
                         }
 
                         val bottomPadding = if (hasCurrentSong)
-                            bottomBarHeight + MiniPlayerHeight + 16.dp
+                            bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + 16.dp
                         else
                             bottomBarHeight + 16.dp
 

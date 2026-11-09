@@ -181,8 +181,12 @@
     <string name="settings_theme_follow_system">跟随系统</string>
     <string name="settings_smooth_corners_title">使用平滑圆角</string>
     <string name="settings_smooth_corners_subtitle">使用复杂的圆角形状以有效提升美观度，但可能会影响低端设备的性能</string>
-    <string name="settings_disable_blur_all_over_title">关闭模糊效果</string>
-    <string name="settings_disable_blur_all_over_subtitle">在应用中关闭模糊效果以节省电量和资源。</string>
+    <string name="settings_visual_effects_title">视觉效果</string>
+    <string name="settings_visual_effects_subtitle">控制全局层次感、渐变和模糊效果。省电模式会自动降低一档。</string>
+    <string name="settings_visual_effects_full">完整</string>
+    <string name="settings_visual_effects_balanced">均衡</string>
+    <string name="settings_visual_effects_minimal">精简</string>
+
     <string name="settings_show_scrollbar_title">显示滚动条</string>
     <string name="settings_show_scrollbar_subtitle">在音乐列表中显示侧边滚动条，便于快速滚动。</string>
     <string name="settings_now_playing_section">正在播放</string>
@@ -204,14 +208,6 @@
     <string name="settings_auto_rotate_patterns_title">自动轮换模式</string>
     <string name="settings_auto_rotate_patterns_subtitle">每次访问首页时循环切换拼图模式。</string>
     <string name="settings_navigation_bar_section">导航栏</string>
-    <string name="settings_navbar_style_title">导航栏样式</string>
-    <string name="settings_navbar_style_subtitle">选择导航栏的外观。</string>
-    <string name="settings_navbar_style_default">默认</string>
-    <string name="settings_navbar_style_full_width">全宽</string>
-    <string name="settings_compact_mode_title">紧凑模式</string>
-    <string name="settings_compact_mode_subtitle">仅显示图标并降低导航栏高度。</string>
-    <string name="settings_navbar_corner_title">导航栏圆角半径</string>
-    <string name="settings_navbar_corner_subtitle">调整导航栏的圆角半径。</string>
     <string name="settings_lyrics_screen_section">歌词界面</string>
     <string name="settings_immersive_lyrics_title">沉浸式歌词</string>
     <string name="settings_immersive_lyrics_subtitle">自动隐藏控件并放大文本。</string>
@@ -254,10 +250,6 @@
     <string name="settings_palette_style_accuracy_summary_precise">%1$d • 精确</string>
 
     <!-- NavBarCornerRadiusScreen -->
-    <string name="navbar_adjust_title">调整圆角半径</string>
-    <string name="navbar_adjust_subtitle">使导航栏形状的圆角与设备的物理圆角相匹配，以获得无缝的外观。</string>
-    <string name="navbar_corner_radius_label">圆角半径</string>
-    <string name="navbar_corner_dp_format">%1$d dp</string>
 
     <!-- Playback category -->
     <string name="settings_background_playback_section">后台播放</string>
@@ -646,4 +638,7 @@
     <string name="settings_volume_section">音量</string>
     <string name="settings_pause_on_volume_zero">音量为零时暂停</string>
     <string name="settings_pause_on_volume_zero_desc">当音量设置为 0 时自动暂停播放</string>
+    <string name="show_navigation_current_tab">显示导航，当前标签：%1$s</string>
+    <string name="settings_compact_scroll_title">滚动时收起</string>
+    <string name="settings_compact_scroll_subtitle">滚动时合并导航栏和播放器</string>
 </resources>

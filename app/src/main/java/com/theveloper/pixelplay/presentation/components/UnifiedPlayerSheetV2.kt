@@ -1,5 +1,7 @@
 package com.theveloper.pixelplay.presentation.components
 
+import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottomChrome
+
 import android.widget.Toast
 import com.theveloper.pixelplay.presentation.components.ExpressiveOfflineDialog
 import androidx.activity.compose.BackHandler
@@ -37,6 +39,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import com.theveloper.pixelplay.presentation.utils.interactiveRefreshRate
+import com.theveloper.pixelplay.ui.theme.pillSurface
+import com.theveloper.pixelplay.presentation.components.bottomchrome.continuousPillGradient
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
@@ -64,18 +69,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.theveloper.pixelplay.data.diagnostics.AdvancedPerformanceDiagnostics
 import com.theveloper.pixelplay.data.model.Song
-import com.theveloper.pixelplay.data.preferences.sanitizeNavBarCornerRadius
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerAlbumNavigationEffect
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerArtistNavigationEffect
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerSheetPredictiveBackHandler
 import com.theveloper.pixelplay.presentation.components.scoped.QueueSheetRuntimeEffects
 import com.theveloper.pixelplay.presentation.components.scoped.SheetMotionController
-import com.theveloper.pixelplay.presentation.components.scoped.miniPlayerDismissHorizontalGesture
 import com.theveloper.pixelplay.presentation.components.scoped.playerSheetVerticalDragGesture
 import com.theveloper.pixelplay.presentation.components.scoped.rememberFullPlayerCompositionPolicy
 import com.theveloper.pixelplay.presentation.components.scoped.rememberCastSheetState
 import com.theveloper.pixelplay.presentation.components.scoped.rememberFullPlayerVisualState
-import com.theveloper.pixelplay.presentation.components.scoped.rememberMiniPlayerDismissGestureHandler
 import com.theveloper.pixelplay.presentation.components.scoped.rememberPrewarmFullPlayer
 import com.theveloper.pixelplay.presentation.components.scoped.rememberQueueSheetState
 import com.theveloper.pixelplay.presentation.components.scoped.rememberSheetActionHandlers
@@ -211,8 +213,7 @@ fun UnifiedPlayerSheetV2(
     val prewarmFullPlayer = rememberPrewarmFullPlayer(infrequentPlayerState.currentSong?.id)
 
     val playerConfig by playerViewModel.playerConfigSlice.collectAsStateWithLifecycle()
-    val navBarCornerRadius = sanitizeNavBarCornerRadius(playerConfig.navBarCornerRadius)
-    val navBarStyle = playerConfig.navBarStyle
+    val bottomChrome = LocalBottomChrome.current
     val carouselStyle = playerConfig.carouselStyle
     val fullPlayerLoadingTweaks = playerConfig.fullPlayerLoadingTweaks
     val tapBackgroundClosesPlayer = playerConfig.tapBackgroundClosesPlayer
@@ -223,22 +224,13 @@ fun UnifiedPlayerSheetV2(
     val configuration = LocalConfiguration.current
     val scope = rememberCoroutineScope()
 
-    val offsetAnimatable = remember { Animatable(0f) }
     val screenWidthPx = remember(configuration, density) {
         with(density) { configuration.screenWidthDp.dp.toPx() }
     }
-    val dismissThresholdPx = remember(screenWidthPx) { screenWidthPx * 0.4f }
-    val swipeDismissProgress by remember(dismissThresholdPx) {
-        derivedStateOf {
-            if (dismissThresholdPx == 0f) 0f
-            else (abs(offsetAnimatable.value) / dismissThresholdPx).coerceIn(0f, 1f)
-        }
-    }
-
     val screenHeightPx = remember(configuration, density) {
         with(density) { configuration.screenHeightDp.dp.toPx() }
     }
-    val miniPlayerContentHeightPx = remember { with(density) { MiniPlayerHeight.toPx() } }
+    val miniPlayerContentHeightPx = with(density) { bottomChrome.miniPlayerRestingHeight.toPx() }
 
     val isCastConnecting by playerViewModel.isCastConnecting.collectAsStateWithLifecycle()
     val showPlayerContentArea by remember(infrequentPlayerState.currentSong, isCastConnecting) {
@@ -380,21 +372,17 @@ fun UnifiedPlayerSheetV2(
     }
 
     val sheetVisualState = rememberSheetVisualState(
+        miniPlayerRestingHeight = bottomChrome.miniPlayerRestingHeight,
         showPlayerContentArea = showPlayerContentArea,
         collapsedStateHorizontalPadding = collapsedStateHorizontalPadding,
         predictiveBackCollapseProgress = predictiveBackCollapseProgress,
-        predictiveBackSwipeEdge = predictiveBackSwipeEdge,
-        currentSheetContentState = currentSheetContentState,
         playerContentExpansionFraction = playerContentExpansionFraction,
         containerHeight = containerHeight,
         currentSheetTranslationY = currentSheetTranslationY,
         sheetCollapsedTargetY = sheetCollapsedTargetY,
-        navBarStyle = navBarStyle,
-        navBarCornerRadiusDp = navBarCornerRadius.dp,
+        mergeFractionProvider = bottomChrome.mergeFractionProvider,
+        navigationRowHeight = bottomChrome.navBarOccupiedHeight - bottomChrome.systemNavBarInset - 8.dp,
         isNavBarHidden = isNavBarHidden,
-        isPlaying = infrequentPlayerState.isPlaying,
-        hasCurrentSong = infrequentPlayerState.currentSong != null,
-        swipeDismissProgress = swipeDismissProgress
     )
     val currentBottomPadding = sheetVisualState.currentBottomPadding
     val baseBottomPadding = sheetVisualState.baseBottomPadding
@@ -457,15 +445,6 @@ fun UnifiedPlayerSheetV2(
     )
 
     val hapticFeedback = LocalHapticFeedback.current
-    val miniDismissGestureHandler = rememberMiniPlayerDismissGestureHandler(
-        scope = scope,
-        density = density,
-        hapticFeedback = hapticFeedback,
-        offsetAnimatable = offsetAnimatable,
-        screenWidthPx = screenWidthPx,
-        onDismissPlaylistAndShowUndo = { playerViewModel.dismissPlaylistAndShowUndo() },
-        onDismissStarted = { playerViewModel.setMiniPlayerDismissing(true) }
-    )
 
     QueueSheetRuntimeEffects(
         queueSheetController = queueSheetController,
@@ -594,6 +573,7 @@ fun UnifiedPlayerSheetV2(
             }
         },
         onExpandSheetState = { playerViewModel.expandPlayerSheet() },
+        onDismissPlaylist = { playerViewModel.dismissPlaylistAndShowUndo() },
         onCollapseSheetState = { playerViewModel.collapsePlayerSheet() },
         onDraggingChange = sheetBackAndDragState.onDraggingChange,
         onDraggingPlayerAreaChange = sheetBackAndDragState.onDraggingPlayerAreaChange
@@ -638,10 +618,10 @@ fun UnifiedPlayerSheetV2(
                         modifier = Modifier
                             .fillMaxWidth()
                             .graphicsLayer {
-                                translationX = offsetAnimatable.value
+                                translationX = 0f
                                 scaleX = miniAppearScale
                                 scaleY = visualOvershootScaleY.value * miniAppearScale
-                                alpha = miniReadyAlpha
+                                alpha = miniReadyAlpha * (1f - ((currentSheetTranslationY.value - sheetCollapsedTargetY) / (miniPlayerContentHeightPx * 2f)).coerceIn(0f, 1f))
                                 transformOrigin = TransformOrigin(0.5f, 1f)
                             }
                             // outerLayout:
@@ -675,16 +655,12 @@ fun UnifiedPlayerSheetV2(
                             // structurally stable avoids the costly relayout/redraw
                             // restructure when the elevation crosses 0.dp during
                             // expand/collapse or right after play/pause.
-                            .shadow(
-                                elevation = visualCardShadowElevation,
-                                shape = sheetInteractionState.playerShadowShape,
-                                clip = false
-                            )
-                            .background(
-                                color = playerAreaBackground,
-                                shape = sheetInteractionState.playerShadowShape
-                            )
+                            .pillSurface(sheetInteractionState.playerShadowShape, albumColorScheme.primary)
                             .clip(sheetInteractionState.playerShadowShape)
+                            .continuousPillGradient { bottomChrome.mergeFractionProvider() * (1f - playerContentExpansionFraction.value) }
+                            .drawBehind {
+                                drawRect(playerAreaBackground, alpha = playerContentExpansionFraction.value.coerceIn(0f, 1f))
+                            }
                             // innerLayout:
                             // Measures the actual player content with full screen height targetContentHeightPx
                             // so that it can render correctly, while reporting targetHeightPx to the outer
@@ -706,10 +682,6 @@ fun UnifiedPlayerSheetV2(
                                     placeable.placeRelative(-startPaddingPx, 0)
                                 }
                             }
-                            .miniPlayerDismissHorizontalGesture(
-                                enabled = currentSheetContentState == PlayerSheetState.COLLAPSED,
-                                handler = miniDismissGestureHandler
-                            )
                             .playerSheetVerticalDragGesture(
                                 enabled = sheetInteractionState.canDragSheet,
                                 handler = sheetInteractionState.sheetVerticalDragGestureHandler

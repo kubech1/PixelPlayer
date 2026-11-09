@@ -51,7 +51,6 @@ import com.theveloper.pixelplay.data.model.toLibraryTabIdOrNull
 import com.theveloper.pixelplay.data.provider.SharedArtworkContentProvider
 import com.theveloper.pixelplay.data.preferences.CarouselStyle
 import com.theveloper.pixelplay.data.preferences.LibraryNavigationMode
-import com.theveloper.pixelplay.data.preferences.NavBarStyle
 import com.theveloper.pixelplay.data.preferences.FullPlayerLoadingTweaks
 import com.theveloper.pixelplay.data.preferences.AlbumArtPaletteStyle
 import com.theveloper.pixelplay.data.preferences.ThemePreferencesRepository
@@ -443,21 +442,9 @@ class PlayerViewModel @Inject constructor(
             initialValue = ThemePreference.ALBUM_ART
         )
 
-    val navBarCornerRadius: StateFlow<Int> = userPreferencesRepository.navBarCornerRadiusFlow.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 32)
+    val navCompactOnScroll = userPreferencesRepository.navCompactOnScrollFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
-    val navBarStyle: StateFlow<String> = userPreferencesRepository.navBarStyleFlow
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Eagerly,
-            initialValue = NavBarStyle.DEFAULT
-        )
-
-    val navBarCompactMode: StateFlow<Boolean> = userPreferencesRepository.navBarCompactModeFlow
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = false
-        )
 
     val libraryNavigationMode: StateFlow<String> = userPreferencesRepository.libraryNavigationModeFlow
         .stateIn(
@@ -554,12 +541,13 @@ class PlayerViewModel @Inject constructor(
             initialValue = true
         )
 
-    val disableBlurAllOver: StateFlow<Boolean> = userPreferencesRepository.disableBlurAllOverFlow
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = false
-        )
+    val visualEffectsLevel: StateFlow<com.theveloper.pixelplay.data.preferences.VisualEffectsLevel> =
+        userPreferencesRepository.visualEffectsLevelFlow
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = com.theveloper.pixelplay.data.preferences.VisualEffectsLevel.DEFAULT
+            )
 
 
 
@@ -1250,8 +1238,6 @@ class PlayerViewModel @Inject constructor(
     // sheet recomposition when any preference changed.
     // ---------------------------------------------------------------------------
     data class PlayerConfigSlice(
-        val navBarCornerRadius: Int = 32,
-        val navBarStyle: String = NavBarStyle.DEFAULT,
         val carouselStyle: String = CarouselStyle.NO_PEEK,
         val fullPlayerLoadingTweaks: FullPlayerLoadingTweaks = FullPlayerLoadingTweaks(),
         val tapBackgroundClosesPlayer: Boolean = false,
@@ -1260,18 +1246,14 @@ class PlayerViewModel @Inject constructor(
     )
 
     private val playerConfigSlicePart1 = combine(
-        navBarCornerRadius,
-        navBarStyle,
         carouselStyle,
         fullPlayerLoadingTweaks,
         tapBackgroundClosesPlayer
-    ) { radius, style, carousel, tweaks, tapClose ->
-        PlayerConfigSlicePart1(radius, style, carousel, tweaks, tapClose)
+    ) { carousel, tweaks, tapClose ->
+        PlayerConfigSlicePart1(carousel, tweaks, tapClose)
     }
 
     private data class PlayerConfigSlicePart1(
-        val navBarCornerRadius: Int,
-        val navBarStyle: String,
         val carouselStyle: String,
         val fullPlayerLoadingTweaks: FullPlayerLoadingTweaks,
         val tapBackgroundClosesPlayer: Boolean
@@ -1283,8 +1265,6 @@ class PlayerViewModel @Inject constructor(
         playerThemePreference
     ) { p1, smoothCorners, themePref ->
         PlayerConfigSlice(
-            navBarCornerRadius = p1.navBarCornerRadius,
-            navBarStyle = p1.navBarStyle,
             carouselStyle = p1.carouselStyle,
             fullPlayerLoadingTweaks = p1.fullPlayerLoadingTweaks,
             tapBackgroundClosesPlayer = p1.tapBackgroundClosesPlayer,

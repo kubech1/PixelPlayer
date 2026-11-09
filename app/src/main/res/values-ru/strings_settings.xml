@@ -181,8 +181,12 @@
     <string name="settings_theme_follow_system">Как в системе</string>
     <string name="settings_smooth_corners_title">Плавные скругления</string>
     <string name="settings_smooth_corners_subtitle">Использует сложные формы углов для более красивого интерфейса, но может снизить производительность на слабых устройствах.</string>
-    <string name="settings_disable_blur_all_over_title">Отключить эффекты размытия</string>
-    <string name="settings_disable_blur_all_over_subtitle">Отключить эффекты размытия во всем приложении для экономии заряда батареи и ресурсов.</string>
+    <string name="settings_visual_effects_title">Визуальные эффекты</string>
+    <string name="settings_visual_effects_subtitle">Управление глубиной, градиентами и размытием. Режим энергосбережения автоматически снижает уровень на ступень.</string>
+    <string name="settings_visual_effects_full">Полные</string>
+    <string name="settings_visual_effects_balanced">Сбалансированные</string>
+    <string name="settings_visual_effects_minimal">Минимальные</string>
+
     <string name="settings_show_scrollbar_title">Показывать полосу прокрутки</string>
     <string name="settings_show_scrollbar_subtitle">Отображать боковую полосу прокрутки в списках музыки для быстрого прокручивания</string>
     <string name="settings_now_playing_section">Сейчас играет</string>
@@ -204,14 +208,6 @@
     <string name="settings_auto_rotate_patterns_title">Автосмена шаблонов</string>
     <string name="settings_auto_rotate_patterns_subtitle">Менять шаблон коллажа при каждом открытии главной страницы.</string>
     <string name="settings_navigation_bar_section">Панель навигации</string>
-    <string name="settings_navbar_style_title">Стиль панели навигации</string>
-    <string name="settings_navbar_style_subtitle">Выберите внешний вид панели навигации.</string>
-    <string name="settings_navbar_style_default">По умолчанию</string>
-    <string name="settings_navbar_style_full_width">На всю ширину</string>
-    <string name="settings_compact_mode_title">Компактный режим</string>
-    <string name="settings_compact_mode_subtitle">Показывать только значки и уменьшить высоту панели навигации.</string>
-    <string name="settings_navbar_corner_title">Скругление панели навигации</string>
-    <string name="settings_navbar_corner_subtitle">Настройте радиус скругления углов панели навигации.</string>
     <string name="settings_lyrics_screen_section">Экран текстов песен</string>
     <string name="settings_immersive_lyrics_title">Иммерсивный режим</string>
     <string name="settings_immersive_lyrics_subtitle">Автоматически скрывать элементы управления и увеличивать текст.</string>
@@ -254,10 +250,6 @@
     <string name="settings_palette_style_accuracy_summary_precise">%1$d • Точная</string>
 
     <!-- NavBarCornerRadiusScreen -->
-    <string name="navbar_adjust_title">Настройка скругления</string>
-    <string name="navbar_adjust_subtitle">Подберите радиус скругления панели навигации под физические углы устройства для более цельного внешнего вида.</string>
-    <string name="navbar_corner_radius_label">Радиус скругления</string>
-    <string name="navbar_corner_dp_format">%1$d dp</string>
 
     <!-- Playback category -->
     <string name="settings_background_playback_section">Фоновое воспроизведение</string>
@@ -646,4 +638,7 @@
     <string name="settings_volume_section">Громкость</string>
     <string name="settings_pause_on_volume_zero">Пауза при нулевой громкости</string>
     <string name="settings_pause_on_volume_zero_desc">Автоматически приостанавливать воспроизведение, когда громкость равна 0</string>
+    <string name="show_navigation_current_tab">Показать навигацию, текущая вкладка: %1$s</string>
+    <string name="settings_compact_scroll_title">Сжимать при прокрутке</string>
+    <string name="settings_compact_scroll_subtitle">Объединять навигацию и плеер при прокрутке</string>
 </resources>

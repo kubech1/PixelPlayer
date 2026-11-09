@@ -34,7 +34,13 @@ import kotlinx.serialization.json.Json
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
     name = "settings",
-    produceMigrations = { listOf(RetiredAiPreferencesMigration()) }
+    produceMigrations = {
+        listOf(
+            RetiredAiPreferencesMigration(),
+            VisualEffectsPreferencesMigration(),
+            RetiredNavigationPreferencesMigration()
+        )
+    }
 )
 
 object ThemePreference {
@@ -49,12 +55,6 @@ object AppThemeMode {
     const val LIGHT = "light"
     const val DARK = "dark"
 }
-
-const val MIN_NAV_BAR_CORNER_RADIUS = 0
-const val MAX_NAV_BAR_CORNER_RADIUS = 60
-
-internal fun sanitizeNavBarCornerRadius(radius: Int): Int =
-    radius.coerceIn(MIN_NAV_BAR_CORNER_RADIUS, MAX_NAV_BAR_CORNER_RADIUS)
 
 /**
  * Album art quality settings for developer options.
@@ -120,9 +120,6 @@ class UserPreferencesRepository @Inject constructor(
         val LAST_DAILY_MIX_UPDATE = longPreferencesKey("last_daily_mix_update")
         val DAILY_MIX_SONG_IDS = stringPreferencesKey("daily_mix_song_ids")
         val YOUR_MIX_SONG_IDS = stringPreferencesKey("your_mix_song_ids")
-        val NAV_BAR_CORNER_RADIUS = intPreferencesKey("nav_bar_corner_radius")
-        val NAV_BAR_STYLE = stringPreferencesKey("nav_bar_style")
-        val NAV_BAR_COMPACT_MODE = booleanPreferencesKey("nav_bar_compact_mode")
         val CAROUSEL_STYLE = stringPreferencesKey("carousel_style")
         val LIBRARY_NAVIGATION_MODE = stringPreferencesKey("library_navigation_mode")
         val LAUNCH_TAB = stringPreferencesKey("launch_tab")
@@ -225,7 +222,7 @@ class UserPreferencesRepository @Inject constructor(
         val USE_ANIMATED_LYRICS = booleanPreferencesKey("use_animated_lyrics")
         val ANIMATED_LYRICS_BLUR_ENABLED = booleanPreferencesKey("animated_lyrics_blur_enabled")
         val ANIMATED_LYRICS_BLUR_STRENGTH = androidx.datastore.preferences.core.floatPreferencesKey("animated_lyrics_blur_strength")
-        val DISABLE_BLUR_ALL_OVER = booleanPreferencesKey("disable_blur_all_over")
+        val VISUAL_EFFECTS_LEVEL = stringPreferencesKey("visual_effects_level")
         // View preferences
         val IS_GENRE_GRID_VIEW = booleanPreferencesKey("is_genre_grid_view")
         val IS_ALBUMS_LIST_VIEW = booleanPreferencesKey("is_albums_list_view")
@@ -921,26 +918,12 @@ suspend fun markDirectoryRulesVersionApplied(version: Int) {
 
     // ─── Navigation bar ───────────────────────────────────────────────────────
 
-    val navBarCornerRadiusFlow: Flow<Int> =
-        pref { sanitizeNavBarCornerRadius(it[PreferencesKeys.NAV_BAR_CORNER_RADIUS] ?: 32) }
+    val navCompactOnScrollFlow: Flow<Boolean> = pref { it[booleanPreferencesKey("nav_compact_on_scroll")] ?: true }
 
-    suspend fun setNavBarCornerRadius(radius: Int) {
-        dataStore.edit { it[PreferencesKeys.NAV_BAR_CORNER_RADIUS] = sanitizeNavBarCornerRadius(radius) }
+    suspend fun setNavCompactOnScroll(enabled: Boolean) {
+        dataStore.edit { it[booleanPreferencesKey("nav_compact_on_scroll")] = enabled }
     }
 
-    val navBarStyleFlow: Flow<String> =
-        pref { it[PreferencesKeys.NAV_BAR_STYLE] ?: NavBarStyle.DEFAULT }
-
-    suspend fun setNavBarStyle(style: String) {
-        dataStore.edit { it[PreferencesKeys.NAV_BAR_STYLE] = style }
-    }
-
-    val navBarCompactModeFlow: Flow<Boolean> =
-        pref { it[PreferencesKeys.NAV_BAR_COMPACT_MODE] ?: false }
-
-    suspend fun setNavBarCompactMode(enabled: Boolean) {
-        dataStore.edit { it[PreferencesKeys.NAV_BAR_COMPACT_MODE] = enabled }
-    }
 
     val libraryNavigationModeFlow: Flow<String> =
         pref { it[PreferencesKeys.LIBRARY_NAVIGATION_MODE] ?: LibraryNavigationMode.TAB_ROW }
@@ -1120,14 +1103,12 @@ suspend fun markDirectoryRulesVersionApplied(version: Int) {
         }
     }
 
-    val disableBlurAllOverFlow: Flow<Boolean> = dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.DISABLE_BLUR_ALL_OVER] ?: false
-        }
+    val visualEffectsLevelFlow: Flow<VisualEffectsLevel> =
+        pref { VisualEffectsLevel.fromStorageKey(it[PreferencesKeys.VISUAL_EFFECTS_LEVEL]) }
 
-    suspend fun setDisableBlurAllOver(disabled: Boolean) {
+    suspend fun setVisualEffectsLevel(level: VisualEffectsLevel) {
         dataStore.edit { preferences ->
-            preferences[PreferencesKeys.DISABLE_BLUR_ALL_OVER] = disabled
+            preferences[PreferencesKeys.VISUAL_EFFECTS_LEVEL] = level.storageKey
         }
     }
 

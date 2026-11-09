@@ -1,46 +1,37 @@
 package com.theveloper.pixelplay.presentation.components
 
-import com.theveloper.pixelplay.presentation.navigation.navigateToTopLevelSafely
-
+import com.theveloper.pixelplay.presentation.components.bottomchrome.continuousPillGradient
 import android.os.SystemClock
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.*
+import androidx.compose.ui.unit.*
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import com.theveloper.pixelplay.BottomNavItem
-import com.theveloper.pixelplay.data.preferences.NavBarStyle
-import com.theveloper.pixelplay.presentation.components.scoped.CustomNavigationBarItem
+import com.theveloper.pixelplay.R
+import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottomChromeState
 import com.theveloper.pixelplay.presentation.navigation.Screen
+import com.theveloper.pixelplay.presentation.navigation.navigateToTopLevelSafely
+import com.theveloper.pixelplay.ui.theme.*
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-internal val NavBarContentHeight = 90.dp // Altura del contenido de la barra de navegación
-internal val NavBarCompactContentHeight = 64.dp
-internal val NavBarContentHeightFullWidth = NavBarContentHeight // Altura del contenido de la barra de navegación en modo completo
-private val MainScreenBottomGradientExtraHeight = MiniPlayerHeight + MiniPlayerBottomSpacer + 8.dp
 // Some OEM freeform/floating-window modes can report a bottom inset close to the whole window height.
 internal val MaxNavigationBarBottomInset = 96.dp
 
@@ -65,191 +56,122 @@ internal fun calculatePlayerSheetCollapsedTargetY(
         .coerceIn(0f, maxTargetY)
 }
 
-internal fun resolveNavBarContentHeight(compactMode: Boolean): Dp =
-    if (compactMode) NavBarCompactContentHeight else NavBarContentHeight
-
-internal fun resolveMainScreenBottomGradientHeight(compactMode: Boolean): Dp =
-    resolveNavBarContentHeight(compactMode) + MainScreenBottomGradientExtraHeight
-
-internal fun resolveNavBarSurfaceHeight(
-    navBarStyle: String,
-    systemNavBarInset: Dp,
-    compactMode: Boolean
-): Dp {
-    val contentHeight = resolveNavBarContentHeight(compactMode)
-    return if (navBarStyle == NavBarStyle.FULL_WIDTH) {
-        contentHeight + systemNavBarInset
-    } else {
-        contentHeight
-    }
-}
-
-internal fun resolveNavBarOccupiedHeight(
-    systemNavBarInset: Dp,
-    compactMode: Boolean
-): Dp = resolveNavBarContentHeight(compactMode) + systemNavBarInset
-
-@Composable
-private fun PlayerInternalNavigationItemsRow(
-    navController: NavHostController,
-    navItems: ImmutableList<BottomNavItem>,
-    currentRoute: String?,
-    modifier: Modifier = Modifier,
-    navBarStyle: String,
-    compactMode: Boolean,
-    bottomBarPadding: Dp,
-    onSearchIconDoubleTap: () -> Unit
-) {
-    val navBarInsetPadding = sanitizeNavigationBarBottomInset(
-        WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    )
-    // Maintain invariant: bottomBarPadding + innerRowPadding = the sanitized system nav bar inset.
-    // This prevents nav items from appearing behind the gesture bar during style transitions,
-    // e.g. FULL_WIDTH→DEFAULT where bottomBarPadding starts at 0 and animates to systemNavBarInset.
-    val innerRowPadding = (navBarInsetPadding - bottomBarPadding).coerceAtLeast(0.dp)
-    val latestCurrentRoute by rememberUpdatedState(currentRoute)
-    val latestOnSearchIconDoubleTap by rememberUpdatedState(onSearchIconDoubleTap)
-    val latestNavigationEnabled by rememberUpdatedState(currentRoute != null)
-    val hapticFeedback = LocalHapticFeedback.current
-    val latestHapticFeedback by rememberUpdatedState(hapticFeedback)
-
-    val rowModifier = if (navBarStyle == NavBarStyle.FULL_WIDTH) {
-        modifier
-            .fillMaxWidth()
-            .padding(top = 0.dp, bottom = innerRowPadding, start = 12.dp, end = 12.dp)
-    } else {
-        modifier
-            .padding(start = 10.dp, end = 10.dp, bottom = innerRowPadding)
-            .fillMaxWidth()
-    }
-    Row(
-        modifier = rowModifier,
-        horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        val scope = rememberCoroutineScope()
-        var lastSearchTapTimestamp by remember { mutableStateOf(0L) }
-        navItems.forEach { item ->
-            val isSelected = currentRoute != null && currentRoute == item.screen.route
-            val selectedColor = MaterialTheme.colorScheme.primary
-            val unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
-            val indicatorColorFromTheme = MaterialTheme.colorScheme.secondaryContainer
-
-            val iconPainterResId = if (isSelected && item.selectedIconResId != null && item.selectedIconResId != 0) {
-                item.selectedIconResId
-            } else {
-                item.iconResId
-            }
-            val localizedLabel = stringResource(id = item.labelResId)
-            val iconLambda: @Composable () -> Unit = remember(iconPainterResId, localizedLabel) {
-                {
-                    Icon(
-                        painter = painterResource(id = iconPainterResId),
-                        contentDescription = localizedLabel
-                    )
-                }
-            }
-            val selectedIconLambda: @Composable () -> Unit = remember(iconPainterResId, localizedLabel) {
-                {
-                    Icon(
-                        painter = painterResource(id = iconPainterResId),
-                        contentDescription = localizedLabel
-                    )
-                }
-            }
-            val labelLambda: (@Composable () -> Unit)? = if (compactMode) {
-                null
-            } else {
-                remember(localizedLabel) {
-                    { Text(localizedLabel) }
-                }
-            }
-            val onClickLambda: () -> Unit = remember(item.screen.route, navController, scope) {
-                click@{
-                    if (!latestNavigationEnabled) {
-                        lastSearchTapTimestamp = 0L
-                        return@click
-                    }
-
-                    val itemRoute = item.screen.route
-                    val isSearchTab = itemRoute == Screen.Search.route
-                    val isAlreadySelected = latestCurrentRoute == itemRoute
-
-                    if (isSearchTab) {
-                        val now = SystemClock.elapsedRealtime()
-                        val isDoubleTap = now - lastSearchTapTimestamp <= 350L
-                        lastSearchTapTimestamp = now
-
-                        if (!isAlreadySelected) {
-                            if (!navController.navigateToTopLevelSafely(itemRoute)) {
-                                lastSearchTapTimestamp = 0L
-                                return@click
-                            }
-                            latestHapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentTick)
-                        }
-
-                        if (isDoubleTap) {
-                            lastSearchTapTimestamp = 0L
-                            latestHapticFeedback.performHapticFeedback(HapticFeedbackType.Confirm)
-                            if (isAlreadySelected) {
-                                latestOnSearchIconDoubleTap()
-                            } else {
-                                scope.launch {
-                                    delay(160L)
-                                    latestOnSearchIconDoubleTap()
-                                }
-                            }
-                        }
-                    } else if (!isAlreadySelected) {
-                        lastSearchTapTimestamp = 0L
-                        if (navController.navigateToTopLevelSafely(itemRoute)) {
-                            latestHapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentTick)
-                        }
-                    } else {
-                        lastSearchTapTimestamp = 0L
-                    }
-                }
-            }
-            CustomNavigationBarItem(
-                modifier = Modifier.weight(1f),
-                selected = isSelected,
-                onClick = onClickLambda,
-                enabled = currentRoute != null,
-                compactMode = compactMode,
-                icon = iconLambda,
-                selectedIcon = selectedIconLambda,
-                label = labelLambda,
-                contentDescription = localizedLabel,
-                alwaysShowLabel = true,
-                selectedIconColor = selectedColor,
-                unselectedIconColor = unselectedColor,
-                selectedTextColor = selectedColor,
-                unselectedTextColor = unselectedColor,
-                indicatorColor = indicatorColorFromTheme
-            )
-        }
-    }
-}
-
 @Composable
 fun PlayerInternalNavigationBar(
     navController: NavHostController,
     navItems: ImmutableList<BottomNavItem>,
     currentRoute: String?,
     modifier: Modifier = Modifier,
-    navBarStyle: String,
-    compactMode: Boolean,
-    bottomBarPadding: Dp = 0.dp,
-    onSearchIconDoubleTap: () -> Unit = {}
+    hasSong: Boolean,
+    mergeFractionProvider: () -> Float,
+    onSearchIconDoubleTap: () -> Unit = {},
+    albumTint: androidx.compose.ui.graphics.Color? = null
 ) {
-    PlayerInternalNavigationItemsRow(
-        navController = navController,
-        navItems = navItems,
-        currentRoute = currentRoute,
-        navBarStyle = navBarStyle,
-        compactMode = compactMode,
-        bottomBarPadding = bottomBarPadding,
-        onSearchIconDoubleTap = onSearchIconDoubleTap,
-        modifier = modifier
-    )
+    val haptics = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val chrome = LocalBottomChromeState.current
+    val scope = rememberCoroutineScope()
+    val searchDoubleTap by rememberUpdatedState(onSearchIconDoubleTap)
+    val animations = LocalMotionPreferences.current.animationsEnabled
+    val selectedIndex = navItems.indexOfFirst { it.screen.route == currentRoute }.coerceAtLeast(0)
+    val left = remember { Animatable(selectedIndex.toFloat()) }
+    val right = remember { Animatable(selectedIndex + 1f) }
+    LaunchedEffect(selectedIndex, animations) {
+        val forward = selectedIndex >= left.value
+        launch { left.animateTo(selectedIndex.toFloat(), if (animations) spring(0.75f, if (forward) 400f else 800f) else snap()) }
+        launch { right.animateTo(selectedIndex + 1f, if (animations) spring(0.75f, if (forward) 800f else 400f) else snap()) }
+    }
+    var lastSearchTap by remember { mutableLongStateOf(0L) }
+    val fused by remember(hasSong, mergeFractionProvider) { derivedStateOf { hasSong && mergeFractionProvider() >= 0.7f } }
+    val activeLabel = stringResource(navItems[selectedIndex].labelResId)
+    val showNavigationLabel = stringResource(R.string.show_navigation_current_tab, activeLabel)
+    val scheme = MaterialTheme.colorScheme
+    val pillColors = resolvePillSurfaceColors(scheme, LocalPixelPlayDarkTheme.current, albumTint,
+        com.theveloper.pixelplay.presentation.utils.LocalVisualEffects.current.effectiveLevel)
+    Layout(
+        modifier = modifier.layout { measurable, constraints ->
+            val f = mergeFractionProvider().coerceIn(0f, 1f)
+            val width = androidx.compose.ui.util.lerp(constraints.maxWidth, (if (hasSong) 56.dp else 184.dp).roundToPx().coerceAtMost(constraints.maxWidth), f)
+            val height = androidx.compose.ui.util.lerp(constraints.maxHeight, (if (hasSong) 56.dp else 52.dp).roundToPx(), f)
+            val child = measurable.measure(Constraints.fixed(width, height))
+            layout(constraints.maxWidth, constraints.maxHeight) {
+                child.placeRelative(if (hasSong) 0 else (constraints.maxWidth - width) / 2, constraints.maxHeight - height)
+            }
+        }.pillSurface(CircleShape, albumTint).clip(CircleShape).continuousPillGradient(mergeFractionProvider)
+            .then(if (fused) Modifier.clearAndSetSemantics {
+                contentDescription = showNavigationLabel
+                role = Role.Button
+                onClick { chrome?.reset(); true }
+            }.clickable { chrome?.reset() } else Modifier.selectableGroup()),
+        content = {
+            Box(Modifier.graphicsLayer {
+                alpha = if (hasSong) 1f - mergeFractionProvider().coerceIn(0f, 1f) else 1f
+            }.background(scheme.secondaryContainer, CircleShape))
+            navItems.forEachIndexed { index, item ->
+                val selected = index == selectedIndex
+                val label = stringResource(item.labelResId)
+                Column(
+                    Modifier.graphicsLayer {
+                        val f = mergeFractionProvider()
+                        alpha = if (hasSong && !selected) (1f - (f - 0.2f) / 0.5f).coerceIn(0f, 1f) else 1f
+                        scaleX = 0.8f + 0.2f * alpha
+                        scaleY = scaleX
+                    }.clickable(enabled = !fused && currentRoute != null, role = Role.Tab) click@{
+                        val now = SystemClock.elapsedRealtime()
+                        if (selected) chrome?.reselect(item.screen.route)
+                        else {
+                            if (!navController.navigateToTopLevelSafely(item.screen.route)) {
+                                lastSearchTap = 0L
+                                return@click
+                            }
+                            haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.SegmentTick)
+                        }
+                        if (item.screen.route == Screen.Search.route) {
+                            if (lastSearchTap > 0 && now - lastSearchTap <= 350) {
+                                haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.Confirm)
+                                lastSearchTap = 0L
+                                if (selected) searchDoubleTap() else scope.launch {
+                                    delay(160L)
+                                    searchDoubleTap()
+                                }
+                            } else lastSearchTap = now
+                        } else lastSearchTap = 0
+                    }.semantics { this.selected = selected; contentDescription = label },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(painterResource(if (selected && item.selectedIconResId != null && item.selectedIconResId != 0) item.selectedIconResId else item.iconResId), null,
+                        tint = when {
+                            selected && fused -> pillColors.contentIconColor
+                            selected -> pillColors.selectedContentColor
+                            else -> pillColors.contentIconColor
+                        },
+                        modifier = Modifier.size(24.dp))
+                    Text(label, fontSize = 12.sp, fontWeight = FontWeight.Medium, maxLines = 1,
+                        color = if (selected) pillColors.selectedContentColor else pillColors.contentLabelColor,
+                        modifier = Modifier.layout { measurable, constraints ->
+                            val child = measurable.measure(constraints.copy(minHeight = 0))
+                            val visibility = (1f - mergeFractionProvider() / 0.4f).coerceIn(0f, 1f)
+                            layout(child.width, (child.height * visibility).toInt()) { child.placeRelativeWithLayer(0, 0) { alpha = visibility; scaleY = visibility } }
+                        })
+                }
+            }
+        }
+    ) { measurables, constraints ->
+        val f = mergeFractionProvider().coerceIn(0f, 1f)
+        val width = constraints.maxWidth
+        val height = constraints.maxHeight
+        val itemWidth = width / navItems.size
+        val leftPx = (left.value * itemWidth + 4.dp.toPx()).toInt()
+        val rightPx = (right.value * itemWidth - 4.dp.toPx()).toInt()
+        val restingIndicatorWidth = (rightPx - leftPx).coerceAtLeast(0)
+        val compactIndicatorWidth = if (hasSong) width else 48.dp.roundToPx().coerceAtMost(itemWidth)
+        val indicatorWidth = androidx.compose.ui.util.lerp(restingIndicatorWidth, compactIndicatorWidth, f)
+        val indicator = measurables[0].measure(Constraints.fixed(indicatorWidth, (height - 12.dp.roundToPx()).coerceAtLeast(0)))
+        val items = measurables.drop(1).map { it.measure(Constraints.fixed(if (hasSong) androidx.compose.ui.util.lerp(itemWidth, width, f) else itemWidth, height)) }
+        layout(width, height) {
+            val compactIndicatorStart = if (hasSong) 0 else selectedIndex * itemWidth + (itemWidth - compactIndicatorWidth) / 2
+            indicator.placeRelative(androidx.compose.ui.util.lerp(leftPx, compactIndicatorStart, f), 6.dp.roundToPx())
+            items.forEachIndexed { index, child -> child.placeRelative(if (hasSong) (index * itemWidth * (1f-f)).toInt() else index * itemWidth, 0) }
+        }
+    }
 }

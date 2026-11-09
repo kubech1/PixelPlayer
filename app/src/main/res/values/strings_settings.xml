@@ -181,8 +181,12 @@
     <string name="settings_theme_follow_system">Follow System</string>
     <string name="settings_smooth_corners_title">Use Smooth Corners</string>
     <string name="settings_smooth_corners_subtitle">Use complex shaped corners effectively improving aesthetics but may affect performance on low-end devices</string>
-    <string name="settings_disable_blur_all_over_title">Disable Blur Effects</string>
-    <string name="settings_disable_blur_all_over_subtitle">Turn off blur effects across the app to save battery and resources.</string>
+    <string name="settings_visual_effects_title">Visual Effects</string>
+    <string name="settings_visual_effects_subtitle">Control depth, gradients, and blur effects across the app. Battery Saver automatically steps down one level.</string>
+    <string name="settings_visual_effects_full">Full</string>
+    <string name="settings_visual_effects_balanced">Balanced</string>
+    <string name="settings_visual_effects_minimal">Minimal</string>
+
     <string name="settings_show_scrollbar_title">Show Scrollbar</string>
     <string name="settings_show_scrollbar_subtitle">Display lateral scrollbar on music lists for quick scrolling</string>
     <string name="settings_now_playing_section">Now Playing</string>
@@ -204,14 +208,6 @@
     <string name="settings_auto_rotate_patterns_title">Auto-Rotate Patterns</string>
     <string name="settings_auto_rotate_patterns_subtitle">Cycle through collage patterns each time you visit Home.</string>
     <string name="settings_navigation_bar_section">Navigation Bar</string>
-    <string name="settings_navbar_style_title">NavBar Style</string>
-    <string name="settings_navbar_style_subtitle">Choose the appearance for the navigation bar.</string>
-    <string name="settings_navbar_style_default">Default</string>
-    <string name="settings_navbar_style_full_width">Full Width</string>
-    <string name="settings_compact_mode_title">Compact mode</string>
-    <string name="settings_compact_mode_subtitle">Show only icons and reduce the navbar height.</string>
-    <string name="settings_navbar_corner_title">NavBar Corner Radius</string>
-    <string name="settings_navbar_corner_subtitle">Adjust the corner radius of the navigation bar.</string>
     <string name="settings_lyrics_screen_section">Lyrics Screen</string>
     <string name="settings_immersive_lyrics_title">Immersive Lyrics</string>
     <string name="settings_immersive_lyrics_subtitle">Auto-hide controls and enlarge text.</string>
@@ -254,10 +250,6 @@
     <string name="settings_palette_style_accuracy_summary_precise">%1$d • Precise</string>
 
     <!-- NavBarCornerRadiusScreen -->
-    <string name="navbar_adjust_title">Adjust Corner Radius</string>
-    <string name="navbar_adjust_subtitle">Match the navbar shape\'s corners with your device\'s physical corners for a seamless look.</string>
-    <string name="navbar_corner_radius_label">Corner Radius</string>
-    <string name="navbar_corner_dp_format">%1$d dp</string>
 
     <!-- Playback category -->
     <string name="settings_background_playback_section">Background Playback</string>
@@ -655,4 +647,7 @@
     <string name="settings_volume_section">Volume</string>
     <string name="settings_pause_on_volume_zero">Pause when volume reaches zero</string>
     <string name="settings_pause_on_volume_zero_desc">Automatically pause playback when the volume is set to 0</string>
+    <string name="show_navigation_current_tab">Show navigation, current tab: %1$s</string>
+    <string name="settings_compact_scroll_title">Compact while scrolling</string>
+    <string name="settings_compact_scroll_subtitle">Merge navigation and player while scrolling</string>
 </resources>

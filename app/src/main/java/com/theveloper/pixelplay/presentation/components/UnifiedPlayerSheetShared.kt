@@ -2,6 +2,8 @@
 
 package com.theveloper.pixelplay.presentation.components
 
+import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottomChrome
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -37,6 +39,8 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -70,9 +74,11 @@ internal fun MiniPlayerContentInternal(
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     modifier: Modifier = Modifier,
-    canScroll: Boolean = true
+    canScroll: Boolean = true,
+    compactFractionProvider: () -> Float = { 0f }
 ) {
     val hapticFeedback = LocalHapticFeedback.current
+    val restingHeight = LocalBottomChrome.current.miniPlayerRestingHeight
     val controlsEnabled = !isCastConnecting && !isPreparingPlayback
 
     val previousInteraction = remember { MutableInteractionSource() }
@@ -80,22 +86,37 @@ internal fun MiniPlayerContentInternal(
     val nextInteraction = remember { MutableInteractionSource() }
     val miniPlayerIndication = remember { ripple(bounded = false) }
 
+    val (skipGesture, skipOffset) = com.theveloper.pixelplay.presentation.components.scoped.rememberMiniPlayerSkipGesture(controlsEnabled, onPrevious, onNext)
+    val collapseControl = Modifier.layout { measurable, constraints ->
+        val child = measurable.measure(constraints)
+        val visibility = (1f - compactFractionProvider()).coerceIn(0f, 1f)
+        layout((child.width * visibility).toInt(), child.height) { if (visibility > 0.01f) child.placeRelativeWithLayer(0, 0) { alpha = visibility } }
+    }
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(MiniPlayerHeight)
+            .then(skipGesture)
+            .layout { measurable, constraints ->
+                val height = androidx.compose.ui.util.lerp(restingHeight.toPx(), 56.dp.toPx(), compactFractionProvider()).toInt()
+                val child = measurable.measure(constraints.copy(minHeight = height, maxHeight = height))
+                layout(child.width, height) { child.placeRelative(0, 0) }
+            }
             .padding(start = 10.dp, end = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         val albumArtModel = song.albumArtUriString?.takeIf { it.isNotBlank() }
-        Box(contentAlignment = Alignment.Center) {
+        Box(Modifier.graphicsLayer { translationX = skipOffset() }, contentAlignment = Alignment.Center) {
             key(song.id) {
                 SmartImage(
                     model = albumArtModel,
                     contentDescription = "Carátula de ${song.title}",
                     shape = CircleShape,
                     targetSize = Size(150, 150),
-                    modifier = Modifier.size(44.dp),
+                    modifier = Modifier.layout { measurable, constraints ->
+                        val side = (44.dp.toPx() - 4.dp.toPx() * compactFractionProvider()).toInt()
+                        val child = measurable.measure(androidx.compose.ui.unit.Constraints.fixed(side, side))
+                        layout(side, side) { child.placeRelative(0, 0) }
+                    },
                     placeholderModel = if (albumArtModel?.startsWith("telegram_art") == true) {
                         "$albumArtModel?quality=thumb"
                     } else null
@@ -105,7 +126,7 @@ internal fun MiniPlayerContentInternal(
                 CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
                     strokeWidth = 2.dp,
-                    color = LocalMaterialTheme.current.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             } else if (isPreparingPlayback) {
                 CircularWavyProgressIndicator(modifier = Modifier.size(24.dp))
@@ -113,7 +134,7 @@ internal fun MiniPlayerContentInternal(
         }
         Spacer(modifier = Modifier.width(12.dp))
         Column(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).graphicsLayer { translationX = skipOffset() },
             verticalArrangement = Arrangement.Center
         ) {
             val titleStyle = MaterialTheme.typography.titleSmall.copy(
@@ -121,13 +142,13 @@ internal fun MiniPlayerContentInternal(
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = (-0.2).sp,
                 fontFamily = GoogleSansRounded,
-                color = LocalMaterialTheme.current.onPrimaryContainer
+                color = MaterialTheme.colorScheme.onSurface
             )
             val artistStyle = MaterialTheme.typography.bodySmall.copy(
                 fontSize = 13.sp,
                 letterSpacing = 0.sp,
                 fontFamily = GoogleSansRounded,
-                color = LocalMaterialTheme.current.onPrimaryContainer.copy(alpha = 0.7f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
 
             AutoScrollingText(
@@ -142,6 +163,11 @@ internal fun MiniPlayerContentInternal(
             )
             AutoScrollingText(
                 text = if (isPreparingPlayback) "Loading audio…" else song.displayArtist,
+                modifier = Modifier.layout { measurable, constraints ->
+                    val child = measurable.measure(constraints.copy(minHeight = 0))
+                    val visibility = (1f - compactFractionProvider()).coerceIn(0f, 1f)
+                    layout(child.width, (child.height * visibility).toInt()) { if (visibility > 0.01f) child.placeRelativeWithLayer(0, 0) { alpha = visibility } }
+                },
                 style = artistStyle,
                 gradientEdgeColor = LocalMaterialTheme.current.primaryContainer,
                 canScroll = canScroll
@@ -150,8 +176,8 @@ internal fun MiniPlayerContentInternal(
         Spacer(modifier = Modifier.width(8.dp))
 
         Box(
-            modifier = Modifier
-                .size(36.dp)
+            modifier = collapseControl
+                .size(48.dp)
                 .clip(CircleShape)
                 .background(LocalMaterialTheme.current.onPrimary)
                 .clickable(
@@ -172,11 +198,11 @@ internal fun MiniPlayerContentInternal(
             )
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = collapseControl.width(8.dp))
 
         Box(
             modifier = Modifier
-                .size(36.dp)
+                .size(48.dp)
                 .clip(CircleShape)
                 .background(LocalMaterialTheme.current.primary)
                 .clickable(
@@ -199,11 +225,11 @@ internal fun MiniPlayerContentInternal(
             )
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = collapseControl.width(8.dp))
 
         Box(
-            modifier = Modifier
-                .size(36.dp)
+            modifier = collapseControl
+                .size(48.dp)
                 .clip(CircleShape)
                 .background(LocalMaterialTheme.current.onPrimary)
                 .clickable(

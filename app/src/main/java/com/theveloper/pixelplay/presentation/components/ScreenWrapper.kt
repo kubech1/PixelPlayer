@@ -35,6 +35,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.theveloper.pixelplay.presentation.viewmodel.PlayerViewModel
 import com.theveloper.pixelplay.presentation.navigation.isMainRootRoute
+import com.theveloper.pixelplay.presentation.utils.LocalVisualEffects
 import androidx.lifecycle.compose.currentStateAsState
 
 
@@ -111,7 +112,7 @@ fun ScreenWrapper(
     val previousEntryId = navController.previousBackStackEntry?.id.also { _ -> currentBackStackEntryState }
     val shouldDim = myEntry != null && previousEntryId == myEntry.id
 
-    val disableBlurAllOver by playerViewModel.disableBlurAllOver.collectAsState()
+    val isMinimalEffects = LocalVisualEffects.current.isMinimal
 
     val transition = animatedVisibilityScope?.transition
 
@@ -137,9 +138,9 @@ fun ScreenWrapper(
         fallbackCornerRadius.value
     }
 
-    // Dim: If strictly behind Top -> 0.4f (or 0.75f if blur is disabled). Else -> 0f.
+    // Dim: If strictly behind Top -> 0.4f (or 0.75f in minimal visual effects mode). Else -> 0f.
     val targetDim = if (shouldRunDepthEffects && shouldDim) {
-        if (disableBlurAllOver) 0.75f else 0.4f
+        if (isMinimalEffects) 0.75f else 0.4f
     } else {
         0f
     }
@@ -149,7 +150,7 @@ fun ScreenWrapper(
             label = "dimAlpha"
         ) { state ->
             if (shouldRunDepthEffects && shouldDim && (state == EnterExitState.PostExit || state == EnterExitState.PreEnter)) {
-                if (disableBlurAllOver) 0.75f else 0.4f
+                if (isMinimalEffects) 0.75f else 0.4f
             } else {
                 0f
             }
@@ -163,14 +164,14 @@ fun ScreenWrapper(
         fallbackDimAlpha.value
     }
 
-    // Blur: If strictly behind Top -> 24dp. Else -> 0dp. Disabled if disableBlurAllOver is true.
-    val targetBlur = if (shouldRunDepthEffects && shouldDim && !disableBlurAllOver) 24f else 0f
+    // Blur: If strictly behind Top -> 24dp. Else -> 0dp. Disabled in minimal visual effects mode.
+    val targetBlur = if (shouldRunDepthEffects && shouldDim && !isMinimalEffects) 24f else 0f
     val animatedBlurRadius = if (transition != null) {
         val animatedValue by transition.animateDp(
             transitionSpec = { tween(durationMillis = 350, easing = CubicBezierEasing(0.5f, 0f, 0.8f, 0.2f)) },
             label = "blurRadius"
         ) { state ->
-            if (shouldRunDepthEffects && shouldDim && !disableBlurAllOver && (state == EnterExitState.PostExit || state == EnterExitState.PreEnter)) {
+            if (shouldRunDepthEffects && shouldDim && !isMinimalEffects && (state == EnterExitState.PostExit || state == EnterExitState.PreEnter)) {
                 24.dp
             } else {
                 0.dp

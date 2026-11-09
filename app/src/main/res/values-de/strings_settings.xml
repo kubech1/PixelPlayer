@@ -181,8 +181,12 @@
     <string name="settings_theme_follow_system">System folgen</string>
     <string name="settings_smooth_corners_title">Sanfte Ecken</string>
     <string name="settings_smooth_corners_subtitle">Weichere Eckenform – kann auf älteren Geräten die Performance leicht beeinflussen.</string>
-    <string name="settings_disable_blur_all_over_title">Weichzeichnungseffekte deaktivieren</string>
-    <string name="settings_disable_blur_all_over_subtitle">Weichzeichnungseffekte in der gesamten App deaktivieren, um Akku und Ressourcen zu sparen.</string>
+    <string name="settings_visual_effects_title">Visuelle Effekte</string>
+    <string name="settings_visual_effects_subtitle">Tiefe, Farbverläufe und Weichzeichnung steuern. Der Energiesparmodus senkt die Stufe automatisch.</string>
+    <string name="settings_visual_effects_full">Vollständig</string>
+    <string name="settings_visual_effects_balanced">Ausgewogen</string>
+    <string name="settings_visual_effects_minimal">Minimal</string>
+
     <string name="settings_show_scrollbar_title">Scrollleiste anzeigen</string>
     <string name="settings_show_scrollbar_subtitle">Seitliche Scrollleiste in Musiklisten für schnelles Scrollen anzeigen</string>
     <string name="settings_now_playing_section">Läuft gerade</string>
@@ -204,14 +208,6 @@
     <string name="settings_auto_rotate_patterns_title">Muster automatisch wechseln</string>
     <string name="settings_auto_rotate_patterns_subtitle">Bei jedem Home-Besuch ein anderes Collage-Muster zeigen.</string>
     <string name="settings_navigation_bar_section">Navigationsleiste</string>
-    <string name="settings_navbar_style_title">NavBar-Stil</string>
-    <string name="settings_navbar_style_subtitle">Wie die Navigationsleiste aussieht.</string>
-    <string name="settings_navbar_style_default">Standard</string>
-    <string name="settings_navbar_style_full_width">Volle Breite</string>
-    <string name="settings_compact_mode_title">Kompaktmodus</string>
-    <string name="settings_compact_mode_subtitle">Nur Icons, schmälere NavBar.</string>
-    <string name="settings_navbar_corner_title">NavBar-Eckenradius</string>
-    <string name="settings_navbar_corner_subtitle">Ecken der NavBar an dein Gerät anpassen.</string>
     <string name="settings_lyrics_screen_section">Lyrics-Ansicht</string>
     <string name="settings_immersive_lyrics_title">Immersive Lyrics</string>
     <string name="settings_immersive_lyrics_subtitle">Steuerung automatisch ausblenden und Text im Vollbild genießen.</string>
@@ -254,10 +250,6 @@
     <string name="settings_palette_style_accuracy_summary_precise">%1$d • Präzise</string>
 
     <!-- NavBarCornerRadiusScreen -->
-    <string name="navbar_adjust_title">Eckenradius anpassen</string>
-    <string name="navbar_adjust_subtitle">NavBar-Ecken an die Geräteecken anpassen – für ein stimmiges Aussehen.</string>
-    <string name="navbar_corner_radius_label">Eckenradius</string>
-    <string name="navbar_corner_dp_format">%1$d dp</string>
 
     <!-- Playback category -->
     <string name="settings_background_playback_section">Hintergrundwiedergabe</string>
@@ -646,4 +638,7 @@
     <string name="settings_volume_section">Lautstärke</string>
     <string name="settings_pause_on_volume_zero">Pausieren, wenn Lautstärke null erreicht</string>
     <string name="settings_pause_on_volume_zero_desc">Wiedergabe automatisch pausieren, wenn die Lautstärke auf 0 gesetzt wird</string>
+    <string name="show_navigation_current_tab">Navigation anzeigen, aktueller Tab: %1$s</string>
+    <string name="settings_compact_scroll_title">Beim Scrollen verkleinern</string>
+    <string name="settings_compact_scroll_subtitle">Navigation und Player beim Scrollen zusammenführen</string>
 </resources>

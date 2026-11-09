@@ -1,5 +1,9 @@
 package com.theveloper.pixelplay.presentation.screens
 
+import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottomChrome
+
+import com.theveloper.pixelplay.presentation.components.bottomchrome.NavigationReselectionEffect
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -82,6 +86,7 @@ fun LibrarySongsTab(
     hasCurrentSong: Boolean = false
 ) {
     val listState = rememberLazyListState()
+    NavigationReselectionEffect(com.theveloper.pixelplay.presentation.navigation.Screen.Library.route) { listState.animateScrollToItem(0) }
     val dummyListState = rememberLazyListState()
     val pullToRefreshState = rememberPullToRefreshState()
     val coroutineScope = rememberCoroutineScope()
@@ -258,7 +263,7 @@ fun LibrarySongsTab(
                     )
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap)
+                contentPadding = PaddingValues(bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + ListExtraBottomGap)
             ) {
                 items(12, key = { "skeleton_song_$it" }) { // Show 12 skeleton items
                     EnhancedSongListItem(
@@ -310,7 +315,7 @@ fun LibrarySongsTab(
                                 ),
                             state = activeListState,
                             verticalArrangement = Arrangement.spacedBy(8.dp),
-                            contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + 30.dp)
+                            contentPadding = PaddingValues(bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + 30.dp)
                         ) {
                             //item(key = "songs_top_spacer") { Spacer(Modifier.height(0.dp)) }
 
@@ -368,7 +373,7 @@ fun LibrarySongsTab(
                         
                         // ScrollBar Overlay
                         val bottomPadding = if (hasCurrentSong)
-                            bottomBarHeight + MiniPlayerHeight + 16.dp 
+                            bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + 16.dp
                         else 
                             bottomBarHeight + 16.dp
 

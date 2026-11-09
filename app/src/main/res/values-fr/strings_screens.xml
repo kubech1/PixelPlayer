@@ -58,13 +58,6 @@
     <string name="setup_tab_albums">ALBUMS</string>
     <string name="setup_tab_artists">ARTISTES</string>
     <string name="setup_library_layout_footer">Vous pouvez changer cela plus tard dans Paramètres &gt; Apparence &gt; Navigation dans la bibliothèque.</string>
-    <string name="setup_app_navigation_title">Navigation dans l\'application</string>
-    <string name="setup_app_navigation_subtitle">Choisissez le style de la barre de navigation inférieure.</string>
-    <string name="setup_navbar_default_style">Style par défaut</string>
-    <string name="setup_nav_floating_pill_description">Pastille flottante avec angles arrondis</string>
-    <string name="setup_nav_full_width_description">Barre standard pleine largeur</string>
-    <string name="setup_customize_corner_radius">Personnaliser le rayon des angles</string>
-    <string name="setup_navbar_footer">Vous pouvez changer cela plus tard dans Paramètres &gt; Apparence &gt; Style de la barre de navigation.</string>
     <string name="setup_permission_alarms_title">Alarmes et rappels</string>
     <string name="setup_permission_alarms_description">Facultatif, mais recommandé si vous utilisez le Minuteur de veille et que vous voulez que PixelPlayer arrête la lecture exactement à l\'heure.</string>
     <string name="setup_grant_permission_generic">Accorder l\'autorisation</string>

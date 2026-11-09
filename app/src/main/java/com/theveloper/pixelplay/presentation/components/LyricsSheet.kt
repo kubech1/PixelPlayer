@@ -348,10 +348,8 @@ fun LyricsSheet(
     }
     val animatedLyricsBlurEnabled by animatedLyricsBlurEnabledFlow.collectAsStateWithLifecycle(initialValue = true)
 
-    val disableBlurAllOverFlow = remember(context) {
-        context.dataStore.data.map { it[booleanPreferencesKey("disable_blur_all_over")] ?: false }
-    }
-    val disableBlurAllOver by disableBlurAllOverFlow.collectAsStateWithLifecycle(initialValue = false)
+    val allowsDepthEffects = com.theveloper.pixelplay.presentation.utils.LocalVisualEffects.current.allowsDepthEffects
+
 
     val animatedLyricsBlurStrengthFlow = remember(context) {
         context.dataStore.data.map { it[androidx.datastore.preferences.core.floatPreferencesKey("animated_lyrics_blur_strength")] ?: 2.5f }
@@ -795,7 +793,7 @@ fun LyricsSheet(
                                 highlightOffsetDp = highlightOffsetDp,
                                 autoscrollAnimationSpec = resolvedAutoscrollSpec,
                                 useAnimatedLyrics = useAnimatedLyrics,
-                                animatedLyricsBlurEnabled = animatedLyricsBlurEnabled && !disableBlurAllOver,
+                                animatedLyricsBlurEnabled = animatedLyricsBlurEnabled && allowsDepthEffects,
                                 animatedLyricsBlurStrength = animatedLyricsBlurStrength,
                                 immersiveMode = immersiveMode,
                                 lyricsAlignment = lyricsAlignment,

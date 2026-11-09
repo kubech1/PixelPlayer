@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
@@ -138,10 +139,12 @@ fun PixelPlayTheme(
     )
 
     CompositionLocalProvider(LocalPixelPlayDarkTheme provides darkTheme) {
+        @OptIn(ExperimentalMaterial3ExpressiveApi::class)
         MaterialTheme(
             colorScheme = finalColorScheme,
-            typography = Typography,
+            motionScheme = PixelPlayMotionScheme,
             shapes = Shapes,
+            typography = Typography,
             content = content
         )
     }

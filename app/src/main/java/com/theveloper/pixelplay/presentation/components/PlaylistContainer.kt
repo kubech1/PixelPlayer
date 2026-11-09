@@ -1,5 +1,9 @@
 package com.theveloper.pixelplay.presentation.components
 
+import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottomChrome
+
+import com.theveloper.pixelplay.presentation.components.bottomchrome.NavigationReselectionEffect
+
 import com.theveloper.pixelplay.presentation.navigation.navigateSafely
 
 import androidx.compose.animation.animateColorAsState
@@ -126,7 +130,7 @@ fun PlaylistContainer(
                     .padding(
                         start = 28.dp,
                         end = 28.dp,
-                        bottom = bottomBarHeight + MiniPlayerHeight + 24.dp
+                        bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + 24.dp
                     ),
                 contentAlignment = Alignment.Center
             ) {
@@ -253,6 +257,7 @@ fun PlaylistItems(
             .distinctUntilChanged()
     }.collectAsStateWithLifecycle(initialValue = false)
     val listState = rememberLazyListState()
+    NavigationReselectionEffect(com.theveloper.pixelplay.presentation.navigation.Screen.Library.route) { listState.animateScrollToItem(0) }
     val playlistFastScrollLabelProvider = remember(filteredPlaylists, currentSortOption) {
         { index: Int ->
             playlistFastScrollLabel(
@@ -293,7 +298,7 @@ fun PlaylistItems(
                 ),
             state = listState,
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + 30.dp)
+            contentPadding = PaddingValues(bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + 30.dp)
         ) {
             items(filteredPlaylists, key = { it.id }) { playlist ->
                 val rememberedOnClick = remember(playlist.id) {
@@ -331,7 +336,7 @@ fun PlaylistItems(
         }
         
         val bottomPadding = if (hasCurrentSong) 
-            bottomBarHeight + MiniPlayerHeight + 16.dp 
+            bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + 16.dp
         else 
             bottomBarHeight + 16.dp
 

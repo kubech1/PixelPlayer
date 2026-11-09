@@ -58,13 +58,6 @@
     <string name="setup_tab_albums">ALBUMS</string>
     <string name="setup_tab_artists">ARTISTS</string>
     <string name="setup_library_layout_footer">You can change this later in Settings &gt; Appearance &gt; Library Navigation.</string>
-    <string name="setup_app_navigation_title">App Navigation</string>
-    <string name="setup_app_navigation_subtitle">Choose the style of the bottom navigation bar.</string>
-    <string name="setup_navbar_default_style">Default Style</string>
-    <string name="setup_nav_floating_pill_description">Floating pill with rounded corners</string>
-    <string name="setup_nav_full_width_description">Standard full-width bar</string>
-    <string name="setup_customize_corner_radius">Customize Corner Radius</string>
-    <string name="setup_navbar_footer">You can change this later in Settings &gt; Appearance &gt; Navbar Style.</string>
     <string name="setup_permission_alarms_title">Alarms &amp; Reminders</string>
     <string name="setup_permission_alarms_description">Optional, but recommended if you use Sleep Timer and want PixelPlayer to stop playback exactly on time.</string>
     <string name="setup_grant_permission_generic">Grant Permission</string>

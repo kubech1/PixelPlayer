@@ -58,13 +58,6 @@
     <string name="setup_tab_albums">ALBUM</string>
     <string name="setup_tab_artists">ARTISTER</string>
     <string name="setup_library_layout_footer">Du kan endre dette senere i innstillinger.</string>
-    <string name="setup_app_navigation_title">App-navigasjon</string>
-    <string name="setup_app_navigation_subtitle">Velg stil på navigasjonslinjen.</string>
-    <string name="setup_navbar_default_style">Standardstil</string>
-    <string name="setup_nav_floating_pill_description">Flytende felt med runde hjørner</string>
-    <string name="setup_nav_full_width_description">Standard bar i full bredde</string>
-    <string name="setup_customize_corner_radius">Juster hjørneradius</string>
-    <string name="setup_navbar_footer">Du kan endre dette senere i innstillinger.</string>
     <string name="setup_permission_alarms_title">Alarmer og påminnelser</string>
     <string name="setup_permission_alarms_description">Valgfritt, men anbefalt for Sleep Timer.</string>
     <string name="setup_grant_permission_generic">Gi tillatelse</string>

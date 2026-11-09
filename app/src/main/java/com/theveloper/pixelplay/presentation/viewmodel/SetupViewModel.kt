@@ -30,8 +30,6 @@ data class SetupUiState(
     val isLoadingDirectories: Boolean = false,
     val blockedDirectories: Set<String> = emptySet(),
     val libraryNavigationMode: String = "tab_row",
-    val navBarStyle: String = "default",
-    val navBarCornerRadius: Int = 28,
     val alarmsPermissionGranted: Boolean = false,
     val appThemeMode: String = AppThemeMode.DARK
 ) {
@@ -91,18 +89,14 @@ class SetupViewModel @Inject constructor(
             combine(
                 userPreferencesRepository.blockedDirectoriesFlow,
                 userPreferencesRepository.libraryNavigationModeFlow,
-                userPreferencesRepository.navBarStyleFlow,
-                userPreferencesRepository.navBarCornerRadiusFlow,
                 themePreferencesRepository.appThemeModeFlow
-            ) { blocked, mode, style, radius, appThemeMode ->
-                SetupPrefsUpdate(blocked, mode, style, radius, appThemeMode)
+            ) { blocked, mode, appThemeMode ->
+                SetupPrefsUpdate(blocked, mode, appThemeMode)
             }.collect { update ->
                 _uiState.update { state ->
                     state.copy(
                         blockedDirectories = update.blocked,
                         libraryNavigationMode = update.mode,
-                        navBarStyle = update.style,
-                        navBarCornerRadius = update.radius,
                         appThemeMode = update.appThemeMode
                     )
                 }
@@ -119,8 +113,6 @@ class SetupViewModel @Inject constructor(
     private data class SetupPrefsUpdate(
         val blocked: Set<String>,
         val mode: String,
-        val style: String,
-        val radius: Int,
         val appThemeMode: String
     )
 
@@ -214,17 +206,9 @@ class SetupViewModel @Inject constructor(
         }
     }
 
-    fun setNavBarStyle(style: String) {
-        viewModelScope.launch {
-            userPreferencesRepository.setNavBarStyle(style)
-        }
-    }
 
-    fun setNavBarCornerRadius(radius: Int) {
-        viewModelScope.launch {
-            userPreferencesRepository.setNavBarCornerRadius(radius)
-        }
-    }
+
+
 
     fun setAppThemeMode(mode: String) {
         viewModelScope.launch {

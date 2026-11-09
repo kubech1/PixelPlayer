@@ -21,6 +21,7 @@ No todo vive en un único ViewModel. `PlayerViewModel` es un coordinador importa
 | Audio, cola, sesión, crossfade y controladores | [Reproducción](playback.md) |
 | SM-S921B, audio personal, Android 17/One UI 9 y pruebas por dispositivo | [Hardware y compatibilidad](hardware/README.md) |
 | Pantallas, navegación, estado, temas y recursos | [Interfaz y estado](ui-and-state.md) |
+| Rediseño visual: píldoras flotantes, movimiento, profundidad y efectos (especificación por fases) | [Lenguaje visual](design-language.md) y [ADR 0004](decisions/0004-contemporary-design-language.md) |
 | Proveedores musicales, mezclas locales, red, Cast y otros controles | [Integraciones](integrations.md) |
 | Contratos teléfono/reloj, transferencias y modo local | [Wear y protocolo compartido](wear-protocol.md) |
 | Exportación, restauración y fronteras de confianza | [Backup y seguridad](backup-and-security.md) |

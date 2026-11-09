@@ -177,8 +177,12 @@
     <string name="settings_theme_follow_system">Ikuti Sistem</string>
     <string name="settings_smooth_corners_title">Gunakan Sudut Halus</string>
     <string name="settings_smooth_corners_subtitle">Gunakan sudut berbentuk kompleks yang secara efektif meningkatkan estetika tetapi mungkin memengaruhi performa pada perangkat berspesifikasi rendah</string>
-    <string name="settings_disable_blur_all_over_title">Nonaktifkan Efek Blur</string>
-    <string name="settings_disable_blur_all_over_subtitle">Matikan efek blur di seluruh aplikasi untuk menghemat baterai dan sumber daya.</string>
+    <string name="settings_visual_effects_title">Efek Visual</string>
+    <string name="settings_visual_effects_subtitle">Kontrol kedalaman, gradien, dan efek blur. Penghemat Baterai menurunkan satu tingkat secara otomatis.</string>
+    <string name="settings_visual_effects_full">Penuh</string>
+    <string name="settings_visual_effects_balanced">Seimbang</string>
+    <string name="settings_visual_effects_minimal">Minimal</string>
+
     <string name="settings_show_scrollbar_title">Tampilkan Scrollbar</string>
     <string name="settings_show_scrollbar_subtitle">Menampilkan scrollbar samping pada daftar musik untuk navigasi cepat.</string>
     <string name="settings_now_playing_section">Sedang Diputar</string>
@@ -200,14 +204,6 @@
     <string name="settings_auto_rotate_patterns_title">Putar Pola Otomatis</string>
     <string name="settings_auto_rotate_patterns_subtitle">Berganti-ganti pola kolase setiap kali Anda mengunjungi Beranda.</string>
     <string name="settings_navigation_bar_section">Bilah Navigasi</string>
-    <string name="settings_navbar_style_title">Gaya NavBar</string>
-    <string name="settings_navbar_style_subtitle">Pilih tampilan untuk bilah navigasi.</string>
-    <string name="settings_navbar_style_default">Default</string>
-    <string name="settings_navbar_style_full_width">Lebar Penuh</string>
-    <string name="settings_compact_mode_title">Mode ringkas</string>
-    <string name="settings_compact_mode_subtitle">Tampilkan hanya ikon dan kurangi tinggi navbar.</string>
-    <string name="settings_navbar_corner_title">Radius Sudut NavBar</string>
-    <string name="settings_navbar_corner_subtitle">Sesuaikan radius sudut bilah navigasi.</string>
     <string name="settings_lyrics_screen_section">Layar Lirik</string>
     <string name="settings_immersive_lyrics_title">Lirik Imersif</string>
     <string name="settings_immersive_lyrics_subtitle">Sembunyikan kontrol otomatis dan perbesar teks.</string>
@@ -250,10 +246,6 @@
     <string name="settings_palette_style_accuracy_summary_precise">%1$d • Presisi</string>
 
     <!-- NavBarCornerRadiusScreen -->
-    <string name="navbar_adjust_title">Sesuaikan Radius Sudut</string>
-    <string name="navbar_adjust_subtitle">Cocokkan sudut bentuk navbar dengan sudut fisik perangkat Anda untuk tampilan yang mulus.</string>
-    <string name="navbar_corner_radius_label">Radius Sudut</string>
-    <string name="navbar_corner_dp_format">%1$d dp</string>
 
     <!-- Playback category -->
     <string name="settings_background_playback_section">Pemutaran Latar Belakang</string>
@@ -642,4 +634,7 @@
     <string name="settings_volume_section">Volume</string>
     <string name="settings_pause_on_volume_zero">Jeda saat volume mencapai nol</string>
     <string name="settings_pause_on_volume_zero_desc">Otomatis menjeda pemutaran saat volume diatur ke 0</string>
+    <string name="show_navigation_current_tab">Tampilkan navigasi, tab saat ini: %1$s</string>
+    <string name="settings_compact_scroll_title">Ringkas saat menggulir</string>
+    <string name="settings_compact_scroll_subtitle">Gabungkan navigasi dan pemutar saat menggulir</string>
 </resources>
