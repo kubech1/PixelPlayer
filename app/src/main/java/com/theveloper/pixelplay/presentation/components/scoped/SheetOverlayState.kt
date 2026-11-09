@@ -32,7 +32,6 @@ internal data class SheetOverlayState(
 internal fun rememberSheetOverlayState(
     density: Density,
     showPlayerContentArea: Boolean,
-    hideMiniPlayer: Boolean,
     showQueueSheet: Boolean,
     isQueueCollapsing: Boolean,
     queueHiddenOffsetPx: Float,
@@ -52,16 +51,6 @@ internal fun rememberSheetOverlayState(
                     internalIsKeyboardVisible = isVisible
                 }
             }
-    }
-
-    val shouldShowSheet by remember(showPlayerContentArea, hideMiniPlayer) {
-        derivedStateOf { showPlayerContentArea && !hideMiniPlayer }
-    }
-
-    // Keep the sheet mounted while IME is visible to avoid mini-player flicker/recomposition
-    // when the keyboard opens/closes (notably in Search).
-    val actuallyShowSheetContent by remember(shouldShowSheet) {
-        derivedStateOf { shouldShowSheet }
     }
 
     val isQueueVisible by remember(showQueueSheet, queueHiddenOffsetPx, screenHeightPx) {
@@ -105,7 +94,7 @@ internal fun rememberSheetOverlayState(
 
     return SheetOverlayState(
         internalIsKeyboardVisible = internalIsKeyboardVisible,
-        actuallyShowSheetContent = actuallyShowSheetContent,
+        actuallyShowSheetContent = showPlayerContentArea,
         isQueueVisible = isQueueVisible,
         queueVisualOpenFraction = queueVisualOpenFraction,
         bottomSheetOpenFraction = bottomSheetOpenFraction,

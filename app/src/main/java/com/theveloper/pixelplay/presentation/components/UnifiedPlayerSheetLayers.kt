@@ -129,6 +129,7 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
                         onPrevious = { playerViewModel.previousSong() },
                         onNext = { playerViewModel.nextSong() },
                         compactFractionProvider = compactFractionProvider,
+                        queueIndex = infrequentPlayerState.currentMediaItemIndex,
                         canScroll = isMiniPlayerVisible && infrequentPlayerState.isPlaying,
                         modifier = Modifier.fillMaxSize()
                     )

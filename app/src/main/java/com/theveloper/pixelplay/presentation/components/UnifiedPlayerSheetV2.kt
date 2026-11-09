@@ -117,7 +117,7 @@ fun UnifiedPlayerSheetV2(
     containerHeight: Dp,
     collapsedStateHorizontalPadding: Dp = 12.dp,
     navController: NavHostController,
-    hideMiniPlayer: Boolean = false,
+    hideCollapsedPlayer: Boolean = false,
     isNavBarHidden: Boolean = false
 ) {
     val context = LocalContext.current
@@ -474,7 +474,6 @@ fun UnifiedPlayerSheetV2(
     val sheetOverlayState = rememberSheetOverlayState(
         density = density,
         showPlayerContentArea = showPlayerContentArea,
-        hideMiniPlayer = hideMiniPlayer,
         showQueueSheet = showQueueSheet,
         isQueueCollapsing = queueSheetState.isCollapsing,
         queueHiddenOffsetPx = queueHiddenOffsetPx,
@@ -600,8 +599,10 @@ fun UnifiedPlayerSheetV2(
                     )
                 )
                 layout(constraints.maxWidth, constraints.maxHeight) {
-                    val translationY = visualSheetTranslationYProvider().roundToInt()
-                    placeable.placeRelative(0, translationY)
+                    if (!hideCollapsedPlayer || currentSheetContentState != PlayerSheetState.COLLAPSED) {
+                        val translationY = visualSheetTranslationYProvider().roundToInt()
+                        placeable.placeRelative(0, translationY)
+                    }
                 }
             },
         shadowElevation = 0.dp,

@@ -32,6 +32,7 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -119,6 +120,8 @@ import com.theveloper.pixelplay.presentation.components.DismissUndoBar
 import com.theveloper.pixelplay.presentation.components.DrawerDestination
 import com.theveloper.pixelplay.presentation.components.MiniPlayerBottomSpacer
 import com.theveloper.pixelplay.presentation.components.MiniPlayerHeight
+import com.theveloper.pixelplay.presentation.components.NavigationPillHeight
+import com.theveloper.pixelplay.presentation.components.NavigationPillLabelLineHeight
 import com.theveloper.pixelplay.presentation.components.PlayerInternalNavigationBar
 import com.theveloper.pixelplay.presentation.components.UnifiedPlayerSheetV2
 import com.theveloper.pixelplay.presentation.components.calculatePlayerSheetCollapsedTargetY
@@ -664,13 +667,17 @@ class MainActivity : ComponentActivity() {
         val horizontalPadding = 16.dp
         val bottomBarPadding = systemNavBarInset + 8.dp
         val densityForChrome = LocalDensity.current
-        val navBarHeight = maxOf(64.dp, with(densityForChrome) { 24.dp + 16.sp.toDp() + 16.dp })
+        val navBarHeight = maxOf(
+            NavigationPillHeight,
+            with(densityForChrome) { 24.dp + NavigationPillLabelLineHeight.toDp() + 16.dp }
+        )
         val navBarOccupiedHeight = navBarHeight + bottomBarPadding
         val miniPlayerRestingHeight = maxOf(64.dp, with(densityForChrome) { 36.sp.toDp() + 8.dp })
         val sheetOpenForChrome by remember {
             derivedStateOf { playerViewModel.playerContentExpansionFraction.value > 0.01f }
         }
         val imeVisibleForChrome = WindowInsets.ime.getBottom(densityForChrome) > 0
+        val hideCollapsedPlayerForSearch = currentRoute == Screen.Search.route && imeVisibleForChrome
         LaunchedEffect(currentRoute, navCompactOnScroll, touchExplorationEnabled, animationsEnabled, sheetOpenForChrome, imeVisibleForChrome) {
             chromeState.enabled = navCompactOnScroll && !touchExplorationEnabled && !sheetOpenForChrome && !imeVisibleForChrome
             chromeState.animationsEnabled = animationsEnabled
@@ -678,10 +685,10 @@ class MainActivity : ComponentActivity() {
         }
         val navBarVisibilityProgressState = animateFloatAsState(
             targetValue = if (shouldHideNavigationBar) 0f else 1f,
-            animationSpec = tween(
+            animationSpec = if (animationsEnabled) tween(
                 durationMillis = 220,
                 easing = LinearOutSlowInEasing
-            ),
+            ) else snap(),
             label = "NavBarVisibilityProgress"
         )
         val navBarVisibilityProgress by navBarVisibilityProgressState
@@ -726,11 +733,12 @@ class MainActivity : ComponentActivity() {
             systemNavBarInset,
             navBarOccupiedHeight,
             hasActiveSongForChrome,
+            hideCollapsedPlayerForSearch,
             miniPlayerRestingHeight,
             currentRoute
         ) {
             val navChrome = if (shouldHideNavigationBar) systemNavBarInset else navBarOccupiedHeight
-            val miniChrome = if (hasActiveSongForChrome) {
+            val miniChrome = if (hasActiveSongForChrome && !hideCollapsedPlayerForSearch) {
                 miniPlayerRestingHeight + MiniPlayerBottomSpacer
             } else {
                 0.dp
@@ -823,13 +831,8 @@ class MainActivity : ComponentActivity() {
                                 .map { it.currentSong?.id != null }
                                 .distinctUntilChanged()
                         }.collectAsStateWithLifecycle(initialValue = false)
-                        val routesWithHiddenMiniPlayer = remember { emptySet<String>() }
-                        val shouldHideMiniPlayer by remember(currentRoute) {
-                            derivedStateOf { currentRoute in routesWithHiddenMiniPlayer }
-                        }
-
                         val miniPlayerH = with(density) { miniPlayerRestingHeight.toPx() }
-                        val totalSheetHeightWhenContentCollapsedPx = if (showPlayerContentInitially && !shouldHideMiniPlayer) miniPlayerH else 0f
+                        val totalSheetHeightWhenContentCollapsedPx = if (showPlayerContentInitially) miniPlayerH else 0f
 
                         val bottomMargin = miniPlayerBottomMargin
 
@@ -891,7 +894,7 @@ class MainActivity : ComponentActivity() {
                             playerViewModel = playerViewModel,
                             sheetCollapsedTargetY = sheetCollapsedTargetY,
                             collapsedStateHorizontalPadding = horizontalPadding,
-                            hideMiniPlayer = shouldHideMiniPlayer,
+                            hideCollapsedPlayer = hideCollapsedPlayerForSearch,
                             containerHeight = containerHeight,
                             navController = navController,
                             isNavBarHidden = isNavBarEffectivelyHidden

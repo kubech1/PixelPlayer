@@ -51,8 +51,12 @@ internal class SheetVerticalDragGestureHandler(
     private var initialYOnDragStart = 0f
     private var accumulatedDragYSinceStart = 0f
     private var dragSnapJob: Job? = null
+    private var dismissalJob: Job? = null
+    private var acceptsDrag = false
 
     fun onDragStart() {
+        acceptsDrag = dismissalJob?.isActive != true
+        if (!acceptsDrag) return
         dragSnapJob?.cancel()
         dragSnapJob = scope.launch(start = CoroutineStart.UNDISPATCHED) {
             sheetMotionController.stop()
@@ -71,6 +75,7 @@ internal class SheetVerticalDragGestureHandler(
         position: Offset,
         dragAmount: Float
     ) {
+        if (!acceptsDrag) return
         accumulatedDragYSinceStart += dragAmount
         val dragFrame = computeSheetVerticalDragFrame(
             currentTranslationY = currentSheetTranslationY.value,
@@ -92,6 +97,8 @@ internal class SheetVerticalDragGestureHandler(
     }
 
     fun onDragEnd(cancelled: Boolean = false) {
+        if (!acceptsDrag) return
+        acceptsDrag = false
         dragSnapJob?.cancel()
         dragSnapJob = null
         onDraggingChange(false)
@@ -100,7 +107,7 @@ internal class SheetVerticalDragGestureHandler(
         val verticalVelocity = velocityTracker.calculateVelocity().y
         if (!cancelled && shouldDismissCollapsedPlayer(startedCollapsed, accumulatedDragYSinceStart, verticalVelocity, densityProvider().density)) {
             accumulatedDragYSinceStart = 0f
-            scope.launch {
+            dismissalJob = scope.launch {
                 if (animationsEnabled()) currentSheetTranslationY.animateTo(
                     collapsedYProvider() + miniHeightPxProvider() * 2f,
                     com.theveloper.pixelplay.ui.theme.PixelMotion.structural()

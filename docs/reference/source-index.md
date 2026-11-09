@@ -4,7 +4,7 @@
 
 Regenerar desde la raíz: `python scripts/context_docs.py generate`.
 
-Archivos: **684**. Huella de rutas y contenido: `f94316f068bc20a0245266f6ead0d8b435c501224b0b1faf500114e792ddb65d`.
+Archivos: **684**. Huella de rutas y contenido: `32afe129bf3d7a1b5ae7249509a5c3b0970f026aa40a34b6cb3f935d8fb0eddc`.
 
 Este índice permite localizar archivos; no certifica su comportamiento ni sustituye los documentos temáticos. Los símbolos son una extracción léxica parcial, no un análisis del compilador. Se excluyen cachés, salidas de build, entornos virtuales y archivos locales de credenciales.
 
@@ -72,7 +72,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 
 | Archivo | Líneas | Orientación |
 | --- | ---: | --- |
-| [BottomChromeCompositionTest.kt](../../app/src/androidTest/java/com/theveloper/pixelplay/presentation/components/BottomChromeCompositionTest.kt) | 94 | [build-and-testing](../build-and-testing.md) · `BottomChromeCompositionTest`, `CountedList` |
+| [BottomChromeCompositionTest.kt](../../app/src/androidTest/java/com/theveloper/pixelplay/presentation/components/BottomChromeCompositionTest.kt) | 108 | [build-and-testing](../build-and-testing.md) · `BottomChromeCompositionTest`, `CountedList` |
 
 ## app/src/androidTest/java/com/theveloper/pixelplay/ui/glancewidget
 
@@ -92,7 +92,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | Archivo | Líneas | Orientación |
 | --- | ---: | --- |
 | [ExternalPlayerActivity.kt](../../app/src/main/java/com/theveloper/pixelplay/ExternalPlayerActivity.kt) | 145 | [architecture](../architecture.md) · `ExternalPlayerActivity`, `onCreate`, `onNewIntent`, `handleIntent`, `openFullPlayer`, `resolveStreamUri` |
-| [MainActivity.kt](../../app/src/main/java/com/theveloper/pixelplay/MainActivity.kt) | 1048 | [architecture](../architecture.md) · `BottomNavItem`, `DismissUndoBarSlice`, `MainActivity`, `attachBaseContext`, `onCreate`, `onNewIntent` |
+| [MainActivity.kt](../../app/src/main/java/com/theveloper/pixelplay/MainActivity.kt) | 1051 | [architecture](../architecture.md) · `BottomNavItem`, `DismissUndoBarSlice`, `MainActivity`, `attachBaseContext`, `onCreate`, `onNewIntent` |
 | [MainActivityIntentContract.kt](../../app/src/main/java/com/theveloper/pixelplay/MainActivityIntentContract.kt) | 7 | [architecture](../architecture.md) · `MainActivityIntentContract` |
 | [PixelPlayApplication.kt](../../app/src/main/java/com/theveloper/pixelplay/PixelPlayApplication.kt) | 203 | [architecture](../architecture.md) · `PixelPlayApplication`, `onStart`, `onStop`, `attachBaseContext`, `onCreate`, `newImageLoader` |
 | [ReleaseTree.kt](../../app/src/main/java/com/theveloper/pixelplay/ReleaseTree.kt) | 35 | [architecture](../architecture.md) · `ReleaseTree`, `isLoggable`, `log` |
@@ -553,7 +553,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [NoInternetComponents.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/NoInternetComponents.kt) | 116 | [ui-and-state](../ui-and-state.md) · `NoInternetDialog`, `NoInternetScreen` |
 | [OptimizedAlbumArt.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/OptimizedAlbumArt.kt) | 338 | [ui-and-state](../ui-and-state.md) · `OptimizedAlbumArt`, `PlaceholderContent`, `renderDirectAlbumArt`, `safeAlbumArtTargetSize`, `albumArtMemoryCacheKey` |
 | [PermissionIconCollage.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/PermissionIconCollage.kt) | 102 | [ui-and-state](../ui-and-state.md) · `IconConfig`, `PermissionIconCollage` |
-| [PlayerInternalNavigationBar.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/PlayerInternalNavigationBar.kt) | 177 | [ui-and-state](../ui-and-state.md) · `sanitizeNavigationBarBottomInset`, `calculatePlayerSheetCollapsedTargetY`, `PlayerInternalNavigationBar` |
+| [PlayerInternalNavigationBar.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/PlayerInternalNavigationBar.kt) | 232 | [ui-and-state](../ui-and-state.md) · `sanitizeNavigationBarBottomInset`, `calculatePlayerSheetCollapsedTargetY`, `PlayerInternalNavigationBar` |
 | [PlaylistArtCollage.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/PlaylistArtCollage.kt) | 223 | [ui-and-state](../ui-and-state.md) · `PlaylistArtCollage` |
 | [PlaylistBottomSheet.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/PlaylistBottomSheet.kt) | 250 | [ui-and-state](../ui-and-state.md) · `PlaylistBottomSheet` |
 | [PlaylistContainer.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/PlaylistContainer.kt) | 630 | [ui-and-state](../ui-and-state.md) · `PlaylistContainer`, `PlaylistItems`, `PlaylistItem`, `CreatePlaylistDialogRedesigned` |
@@ -577,9 +577,9 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [TimerOptionsBottomSheet.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/TimerOptionsBottomSheet.kt) | 451 | [ui-and-state](../ui-and-state.md) · `TimerOptionsBottomSheet` |
 | [ToggleSegmentButton.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/ToggleSegmentButton.kt) | 230 | [ui-and-state](../ui-and-state.md) · `ToggleSegmentButton`, `ToggleSegmentButtonContainer` |
 | [UnifiedPlayerOverlaysLayer.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/UnifiedPlayerOverlaysLayer.kt) | 505 | [ui-and-state](../ui-and-state.md) · `SaveQueueOverlayData`, `UnifiedPlayerQueueLayer`, `UnifiedPlayerSongInfoLayer`, `UnifiedPlayerQueueAndSongInfoHost`, `UnifiedPlayerSaveQueueLayer`, `UnifiedPlayerCastLayer` |
-| [UnifiedPlayerSheetLayers.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/UnifiedPlayerSheetLayers.kt) | 363 | [ui-and-state](../ui-and-state.md) · `BoxScope.UnifiedPlayerMiniAndFullLayers`, `UnifiedPlayerPrewarmLayer` |
-| [UnifiedPlayerSheetShared.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/UnifiedPlayerSheetShared.kt) | 253 | [ui-and-state](../ui-and-state.md) · `getNavigationBarHeight`, `MiniPlayerContentInternal` |
-| [UnifiedPlayerSheetV2.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/UnifiedPlayerSheetV2.kt) | 832 | [ui-and-state](../ui-and-state.md) · `PlayerUiSheetSliceV2`, `UnifiedPlayerSheetV2`, `animatePlayerSheet` |
+| [UnifiedPlayerSheetLayers.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/UnifiedPlayerSheetLayers.kt) | 364 | [ui-and-state](../ui-and-state.md) · `BoxScope.UnifiedPlayerMiniAndFullLayers`, `UnifiedPlayerPrewarmLayer` |
+| [UnifiedPlayerSheetShared.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/UnifiedPlayerSheetShared.kt) | 257 | [ui-and-state](../ui-and-state.md) · `getNavigationBarHeight`, `MiniPlayerContentInternal` |
+| [UnifiedPlayerSheetV2.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/UnifiedPlayerSheetV2.kt) | 833 | [ui-and-state](../ui-and-state.md) · `PlayerUiSheetSliceV2`, `UnifiedPlayerSheetV2`, `animatePlayerSheet` |
 | [WavyArcSlider.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/WavyArcSlider.kt) | 230 | [ui-and-state](../ui-and-state.md) · `WavyArcSlider`, `mapTouchToValue`, `dispatchValue` |
 | [WavyMusicSlider.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/WavyMusicSlider.kt) | 561 | [ui-and-state](../ui-and-state.md) · `WavyMusicSlider`, `yAt` |
 | [WavySliderExpressive.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/WavySliderExpressive.kt) | 342 | [ui-and-state](../ui-and-state.md) · `WavySliderExpressive`, `lerp`, `valueForX` |
@@ -628,7 +628,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [FullPlayerVisualState.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/FullPlayerVisualState.kt) | 41 | [ui-and-state](../ui-and-state.md) · `FullPlayerVisualState`, `rememberFullPlayerVisualState` |
 | [KeylineListScope.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/KeylineListScope.kt) | 2 | [ui-and-state](../ui-and-state.md) · Sin declaración extraída |
 | [LyricsPredictiveBackHandler.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/LyricsPredictiveBackHandler.kt) | 49 | [ui-and-state](../ui-and-state.md) · `LyricsPredictiveBackHandler` |
-| [MiniPlayerSkipGesture.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/MiniPlayerSkipGesture.kt) | 82 | [ui-and-state](../ui-and-state.md) · `MiniPlayerSkip`, `resolveMiniPlayerSkip`, `rememberMiniPlayerSkipGesture`, `shouldDismissCollapsedPlayer` |
+| [MiniPlayerSkipGesture.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/MiniPlayerSkipGesture.kt) | 119 | [ui-and-state](../ui-and-state.md) · `MiniPlayerSkip`, `resolveMiniPlayerSkip`, `rememberMiniPlayerSkipGesture`, `shouldDismissCollapsedPlayer` |
 | [PlayerAlbumNavigationEffect.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/PlayerAlbumNavigationEffect.kt) | 32 | [ui-and-state](../ui-and-state.md) · `PlayerAlbumNavigationEffect` |
 | [PlayerArtistNavigationEffect.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/PlayerArtistNavigationEffect.kt) | 33 | [ui-and-state](../ui-and-state.md) · `PlayerArtistNavigationEffect` |
 | [PlayerSheetPredictiveBackHandler.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/PlayerSheetPredictiveBackHandler.kt) | 75 | [ui-and-state](../ui-and-state.md) · `PlayerSheetPredictiveBackHandler` |
@@ -643,9 +643,9 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [SheetInteractionState.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetInteractionState.kt) | 171 | [ui-and-state](../ui-and-state.md) · `SheetInteractionState`, `rememberSheetInteractionState`, `PlayerSheetDynamicShape`, `createOutline`, `Dp.nonNegative` |
 | [SheetModalOverlayController.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetModalOverlayController.kt) | 73 | [ui-and-state](../ui-and-state.md) · `SheetModalOverlayController`, `updateSelectedSongForInfo`, `dismissSaveQueueOverlay`, `launchSaveQueueOverlay`, `rememberSheetModalOverlayController` |
 | [SheetMotionController.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetMotionController.kt) | 87 | [ui-and-state](../ui-and-state.md) · `SheetMotionController`, `animateTo`, `stop`, `snapTo`, `snapCollapsed`, `syncToExpansion` |
-| [SheetOverlayState.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetOverlayState.kt) | 114 | [ui-and-state](../ui-and-state.md) · `SheetOverlayState`, `rememberSheetOverlayState` |
+| [SheetOverlayState.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetOverlayState.kt) | 103 | [ui-and-state](../ui-and-state.md) · `SheetOverlayState`, `rememberSheetOverlayState` |
 | [SheetThemeState.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetThemeState.kt) | 251 | [ui-and-state](../ui-and-state.md) · `SheetThemeState`, `resolvePlayerSheetTargetScheme`, `rememberSheetThemeState`, `rememberBatchAnimatedColorScheme`, `lerpColorScheme` |
-| [SheetVerticalDragGestureHandler.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetVerticalDragGestureHandler.kt) | 188 | [ui-and-state](../ui-and-state.md) · `SheetVerticalDragGestureHandler`, `onDragStart`, `onVerticalDrag`, `onDragEnd`, `onDragCancel`, `Modifier.playerSheetVerticalDragGesture` |
+| [SheetVerticalDragGestureHandler.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetVerticalDragGestureHandler.kt) | 195 | [ui-and-state](../ui-and-state.md) · `SheetVerticalDragGestureHandler`, `onDragStart`, `onVerticalDrag`, `onDragEnd`, `onDragCancel`, `Modifier.playerSheetVerticalDragGesture` |
 | [SheetVerticalDragMath.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetVerticalDragMath.kt) | 69 | [ui-and-state](../ui-and-state.md) · `SheetVerticalDragFrame`, `computeSheetVerticalDragFrame`, `resolveVerticalSheetTargetState`, `collapseSpringDampingForFraction`, `collapseInitialSquashForFraction` |
 | [SheetVisualState.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetVisualState.kt) | 166 | [ui-and-state](../ui-and-state.md) · `collapsedPillCompactionOffset`, `SheetVisualState`, `rememberSheetVisualState` |
 

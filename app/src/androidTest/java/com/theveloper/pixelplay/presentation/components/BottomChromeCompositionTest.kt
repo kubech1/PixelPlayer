@@ -1,5 +1,6 @@
 package com.theveloper.pixelplay.presentation.components
 
+import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,9 +17,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.theveloper.pixelplay.BottomNavItem
 import com.theveloper.pixelplay.R
@@ -58,19 +64,27 @@ class BottomChromeCompositionTest {
                             currentRoute = Screen.Home.route,
                             hasSong = true,
                             mergeFractionProvider = chrome.mergeFractionProvider,
-                            modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(64.dp)
+                            modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(NavigationPillHeight)
                         )
                     }
                 }
             }
         }
         compose.waitForIdle()
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val homeLabel = context.getString(R.string.nav_bar_home)
+        val home = compose.onNodeWithContentDescription(homeLabel).assertHasClickAction().assertIsSelected()
+        val homeBounds = home.getUnclippedBoundsInRoot()
+        assertTrue(homeBounds.right - homeBounds.left >= 48.dp)
         val initial = listCompositions.get()
         compose.mainClock.autoAdvance = false
         compose.runOnIdle {
             chrome.nestedScrollConnection.onPostScroll(Offset(0f, -1000f), Offset.Zero, NestedScrollSource.UserInput)
         }
         compose.mainClock.advanceTimeBy(400)
+        compose.onNodeWithContentDescription(homeLabel).assertDoesNotExist()
+        compose.onNodeWithContentDescription(context.getString(R.string.show_navigation_current_tab, homeLabel))
+            .assertHasClickAction()
         compose.runOnIdle {
             assertTrue(chrome.mergeFractionProvider() > 0.9f)
             assertEquals(initial, listCompositions.get())

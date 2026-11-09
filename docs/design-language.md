@@ -94,16 +94,16 @@ Sustituir las llamadas a `resolveNavBarOccupiedHeight`/`resolveMainScreenBottomG
 
 | Elemento | Separadas | Fusionadas | Sin música (compacta) |
 | --- | --- | --- | --- |
-| Margen horizontal | 16 dp | 16 dp | centrada |
-| Píldora de navegación | ancho = pantalla − 32 dp, alto 64 dp | círculo de 56 dp a la izquierda | alto 52 dp, ancho ≈ 3 × 56 dp + relleno |
-| Indicador de pestaña | cápsula de 52 dp de alto, ancho del ítem − 8 dp | — (solo el icono activo) | cápsula de 40 × 48 dp |
+| Margen horizontal | navegación centrada, mini reproductor a 16 dp | 16 dp | centrada |
+| Píldora de navegación | 236 × 56 dp a escala normal, crece según las etiquetas | círculo de 56 dp al inicio | 184 × 52 dp |
+| Indicador de pestaña | cápsula de 48 dp de alto, ancho del ítem − 4 dp | — (solo el icono activo) | cápsula de 48 × 44 dp |
 | Etiquetas | 12 sp Medium, bajo el icono | ocultas | ocultas |
 | Píldora del mini reproductor | ancho = pantalla − 32 dp, alto 64 dp, portada de 44 dp | alto 56 dp, inicio en 16 + 56 + 8 = 80 dp, portada de 40 dp | — |
 | Separación entre píldoras | 8 dp | 8 dp (horizontal) | — |
 | Distancia al borde inferior | inset del sistema + 8 dp | igual | igual |
 | Radio | siempre alto / 2 (píldora real) | igual | igual |
 
-Con texto grande, la altura en reposo crece (`heightIn(min = 64.dp)`). La altura reservada se mide una vez y no por fotograma.
+Con texto grande, el ancho se adapta a la etiqueta más larga hasta el espacio disponible y la altura reservada crece con la línea de texto. Las medidas en reposo se calculan fuera de la animación.
 
 ### 2.2 Estado y política de fusión
 
@@ -127,7 +127,7 @@ Con texto grande, la altura en reposo crece (`heightIn(min = 64.dp)`). La altura
 ### 2.3 Píldora de navegación
 
 Reescribir [PlayerInternalNavigationBar](../app/src/main/java/com/theveloper/pixelplay/presentation/components/PlayerInternalNavigationBar.kt) y `CustomNavigationBarItem` (retirado en la Fase 2) como un `Layout` propio que lea `mergeFraction` en la fase de layout:
-- Ancho: `lerp(restWidth, 56.dp, f)`, anclado al inicio (respetando RTL).
+- Ancho: `lerp(restWidth, 56.dp, f)`, desplazando la píldora desde el centro al inicio (respetando RTL).
 - Las etiquetas pierden alpha y escala en el intervalo 0–0,4 de `f`.
 - Los iconos no activos pierden alpha y bajan a escala 0,8 en el intervalo 0,2–0,7.
 - El icono activo se centra en el círculo.
@@ -139,7 +139,7 @@ Reescribir [PlayerInternalNavigationBar](../app/src/main/java/com/theveloper/pix
 
 **Semántica:**
 - Cada ítem mantiene `Role.Tab`, el estado de selección y su etiqueta, aunque esté oculta.
-- El círculo fusionado tiene la descripción «Mostrar navegación, pestaña actual: …», con un recurso de texto nuevo.
+- La superficie pasa a ser un único botón al terminar el desvanecimiento de las etiquetas o antes de que las pestañas dejen de tener 48 dp disponibles. Su descripción es «Mostrar navegación, pestaña actual: …».
 - Las zonas táctiles miden al menos 48 dp.
 
 Sustituir el `Surface` del `bottomBar` de `MainActivity` (la forma de `NavBarShapeCache`, las esquinas animadas y la elevación) por `pillSurface`. Conservar la traslación de ocultación existente (`playerContentExpansionFraction` y `navBarVisibilityProgressState`), aplicada en `graphicsLayer`.
@@ -161,7 +161,7 @@ Sustituir el `Surface` del `bottomBar` de `MainActivity` (la forma de `NavBarSha
 - **Horizontal = anterior/siguiente.** Sustituir el uso de `miniPlayerDismissHorizontalGesture` (`MiniPlayerDismissGestureHandler` (retirado en la Fase 2)) por `miniPlayerSkipHorizontalGesture`:
   - La portada y el texto siguen al dedo; el contenedor no se mueve.
   - Se confirma con un desplazamiento ≥ 25 % del ancho de la píldora o una velocidad ≥ 1000 dp/s. Izquierda = siguiente y derecha = anterior, invertido en RTL.
-  - Al confirmar, el contenido sale por el lado del gesto y el nuevo entra por el contrario con `PixelMotion.feedback`, y suena la háptica de paso de navegación existente. Si se cancela, vuelve con `structural`.
+  - Al confirmar, se ejecuta el salto y se emite la háptica. El contenido saliente se conserva mientras se desliza fuera con `structural`; si cambió la pista, la nueva entra por el lado contrario con `feedback`. Si el gesto se cancela o sigue la misma pista, el contenido vuelve con `structural`.
   - Usa los mismos callbacks `onNext`/`onPrevious` que los botones, sin cambiar su semántica en Media3.
 - **Abajo = cerrar la cola con deshacer.** Extender [SheetVerticalDragGestureHandler](../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetVerticalDragGestureHandler.kt) y `resolveVerticalSheetTargetState`:
   - Desde `COLLAPSED`, un arrastre hacia abajo ≥ 48 dp o una velocidad hacia abajo ≥ 800 dp/s llama a `dismissPlaylistAndShowUndo()`.
@@ -308,6 +308,7 @@ Comandos (ver [Build y pruebas](build-and-testing.md)): `.\gradlew.bat :app:asse
 
 ### Evidencia de la Fase 2
 
+- En la revisión de la píldora centrada se comprobó en un emulador API 37 su aspecto con y sin mini reproductor. Con la reproducción en pausa, un gesto horizontal pasó de la pista de prueba 15 a la 16, el gesto hacia abajo cerró la cola y Deshacer restauró la pista 16. La suite JVM registró 382 pruebas sin fallos. La prueba instrumental verificó el objetivo táctil, la acción semántica de reapertura y la ausencia de recomposición de su lista de prueba durante la fusión.
 - En el emulador API 37 se observaron las dos píldoras en reposo y la navegación de Inicio a Biblioteca. `BottomChromeCompositionTest` ejecutó la animación real del holder y contó las composiciones de una lista de prueba. El informe XML registró 1 prueba sin fallos. El proceso auxiliar del APK de pruebas registró por separado un error de carga de `androidx.startup.InitializationProvider`.
 - El primer arranque sobre una base local antigua del emulador falló con un `identity hash` de Room distinto. La base anterior se conservó y la comprobación visual se hizo con una base nueva. Este cambio no introduce migraciones de Room.
 - `:app:lintDebug` reportó errores globales. El primero fue `MissingDefaultResource` para `sharing_playlists_message`, reproducible por inspección de `HEAD`. El informe no señaló errores en los componentes nuevos o reescritos de las píldoras.

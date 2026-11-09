@@ -75,7 +75,8 @@ internal fun MiniPlayerContentInternal(
     onNext: () -> Unit,
     modifier: Modifier = Modifier,
     canScroll: Boolean = true,
-    compactFractionProvider: () -> Float = { 0f }
+    compactFractionProvider: () -> Float = { 0f },
+    queueIndex: Int = -1
 ) {
     val hapticFeedback = LocalHapticFeedback.current
     val restingHeight = LocalBottomChrome.current.miniPlayerRestingHeight
@@ -86,7 +87,10 @@ internal fun MiniPlayerContentInternal(
     val nextInteraction = remember { MutableInteractionSource() }
     val miniPlayerIndication = remember { ripple(bounded = false) }
 
-    val (skipGesture, skipOffset) = com.theveloper.pixelplay.presentation.components.scoped.rememberMiniPlayerSkipGesture(controlsEnabled, onPrevious, onNext)
+    val (skipGesture, skipOffset, displayedSong) =
+        com.theveloper.pixelplay.presentation.components.scoped.rememberMiniPlayerSkipGesture(
+            controlsEnabled, song, queueIndex, onPrevious, onNext
+        )
     val collapseControl = Modifier.layout { measurable, constraints ->
         val child = measurable.measure(constraints)
         val visibility = (1f - compactFractionProvider()).coerceIn(0f, 1f)
@@ -104,12 +108,12 @@ internal fun MiniPlayerContentInternal(
             .padding(start = 10.dp, end = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val albumArtModel = song.albumArtUriString?.takeIf { it.isNotBlank() }
+        val albumArtModel = displayedSong.albumArtUriString?.takeIf { it.isNotBlank() }
         Box(Modifier.graphicsLayer { translationX = skipOffset() }, contentAlignment = Alignment.Center) {
-            key(song.id) {
+            key(displayedSong.id) {
                 SmartImage(
                     model = albumArtModel,
-                    contentDescription = "Carátula de ${song.title}",
+                    contentDescription = "Carátula de ${displayedSong.title}",
                     shape = CircleShape,
                     targetSize = Size(150, 150),
                     modifier = Modifier.layout { measurable, constraints ->
@@ -155,14 +159,14 @@ internal fun MiniPlayerContentInternal(
                 text = when {
                     isCastConnecting -> "Connecting to device…"
                     isPreparingPlayback -> "Preparing playback…"
-                    else -> song.title
+                    else -> displayedSong.title
                 },
                 style = titleStyle,
                 gradientEdgeColor = LocalMaterialTheme.current.primaryContainer,
                 canScroll = canScroll
             )
             AutoScrollingText(
-                text = if (isPreparingPlayback) "Loading audio…" else song.displayArtist,
+                text = if (isPreparingPlayback) "Loading audio…" else displayedSong.displayArtist,
                 modifier = Modifier.layout { measurable, constraints ->
                     val child = measurable.measure(constraints.copy(minHeight = 0))
                     val visibility = (1f - compactFractionProvider()).coerceIn(0f, 1f)

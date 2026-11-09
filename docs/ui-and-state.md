@@ -61,6 +61,8 @@ En [UnifiedPlayerSheetV2](../app/src/main/java/com/theveloper/pixelplay/presenta
 
 ## Píldoras inferiores (Fase 2)
 
+En reposo, la píldora de navegación se centra y ajusta su ancho a las tres pestañas. Mide 236 × 56 dp a escala de texto normal. Al fusionarse, se desplaza al inicio de la fila y los tres destinos ceden el área táctil a un único botón que vuelve a abrir la navegación.
+
 La barra y el mini reproductor usan superficies en píldora. [BottomChromeState](../app/src/main/java/com/theveloper/pixelplay/presentation/components/bottomchrome/BottomChromeState.kt) conserva el estado efímero en Compose; la política recibe desplazamiento consumido mediante `onPostScroll`. Fusiona al acumular 24 dp hacia el final, separa al volver 24 dp, al alcanzar el principio o tras 800 ms sin desplazamiento (incluido el fling). Cambio de ruta, teclado, expansión, TalkBack y la preferencia desactivada restablecen la geometría. Las animaciones desactivadas usan `snap` para la fusión y el cambio horizontal de canción.
 
 `LocalBottomChrome` reserva espacio constante en reposo. La fracción se lee en layout/dibujo, sin cambiar `sheetCollapsedTargetY` por fotograma. El círculo fusionado abre la navegación; reseleccionar Inicio, Buscar o Biblioteca lleva la lista al principio. Las páginas adyacentes del pager de Biblioteca no reciben la acción. El doble toque en Buscar conserva la activación de búsqueda.
