@@ -134,7 +134,6 @@ class UserPreferencesRepository @Inject constructor(
         val TELEGRAM_TOPIC_DISPLAY_MODE = stringPreferencesKey("telegram_topic_display_mode")
         val FOLDERS_SOURCE = stringPreferencesKey("folders_source")
         val FOLDER_BACK_GESTURE_NAVIGATION = booleanPreferencesKey("folder_back_gesture_navigation")
-        val USE_SMOOTH_CORNERS = booleanPreferencesKey("use_smooth_corners")
         val KEEP_PLAYING_IN_BACKGROUND = booleanPreferencesKey("keep_playing_in_background")
         val IS_CROSSFADE_ENABLED = booleanPreferencesKey("is_crossfade_enabled")
         val HI_FI_MODE_ENABLED = booleanPreferencesKey("hi_fi_mode_enabled")
@@ -944,13 +943,6 @@ suspend fun markDirectoryRulesVersionApplied(version: Int) {
 
     suspend fun setLaunchTab(tab: String) {
         dataStore.edit { it[PreferencesKeys.LAUNCH_TAB] = tab }
-    }
-
-    val useSmoothCornersFlow: Flow<Boolean> =
-        pref { it[PreferencesKeys.USE_SMOOTH_CORNERS] ?: false }
-
-    suspend fun setUseSmoothCorners(enabled: Boolean) {
-        dataStore.edit { it[PreferencesKeys.USE_SMOOTH_CORNERS] = enabled }
     }
 
     // ─── Multi-artist settings ────────────────────────────────────────────────

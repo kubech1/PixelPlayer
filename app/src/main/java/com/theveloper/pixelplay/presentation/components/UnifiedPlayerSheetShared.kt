@@ -2,6 +2,10 @@
 
 package com.theveloper.pixelplay.presentation.components
 
+import com.theveloper.pixelplay.presentation.components.scoped.ArtworkEndpoint
+import com.theveloper.pixelplay.presentation.components.scoped.PlayerArtworkTransition
+import com.theveloper.pixelplay.presentation.components.scoped.capturePlayerArtwork
+
 import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottomChrome
 
 import androidx.compose.foundation.background
@@ -76,7 +80,8 @@ internal fun MiniPlayerContentInternal(
     modifier: Modifier = Modifier,
     canScroll: Boolean = true,
     compactFractionProvider: () -> Float = { 0f },
-    queueIndex: Int = -1
+    queueIndex: Int = -1,
+    artworkTransition: PlayerArtworkTransition? = null
 ) {
     val hapticFeedback = LocalHapticFeedback.current
     val restingHeight = LocalBottomChrome.current.miniPlayerRestingHeight
@@ -111,16 +116,20 @@ internal fun MiniPlayerContentInternal(
         val albumArtModel = displayedSong.albumArtUriString?.takeIf { it.isNotBlank() }
         Box(Modifier.graphicsLayer { translationX = skipOffset() }, contentAlignment = Alignment.Center) {
             key(displayedSong.id) {
+                val capture = Modifier.capturePlayerArtwork(
+                    artworkTransition,
+                    displayedSong,
+                    ArtworkEndpoint.MINI
+                )
                 SmartImage(
                     model = albumArtModel,
                     contentDescription = "Carátula de ${displayedSong.title}",
-                    shape = CircleShape,
                     targetSize = Size(150, 150),
                     modifier = Modifier.layout { measurable, constraints ->
                         val side = (44.dp.toPx() - 4.dp.toPx() * compactFractionProvider()).toInt()
                         val child = measurable.measure(androidx.compose.ui.unit.Constraints.fixed(side, side))
                         layout(side, side) { child.placeRelative(0, 0) }
-                    },
+                    }.clip(CircleShape).then(capture),
                     placeholderModel = if (albumArtModel?.startsWith("telegram_art") == true) {
                         "$albumArtModel?quality=thumb"
                     } else null

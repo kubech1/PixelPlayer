@@ -520,8 +520,6 @@ fun SettingsCategoryScreen(
                             }
                         }
                         SettingsCategory.APPEARANCE -> {
-                            val useSmoothCorners by settingsViewModel.useSmoothCorners.collectAsStateWithLifecycle()
-
                             SettingsSubsection(title = stringResource(R.string.settings_global_theme_section)) {
                                 ThemeSelectorItem(
                                     label = stringResource(R.string.settings_app_language_title),
@@ -545,13 +543,6 @@ fun SettingsCategoryScreen(
                                     selectedKey = uiState.appThemeMode,
                                     onSelectionChanged = { settingsViewModel.setAppThemeMode(it) },
                                     leadingIcon = { Icon(Icons.Outlined.LightMode, null, tint = MaterialTheme.colorScheme.secondary) }
-                                )
-                                SwitchSettingItem(
-                                    title = stringResource(R.string.settings_smooth_corners_title),
-                                    subtitle = stringResource(R.string.settings_smooth_corners_subtitle),
-                                    checked = useSmoothCorners,
-                                    onCheckedChange = settingsViewModel::setUseSmoothCorners,
-                                    leadingIcon = { Icon(painterResource(R.drawable.rounded_rounded_corner_24), null, tint = MaterialTheme.colorScheme.secondary) }
                                 )
                                 ThemeSelectorItem(
                                     label = stringResource(R.string.settings_visual_effects_title),

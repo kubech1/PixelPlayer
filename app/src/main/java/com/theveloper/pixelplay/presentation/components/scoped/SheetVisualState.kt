@@ -3,10 +3,13 @@ package com.theveloper.pixelplay.presentation.components.scoped
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 
@@ -16,16 +19,17 @@ internal fun collapsedPillCompactionOffset(restingHeight: Dp, navigationHeight: 
 internal data class SheetVisualState(
     val currentBottomPadding: Dp,
     val baseBottomPadding: Dp,
-    val collapsedStateHorizontalPaddingPx: Int,
     /** Draw-phase provider: read this inside graphicsLayer to avoid layout relayout per frame. */
     val playerContentAreaHeightPxProvider: () -> Float,
     /** Layout-phase provider: read inside .offset { } to avoid recomposition per drag frame. */
     val visualSheetTranslationYProvider: () -> Float,
-    val overallSheetTopCornerRadiusProvider: () -> Dp,
-    val playerContentActualBottomRadiusProvider: () -> Dp,
+    val sheetCornerRadiusProvider: () -> Dp,
     /** Draw-phase providers: read inside graphicsLayer to avoid layout relayout per frame. */
     val currentHorizontalPaddingStartPxProvider: () -> Float,
-    val currentHorizontalPaddingEndPxProvider: () -> Float
+    val currentHorizontalPaddingEndPxProvider: () -> Float,
+    val effectiveExpansionFractionProvider: () -> Float,
+    val miniArtworkAnchorOffsetProvider: () -> Offset,
+    val carouselArtworkAnchorOffsetProvider: () -> Offset
 )
 
 @Composable
@@ -33,7 +37,7 @@ internal fun rememberSheetVisualState(
     showPlayerContentArea: Boolean,
     miniPlayerRestingHeight: Dp,
     collapsedStateHorizontalPadding: Dp,
-    predictiveBackCollapseProgress: Float,
+    predictiveBackCollapseProgress: State<Float>,
     playerContentExpansionFraction: Animatable<Float, AnimationVector1D>,
     containerHeight: Dp,
     currentSheetTranslationY: Animatable<Float, AnimationVector1D>,
@@ -42,125 +46,84 @@ internal fun rememberSheetVisualState(
     navigationRowHeight: Dp,
     isNavBarHidden: Boolean,
 ): SheetVisualState {
-    // Compute in px to be read inside graphicsLayer (draw phase) — zero relayout per drag frame.
     val density = LocalDensity.current
-    val baseBottomPadding = remember(containerHeight, sheetCollapsedTargetY, density, miniPlayerRestingHeight) {
-        val targetYDp = with(density) { sheetCollapsedTargetY.toDp() }
-        (containerHeight - miniPlayerRestingHeight - targetYDp)
-            .coerceAtLeast(0.dp)
-    }
-
-    val currentBottomPadding = 0.dp
-
-    val miniHeightPx = remember(density, miniPlayerRestingHeight) { with(density) { miniPlayerRestingHeight.toPx() } }
-    val containerHeightPx = remember(containerHeight, density) { with(density) { containerHeight.toPx() } }
-    val predictiveBackCollapseProgressState = rememberUpdatedState(predictiveBackCollapseProgress)
-    val baseTranslationYProvider: () -> Float = remember(
-        currentSheetTranslationY,
-        sheetCollapsedTargetY
-    ) {
-        {
-            val progress = predictiveBackCollapseProgressState.value
-            currentSheetTranslationY.value * (1f - progress) +
-                (sheetCollapsedTargetY * progress)
-        }
-    }
-
-    val playerContentAreaHeightPxProvider: () -> Float = remember(
+    val direction = LocalLayoutDirection.current
+    return remember(
+        density,
+        direction,
         showPlayerContentArea,
-        playerContentExpansionFraction,
+        miniPlayerRestingHeight,
+        collapsedStateHorizontalPadding,
         predictiveBackCollapseProgress,
-        miniHeightPx,
-        containerHeightPx,
-        baseTranslationYProvider,
+        playerContentExpansionFraction,
+        containerHeight,
+        currentSheetTranslationY,
+        sheetCollapsedTargetY,
         mergeFractionProvider,
-        sheetCollapsedTargetY
+        navigationRowHeight,
+        isNavBarHidden
     ) {
-        {
-            if (showPlayerContentArea) {
-                val effectiveFraction = playerContentExpansionFraction.value * (1f - predictiveBackCollapseProgress)
-                val safeFraction = effectiveFraction.coerceIn(0f, 1f)
-                val translationY = baseTranslationYProvider()
-                
+        val baseBottomPadding = with(density) {
+            (containerHeight - miniPlayerRestingHeight - sheetCollapsedTargetY.toDp()).coerceAtLeast(0.dp)
+        }
+        val miniHeightPx = with(density) { miniPlayerRestingHeight.toPx() }
+        val compactHeightPx = with(density) { 56.dp.toPx() }
+        val containerHeightPx = with(density) { containerHeight.toPx() }
+        val restingStartPx = with(density) { collapsedStateHorizontalPadding.toPx() }
+        val compactInsetPx = if (isNavBarHidden) 0f else with(density) { 64.dp.toPx() }
+        val compactionOffsetPx = with(density) {
+            collapsedPillCompactionOffset(miniPlayerRestingHeight, navigationRowHeight, isNavBarHidden).toPx()
+        }
+        val expansion = {
+            (playerContentExpansionFraction.value * (1f - predictiveBackCollapseProgress.value)).coerceIn(0f, 1f)
+        }
+        val baseTranslationY = {
+            androidx.compose.ui.util.lerp(currentSheetTranslationY.value, sheetCollapsedTargetY, predictiveBackCollapseProgress.value)
+        }
+        val visualTranslationY = {
+            baseTranslationY() + compactionOffsetPx * mergeFractionProvider() * (1f - expansion())
+        }
+        val collapsedStart = { restingStartPx + compactInsetPx * mergeFractionProvider() }
+        val currentStart = { if (showPlayerContentArea) collapsedStart() * (1f - expansion()) else restingStartPx }
+        val radius = {
+            lerp(lerp(miniPlayerRestingHeight / 2, 28.dp, mergeFractionProvider()), 0.dp, expansion())
+        }
+
+        SheetVisualState(
+            currentBottomPadding = 0.dp,
+            baseBottomPadding = baseBottomPadding,
+            playerContentAreaHeightPxProvider = height@{
+                if (!showPlayerContentArea) return@height 0f
+                val fraction = expansion()
+                val translationY = baseTranslationY()
+                val compactDelta = (miniHeightPx - compactHeightPx) * mergeFractionProvider()
                 if (translationY <= sheetCollapsedTargetY) {
                     val targetBottom = androidx.compose.ui.util.lerp(
-                        sheetCollapsedTargetY + miniHeightPx,
-                        containerHeightPx,
-                        safeFraction
+                        sheetCollapsedTargetY + miniHeightPx, containerHeightPx, fraction
                     )
-                    (targetBottom - translationY - (miniHeightPx - with(density) { 56.dp.toPx() }) * mergeFractionProvider() * (1f - safeFraction)).coerceAtLeast(0f)
+                    (targetBottom - translationY - compactDelta * (1f - fraction)).coerceAtLeast(0f)
                 } else {
-                    androidx.compose.ui.util.lerp(miniHeightPx - (miniHeightPx - with(density) { 56.dp.toPx() }) * mergeFractionProvider(), containerHeightPx, safeFraction)
+                    androidx.compose.ui.util.lerp(miniHeightPx - compactDelta, containerHeightPx, fraction)
                 }
-            } else {
-                0f
+            },
+            visualSheetTranslationYProvider = visualTranslationY,
+            sheetCornerRadiusProvider = radius,
+            currentHorizontalPaddingStartPxProvider = currentStart,
+            currentHorizontalPaddingEndPxProvider = {
+                if (showPlayerContentArea) restingStartPx * (1f - expansion()) else restingStartPx
+            },
+            effectiveExpansionFractionProvider = expansion,
+            // Project the laid-out artwork to each settled position in the moving sheet viewport.
+            miniArtworkAnchorOffsetProvider = {
+                val directionSign = if (direction == LayoutDirection.Ltr) 1f else -1f
+                Offset(
+                    directionSign * (collapsedStart() - currentStart()),
+                    sheetCollapsedTargetY + compactionOffsetPx * mergeFractionProvider() - visualTranslationY()
+                )
+            },
+            carouselArtworkAnchorOffsetProvider = {
+                Offset(0f, -visualTranslationY())
             }
-        }
+        )
     }
-
-    val overallSheetTopCornerRadiusProvider: () -> Dp = remember(playerContentExpansionFraction, mergeFractionProvider, predictiveBackCollapseProgress, miniPlayerRestingHeight) {
-        {
-            val expansion = (playerContentExpansionFraction.value * (1f - predictiveBackCollapseProgress)).coerceIn(0f, 1f)
-            lerp(lerp(miniPlayerRestingHeight / 2, 28.dp, mergeFractionProvider()), 0.dp, expansion)
-        }
-    }
-    val playerContentActualBottomRadiusProvider = overallSheetTopCornerRadiusProvider
-    val collapsedStateHorizontalPaddingPx = with(density) { collapsedStateHorizontalPadding.toPx() }
-
-    val currentHorizontalPaddingStartPxProvider: () -> Float = remember(
-        isNavBarHidden, mergeFractionProvider,
-        showPlayerContentArea,
-        collapsedStateHorizontalPaddingPx,
-        playerContentExpansionFraction,
-        predictiveBackCollapseProgress
-    ) {
-        {
-            if (showPlayerContentArea) {
-                val effectiveFraction = playerContentExpansionFraction.value * (1f - predictiveBackCollapseProgress)
-                val safeFraction = effectiveFraction.coerceIn(0f, 1f)
-                androidx.compose.ui.util.lerp(collapsedStateHorizontalPaddingPx + (if (isNavBarHidden) 0f else with(density) { 64.dp.toPx() }) * mergeFractionProvider(), 0f, safeFraction)
-            } else {
-                collapsedStateHorizontalPaddingPx
-            }
-        }
-    }
-
-    val currentHorizontalPaddingEndPxProvider: () -> Float = remember(
-        showPlayerContentArea,
-        collapsedStateHorizontalPaddingPx,
-        playerContentExpansionFraction,
-        predictiveBackCollapseProgress
-    ) {
-        {
-            if (showPlayerContentArea) {
-                val effectiveFraction = playerContentExpansionFraction.value * (1f - predictiveBackCollapseProgress)
-                val safeFraction = effectiveFraction.coerceIn(0f, 1f)
-                androidx.compose.ui.util.lerp(collapsedStateHorizontalPaddingPx, 0f, safeFraction)
-            } else {
-                collapsedStateHorizontalPaddingPx
-            }
-        }
-    }
-
-    val compactionOffsetPx = with(density) {
-        collapsedPillCompactionOffset(miniPlayerRestingHeight, navigationRowHeight, isNavBarHidden).toPx()
-    }
-    val visualSheetTranslationYProvider: () -> Float = remember(baseTranslationYProvider, mergeFractionProvider, compactionOffsetPx, playerContentExpansionFraction, predictiveBackCollapseProgress) {
-        {
-            val weight = 1f - (playerContentExpansionFraction.value * (1f - predictiveBackCollapseProgress)).coerceIn(0f, 1f)
-            baseTranslationYProvider() + compactionOffsetPx * mergeFractionProvider() * weight
-        }
-    }
-
-    return SheetVisualState(
-        currentBottomPadding = currentBottomPadding,
-        baseBottomPadding = baseBottomPadding,
-        collapsedStateHorizontalPaddingPx = collapsedStateHorizontalPaddingPx.toInt().coerceAtLeast(0),
-        playerContentAreaHeightPxProvider = playerContentAreaHeightPxProvider,
-        visualSheetTranslationYProvider = visualSheetTranslationYProvider,
-        overallSheetTopCornerRadiusProvider = overallSheetTopCornerRadiusProvider,
-        playerContentActualBottomRadiusProvider = playerContentActualBottomRadiusProvider,
-        currentHorizontalPaddingStartPxProvider = currentHorizontalPaddingStartPxProvider,
-        currentHorizontalPaddingEndPxProvider = currentHorizontalPaddingEndPxProvider
-    )
 }

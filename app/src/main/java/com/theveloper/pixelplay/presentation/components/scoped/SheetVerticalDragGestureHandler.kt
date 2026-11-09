@@ -140,15 +140,19 @@ internal class SheetVerticalDragGestureHandler(
             } else {
                 val dynamicDamping = collapseSpringDampingForFraction(currentFraction)
                 launch {
-                    val initialSquash = collapseInitialSquashForFraction(currentFraction)
-                    visualOvershootScaleY.snapTo(initialSquash)
-                    visualOvershootScaleY.animateTo(
-                        targetValue = 1f,
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessVeryLow
+                    if (animationsEnabled()) {
+                        val initialSquash = collapseInitialSquashForFraction(currentFraction)
+                        visualOvershootScaleY.snapTo(initialSquash)
+                        visualOvershootScaleY.animateTo(
+                            targetValue = 1f,
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessVeryLow
+                            )
                         )
-                    )
+                    } else {
+                        visualOvershootScaleY.snapTo(1f)
+                    }
                 }
                 launch {
                     onAnimateSheet(

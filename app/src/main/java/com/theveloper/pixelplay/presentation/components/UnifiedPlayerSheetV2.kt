@@ -18,15 +18,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -45,7 +46,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -71,6 +71,7 @@ import com.theveloper.pixelplay.data.diagnostics.AdvancedPerformanceDiagnostics
 import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerAlbumNavigationEffect
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerArtistNavigationEffect
+import com.theveloper.pixelplay.presentation.components.scoped.PlayerArtworkIdentity
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerSheetPredictiveBackHandler
 import com.theveloper.pixelplay.presentation.components.scoped.QueueSheetRuntimeEffects
 import com.theveloper.pixelplay.presentation.components.scoped.SheetMotionController
@@ -78,6 +79,7 @@ import com.theveloper.pixelplay.presentation.components.scoped.playerSheetVertic
 import com.theveloper.pixelplay.presentation.components.scoped.rememberFullPlayerCompositionPolicy
 import com.theveloper.pixelplay.presentation.components.scoped.rememberCastSheetState
 import com.theveloper.pixelplay.presentation.components.scoped.rememberFullPlayerVisualState
+import com.theveloper.pixelplay.presentation.components.scoped.rememberPlayerArtworkTransition
 import com.theveloper.pixelplay.presentation.components.scoped.rememberPrewarmFullPlayer
 import com.theveloper.pixelplay.presentation.components.scoped.rememberQueueSheetState
 import com.theveloper.pixelplay.presentation.components.scoped.rememberSheetActionHandlers
@@ -91,6 +93,8 @@ import com.theveloper.pixelplay.presentation.viewmodel.PlayerSheetState
 import com.theveloper.pixelplay.presentation.viewmodel.PlayerViewModel
 import com.theveloper.pixelplay.presentation.viewmodel.StablePlayerState
 import com.theveloper.pixelplay.ui.theme.LocalPixelPlayDarkTheme
+import com.theveloper.pixelplay.ui.theme.LocalMotionPreferences
+import com.theveloper.pixelplay.ui.theme.PixelMotion
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -208,7 +212,7 @@ fun UnifiedPlayerSheetV2(
     val preparingSongId = playerUiSheetSlice.preparingSongId
 
     val currentSheetContentState by playerViewModel.sheetState.collectAsStateWithLifecycle()
-    val predictiveBackCollapseProgress by playerViewModel.predictiveBackCollapseFraction.collectAsStateWithLifecycle()
+    val predictiveBackCollapseProgress = playerViewModel.predictiveBackCollapseFraction.collectAsStateWithLifecycle()
     val predictiveBackSwipeEdge by playerViewModel.predictiveBackSwipeEdge.collectAsStateWithLifecycle()
     val prewarmFullPlayer = rememberPrewarmFullPlayer(infrequentPlayerState.currentSong?.id)
 
@@ -217,7 +221,7 @@ fun UnifiedPlayerSheetV2(
     val carouselStyle = playerConfig.carouselStyle
     val fullPlayerLoadingTweaks = playerConfig.fullPlayerLoadingTweaks
     val tapBackgroundClosesPlayer = playerConfig.tapBackgroundClosesPlayer
-    val useSmoothCorners = playerConfig.useSmoothCorners
+    val animationsEnabled = LocalMotionPreferences.current.animationsEnabled
     val playerThemePreference = playerConfig.playerThemePreference
 
     val density = LocalDensity.current
@@ -246,8 +250,7 @@ fun UnifiedPlayerSheetV2(
     }
     val visualOvershootScaleY = remember { Animatable(1f) }
     val initialFullPlayerOffsetY = remember(density) { with(density) { 24.dp.toPx() } }
-    val motionScheme = remember { MotionScheme.expressive() }
-    val sheetAnimationSpec = remember { motionScheme.defaultSpatialSpec<Float>() }
+    val sheetAnimationSpec = remember { PixelMotion.structural<Float>() }
     val sheetAnimationMutex = remember { MutatorMutex() }
     val sheetExpandedTargetY = 0f
     val initialY =
@@ -282,12 +285,6 @@ fun UnifiedPlayerSheetV2(
         playerViewModel = playerViewModel
     )
 
-    // FullPlayerVisualState now holds lazy getters that read from the Animatable
-    // inside graphicsLayer (draw-phase), avoiding per-frame recomposition.
-    val fullPlayerVisualState = rememberFullPlayerVisualState(
-        expansionFraction = playerContentExpansionFraction,
-        initialOffsetY = initialFullPlayerOffsetY
-    )
     val fullPlayerCompositionPolicy = rememberFullPlayerCompositionPolicy(
         currentSongId = infrequentPlayerState.currentSong?.id,
         currentSheetState = currentSheetContentState,
@@ -308,6 +305,14 @@ fun UnifiedPlayerSheetV2(
         animationSpec: androidx.compose.animation.core.AnimationSpec<Float> = sheetAnimationSpec,
         initialVelocity: Float = 0f
     ) {
+        if (!animationsEnabled) {
+            val expand = targetExpanded && showPlayerContentArea
+            sheetMotionController.snapTo(
+                translationYValue = if (expand) sheetExpandedTargetY else sheetCollapsedTargetY,
+                expansionFractionValue = if (expand) 1f else 0f
+            )
+            return
+        }
         sheetMotionController.animateTo(
             targetExpanded = targetExpanded,
             canExpand = showPlayerContentArea,
@@ -324,7 +329,7 @@ fun UnifiedPlayerSheetV2(
     }
 
     var previousSheetState by remember { mutableStateOf(currentSheetContentState) }
-    LaunchedEffect(showPlayerContentArea, currentSheetContentState) {
+    LaunchedEffect(showPlayerContentArea, currentSheetContentState, animationsEnabled) {
         val targetExpanded = showPlayerContentArea && currentSheetContentState == PlayerSheetState.EXPANDED
         val shouldBounceCollapse =
             showPlayerContentArea &&
@@ -351,7 +356,7 @@ fun UnifiedPlayerSheetV2(
  
         if (showPlayerContentArea) {
             scope.launch {
-                if (targetExpanded) {
+                if (targetExpanded || !animationsEnabled) {
                     visualOvershootScaleY.snapTo(1f)
                 } else if (shouldBounceCollapse) {
                     visualOvershootScaleY.snapTo(0.96f)
@@ -388,10 +393,22 @@ fun UnifiedPlayerSheetV2(
     val baseBottomPadding = sheetVisualState.baseBottomPadding
     val playerContentAreaHeightPxProvider = sheetVisualState.playerContentAreaHeightPxProvider
     val visualSheetTranslationYProvider = sheetVisualState.visualSheetTranslationYProvider
-    val overallSheetTopCornerRadiusProvider = sheetVisualState.overallSheetTopCornerRadiusProvider
-    val playerContentActualBottomRadiusProvider = sheetVisualState.playerContentActualBottomRadiusProvider
     val currentHorizontalPaddingStartPxProvider = sheetVisualState.currentHorizontalPaddingStartPxProvider
     val currentHorizontalPaddingEndPxProvider = sheetVisualState.currentHorizontalPaddingEndPxProvider
+    val effectiveExpansionFractionProvider = sheetVisualState.effectiveExpansionFractionProvider
+    val fullPlayerVisualState = rememberFullPlayerVisualState(
+        expansionFraction = effectiveExpansionFractionProvider,
+        initialOffsetY = initialFullPlayerOffsetY
+    )
+    val artworkTransition = rememberPlayerArtworkTransition(
+        identity = infrequentPlayerState.currentSong?.let {
+            PlayerArtworkIdentity(it.id, it.albumArtUriString, infrequentPlayerState.currentMediaItemIndex)
+        },
+        enabled = animationsEnabled,
+        progress = effectiveExpansionFractionProvider,
+        miniOffset = sheetVisualState.miniArtworkAnchorOffsetProvider,
+        carouselOffset = sheetVisualState.carouselArtworkAnchorOffsetProvider
+    )
 
     val queueSheetState = rememberQueueSheetState(
         scope = scope,
@@ -464,6 +481,7 @@ fun UnifiedPlayerSheetV2(
         sheetExpandedTargetY = sheetExpandedTargetY,
         sheetMotionController = sheetMotionController,
         animationDurationMs = ANIMATION_DURATION_MS,
+        animationsEnabled = animationsEnabled,
         onSwipeEdgeChanged = { playerViewModel.updatePredictiveBackSwipeEdge(it) },
         registrationKey = currentBackStackEntry?.id
     )
@@ -526,23 +544,6 @@ fun UnifiedPlayerSheetV2(
     val miniReadyAlpha = sheetThemeState.miniReadyAlpha
     val miniAppearScale = sheetThemeState.miniAppearScale
     val playerAreaBackground = sheetThemeState.playerAreaBackground
-    // Elevation is only visible in the mini/collapsed state (expansion < 0.18).
-    // miniReadyAlpha fades the shadow in during the initial song-appear animation.
-    val isDragging = sheetBackAndDragState.isDragging
-    val visualCardShadowElevation by remember(showQueueSheet, miniReadyAlpha, isDragging) {
-        derivedStateOf {
-            if (
-                showQueueSheet ||
-                isDragging ||
-                playerContentExpansionFraction.isRunning ||
-                playerContentExpansionFraction.value > 0.18f
-            ) {
-                0.dp
-            } else {
-                (3f * miniReadyAlpha).dp
-            }
-        }
-    }
 
     val sheetInteractionState = rememberSheetInteractionState(
         scope = scope,
@@ -556,10 +557,7 @@ fun UnifiedPlayerSheetV2(
         miniPlayerContentHeightPx = miniPlayerContentHeightPx,
         currentSheetContentState = currentSheetContentState,
         showPlayerContentArea = showPlayerContentArea,
-        overallSheetTopCornerRadiusProvider = overallSheetTopCornerRadiusProvider,
-        playerContentActualBottomRadiusProvider = playerContentActualBottomRadiusProvider,
-        useSmoothCorners = useSmoothCorners,
-        isDragging = sheetBackAndDragState.isDragging,
+        sheetCornerRadiusProvider = sheetVisualState.sheetCornerRadiusProvider,
         onAnimateSheet = { targetExpanded, animationSpec, initialVelocity ->
             if (animationSpec == null) {
                 animatePlayerSheet(targetExpanded = targetExpanded)
@@ -612,6 +610,9 @@ fun UnifiedPlayerSheetV2(
             modifier = Modifier.interactiveRefreshRate(directTouch = true)
                 .fillMaxSize()
                 .padding(bottom = currentBottomPadding)
+                .then(if (artworkTransition == null) Modifier else Modifier.onPlaced {
+                    artworkTransition.sheetViewport = it
+                })
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 if (showPlayerContentArea) {
@@ -658,9 +659,9 @@ fun UnifiedPlayerSheetV2(
                             // expand/collapse or right after play/pause.
                             .pillSurface(sheetInteractionState.playerShadowShape, albumColorScheme.primary)
                             .clip(sheetInteractionState.playerShadowShape)
-                            .continuousPillGradient { bottomChrome.mergeFractionProvider() * (1f - playerContentExpansionFraction.value) }
+                            .continuousPillGradient { bottomChrome.mergeFractionProvider() * (1f - effectiveExpansionFractionProvider()) }
                             .drawBehind {
-                                drawRect(playerAreaBackground, alpha = playerContentExpansionFraction.value.coerceIn(0f, 1f))
+                                drawRect(playerAreaBackground, alpha = effectiveExpansionFractionProvider())
                             }
                             // innerLayout:
                             // Measures the actual player content with full screen height targetContentHeightPx
@@ -701,7 +702,6 @@ fun UnifiedPlayerSheetV2(
                         UnifiedPlayerMiniAndFullLayers(
                             currentSong = infrequentPlayerState.currentSong,
                             miniPlayerScheme = miniPlayerScheme,
-                            overallSheetTopCornerRadiusProvider = overallSheetTopCornerRadiusProvider,
                             infrequentPlayerState = infrequentPlayerState,
                             isCastConnecting = isCastConnecting,
                             isPreparingPlayback = isPreparingPlayback,
@@ -719,9 +719,10 @@ fun UnifiedPlayerSheetV2(
                             currentPositionProvider = positionToDisplayProvider,
                             isFavorite = isFavorite,
                             shouldRenderFullPlayer = shouldRenderFullPlayer,
-                            collapsedStateHorizontalPaddingPx = sheetVisualState.collapsedStateHorizontalPaddingPx,
                             currentHorizontalPaddingStartPxProvider = currentHorizontalPaddingStartPxProvider,
                             currentHorizontalPaddingEndPxProvider = currentHorizontalPaddingEndPxProvider,
+                            artworkTransition = artworkTransition,
+                            effectiveExpansionFractionProvider = effectiveExpansionFractionProvider,
                             onShowQueueClicked = sheetActionHandlers.openQueueSheet,
                             onQueueDragStart = sheetActionHandlers.beginQueueDrag,
                             onQueueDrag = sheetActionHandlers.dragQueueBy,
@@ -749,6 +750,10 @@ fun UnifiedPlayerSheetV2(
                     onQueueDrag = sheetActionHandlers.dragQueueBy,
                     onQueueRelease = sheetActionHandlers.endQueueDrag
                 )
+            }
+
+            if (artworkTransition != null) {
+                Spacer(Modifier.matchParentSize().drawBehind { artworkTransition.draw(this) })
             }
 
             run {

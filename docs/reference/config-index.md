@@ -4,7 +4,7 @@
 
 Regenerar desde la raíz: `python scripts/context_docs.py generate`.
 
-Archivos: **415**. Huella de rutas y contenido: `2b0fd26a8a573abb7506d6756f3b82892b981c95895e20923c53816648a2760f`.
+Archivos: **414**. Huella de rutas y contenido: `ec5a35f23d3b0397cdd53d99bb945a621f82032ed87013e9d90017dc050f0695`.
 
 Este índice permite localizar archivos; no certifica su comportamiento ni sustituye los documentos temáticos. Los símbolos son una extracción léxica parcial, no un análisis del compilador. Se excluyen cachés, salidas de build, entornos virtuales y archivos locales de credenciales.
 
@@ -16,7 +16,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | --- | ---: |
 | `(raíz)` | 2 |
 | `.github` | 9 |
-| `app` | 373 |
+| `app` | 372 |
 | `assets` | 1 |
 | `baselineprofile` | 2 |
 | `docs` | 1 |
@@ -277,7 +277,6 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [rounded_repeat_on_24.xml](../../app/src/main/res/drawable/rounded_repeat_on_24.xml) | 5 |
 | [rounded_repeat_one_24.xml](../../app/src/main/res/drawable/rounded_repeat_one_24.xml) | 5 |
 | [rounded_repeat_one_on_24.xml](../../app/src/main/res/drawable/rounded_repeat_one_on_24.xml) | 5 |
-| [rounded_rounded_corner_24.xml](../../app/src/main/res/drawable/rounded_rounded_corner_24.xml) | 5 |
 | [rounded_schedule_24.xml](../../app/src/main/res/drawable/rounded_schedule_24.xml) | 5 |
 | [rounded_search_24.xml](../../app/src/main/res/drawable/rounded_search_24.xml) | 5 |
 | [rounded_send_24.xml](../../app/src/main/res/drawable/rounded_send_24.xml) | 5 |
@@ -382,7 +381,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values/strings_settings.xml) | 653 |
+| [strings_settings.xml](../../app/src/main/res/values/strings_settings.xml) | 651 |
 | [strings_widget.xml](../../app/src/main/res/values/strings_widget.xml) | 17 |
 | [themes.xml](../../app/src/main/res/values/themes.xml) | 26 |
 
@@ -418,7 +417,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-de/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-de/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-de/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-de/strings_settings.xml) | 644 |
+| [strings_settings.xml](../../app/src/main/res/values-de/strings_settings.xml) | 642 |
 | [strings_widget.xml](../../app/src/main/res/values-de/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-es
@@ -434,7 +433,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-es/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-es/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-es/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-es/strings_settings.xml) | 644 |
+| [strings_settings.xml](../../app/src/main/res/values-es/strings_settings.xml) | 642 |
 | [strings_widget.xml](../../app/src/main/res/values-es/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-fr
@@ -450,7 +449,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-fr/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-fr/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-fr/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-fr/strings_settings.xml) | 640 |
+| [strings_settings.xml](../../app/src/main/res/values-fr/strings_settings.xml) | 638 |
 | [strings_widget.xml](../../app/src/main/res/values-fr/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-in
@@ -466,7 +465,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-in/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-in/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-in/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-in/strings_settings.xml) | 640 |
+| [strings_settings.xml](../../app/src/main/res/values-in/strings_settings.xml) | 638 |
 | [strings_widget.xml](../../app/src/main/res/values-in/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-it
@@ -482,7 +481,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-it/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-it/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-it/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-it/strings_settings.xml) | 644 |
+| [strings_settings.xml](../../app/src/main/res/values-it/strings_settings.xml) | 642 |
 | [strings_widget.xml](../../app/src/main/res/values-it/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-ko
@@ -498,7 +497,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-ko/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-ko/strings_player.xml) | 195 |
 | [strings_screens.xml](../../app/src/main/res/values-ko/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-ko/strings_settings.xml) | 644 |
+| [strings_settings.xml](../../app/src/main/res/values-ko/strings_settings.xml) | 642 |
 | [strings_widget.xml](../../app/src/main/res/values-ko/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-nb
@@ -514,7 +513,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-nb/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-nb/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-nb/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-nb/strings_settings.xml) | 644 |
+| [strings_settings.xml](../../app/src/main/res/values-nb/strings_settings.xml) | 642 |
 | [strings_widget.xml](../../app/src/main/res/values-nb/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-night
@@ -536,7 +535,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-ru/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-ru/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-ru/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-ru/strings_settings.xml) | 644 |
+| [strings_settings.xml](../../app/src/main/res/values-ru/strings_settings.xml) | 642 |
 | [strings_widget.xml](../../app/src/main/res/values-ru/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-tr
@@ -552,7 +551,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-tr/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-tr/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-tr/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-tr/strings_settings.xml) | 644 |
+| [strings_settings.xml](../../app/src/main/res/values-tr/strings_settings.xml) | 642 |
 | [strings_widget.xml](../../app/src/main/res/values-tr/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-zh-rCN
@@ -568,7 +567,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-zh-rCN/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-zh-rCN/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-zh-rCN/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-zh-rCN/strings_settings.xml) | 644 |
+| [strings_settings.xml](../../app/src/main/res/values-zh-rCN/strings_settings.xml) | 642 |
 | [strings_widget.xml](../../app/src/main/res/values-zh-rCN/strings_widget.xml) | 17 |
 
 ## app/src/main/res/xml

@@ -1,10 +1,9 @@
 package com.theveloper.pixelplay.presentation.components.scoped
 
-import android.os.Build
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.annotation.OptIn
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
@@ -26,6 +25,7 @@ internal fun PlayerSheetPredictiveBackHandler(
     sheetExpandedTargetY: Float,
     sheetMotionController: SheetMotionController,
     animationDurationMs: Int,
+    animationsEnabled: Boolean,
     onSwipeEdgeChanged: (Int?) -> Unit,
     registrationKey: Any?
 ) {
@@ -46,7 +46,6 @@ internal fun PlayerSheetPredictiveBackHandler(
                             translationYValue = currentVisualY,
                             expansionFractionValue = currentVisualExpansionFraction
                         )
-                        playerViewModel.updatePredictiveBackCollapseFraction(1f)
                         playerViewModel.collapsePlayerSheet()
                         playerViewModel.updatePredictiveBackCollapseFraction(0f)
                         onSwipeEdgeChanged(null)
@@ -55,7 +54,7 @@ internal fun PlayerSheetPredictiveBackHandler(
                     scope.launch {
                         Animatable(playerViewModel.predictiveBackCollapseFraction.value).animateTo(
                             targetValue = 0f,
-                            animationSpec = tween(animationDurationMs)
+                            animationSpec = if (animationsEnabled) tween(animationDurationMs) else snap()
                         ) {
                             playerViewModel.updatePredictiveBackCollapseFraction(this.value)
                         }

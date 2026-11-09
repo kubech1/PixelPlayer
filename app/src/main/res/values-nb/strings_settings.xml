@@ -179,8 +179,6 @@
     <string name="settings_theme_light">Lyst tema</string>
     <string name="settings_theme_dark">Mørkt tema</string>
     <string name="settings_theme_follow_system">Følg system</string>
-    <string name="settings_smooth_corners_title">Bruk glatte hjørner</string>
-    <string name="settings_smooth_corners_subtitle">Bruker kompleks formede hjørner for å forbedre estetikken, men kan påvirke ytelsen på eldre enheter</string>
     <string name="settings_visual_effects_title">Visuelle effekter</string>
     <string name="settings_visual_effects_subtitle">Kontroller dybde, overganger og sløring i appen. Batterisparing senker automatisk ett nivå.</string>
     <string name="settings_visual_effects_full">Full</string>

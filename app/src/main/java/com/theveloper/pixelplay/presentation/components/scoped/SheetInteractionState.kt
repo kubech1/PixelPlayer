@@ -17,10 +17,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import com.theveloper.pixelplay.presentation.viewmodel.PlayerSheetState
 import kotlinx.coroutines.CoroutineScope
-import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 
 internal data class SheetInteractionState(
     val playerShadowShape: Shape,
@@ -41,10 +39,7 @@ internal fun rememberSheetInteractionState(
     miniPlayerContentHeightPx: Float,
     currentSheetContentState: PlayerSheetState,
     showPlayerContentArea: Boolean,
-    overallSheetTopCornerRadiusProvider: () -> Dp,
-    playerContentActualBottomRadiusProvider: () -> Dp,
-    useSmoothCorners: Boolean,
-    isDragging: Boolean,
+    sheetCornerRadiusProvider: () -> Dp,
     onAnimateSheet: suspend (
         targetExpanded: Boolean,
         animationSpec: AnimationSpec<Float>?,
@@ -56,24 +51,7 @@ internal fun rememberSheetInteractionState(
     onDraggingChange: (Boolean) -> Unit,
     onDraggingPlayerAreaChange: (Boolean) -> Unit
 ): SheetInteractionState {
-    val useSmoothCornersState = rememberUpdatedState(useSmoothCorners)
-    val isDraggingState = rememberUpdatedState(isDragging)
-    val playerShadowShape = remember(
-        overallSheetTopCornerRadiusProvider,
-        playerContentActualBottomRadiusProvider,
-        playerContentExpansionFraction
-    ) {
-        PlayerSheetDynamicShape(
-            topRadiusProvider = overallSheetTopCornerRadiusProvider,
-            bottomRadiusProvider = playerContentActualBottomRadiusProvider,
-            useSmoothShapeProvider = {
-                useSmoothCornersState.value &&
-                    playerContentExpansionFraction.value > 0.01f &&
-                    !isDraggingState.value &&
-                    !playerContentExpansionFraction.isRunning
-            }
-        )
-    }
+    val playerShadowShape = remember(sheetCornerRadiusProvider) { PlayerSheetDynamicShape(sheetCornerRadiusProvider) }
 
     val collapsedYState = rememberUpdatedState(sheetCollapsedTargetY)
     val expandedYState = rememberUpdatedState(sheetExpandedTargetY)
@@ -127,45 +105,13 @@ internal fun rememberSheetInteractionState(
     )
 }
 
-private class PlayerSheetDynamicShape(
-    private val topRadiusProvider: () -> Dp,
-    private val bottomRadiusProvider: () -> Dp,
-    private val useSmoothShapeProvider: () -> Boolean
-) : Shape {
+private class PlayerSheetDynamicShape(private val radiusProvider: () -> Dp) : Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
         density: Density
     ): Outline {
-        val topRadius = topRadiusProvider().nonNegative()
-        val bottomRadius = bottomRadiusProvider().nonNegative()
-        if (topRadius <= 1.dp || bottomRadius <= 1.dp || !useSmoothShapeProvider()) {
-            val topRadiusPx = with(density) { topRadius.toPx() }
-            val bottomRadiusPx = with(density) { bottomRadius.toPx() }
-            return Outline.Rounded(
-                RoundRect(
-                    rect = Rect(0f, 0f, size.width, size.height),
-                    topLeft = CornerRadius(topRadiusPx, topRadiusPx),
-                    topRight = CornerRadius(topRadiusPx, topRadiusPx),
-                    bottomRight = CornerRadius(bottomRadiusPx, bottomRadiusPx),
-                    bottomLeft = CornerRadius(bottomRadiusPx, bottomRadiusPx)
-                )
-            )
-        }
-
-        val shape =
-            AbsoluteSmoothCornerShape(
-                cornerRadiusTL = topRadius,
-                smoothnessAsPercentBL = 60,
-                cornerRadiusTR = topRadius,
-                smoothnessAsPercentBR = 60,
-                cornerRadiusBR = bottomRadius,
-                smoothnessAsPercentTL = 60,
-                cornerRadiusBL = bottomRadius,
-                smoothnessAsPercentTR = 60
-            )
-        return shape.createOutline(size, layoutDirection, density)
+        val radius = with(density) { radiusProvider().toPx() }.coerceIn(0f, size.minDimension / 2f)
+        return Outline.Rounded(RoundRect(Rect(0f, 0f, size.width, size.height), CornerRadius(radius)))
     }
 }
-
-private fun Dp.nonNegative(): Dp = takeIf { it.value.isFinite() && it.value > 0f } ?: 0.dp

@@ -179,8 +179,6 @@
     <string name="settings_theme_light">Светлая тема</string>
     <string name="settings_theme_dark">Тёмная тема</string>
     <string name="settings_theme_follow_system">Как в системе</string>
-    <string name="settings_smooth_corners_title">Плавные скругления</string>
-    <string name="settings_smooth_corners_subtitle">Использует сложные формы углов для более красивого интерфейса, но может снизить производительность на слабых устройствах.</string>
     <string name="settings_visual_effects_title">Визуальные эффекты</string>
     <string name="settings_visual_effects_subtitle">Управление глубиной, градиентами и размытием. Режим энергосбережения автоматически снижает уровень на ступень.</string>
     <string name="settings_visual_effects_full">Полные</string>

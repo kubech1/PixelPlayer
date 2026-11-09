@@ -20,6 +20,10 @@ import coil.size.Size
 import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.data.preferences.CarouselStyle
 import com.theveloper.pixelplay.presentation.components.scoped.PrefetchAlbumNeighbors
+import com.theveloper.pixelplay.presentation.components.scoped.ArtworkEndpoint
+import com.theveloper.pixelplay.presentation.components.scoped.PlayerArtworkTransition
+import com.theveloper.pixelplay.presentation.components.scoped.PlayerCarouselArtworkRadius
+import com.theveloper.pixelplay.presentation.components.scoped.capturePlayerArtwork
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.first
 
@@ -38,7 +42,7 @@ fun rememberRoundedParallaxCarouselState(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlbumCarouselSection(
+internal fun AlbumCarouselSection(
     currentSong: Song?,
     queue: ImmutableList<Song>,
     expansionFraction: Float,
@@ -49,7 +53,8 @@ fun AlbumCarouselSection(
     modifier: Modifier = Modifier,
     carouselStyle: String = CarouselStyle.NO_PEEK,
     itemSpacing: Dp = 8.dp,
-    albumArtQuality: AlbumArtQuality = AlbumArtQuality.MEDIUM
+    albumArtQuality: AlbumArtQuality = AlbumArtQuality.MEDIUM,
+    artworkTransition: PlayerArtworkTransition? = null
 ) {
     if (queue.isEmpty()) return
 
@@ -182,8 +187,6 @@ fun AlbumCarouselSection(
             }
     }
 
-    val corner = 18.dp//lerp(36.dp, 15.dp, expansionFraction.coerceIn(0f, 1f))
-
     BoxWithConstraints(modifier = modifier) {
         val availableWidth = this.maxWidth
 
@@ -191,7 +194,7 @@ fun AlbumCarouselSection(
             state = carouselState,
             modifier = Modifier.fillMaxSize(), // Fill the space provided by the parent's modifier
             itemSpacing = itemSpacing,
-            itemCornerRadius = corner,
+            itemCornerRadius = PlayerCarouselArtworkRadius,
             suppressNoPeekSettleCorrection = requestedTargetIndex != null || programmaticScrollInProgress,
             carouselStyle = if (carouselState.pagerState.pageCount == 1) CarouselStyle.NO_PEEK else carouselStyle, // Handle single-item case
             carouselWidth = availableWidth, // Pass the full width for layout calculations
@@ -199,6 +202,11 @@ fun AlbumCarouselSection(
             content = { index ->
                 val song = queue[index]
                 val isFocusedItem = carouselState.pagerState.currentPage == index
+                val capture = Modifier.capturePlayerArtwork(
+                    artworkTransition.takeIf { isFocusedItem && index == currentSongIndex },
+                    song,
+                    ArtworkEndpoint.CAROUSEL
+                )
                 Box(
                     Modifier
                         .fillMaxSize()
@@ -213,7 +221,7 @@ fun AlbumCarouselSection(
                     OptimizedAlbumArt(
                         uri = song.albumArtUriString,
                         title = song.title,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().then(capture),
                         targetSize = targetSize,
                         placeholderModel = if (song.albumArtUriString?.startsWith("telegram_art") == true) {
                              "${song.albumArtUriString}?quality=thumb"

@@ -534,13 +534,6 @@ class PlayerViewModel @Inject constructor(
         lyricsStateHolder.setSyncOffset(songId, offsetMs)
     }
 
-    val useSmoothCorners: StateFlow<Boolean> = userPreferencesRepository.useSmoothCornersFlow
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = true
-        )
-
     val visualEffectsLevel: StateFlow<com.theveloper.pixelplay.data.preferences.VisualEffectsLevel> =
         userPreferencesRepository.visualEffectsLevelFlow
             .stateIn(
@@ -1241,34 +1234,19 @@ class PlayerViewModel @Inject constructor(
         val carouselStyle: String = CarouselStyle.NO_PEEK,
         val fullPlayerLoadingTweaks: FullPlayerLoadingTweaks = FullPlayerLoadingTweaks(),
         val tapBackgroundClosesPlayer: Boolean = false,
-        val useSmoothCorners: Boolean = true,
         val playerThemePreference: String = ThemePreference.ALBUM_ART
     )
 
-    private val playerConfigSlicePart1 = combine(
+    val playerConfigSlice: StateFlow<PlayerConfigSlice> = combine(
         carouselStyle,
         fullPlayerLoadingTweaks,
-        tapBackgroundClosesPlayer
-    ) { carousel, tweaks, tapClose ->
-        PlayerConfigSlicePart1(carousel, tweaks, tapClose)
-    }
-
-    private data class PlayerConfigSlicePart1(
-        val carouselStyle: String,
-        val fullPlayerLoadingTweaks: FullPlayerLoadingTweaks,
-        val tapBackgroundClosesPlayer: Boolean
-    )
-
-    val playerConfigSlice: StateFlow<PlayerConfigSlice> = combine(
-        playerConfigSlicePart1,
-        useSmoothCorners,
+        tapBackgroundClosesPlayer,
         playerThemePreference
-    ) { p1, smoothCorners, themePref ->
+    ) { carousel, tweaks, tapClose, themePref ->
         PlayerConfigSlice(
-            carouselStyle = p1.carouselStyle,
-            fullPlayerLoadingTweaks = p1.fullPlayerLoadingTweaks,
-            tapBackgroundClosesPlayer = p1.tapBackgroundClosesPlayer,
-            useSmoothCorners = smoothCorners,
+            carouselStyle = carousel,
+            fullPlayerLoadingTweaks = tweaks,
+            tapBackgroundClosesPlayer = tapClose,
             playerThemePreference = themePref
         )
     }

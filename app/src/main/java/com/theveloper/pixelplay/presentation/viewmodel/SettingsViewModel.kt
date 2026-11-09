@@ -796,9 +796,6 @@ class SettingsViewModel @Inject constructor(
     val albumArtQuality: StateFlow<AlbumArtQuality> = userPreferencesRepository.albumArtQualityFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AlbumArtQuality.MEDIUM)
 
-    val useSmoothCorners: StateFlow<Boolean> = userPreferencesRepository.useSmoothCornersFlow
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
-
     val tapBackgroundClosesPlayer: StateFlow<Boolean> = userPreferencesRepository.tapBackgroundClosesPlayerFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
@@ -812,12 +809,6 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             userPreferencesRepository.setAlbumArtCacheLimitMb(limitMb)
             com.theveloper.pixelplay.utils.AlbumArtCacheManager.configuredCacheLimitMb = limitMb.toLong()
-        }
-    }
-
-    fun setUseSmoothCorners(enabled: Boolean) {
-        viewModelScope.launch {
-            userPreferencesRepository.setUseSmoothCorners(enabled)
         }
     }
 

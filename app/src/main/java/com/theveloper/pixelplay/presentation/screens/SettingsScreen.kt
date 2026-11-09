@@ -130,7 +130,6 @@ fun SettingsScreen(
 
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
     val launchTab = uiState.launchTab
-    val useSmoothCorners by settingsViewModel.useSmoothCorners.collectAsStateWithLifecycle()
 
     var showCornerRadiusOverlay by remember { mutableStateOf(false) }
 

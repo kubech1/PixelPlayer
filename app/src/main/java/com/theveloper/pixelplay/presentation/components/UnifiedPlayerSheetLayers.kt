@@ -25,6 +25,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onPlaced
+import com.theveloper.pixelplay.presentation.components.scoped.PlayerArtworkTransition
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -47,7 +49,6 @@ import com.theveloper.pixelplay.presentation.viewmodel.StablePlayerState
 internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
     currentSong: Song?,
     miniPlayerScheme: ColorScheme?,
-    overallSheetTopCornerRadiusProvider: () -> Dp,
     infrequentPlayerState: StablePlayerState,
     isCastConnecting: Boolean,
     isPreparingPlayback: Boolean,
@@ -65,9 +66,10 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
     currentPositionProvider: () -> Long,
     isFavorite: Boolean,
     shouldRenderFullPlayer: Boolean = true,
-    collapsedStateHorizontalPaddingPx: Int = 0,
     currentHorizontalPaddingStartPxProvider: () -> Float,
     currentHorizontalPaddingEndPxProvider: () -> Float,
+    artworkTransition: PlayerArtworkTransition?,
+    effectiveExpansionFractionProvider: () -> Float,
     onShowQueueClicked: () -> Unit,
     onQueueDragStart: () -> Unit,
     onQueueDrag: (Float) -> Unit,
@@ -98,7 +100,7 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
                         .graphicsLayer {
                             // Compute miniAlpha in the draw phase from the Animatable,
                             // avoiding per-frame recomposition during gestures.
-                            alpha = (1f - playerContentExpansionFraction.value * 2f)
+                            alpha = (1f - effectiveExpansionFractionProvider() * 2f)
                                 .coerceIn(0f, 1f)
                         }
                         .layout { measurable, constraints ->
@@ -130,6 +132,7 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
                         onNext = { playerViewModel.nextSong() },
                         compactFractionProvider = compactFractionProvider,
                         queueIndex = infrequentPlayerState.currentMediaItemIndex,
+                        artworkTransition = artworkTransition,
                         canScroll = isMiniPlayerVisible && infrequentPlayerState.isPlaying,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -183,6 +186,9 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
                         }
                         .zIndex(fullPlayerZIndex)
                         .offset { fullPlayerOffset }
+                        .then(if (artworkTransition == null) Modifier else Modifier.onPlaced {
+                            artworkTransition.fullPlayerViewport = it
+                        })
                 ) {
                     val latestInfrequentPlayerState = rememberUpdatedState(infrequentPlayerState)
                     val latestIsFavorite = rememberUpdatedState(isFavorite)
@@ -259,7 +265,8 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
                         onShowCastClicked = onShowCastClicked,
                         onShuffleToggle = onShuffleToggle,
                         onRepeatToggle = onRepeatToggle,
-                        onFavoriteToggle = onFavoriteToggle
+                        onFavoriteToggle = onFavoriteToggle,
+                        artworkTransition = artworkTransition
                     )
                 }
             }

@@ -179,8 +179,6 @@
     <string name="settings_theme_light">Light Theme</string>
     <string name="settings_theme_dark">Dark Theme</string>
     <string name="settings_theme_follow_system">Follow System</string>
-    <string name="settings_smooth_corners_title">Use Smooth Corners</string>
-    <string name="settings_smooth_corners_subtitle">Use complex shaped corners effectively improving aesthetics but may affect performance on low-end devices</string>
     <string name="settings_visual_effects_title">Visual Effects</string>
     <string name="settings_visual_effects_subtitle">Control depth, gradients, and blur effects across the app. Battery Saver automatically steps down one level.</string>
     <string name="settings_visual_effects_full">Full</string>

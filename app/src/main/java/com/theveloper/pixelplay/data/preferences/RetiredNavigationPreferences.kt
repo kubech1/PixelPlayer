@@ -7,7 +7,12 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 
 internal class RetiredNavigationPreferencesMigration : DataMigration<Preferences> {
-    private val keys = listOf(stringPreferencesKey("nav_bar_style"), booleanPreferencesKey("nav_bar_compact_mode"), intPreferencesKey("nav_bar_corner_radius"))
+    private val keys = listOf(
+        stringPreferencesKey("nav_bar_style"),
+        booleanPreferencesKey("nav_bar_compact_mode"),
+        intPreferencesKey("nav_bar_corner_radius"),
+        booleanPreferencesKey("use_smooth_corners")
+    )
     override suspend fun shouldMigrate(currentData: Preferences) = keys.any { currentData.asMap().containsKey(it) }
     override suspend fun migrate(currentData: Preferences): Preferences = currentData.toMutablePreferences().apply {
         keys.forEach { remove(it) }

@@ -179,8 +179,6 @@
     <string name="settings_theme_light">Açık Tema</string>
     <string name="settings_theme_dark">Koyu Tema</string>
     <string name="settings_theme_follow_system">Sistemi Takip Et</string>
-    <string name="settings_smooth_corners_title">Yumuşak Köşeleri Kullan</string>
-    <string name="settings_smooth_corners_subtitle">Estetiği etkili bir şekilde artırmak için karmaşık şekilli köşeler kullanır ancak düşük donanımlı cihazlarda performansı etkileyebilir</string>
     <string name="settings_visual_effects_title">Görsel Efektler</string>
     <string name="settings_visual_effects_subtitle">Uygulama genelinde derinlik, gradyan ve bulanıklık efektlerini kontrol edin. Pil Tasarrufu otomatik olarak bir seviye düşürür.</string>
     <string name="settings_visual_effects_full">Tam</string>

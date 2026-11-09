@@ -179,8 +179,6 @@
     <string name="settings_theme_light">Hell</string>
     <string name="settings_theme_dark">Dunkel</string>
     <string name="settings_theme_follow_system">System folgen</string>
-    <string name="settings_smooth_corners_title">Sanfte Ecken</string>
-    <string name="settings_smooth_corners_subtitle">Weichere Eckenform – kann auf älteren Geräten die Performance leicht beeinflussen.</string>
     <string name="settings_visual_effects_title">Visuelle Effekte</string>
     <string name="settings_visual_effects_subtitle">Tiefe, Farbverläufe und Weichzeichnung steuern. Der Energiesparmodus senkt die Stufe automatisch.</string>
     <string name="settings_visual_effects_full">Vollständig</string>

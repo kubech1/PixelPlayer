@@ -581,6 +581,12 @@ class MainActivity : ComponentActivity() {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
         var isSearchBarActive by remember { mutableStateOf(false) }
+        val densityForChrome = LocalDensity.current
+        val imeInsets = WindowInsets.ime
+        val imeVisibleForChrome by remember(imeInsets, densityForChrome) {
+            derivedStateOf { imeInsets.getBottom(densityForChrome) > 0 }
+        }
+        val hideCollapsedPlayerForSearch = currentRoute == Screen.Search.route && imeVisibleForChrome
 
         val routesWithHiddenNavigationBar = remember {
             setOf(
@@ -608,9 +614,9 @@ class MainActivity : ComponentActivity() {
                 Screen.WordDelimiterConfig.route
             )
         }
-        val shouldHideNavigationBar by remember(currentRoute, isSearchBarActive) {
+        val shouldHideNavigationBar by remember(currentRoute, isSearchBarActive, hideCollapsedPlayerForSearch) {
             derivedStateOf {
-                if (currentRoute == Screen.Search.route && isSearchBarActive) {
+                if (hideCollapsedPlayerForSearch || (currentRoute == Screen.Search.route && isSearchBarActive)) {
                     true
                 } else {
                     currentRoute?.let { route ->
@@ -645,7 +651,7 @@ class MainActivity : ComponentActivity() {
                 touchExplorationEnabled = touchExplorationEnabled
             )
         }
-        val predictiveBackCollapseFraction by playerViewModel.predictiveBackCollapseFraction.collectAsStateWithLifecycle()
+        val predictiveBackCollapseFraction = playerViewModel.predictiveBackCollapseFraction.collectAsStateWithLifecycle()
         val rootView = LocalView.current
         val hapticIntensity by playerViewModel.hapticIntensity.collectAsStateWithLifecycle()
         val appHapticsConfig = remember(hapticsEnabled, hapticIntensity) {
@@ -666,7 +672,6 @@ class MainActivity : ComponentActivity() {
 
         val horizontalPadding = 16.dp
         val bottomBarPadding = systemNavBarInset + 8.dp
-        val densityForChrome = LocalDensity.current
         val navBarHeight = maxOf(
             NavigationPillHeight,
             with(densityForChrome) { 24.dp + NavigationPillLabelLineHeight.toDp() + 16.dp }
@@ -676,8 +681,6 @@ class MainActivity : ComponentActivity() {
         val sheetOpenForChrome by remember {
             derivedStateOf { playerViewModel.playerContentExpansionFraction.value > 0.01f }
         }
-        val imeVisibleForChrome = WindowInsets.ime.getBottom(densityForChrome) > 0
-        val hideCollapsedPlayerForSearch = currentRoute == Screen.Search.route && imeVisibleForChrome
         LaunchedEffect(currentRoute, navCompactOnScroll, touchExplorationEnabled, animationsEnabled, sheetOpenForChrome, imeVisibleForChrome) {
             chromeState.enabled = navCompactOnScroll && !touchExplorationEnabled && !sheetOpenForChrome && !imeVisibleForChrome
             chromeState.animationsEnabled = animationsEnabled
@@ -810,7 +813,9 @@ class MainActivity : ComponentActivity() {
                                     .padding(start = 16.dp, end = 16.dp, bottom = bottomBarPadding)
                                     .fillMaxWidth().height(navBarHeight)
                                     .graphicsLayer {
-                                        val expansion = if (hasActiveSongForChrome) playerViewModel.playerContentExpansionFraction.value else 0f
+                                        val expansion = if (hasActiveSongForChrome) {
+                                            playerViewModel.playerContentExpansionFraction.value * (1f - predictiveBackCollapseFraction.value)
+                                        } else 0f
                                         val hide = maxOf(expansion, 1f - navBarVisibilityProgressState.value)
                                         translationY = (size.height + bottomBarPadding.toPx() + 48.dp.toPx()) * hide
                                     }
@@ -873,7 +878,7 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxSize()
                                 .graphicsLayer {
                                     val expansion = expansionFractionProvider()
-                                    val fraction = (expansion * (1f - predictiveBackCollapseFraction)).coerceIn(0f, 1f)
+                                    val fraction = (expansion * (1f - predictiveBackCollapseFraction.value)).coerceIn(0f, 1f)
                                     alpha = fraction * 0.35f
                                 }
                                 .background(scrimBaseColor)

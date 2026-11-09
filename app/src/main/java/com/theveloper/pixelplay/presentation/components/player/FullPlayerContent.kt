@@ -120,6 +120,7 @@ import com.theveloper.pixelplay.data.preferences.AlbumArtQuality
 import com.theveloper.pixelplay.data.preferences.CarouselStyle
 import com.theveloper.pixelplay.data.preferences.FullPlayerLoadingTweaks
 import com.theveloper.pixelplay.presentation.components.AlbumCarouselSection
+import com.theveloper.pixelplay.presentation.components.scoped.PlayerArtworkTransition
 import com.theveloper.pixelplay.presentation.components.AutoScrollingTextOnDemand
 import com.theveloper.pixelplay.presentation.components.LocalMaterialTheme
 import com.theveloper.pixelplay.presentation.components.LyricsSheet
@@ -189,7 +190,7 @@ private suspend fun validateLyricsImport(
 @SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun FullPlayerContent(
+internal fun FullPlayerContent(
     currentSong: Song?,
     currentPlaybackQueue: ImmutableList<Song>,
     currentQueueSourceName: String,
@@ -228,7 +229,8 @@ fun FullPlayerContent(
     onShowCastClicked: () -> Unit,
     onShuffleToggle: () -> Unit,
     onRepeatToggle: () -> Unit,
-    onFavoriteToggle: () -> Unit
+    onFavoriteToggle: () -> Unit,
+    artworkTransition: PlayerArtworkTransition? = null
 ) {
     var retainedSong by remember { mutableStateOf(currentSong) }
     LaunchedEffect(currentSong?.id) {
@@ -511,6 +513,7 @@ fun FullPlayerContent(
             placeholderOnColor = placeholderOnColor,
             albumArtQuality = albumArtQuality,
             requestedScrollIndex = pendingCarouselIndex,
+            artworkTransition = artworkTransition,
             onSongSelected = onAlbumSongSelected,
             onAlbumClick = { albumSong ->
                 playerViewModel.triggerAlbumNavigationFromPlayer(albumSong.albumId)
@@ -1013,6 +1016,7 @@ private fun FullPlayerAlbumCoverSection(
     placeholderOnColor: Color,
     albumArtQuality: AlbumArtQuality,
     requestedScrollIndex: Int?,
+    artworkTransition: PlayerArtworkTransition?,
     onSongSelected: (Song, Int) -> Unit,
     onAlbumClick: (Song) -> Unit,
     modifier: Modifier = Modifier
@@ -1097,7 +1101,8 @@ private fun FullPlayerAlbumCoverSection(
                         scaleX = albumArtScale
                         scaleY = albumArtScale
                     },
-                albumArtQuality = albumArtQuality
+                albumArtQuality = albumArtQuality,
+                artworkTransition = artworkTransition
             )
         }
     }

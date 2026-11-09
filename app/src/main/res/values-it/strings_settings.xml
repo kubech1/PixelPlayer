@@ -179,8 +179,6 @@
     <string name="settings_theme_light">Tema chiaro</string>
     <string name="settings_theme_dark">Tema scuro</string>
     <string name="settings_theme_follow_system">Segui sistema</string>
-    <string name="settings_smooth_corners_title">Usa angoli morbidi</string>
-    <string name="settings_smooth_corners_subtitle">Usa angoli a forma complessa che migliorano l\'estetica ma possono influire sulle prestazioni su dispositivi di fascia bassa</string>
     <string name="settings_visual_effects_title">Effetti visivi</string>
     <string name="settings_visual_effects_subtitle">Controlla profondità, gradienti e sfocatura nell\'app. Il risparmio energetico riduce automaticamente di un livello.</string>
     <string name="settings_visual_effects_full">Completi</string>

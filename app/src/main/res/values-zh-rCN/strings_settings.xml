@@ -179,8 +179,6 @@
     <string name="settings_theme_light">浅色主题</string>
     <string name="settings_theme_dark">深色主题</string>
     <string name="settings_theme_follow_system">跟随系统</string>
-    <string name="settings_smooth_corners_title">使用平滑圆角</string>
-    <string name="settings_smooth_corners_subtitle">使用复杂的圆角形状以有效提升美观度，但可能会影响低端设备的性能</string>
     <string name="settings_visual_effects_title">视觉效果</string>
     <string name="settings_visual_effects_subtitle">控制全局层次感、渐变和模糊效果。省电模式会自动降低一档。</string>
     <string name="settings_visual_effects_full">完整</string>

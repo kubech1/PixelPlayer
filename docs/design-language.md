@@ -1,6 +1,6 @@
 # Lenguaje visual contemporáneo: especificación de implementación
 
-Estado: **Fase 2 implementada, pendiente QA en el Galaxy S24** (9 de noviembre de 2026). Decisión y alternativas: [ADR 0004](decisions/0004-contemporary-design-language.md). Contexto general de UI: [Interfaz y estado](ui-and-state.md).
+Estado: **Fases 2 y 3 implementadas, pendiente QA en el Galaxy S24** (9 de noviembre de 2026). Decisión y alternativas: [ADR 0004](decisions/0004-contemporary-design-language.md). Contexto general de UI: [Interfaz y estado](ui-and-state.md).
 
 Las referencias a código son **observadas en lectura estática** en esa fecha; revalídalas antes de editar. Las medidas y tiempos son **valores de partida**: pueden ajustarse tras la verificación visual en dispositivo, y el ajuste se registra en este documento.
 
@@ -184,7 +184,7 @@ Añadir:
 - Preferencia `nav_compact_on_scroll` (por defecto `true`), con un interruptor en la misma categoría de ajustes donde estaban las opciones de barra.
 - Actualizar [PlayerBottomAnchoringTest](../app/src/test/java/com/theveloper/pixelplay/presentation/components/PlayerBottomAnchoringTest.kt), [UserPreferencesRepositoryTest](../app/src/test/java/com/theveloper/pixelplay/data/preferences/UserPreferencesRepositoryTest.kt) y `PlayerViewModelTest`.
 
-`useSmoothCorners` **se conserva**, porque lo usa el reproductor. El DataStore de ajustes está excluido del backup Android ([Backup y seguridad](backup-and-security.md)), así que no afecta a la compatibilidad de copias.
+La Fase 2 conserva `useSmoothCorners` hasta que la Fase 3 fija la forma del panel y retira el ajuste. El DataStore de ajustes está excluido del backup Android ([Backup y seguridad](backup-and-security.md)).
 
 ### 2.7 Borde inferior
 
@@ -196,10 +196,11 @@ Degradado vertical de `background` con alpha 0 arriba a 0,85 abajo. Su altura es
 
 ## Fase 3. Del mini reproductor al reproductor completo
 
-El sheet ya se transforma desde el mini reproductor (alto, rellenos y forma por providers). Objetivo de esta fase:
-- **Forma:** la píldora (radio = alto / 2) se interpola hacia la forma expandida actual siguiendo `expansionFraction`.
-- **Portada compartida:** la portada circular del mini reproductor viaja hasta la portada del carrusel del reproductor completo, con el radio interpolado de círculo al de la portada. Antes de diseñar, **investiga** si ya existe alguna continuidad. Si no existe, prototipa una capa superpuesta que interpole los límites en la raíz (medidos una vez por layout, leídos al dibujar) entre ambas posiciones. **No uses `SharedTransitionLayout`** si obliga a desmontar o reestructurar el árbol precalentado de `FullPlayerContent` ([FullPlayerCompositionPolicy](../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/FullPlayerCompositionPolicy.kt)).
-- El movimiento sigue al dedo y se puede interrumpir o invertir. La navegación baja con la traslación existente.
+El sheet ya interpolaba el alto, los rellenos y la forma. El mini reproductor y el carrusel dibujaban portadas independientes.
+
+- La forma interpola desde la píldora (radio igual a la mitad del alto) hasta el panel expandido. Se retira «Usar esquinas suaves» y su clave de DataStore. El contorno usa un radio uniforme.
+- [PlayerArtworkTransition](../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/PlayerArtworkTransition.kt) mide la portada circular y el elemento activo del carrusel en layout. Dibuja una capa decorativa entre ambas posiciones, reutilizando las capas de imagen de los extremos y sin cambiar el árbol precalentado de [FullPlayerCompositionPolicy](../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/FullPlayerCompositionPolicy.kt).
+- El movimiento usa el progreso del arrastre y de Atrás predictivo. Si el carrusel aún se está preparando al abrir, el panel abre de inmediato con el fundido existente. Si las animaciones están desactivadas, el arrastre directo sigue disponible y los cambios automáticos se aplican al instante.
 
 **Criterio:** sin recomposición por fotograma de `FullPlayerContent` durante el arrastre. Cerrar devuelve todo a la píldora, incluso desde el estado fusionado (la fusión se separa al expandir).
 
@@ -314,13 +315,18 @@ Comandos (ver [Build y pruebas](build-and-testing.md)): `.\gradlew.bat :app:asse
 - `:app:lintDebug` reportó errores globales. El primero fue `MissingDefaultResource` para `sharing_playlists_message`, reproducible por inspección de `HEAD`. El informe no señaló errores en los componentes nuevos o reescritos de las píldoras.
 - Queda pendiente aplicar la matriz visual completa en el Galaxy S24, especialmente las interacciones con TalkBack, los gestos del sistema y la compatibilidad de la instalación que se usará en el equipo.
 
+### Evidencia de la Fase 3
+
+- En el emulador API 37, la portada de una pista sintética creció y se desplazó durante el arrastre. El gesto Atrás desde el borde devolvió el reproductor a la píldora. Abrir el teclado de Buscar ocultó las dos píldoras y cerrarlo devolvió el mini reproductor con la misma pista.
+- Las pruebas instrumentadas cubren los píxeles del recorrido reversible, el fundido si falta el carrusel al comenzar y el contador de recomposiciones del contenido de prueba. Sigue pendiente medir la recomposición de `FullPlayerContent` real durante el arrastre y aplicar la matriz de verificación física.
+
 ## Estado
 
 | Fase | Estado | Notas |
 | --- | --- | --- |
 | 1. Fundamentos | Implementada (código y pruebas JVM; pendiente validación visual en dispositivo) | `Motion.kt` (`PixelMotion`, `PixelPlayMotionScheme`, `LocalMotionPreferences`), `VisualEffectsLevel` (`FULL`/`BALANCED`/`MINIMAL` + `DataMigration` + ahorro de batería en `VisualEffectsState.kt`), `Depth.kt` (`Modifier.pillSurface` + contraste garantizado) y `BottomChromeMetrics.kt` (`LocalBottomChrome` en 8 pantallas). |
 | 2. Píldoras y gestos | Implementada. QA físico pendiente. | Fusión al desplazar, reselección, gestos del mini reproductor, migración y ajuste de compactación. La prueba instrumental comprobó que una lista de prueba no se recompone durante la animación de fusión o separación. |
-| 3. Transformación hacia el reproductor | Pendiente | |
+| 3. Transformación hacia el reproductor | Implementada. QA físico pendiente. | Portada compartida reversible, apertura inmediata con carrusel no disponible y retirada de «Usar esquinas suaves». |
 | 4. Halo y malla | Pendiente | |
 | 5. FavoriteButton y microinteracciones | Pendiente | |
 | 6. Barras superiores | Pendiente | |

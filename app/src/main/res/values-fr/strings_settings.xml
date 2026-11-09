@@ -175,8 +175,6 @@
     <string name="settings_theme_light">Thème clair</string>
     <string name="settings_theme_dark">Thème sombre</string>
     <string name="settings_theme_follow_system">Suivre le système</string>
-    <string name="settings_smooth_corners_title">Utiliser des angles lisses</string>
-    <string name="settings_smooth_corners_subtitle">Utilise des formes d\'angles complexes pour une meilleure esthétique, mais peut affecter les performances sur les appareils bas de gamme</string>
     <string name="settings_visual_effects_title">Effets visuels</string>
     <string name="settings_visual_effects_subtitle">Contrôler la profondeur, les dégradés et le flou. L\'économiseur de batterie réduit automatiquement d\'un niveau.</string>
     <string name="settings_visual_effects_full">Complet</string>
