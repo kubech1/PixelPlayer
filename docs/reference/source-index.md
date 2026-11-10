@@ -4,7 +4,7 @@
 
 Regenerar desde la raíz: `python scripts/context_docs.py generate`.
 
-Archivos: **686**. Huella de rutas y contenido: `ac13316d9ec2ff8bed0d6afac399e61e2e1e7d8624ad157ea01e9e1dd39a87db`.
+Archivos: **690**. Huella de rutas y contenido: `3391a73b3cbedbb5834de8a136a081536d8261f39aef5cfa68de9668a2848778`.
 
 Este índice permite localizar archivos; no certifica su comportamiento ni sustituye los documentos temáticos. Los símbolos son una extracción léxica parcial, no un análisis del compilador. Se excluyen cachés, salidas de build, entornos virtuales y archivos locales de credenciales.
 
@@ -15,7 +15,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | Área | Archivos |
 | --- | ---: |
 | `(raíz)` | 4 |
-| `app` | 615 |
+| `app` | 619 |
 | `baselineprofile` | 5 |
 | `scripts` | 1 |
 | `shared` | 19 |
@@ -74,6 +74,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | --- | ---: | --- |
 | [BottomChromeCompositionTest.kt](../../app/src/androidTest/java/com/theveloper/pixelplay/presentation/components/BottomChromeCompositionTest.kt) | 108 | [build-and-testing](../build-and-testing.md) · `BottomChromeCompositionTest`, `CountedList` |
 | [PlayerArtworkTransitionTest.kt](../../app/src/androidTest/java/com/theveloper/pixelplay/presentation/components/PlayerArtworkTransitionTest.kt) | 106 | [build-and-testing](../build-and-testing.md) · `PlayerArtworkTransitionTest`, `setPlayer`, `assertPixel` |
+| [PlayerDepthEffectsTest.kt](../../app/src/androidTest/java/com/theveloper/pixelplay/presentation/components/PlayerDepthEffectsTest.kt) | 172 | [build-and-testing](../build-and-testing.md) · `PlayerDepthEffectsTest`, `rendersMeshAndConfinesTheExtraBlurToTheHalo`, `keepsTheActiveArtworkVisibleWithTwoPeekLayout`, `createCover`, `capture`, `pixel` |
 
 ## app/src/androidTest/java/com/theveloper/pixelplay/ui/glancewidget
 
@@ -519,7 +520,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | Archivo | Líneas | Orientación |
 | --- | ---: | --- |
 | [AlbumArtCollage.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/AlbumArtCollage.kt) | 146 | [ui-and-state](../ui-and-state.md) · `Config`, `AlbumArtCollage` |
-| [AlbumCarouselSelection.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/AlbumCarouselSelection.kt) | 259 | [ui-and-state](../ui-and-state.md) · `rememberRoundedParallaxCarouselState`, `AlbumCarouselSection`, `resolveCurrentQueueIndex`, `buildQueueOccurrenceKeys` |
+| [AlbumCarouselSelection.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/AlbumCarouselSelection.kt) | 313 | [ui-and-state](../ui-and-state.md) · `rememberRoundedParallaxCarouselState`, `AlbumCarouselSection`, `resolveCurrentQueueIndex`, `buildQueueOccurrenceKeys` |
 | [AlbumMultiSelectionOptionSheet.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/AlbumMultiSelectionOptionSheet.kt) | 304 | [ui-and-state](../ui-and-state.md) · `AlbumMultiSelectionOptionSheet`, `AlbumSelectionActionButton`, `StackedAlbumCovers` |
 | [AllFilesAccessDialog.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/AllFilesAccessDialog.kt) | 31 | [ui-and-state](../ui-and-state.md) · `AllFilesAccessDialog` |
 | [AppRebrandDialog.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/AppRebrandDialog.kt) | 67 | [ui-and-state](../ui-and-state.md) · `AppRebrandDialog` |
@@ -578,9 +579,9 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [TimerOptionsBottomSheet.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/TimerOptionsBottomSheet.kt) | 451 | [ui-and-state](../ui-and-state.md) · `TimerOptionsBottomSheet` |
 | [ToggleSegmentButton.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/ToggleSegmentButton.kt) | 230 | [ui-and-state](../ui-and-state.md) · `ToggleSegmentButton`, `ToggleSegmentButtonContainer` |
 | [UnifiedPlayerOverlaysLayer.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/UnifiedPlayerOverlaysLayer.kt) | 505 | [ui-and-state](../ui-and-state.md) · `SaveQueueOverlayData`, `UnifiedPlayerQueueLayer`, `UnifiedPlayerSongInfoLayer`, `UnifiedPlayerQueueAndSongInfoHost`, `UnifiedPlayerSaveQueueLayer`, `UnifiedPlayerCastLayer` |
-| [UnifiedPlayerSheetLayers.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/UnifiedPlayerSheetLayers.kt) | 371 | [ui-and-state](../ui-and-state.md) · `BoxScope.UnifiedPlayerMiniAndFullLayers`, `UnifiedPlayerPrewarmLayer` |
+| [UnifiedPlayerSheetLayers.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/UnifiedPlayerSheetLayers.kt) | 378 | [ui-and-state](../ui-and-state.md) · `BoxScope.UnifiedPlayerMiniAndFullLayers`, `UnifiedPlayerPrewarmLayer` |
 | [UnifiedPlayerSheetShared.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/UnifiedPlayerSheetShared.kt) | 266 | [ui-and-state](../ui-and-state.md) · `getNavigationBarHeight`, `MiniPlayerContentInternal` |
-| [UnifiedPlayerSheetV2.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/UnifiedPlayerSheetV2.kt) | 838 | [ui-and-state](../ui-and-state.md) · `PlayerUiSheetSliceV2`, `UnifiedPlayerSheetV2`, `animatePlayerSheet` |
+| [UnifiedPlayerSheetV2.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/UnifiedPlayerSheetV2.kt) | 853 | [ui-and-state](../ui-and-state.md) · `PlayerUiSheetSliceV2`, `UnifiedPlayerSheetV2`, `animatePlayerSheet` |
 | [WavyArcSlider.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/WavyArcSlider.kt) | 230 | [ui-and-state](../ui-and-state.md) · `WavyArcSlider`, `mapTouchToValue`, `dispatchValue` |
 | [WavyMusicSlider.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/WavyMusicSlider.kt) | 561 | [ui-and-state](../ui-and-state.md) · `WavyMusicSlider`, `yAt` |
 | [WavySliderExpressive.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/WavySliderExpressive.kt) | 342 | [ui-and-state](../ui-and-state.md) · `WavySliderExpressive`, `lerp`, `valueForX` |
@@ -614,7 +615,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | --- | ---: | --- |
 | [AnimatedPlaybackControls.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/player/AnimatedPlaybackControls.kt) | 273 | [ui-and-state](../ui-and-state.md) · `PlaybackButtonType`, `AnimatedPlaybackControls`, `weightFor`, `MorphingPlayPauseIcon` |
 | [BottomToggleRow.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/player/BottomToggleRow.kt) | 121 | [ui-and-state](../ui-and-state.md) · `BottomToggleRow` |
-| [FullPlayerContent.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/player/FullPlayerContent.kt) | 2681 | [ui-and-state](../ui-and-state.md) · `SkipDirection`, `validateLyricsImport`, `FullPlayerContent`, `predictSkipCarouselIndex`, `requestSkip`, `FullPlayerAlbumCoverSection` |
+| [FullPlayerContent.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/player/FullPlayerContent.kt) | 2682 | [ui-and-state](../ui-and-state.md) · `SkipDirection`, `validateLyricsImport`, `FullPlayerContent`, `predictSkipCarouselIndex`, `requestSkip`, `FullPlayerAlbumCoverSection` |
 | [PlayerArtistPickerBottomSheet.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/player/PlayerArtistPickerBottomSheet.kt) | 284 | [ui-and-state](../ui-and-state.md) · `PlayerArtistShortcutItem`, `PlayerArtistPickerBottomSheet`, `PlayerArtistShortcutCard`, `artistShortcutShape` |
 
 ## app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped
@@ -632,7 +633,9 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [MiniPlayerSkipGesture.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/MiniPlayerSkipGesture.kt) | 119 | [ui-and-state](../ui-and-state.md) · `MiniPlayerSkip`, `resolveMiniPlayerSkip`, `rememberMiniPlayerSkipGesture`, `shouldDismissCollapsedPlayer` |
 | [PlayerAlbumNavigationEffect.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/PlayerAlbumNavigationEffect.kt) | 32 | [ui-and-state](../ui-and-state.md) · `PlayerAlbumNavigationEffect` |
 | [PlayerArtistNavigationEffect.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/PlayerArtistNavigationEffect.kt) | 33 | [ui-and-state](../ui-and-state.md) · `PlayerArtistNavigationEffect` |
+| [PlayerArtworkHalo.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/PlayerArtworkHalo.kt) | 237 | [ui-and-state](../ui-and-state.md) · `PlayerArtworkDepth`, `PlayerArtworkHalo`, `Modifier.artworkEffectBounds`, `rememberHaloThumbnail`, `Modifier.artworkLightEdge` |
 | [PlayerArtworkTransition.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/PlayerArtworkTransition.kt) | 175 | [ui-and-state](../ui-and-state.md) · `PlayerArtworkIdentity`, `ArtworkEndpoint`, `ArtworkAnchor`, `PlayerArtworkTransition`, `attach`, `detach` |
+| [PlayerMeshBackground.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/PlayerMeshBackground.kt) | 236 | [ui-and-state](../ui-and-state.md) · `MeshRgb`, `mix`, `color`, `from`, `PlayerMeshPalette`, `playerMeshPositions` |
 | [PlayerSheetPredictiveBackHandler.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/PlayerSheetPredictiveBackHandler.kt) | 74 | [ui-and-state](../ui-and-state.md) · `PlayerSheetPredictiveBackHandler` |
 | [PrefetchAlbumNeighbors.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/PrefetchAlbumNeighbors.kt) | 106 | [ui-and-state](../ui-and-state.md) · `PrefetchAlbumNeighborsImg`, `PrefetchAlbumNeighbors` |
 | [PrewarmFullPlayerState.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/PrewarmFullPlayerState.kt) | 20 | [ui-and-state](../ui-and-state.md) · `rememberPrewarmFullPlayer` |
@@ -646,7 +649,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [SheetModalOverlayController.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetModalOverlayController.kt) | 73 | [ui-and-state](../ui-and-state.md) · `SheetModalOverlayController`, `updateSelectedSongForInfo`, `dismissSaveQueueOverlay`, `launchSaveQueueOverlay`, `rememberSheetModalOverlayController` |
 | [SheetMotionController.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetMotionController.kt) | 87 | [ui-and-state](../ui-and-state.md) · `SheetMotionController`, `animateTo`, `stop`, `snapTo`, `snapCollapsed`, `syncToExpansion` |
 | [SheetOverlayState.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetOverlayState.kt) | 103 | [ui-and-state](../ui-and-state.md) · `SheetOverlayState`, `rememberSheetOverlayState` |
-| [SheetThemeState.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetThemeState.kt) | 251 | [ui-and-state](../ui-and-state.md) · `SheetThemeState`, `resolvePlayerSheetTargetScheme`, `rememberSheetThemeState`, `rememberBatchAnimatedColorScheme`, `lerpColorScheme` |
+| [SheetThemeState.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetThemeState.kt) | 253 | [ui-and-state](../ui-and-state.md) · `SheetThemeState`, `resolvePlayerSheetTargetScheme`, `rememberSheetThemeState`, `rememberBatchAnimatedColorScheme`, `lerpColorScheme` |
 | [SheetVerticalDragGestureHandler.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetVerticalDragGestureHandler.kt) | 199 | [ui-and-state](../ui-and-state.md) · `SheetVerticalDragGestureHandler`, `onDragStart`, `onVerticalDrag`, `onDragEnd`, `onDragCancel`, `Modifier.playerSheetVerticalDragGesture` |
 | [SheetVerticalDragMath.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetVerticalDragMath.kt) | 69 | [ui-and-state](../ui-and-state.md) · `SheetVerticalDragFrame`, `computeSheetVerticalDragFrame`, `resolveVerticalSheetTargetState`, `collapseSpringDampingForFraction`, `collapseInitialSquashForFraction` |
 | [SheetVisualState.kt](../../app/src/main/java/com/theveloper/pixelplay/presentation/components/scoped/SheetVisualState.kt) | 129 | [ui-and-state](../ui-and-state.md) · `collapsedPillCompactionOffset`, `SheetVisualState`, `rememberSheetVisualState` |
@@ -1152,6 +1155,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | Archivo | Líneas | Orientación |
 | --- | ---: | --- |
 | [MiniPlayerGesturePolicyTest.kt](../../app/src/test/java/com/theveloper/pixelplay/presentation/components/scoped/MiniPlayerGesturePolicyTest.kt) | 23 | [build-and-testing](../build-and-testing.md) · `MiniPlayerGesturePolicyTest` |
+| [PlayerMeshBackgroundTest.kt](../../app/src/test/java/com/theveloper/pixelplay/presentation/components/scoped/PlayerMeshBackgroundTest.kt) | 82 | [build-and-testing](../build-and-testing.md) · `PlayerMeshBackgroundTest`, `positionsAreStableAndSpreadAcrossTheViewport`, `limitsBrightDarkAndSaturatedAnchorsDuringPaletteChanges`, `usesAReadableSolidColorWhenTheBaseIsAlreadyUnsafe`, `extremeChannels`, `channel` |
 | [SheetThemeStateTest.kt](../../app/src/test/java/com/theveloper/pixelplay/presentation/components/scoped/SheetThemeStateTest.kt) | 52 | [build-and-testing](../build-and-testing.md) · `SheetThemeStateTest`, `resolvePlayerSheetTargetScheme_withoutAlbumArt_usesSystemScheme`, `resolvePlayerSheetTargetScheme_withPendingAlbumPalette_reusesPreviousAlbumScheme`, `resolvePlayerSheetTargetScheme_withReadyAlbumPalette_usesCurrentAlbumScheme` |
 
 ## app/src/test/java/com/theveloper/pixelplay/presentation/library

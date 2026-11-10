@@ -27,6 +27,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onPlaced
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerArtworkTransition
+import com.theveloper.pixelplay.presentation.components.scoped.LocalPlayerArtworkDepth
+import com.theveloper.pixelplay.presentation.components.scoped.PlayerArtworkDepth
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -54,6 +56,7 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
     isPreparingPlayback: Boolean,
     playerContentExpansionFraction: Animatable<Float, AnimationVector1D>,
     albumColorScheme: ColorScheme,
+    targetArtworkTint: androidx.compose.ui.graphics.Color,
     bottomSheetOpenFraction: Float,
     fullPlayerVisualState: FullPlayerVisualState,
     containerHeight: Dp,
@@ -141,8 +144,12 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
         }
 
         if (shouldRenderFullPlayer) {
+            val artworkDepth = remember(effectiveExpansionFractionProvider, targetArtworkTint) {
+                PlayerArtworkDepth(effectiveExpansionFractionProvider, targetArtworkTint)
+            }
             CompositionLocalProvider(
-                LocalMaterialTheme provides albumColorScheme
+                LocalMaterialTheme provides albumColorScheme,
+                LocalPlayerArtworkDepth provides artworkDepth
             ) {
                 val fullPlayerScale by remember(bottomSheetOpenFraction) {
                     // Keep the depth effect, but avoid aggressive full-screen rescaling on every frame.

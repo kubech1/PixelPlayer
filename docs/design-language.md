@@ -1,6 +1,6 @@
 # Lenguaje visual contemporáneo: especificación de implementación
 
-Estado: **Fases 2 y 3 implementadas, pendiente QA en el Galaxy S24** (9 de noviembre de 2026). Decisión y alternativas: [ADR 0004](decisions/0004-contemporary-design-language.md). Contexto general de UI: [Interfaz y estado](ui-and-state.md).
+Estado: **Fases 2 a 4 implementadas y comprobadas en emulador. QA físico pendiente** (10 de noviembre de 2026). Decisión y alternativas: [ADR 0004](decisions/0004-contemporary-design-language.md). Contexto general de UI: [Interfaz y estado](ui-and-state.md).
 
 Las referencias a código son **observadas en lectura estática** en esa fecha; revalídalas antes de editar. Las medidas y tiempos son **valores de partida**: pueden ajustarse tras la verificación visual en dispositivo, y el ajuste se registra en este documento.
 
@@ -320,6 +320,14 @@ Comandos (ver [Build y pruebas](build-and-testing.md)): `.\gradlew.bat :app:asse
 - En el emulador API 37, la portada de una pista sintética creció y se desplazó durante el arrastre. El gesto Atrás desde el borde devolvió el reproductor a la píldora. Abrir el teclado de Buscar ocultó las dos píldoras y cerrarlo devolvió el mini reproductor con la misma pista.
 - Las pruebas instrumentadas cubren los píxeles del recorrido reversible, el fundido si falta el carrusel al comenzar y el contador de recomposiciones del contenido de prueba. Sigue pendiente medir la recomposición de `FullPlayerContent` real durante el arrastre y aplicar la matriz de verificación física.
 
+### Evidencia de la Fase 4
+
+- El APK debug incluye `arm64-v8a` y `x86_64`. La suite JVM pasó con 385 pruebas al repetirla con el emulador en reposo, después de un fallo de la prueba de velocidad Hi-Fi. El informe de lint conservó los hallazgos de la fase 3 sin añadir otros.
+- En API 37 se capturaron tres portadas sintéticas en tema claro y oscuro y se compararon los tres niveles de efectos. Entre Equilibrado y Completo cambiaron los píxeles de la zona exterior del halo. Las regiones muestreadas en el centro de la portada y en el fondo conservaron los mismos píxeles. También se probaron una pista sin portada, el arrastre de apertura, Atrás desde el borde, los saltos rápidos y el movimiento reducido.
+- Pasaron cinco pruebas instrumentadas en API 37. Cubren fusión de las píldoras, transición reversible de portada, apertura con carga diferida, aislamiento del desenfoque y geometría activa en el estilo heredado Two Peek. El primer intento se detuvo por un ANR de arranque en el emulador. El reintento pasó después de compilar los APK con el perfil de ART `speed`.
+- Con ahorro de batería activo, Completo produjo los mismos píxeles que Equilibrado en la región muestreada del halo. Se comprobó No Peek y One Peek en la app y Two Peek en la prueba del carrusel.
+- La traza Perfetto cubrió 10,07 s en pausa y 10,05 s de reproducción estable. Registró cero ejecuciones de `PixelPlay.playerMesh.draw` y `PixelPlay.playerHalo.draw` en ambos intervalos. El cambio de pista registró cinco ejecuciones de la malla y una del halo. Los marcadores cuentan el dibujo de estas capas. La medición del coste de renderizado en One UI queda para el S24.
+
 ## Estado
 
 | Fase | Estado | Notas |
@@ -327,7 +335,7 @@ Comandos (ver [Build y pruebas](build-and-testing.md)): `.\gradlew.bat :app:asse
 | 1. Fundamentos | Implementada (código y pruebas JVM; pendiente validación visual en dispositivo) | `Motion.kt` (`PixelMotion`, `PixelPlayMotionScheme`, `LocalMotionPreferences`), `VisualEffectsLevel` (`FULL`/`BALANCED`/`MINIMAL` + `DataMigration` + ahorro de batería en `VisualEffectsState.kt`), `Depth.kt` (`Modifier.pillSurface` + contraste garantizado) y `BottomChromeMetrics.kt` (`LocalBottomChrome` en 8 pantallas). |
 | 2. Píldoras y gestos | Implementada. QA físico pendiente. | Fusión al desplazar, reselección, gestos del mini reproductor, migración y ajuste de compactación. La prueba instrumental comprobó que una lista de prueba no se recompone durante la animación de fusión o separación. |
 | 3. Transformación hacia el reproductor | Implementada. QA físico pendiente. | Portada compartida reversible, apertura inmediata con carrusel no disponible y retirada de «Usar esquinas suaves». |
-| 4. Halo y malla | Pendiente | |
+| 4. Halo y malla | Implementada. Validada en emulador, QA físico pendiente. | Malla en el reproductor completo, halo de la portada activa, degradación por nivel y dibujo sin invalidaciones continuas en los intervalos medidos. |
 | 5. FavoriteButton y microinteracciones | Pendiente | |
 | 6. Barras superiores | Pendiente | |
 | 7. Desenfoque de fondo | Pendiente (condicionado a benchmark) | |

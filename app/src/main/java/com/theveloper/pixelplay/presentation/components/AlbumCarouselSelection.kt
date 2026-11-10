@@ -10,6 +10,9 @@ import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.unit.*
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -24,6 +27,10 @@ import com.theveloper.pixelplay.presentation.components.scoped.ArtworkEndpoint
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerArtworkTransition
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerCarouselArtworkRadius
 import com.theveloper.pixelplay.presentation.components.scoped.capturePlayerArtwork
+import com.theveloper.pixelplay.presentation.components.scoped.LocalPlayerArtworkDepth
+import com.theveloper.pixelplay.presentation.components.scoped.PlayerArtworkHalo
+import com.theveloper.pixelplay.presentation.components.scoped.artworkLightEdge
+import com.theveloper.pixelplay.presentation.utils.LocalVisualEffects
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.first
 
@@ -54,7 +61,8 @@ internal fun AlbumCarouselSection(
     carouselStyle: String = CarouselStyle.NO_PEEK,
     itemSpacing: Dp = 8.dp,
     albumArtQuality: AlbumArtQuality = AlbumArtQuality.MEDIUM,
-    artworkTransition: PlayerArtworkTransition? = null
+    artworkTransition: PlayerArtworkTransition? = null,
+    paused: Boolean = false
 ) {
     if (queue.isEmpty()) return
 
@@ -187,9 +195,39 @@ internal fun AlbumCarouselSection(
             }
     }
 
-    BoxWithConstraints(modifier = modifier) {
+    val depth = LocalPlayerArtworkDepth.current
+    val expandedForDepth by remember(depth) {
+        derivedStateOf { depth != null && depth.expansion() >= 0.999f }
+    }
+    val showDepth = expandedForDepth && !carouselState.pagerState.isScrollInProgress
+    val edgeEnabled = LocalVisualEffects.current.allowsDepthEffects
+    val occurrence = carouselItemKeys[currentSongIndex]
+    var viewport by remember { mutableStateOf<LayoutCoordinates?>(null) }
+    val anchor = remember(occurrence) { mutableStateOf<LayoutCoordinates?>(null) }
+    val maskProvider = remember(occurrence) { mutableStateOf<(() -> Rect)?>(null) }
+    val artworkBounds = remember(anchor, maskProvider) {
+        bounds@{
+            val root = viewport ?: return@bounds null
+            val item = anchor.value ?: return@bounds null
+            val mask = maskProvider.value?.invoke() ?: return@bounds null
+            if (!root.isAttached || !item.isAttached || mask.isEmpty) return@bounds null
+            Rect(root.localPositionOf(item, mask.topLeft), root.localPositionOf(item, mask.bottomRight))
+        }
+    }
+    BoxWithConstraints(modifier = modifier.onPlaced { viewport = it }) {
         val availableWidth = this.maxWidth
 
+        if (depth != null && expandedForDepth && currentSong != null) {
+            PlayerArtworkHalo(
+                occurrence = occurrence,
+                uri = currentSong.albumArtUriString,
+                tint = depth.targetTint,
+                paused = paused,
+                visible = showDepth,
+                bounds = artworkBounds,
+                modifier = Modifier.matchParentSize()
+            )
+        }
         RoundedHorizontalMultiBrowseCarousel(
             state = carouselState,
             modifier = Modifier.fillMaxSize(), // Fill the space provided by the parent's modifier
@@ -202,6 +240,20 @@ internal fun AlbumCarouselSection(
             content = { index ->
                 val song = queue[index]
                 val isFocusedItem = carouselState.pagerState.currentPage == index
+                val decorate = showDepth && isFocusedItem && index == currentSongIndex
+                val drawInfo = carouselItemDrawInfo
+                val currentMask = remember(drawInfo) { { drawInfo.maskRect } }
+                if (decorate) {
+                    DisposableEffect(anchor, currentMask) {
+                        maskProvider.value = currentMask
+                        onDispose {
+                            if (maskProvider.value === currentMask) {
+                                maskProvider.value = null
+                                anchor.value = null
+                            }
+                        }
+                    }
+                }
                 val capture = Modifier.capturePlayerArtwork(
                     artworkTransition.takeIf { isFocusedItem && index == currentSongIndex },
                     song,
@@ -211,6 +263,8 @@ internal fun AlbumCarouselSection(
                     Modifier
                         .fillMaxSize()
                         .aspectRatio(1f)
+                        .then(if (decorate) Modifier.onPlaced { anchor.value = it } else Modifier)
+                        .then(if (decorate && edgeEnabled) Modifier.artworkLightEdge(currentMask) else Modifier)
                         .clickable(
                             enabled = isFocusedItem && song.albumId != -1L,
                             interactionSource = remember { MutableInteractionSource() },

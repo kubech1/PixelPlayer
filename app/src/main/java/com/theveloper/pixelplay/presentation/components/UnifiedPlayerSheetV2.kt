@@ -72,6 +72,7 @@ import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerAlbumNavigationEffect
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerArtistNavigationEffect
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerArtworkIdentity
+import com.theveloper.pixelplay.presentation.components.scoped.PlayerMeshBackground
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerSheetPredictiveBackHandler
 import com.theveloper.pixelplay.presentation.components.scoped.QueueSheetRuntimeEffects
 import com.theveloper.pixelplay.presentation.components.scoped.SheetMotionController
@@ -94,6 +95,7 @@ import com.theveloper.pixelplay.presentation.viewmodel.PlayerViewModel
 import com.theveloper.pixelplay.presentation.viewmodel.StablePlayerState
 import com.theveloper.pixelplay.ui.theme.LocalPixelPlayDarkTheme
 import com.theveloper.pixelplay.ui.theme.LocalMotionPreferences
+import com.theveloper.pixelplay.presentation.utils.LocalVisualEffects
 import com.theveloper.pixelplay.ui.theme.PixelMotion
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -544,6 +546,7 @@ fun UnifiedPlayerSheetV2(
     val miniReadyAlpha = sheetThemeState.miniReadyAlpha
     val miniAppearScale = sheetThemeState.miniAppearScale
     val playerAreaBackground = sheetThemeState.playerAreaBackground
+    val depthEffects = LocalVisualEffects.current.allowsDepthEffects
 
     val sheetInteractionState = rememberSheetInteractionState(
         scope = scope,
@@ -699,6 +702,17 @@ fun UnifiedPlayerSheetV2(
                                 contentDescription = playerSheetSemanticsDescription
                             }
                     ) {
+                        val songId = infrequentPlayerState.currentSong?.id
+                        if (depthEffects && songId != null) {
+                            PlayerMeshBackground(
+                                songId = songId,
+                                targetScheme = sheetThemeState.targetAlbumColorScheme,
+                                baseColor = playerAreaBackground,
+                                foregroundColor = albumColorScheme.onPrimaryContainer,
+                                expansion = effectiveExpansionFractionProvider,
+                                modifier = Modifier.matchParentSize()
+                            )
+                        }
                         UnifiedPlayerMiniAndFullLayers(
                             currentSong = infrequentPlayerState.currentSong,
                             miniPlayerScheme = miniPlayerScheme,
@@ -707,6 +721,7 @@ fun UnifiedPlayerSheetV2(
                             isPreparingPlayback = isPreparingPlayback,
                             playerContentExpansionFraction = playerContentExpansionFraction,
                             albumColorScheme = albumColorScheme,
+                            targetArtworkTint = sheetThemeState.targetAlbumColorScheme.primary,
                             bottomSheetOpenFraction = bottomSheetOpenFraction,
                             fullPlayerVisualState = fullPlayerVisualState,
                             containerHeight = containerHeight,

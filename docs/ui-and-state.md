@@ -76,3 +76,9 @@ El arrastre horizontal del mini reproductor cambia de canción con los callbacks
 El contorno del panel pasa de una píldora al reproductor completo con un radio uniforme. La forma y la capa de portada leen en layout o dibujo el mismo progreso visual, que combina la expansión con Atrás predictivo. El menú de Apariencia retira «Usar esquinas suaves».
 
 La transición usa los límites de la miniatura y del elemento activo del carrusel. Dibuja una sola portada entre ambos y reutiliza el dibujo de las imágenes ya cargadas. Si alguno de los extremos todavía no está disponible al iniciar, el reproductor abre al instante con su fundido habitual. El árbol precalentado y la política de carga diferida siguen controlando cuándo se muestra el carrusel.
+
+## Halo y fondo de malla (Fase 4)
+
+La portada activa conserva su recorte y recibe la sombra y el halo en una capa situada detrás del carrusel. La miniatura del halo se solicita con Coil al llegar al reproductor completo. Al cambiar de pista o salir del reproductor, se cancela la solicitud anterior. Las portadas vecinas conservan su apariencia y la portada compartida viaja sola durante la apertura y el cierre.
+
+El fondo de malla usa los colores de la paleta del reproductor y cuatro posiciones reproducibles por canción. Atenúa el color y el grano según el contraste con el texto principal. Los niveles efectivos de efectos visuales conservan su reducción por ahorro de batería. Mínimo muestra el fondo sólido y una sombra neutra. Equilibrado añade la malla, el halo y el borde de luz. Completo desenfoca la capa del halo. Con las animaciones del sistema desactivadas se mantienen los efectos estáticos.

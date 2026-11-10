@@ -1102,7 +1102,8 @@ private fun FullPlayerAlbumCoverSection(
                         scaleY = albumArtScale
                     },
                 albumArtQuality = albumArtQuality,
-                artworkTransition = artworkTransition
+                artworkTransition = artworkTransition,
+                paused = shouldApplyPausedScale
             )
         }
     }

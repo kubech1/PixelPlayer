@@ -31,6 +31,7 @@ import com.theveloper.pixelplay.presentation.viewmodel.ColorSchemePair
 internal data class SheetThemeState(
     val albumColorScheme: ColorScheme,
     val miniPlayerScheme: ColorScheme,
+    val targetAlbumColorScheme: ColorScheme,
     val isPreparingPlayback: Boolean,
     val miniReadyAlpha: Float,
     val miniAppearScale: Float,
@@ -163,6 +164,7 @@ internal fun rememberSheetThemeState(
     return SheetThemeState(
         albumColorScheme = albumColorScheme,
         miniPlayerScheme = miniPlayerScheme,
+        targetAlbumColorScheme = rawAlbumColorScheme,
         isPreparingPlayback = isPreparingPlayback,
         miniReadyAlpha = miniReadyAlpha,
         miniAppearScale = miniAppearScale,
