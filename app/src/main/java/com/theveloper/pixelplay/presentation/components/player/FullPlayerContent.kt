@@ -145,6 +145,8 @@ import timber.log.Timber
 import java.util.Locale
 import kotlin.math.roundToLong
 import com.theveloper.pixelplay.presentation.components.WavySliderExpressive
+import com.theveloper.pixelplay.presentation.components.FavoriteButton
+import com.theveloper.pixelplay.presentation.components.FavoriteButtonStyle
 import com.theveloper.pixelplay.presentation.components.ToggleSegmentButton
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
@@ -546,6 +548,7 @@ internal fun FullPlayerContent(
 
     val controlsSection: @Composable () -> Unit = {
         FullPlayerControlsSection(
+            songId = currentSong?.id,
             loadingTweaks = loadingTweaks,
             isSheetDragGestureActive = isSheetDragGestureActive,
             expansionFractionProvider = expansionFractionProvider,
@@ -1111,6 +1114,7 @@ private fun FullPlayerAlbumCoverSection(
 
 @Composable
 private fun FullPlayerControlsSection(
+    songId: String?,
     loadingTweaks: FullPlayerLoadingTweaks,
     isSheetDragGestureActive: Boolean,
     expansionFractionProvider: () -> Float,
@@ -1181,6 +1185,7 @@ private fun FullPlayerControlsSection(
             Spacer(modifier = Modifier.height(14.dp))
 
             BottomToggleRow(
+                songId = songId,
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 66.dp, max = 86.dp)
@@ -2569,6 +2574,7 @@ private fun expressiveSkipButtonColors(colorScheme: ColorScheme): TransportButto
 @Composable
 private fun BottomToggleRow(
     modifier: Modifier,
+    songId: String?,
     isShuffleEnabled: Boolean,
     isShuffleTransitionInProgress: Boolean,
     repeatMode: Int,
@@ -2602,20 +2608,7 @@ private fun BottomToggleRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(6.dp)
-                .clip(
-                    AbsoluteSmoothCornerShape(
-                        cornerRadiusBL = rowCorners,
-                        smoothnessAsPercentTR = 60,
-                        cornerRadiusBR = rowCorners,
-                        smoothnessAsPercentBL = 60,
-                        cornerRadiusTL = rowCorners,
-                        smoothnessAsPercentBR = 60,
-                        cornerRadiusTR = rowCorners,
-                        smoothnessAsPercentTL = 60
-                    )
-                )
-                .background(Color.Transparent),
+                .padding(6.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -2637,7 +2630,10 @@ private fun BottomToggleRow(
                     onShuffleToggle()
                 },
                 iconId = R.drawable.rounded_shuffle_24,
-                contentDesc = "Aleatorio"
+                rotateOnActivation = true,
+                inactiveCornerRadius = PlayerControlInnerCorner,
+                inactiveStartCornerRadius = PlayerControlOuterCorner,
+                contentDesc = androidx.compose.ui.res.stringResource(R.string.common_shuffle)
             )
             val repeatActive = repeatMode != Player.REPEAT_MODE_OFF
             val repeatIcon = when (repeatMode) {
@@ -2658,24 +2654,20 @@ private fun BottomToggleRow(
                     onRepeatToggle()
                 },
                 iconId = repeatIcon,
-                contentDesc = "Repetir"
+                crossfadeIcon = true,
+                inactiveCornerRadius = PlayerControlInnerCorner,
+                contentDesc = androidx.compose.ui.res.stringResource(R.string.common_repeat)
             )
-            ToggleSegmentButton(
-                modifier = commonModifier,
-                active = isFavorite,
-                activeColor = LocalMaterialTheme.current.tertiaryFixed,
-                activeCornerRadius = rowCorners,
-                activeContentColor = LocalMaterialTheme.current.onTertiaryFixed,
-                inactiveColor = inactiveBg,
-                inactiveContentColor = inactiveContentColor,
-                onClick = {
-                    hapticFeedback.performHapticFeedback(
-                        if (isFavorite) HapticFeedbackType.ToggleOff else HapticFeedbackType.Confirm
-                    )
-                    onFavoriteToggle()
-                },
-                iconId = if (isFavorite) R.drawable.round_favorite_24 else R.drawable.rounded_favorite_24,
-                contentDesc = "Favorito"
+            FavoriteButton(
+                songId = songId,
+                isFavorite = isFavorite,
+                onToggle = onFavoriteToggle,
+                modifier = commonModifier.fillMaxHeight(),
+                shape = if (isFavorite) RoundedCornerShape(rowCorners) else InactiveFavoriteSegmentShape,
+                containerColor = if (isFavorite) LocalMaterialTheme.current.tertiaryFixed else inactiveBg,
+                contentColor = if (isFavorite) LocalMaterialTheme.current.onTertiaryFixed else inactiveContentColor,
+                style = FavoriteButtonStyle.Full,
+                palette = LocalMaterialTheme.current
             )
         }
     }

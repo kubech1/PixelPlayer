@@ -125,4 +125,6 @@
     <string name="common_play_album">播放专辑</string>
     <string name="common_shuffle_play_album">随机播放专辑</string>
     <string name="common_album_art_for_title">%1$s 的专辑封面</string>
+    <string name="favorite_state_added">已收藏</string>
+    <string name="favorite_state_removed">未收藏</string>
 </resources>

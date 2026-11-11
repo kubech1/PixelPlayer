@@ -44,6 +44,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -55,6 +56,7 @@ import androidx.compose.ui.unit.sp
 import coil.size.Size
 import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.ui.theme.GoogleSansRounded
+import com.theveloper.pixelplay.ui.theme.rememberPillSurfaceColors
 
 internal val LocalMaterialTheme = compositionLocalOf<ColorScheme> { error("No ColorScheme provided") }
 
@@ -83,6 +85,7 @@ internal fun MiniPlayerContentInternal(
     queueIndex: Int = -1,
     artworkTransition: PlayerArtworkTransition? = null
 ) {
+    val pillColors = rememberPillSurfaceColors()
     val hapticFeedback = LocalHapticFeedback.current
     val restingHeight = LocalBottomChrome.current.miniPlayerRestingHeight
     val controlsEnabled = !isCastConnecting && !isPreparingPlayback
@@ -90,7 +93,7 @@ internal fun MiniPlayerContentInternal(
     val previousInteraction = remember { MutableInteractionSource() }
     val playPauseInteraction = remember { MutableInteractionSource() }
     val nextInteraction = remember { MutableInteractionSource() }
-    val miniPlayerIndication = remember { ripple(bounded = false) }
+    val miniPlayerIndication = ripple(bounded = false, color = pillColors.contentColor)
 
     val (skipGesture, skipOffset, displayedSong) =
         com.theveloper.pixelplay.presentation.components.scoped.rememberMiniPlayerSkipGesture(
@@ -139,7 +142,7 @@ internal fun MiniPlayerContentInternal(
                 CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
                     strokeWidth = 2.dp,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = pillColors.contentColor
                 )
             } else if (isPreparingPlayback) {
                 CircularWavyProgressIndicator(modifier = Modifier.size(24.dp))
@@ -155,13 +158,13 @@ internal fun MiniPlayerContentInternal(
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = (-0.2).sp,
                 fontFamily = GoogleSansRounded,
-                color = MaterialTheme.colorScheme.onSurface
+                color = pillColors.contentColor
             )
             val artistStyle = MaterialTheme.typography.bodySmall.copy(
                 fontSize = 13.sp,
                 letterSpacing = 0.sp,
                 fontFamily = GoogleSansRounded,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                color = pillColors.contentColor
             )
 
             AutoScrollingText(
@@ -171,7 +174,7 @@ internal fun MiniPlayerContentInternal(
                     else -> displayedSong.title
                 },
                 style = titleStyle,
-                gradientEdgeColor = LocalMaterialTheme.current.primaryContainer,
+                gradientEdgeColor = Color.White,
                 canScroll = canScroll
             )
             AutoScrollingText(
@@ -182,7 +185,7 @@ internal fun MiniPlayerContentInternal(
                     layout(child.width, (child.height * visibility).toInt()) { if (visibility > 0.01f) child.placeRelativeWithLayer(0, 0) { alpha = visibility } }
                 },
                 style = artistStyle,
-                gradientEdgeColor = LocalMaterialTheme.current.primaryContainer,
+                gradientEdgeColor = Color.White,
                 canScroll = canScroll
             )
         }
@@ -192,7 +195,6 @@ internal fun MiniPlayerContentInternal(
             modifier = collapseControl
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(LocalMaterialTheme.current.onPrimary)
                 .clickable(
                     interactionSource = previousInteraction,
                     indication = miniPlayerIndication,
@@ -206,7 +208,7 @@ internal fun MiniPlayerContentInternal(
             Icon(
                 imageVector = Icons.Rounded.SkipPrevious,
                 contentDescription = "Anterior",
-                tint = LocalMaterialTheme.current.primary,
+                tint = pillColors.contentColor,
                 modifier = Modifier.size(22.dp)
             )
         }
@@ -217,7 +219,7 @@ internal fun MiniPlayerContentInternal(
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(LocalMaterialTheme.current.primary)
+                .background(pillColors.controlColor)
                 .clickable(
                     interactionSource = playPauseInteraction,
                     indication = miniPlayerIndication,
@@ -233,7 +235,7 @@ internal fun MiniPlayerContentInternal(
             Icon(
                 imageVector = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
                 contentDescription = if (isPlaying) "Pausar" else "Reproducir",
-                tint = LocalMaterialTheme.current.onPrimary,
+                tint = pillColors.contentColor,
                 modifier = Modifier.size(22.dp)
             )
         }
@@ -244,7 +246,6 @@ internal fun MiniPlayerContentInternal(
             modifier = collapseControl
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(LocalMaterialTheme.current.onPrimary)
                 .clickable(
                     interactionSource = nextInteraction,
                     indication = miniPlayerIndication,
@@ -258,7 +259,7 @@ internal fun MiniPlayerContentInternal(
             Icon(
                 imageVector = Icons.Rounded.SkipNext,
                 contentDescription = "Siguiente",
-                tint = LocalMaterialTheme.current.primary,
+                tint = pillColors.contentColor,
                 modifier = Modifier.size(22.dp)
             )
         }

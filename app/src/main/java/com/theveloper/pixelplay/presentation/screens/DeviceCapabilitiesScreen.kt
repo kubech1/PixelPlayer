@@ -4,7 +4,6 @@ import android.content.Intent
 import android.text.format.Formatter
 import android.widget.Toast
 import androidx.annotation.OptIn
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Arrangement
@@ -59,6 +58,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -93,6 +93,8 @@ import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import com.theveloper.pixelplay.R
 import com.theveloper.pixelplay.presentation.components.CollapsibleCommonTopBar
+import com.theveloper.pixelplay.presentation.components.collapsedTopBarHeight
+import com.theveloper.pixelplay.presentation.components.rememberCollapsibleTopBarHeight
 import com.theveloper.pixelplay.presentation.components.MiniPlayerHeight
 import com.theveloper.pixelplay.presentation.viewmodel.AudioCapabilities
 import com.theveloper.pixelplay.presentation.viewmodel.AudioOutputCategory
@@ -128,21 +130,20 @@ fun DeviceCapabilitiesScreen(
     val coroutineScope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
 
-    val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-    val minTopBarHeight = 64.dp + statusBarHeight
+    val minTopBarHeight = collapsedTopBarHeight()
     val maxTopBarHeight = 188.dp
     val minTopBarHeightPx = with(density) { minTopBarHeight.toPx() }
     val maxTopBarHeightPx = with(density) { maxTopBarHeight.toPx() }
 
-    val topBarHeight = remember { Animatable(maxTopBarHeightPx) }
-    var collapseFraction by remember { mutableFloatStateOf(0f) }
-
-    LaunchedEffect(topBarHeight.value) {
-        collapseFraction = 1f - ((topBarHeight.value - minTopBarHeightPx) / (maxTopBarHeightPx - minTopBarHeightPx))
-            .coerceIn(0f, 1f)
+    val topBarHeight = rememberCollapsibleTopBarHeight(minTopBarHeightPx, maxTopBarHeightPx)
+    val collapseFraction by remember(minTopBarHeightPx, maxTopBarHeightPx) {
+        derivedStateOf {
+            1f - ((topBarHeight.value - minTopBarHeightPx) /
+                (maxTopBarHeightPx - minTopBarHeightPx)).coerceIn(0f, 1f)
+        }
     }
 
-    val nestedScrollConnection = remember {
+    val nestedScrollConnection = remember(topBarHeight, minTopBarHeightPx, maxTopBarHeightPx) {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 val delta = available.y
@@ -207,11 +208,10 @@ fun DeviceCapabilitiesScreen(
 
         CollapsibleCommonTopBar(
             title = stringResource(R.string.settings_category_device_capabilities_title),
-            collapseFraction = collapseFraction,
+            collapseFraction = { collapseFraction },
             headerHeight = currentTopBarHeightDp,
             onBackClick = { navController.popBackStack() },
             expandedTitleStartPadding = 20.dp,
-            collapsedTitleStartPadding = 68.dp,
             maxLines = 2
         )
     }

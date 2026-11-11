@@ -350,12 +350,6 @@ fun LyricsSheet(
 
     val allowsDepthEffects = com.theveloper.pixelplay.presentation.utils.LocalVisualEffects.current.allowsDepthEffects
 
-
-    val animatedLyricsBlurStrengthFlow = remember(context) {
-        context.dataStore.data.map { it[androidx.datastore.preferences.core.floatPreferencesKey("animated_lyrics_blur_strength")] ?: 2.5f }
-    }
-    val animatedLyricsBlurStrength by animatedLyricsBlurStrengthFlow.collectAsStateWithLifecycle(initialValue = 2.5f)
-
     // Read keep-screen-on preference from DataStore
     val keepScreenOnFlow = remember(context) {
         context.dataStore.data.map { it[booleanPreferencesKey("keep_screen_on_lyrics")] ?: false }
@@ -794,7 +788,6 @@ fun LyricsSheet(
                                 autoscrollAnimationSpec = resolvedAutoscrollSpec,
                                 useAnimatedLyrics = useAnimatedLyrics,
                                 animatedLyricsBlurEnabled = animatedLyricsBlurEnabled && allowsDepthEffects,
-                                animatedLyricsBlurStrength = animatedLyricsBlurStrength,
                                 immersiveMode = immersiveMode,
                                 lyricsAlignment = lyricsAlignment,
                                 showTranslation = showLyricsTranslation,
@@ -1011,6 +1004,7 @@ fun LyricsSheet(
                 shapes = MaterialTheme.shapes
             ) {
                 LyricsMoreBottomSheet(
+                    songId = currentSong?.id,
                     onDismissRequest = { showMoreSheet = false },
                     sheetState = moreSheetState,
                     lyrics = lyrics,
@@ -1200,7 +1194,6 @@ fun SyncedLyricsList(
     autoscrollAnimationSpec: AnimationSpec<Float>,
     useAnimatedLyrics: Boolean = false,
     animatedLyricsBlurEnabled: Boolean = true,
-    animatedLyricsBlurStrength: Float = 2.5f,
     immersiveMode: Boolean = false,
     lyricsAlignment: String = "left",
     showTranslation: Boolean = true,
@@ -1344,7 +1337,6 @@ fun SyncedLyricsList(
                             distanceFromCurrent = distanceFromCurrent,
                             useAnimatedLyrics = useAnimatedLyrics,
                             animatedLyricsBlurEnabled = animatedLyricsBlurEnabled,
-                            animatedLyricsBlurStrength = animatedLyricsBlurStrength,
                             immersiveMode = immersiveMode,
                             lyricsAlignment = lyricsAlignment,
                             showTranslation = showTranslation,
@@ -1397,7 +1389,6 @@ fun LyricLineRow(
     distanceFromCurrent: Int = 100,
     useAnimatedLyrics: Boolean = false,
     animatedLyricsBlurEnabled: Boolean = true,
-    animatedLyricsBlurStrength: Float = 2.5f,
     immersiveMode: Boolean = false,
     lyricsAlignment: String = "left",
     showTranslation: Boolean = true,
@@ -1468,7 +1459,7 @@ fun LyricLineRow(
 
     // Blur Effect
     val targetBlur = if (useAnimatedLyrics && animatedLyricsBlurEnabled && distanceFromCurrent > 0) {
-        (distanceFromCurrent * animatedLyricsBlurStrength).coerceAtMost(10f).dp
+        (distanceFromCurrent * LyricsBlurDpPerLine).coerceAtMost(10f).dp
     } else 0.dp
 
     val blurRadius by animateDpAsState(
@@ -1803,6 +1794,7 @@ fun PlainLyricsLine(
     }
 }
 
+private const val LyricsBlurDpPerLine = 2.5f
 private val LeadingTagRegex = Regex("^v\\d+:\\s*", RegexOption.IGNORE_CASE)
 
 internal fun sanitizeLyricLineText(raw: String): String =

@@ -125,4 +125,6 @@
     <string name="common_play_album">Riproduci album</string>
     <string name="common_shuffle_play_album">Riproduzione casuale album</string>
     <string name="common_album_art_for_title">Copertina album per %1$s</string>
+    <string name="favorite_state_added">Nei preferiti</string>
+    <string name="favorite_state_removed">Non nei preferiti</string>
 </resources>

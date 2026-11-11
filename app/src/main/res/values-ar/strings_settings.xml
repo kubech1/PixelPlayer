@@ -80,7 +80,7 @@
     <string name="setcat_smooth_corners_title">حواف ناعمة ومرنة</string>
     <string name="setcat_smooth_corners_subtitle">استخدام زوايا وحواف دائرية معقدة لتحسين الجمالية؛ قد يؤثر على الأداء في الأجهزة الضعيفة</string>
     <string name="settings_visual_effects_title">المؤثرات البصرية</string>
-    <string name="settings_visual_effects_subtitle">تحكم في العمق والتدرجات والضبابية. يخفض موفر البطارية المستوى تلقائياً.</string>
+    <string name="settings_visual_effects_subtitle">تحكم في العمق والتدرجات وتمويه الهالة حول صورة الغلاف. يخفض موفر البطارية المستوى تلقائياً.</string>
     <string name="settings_visual_effects_full">كامل</string>
     <string name="settings_visual_effects_balanced">متوازن</string>
     <string name="settings_visual_effects_minimal">أدنى</string>

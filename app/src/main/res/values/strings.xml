@@ -125,4 +125,6 @@
     <string name="common_play_album">Play album</string>
     <string name="common_shuffle_play_album">Shuffle play album</string>
     <string name="common_album_art_for_title">Album art for %1$s</string>
+    <string name="favorite_state_added">Added to favorites</string>
+    <string name="favorite_state_removed">Not in favorites</string>
 </resources>

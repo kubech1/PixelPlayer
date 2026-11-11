@@ -180,7 +180,7 @@
     <string name="settings_theme_dark">Тёмная тема</string>
     <string name="settings_theme_follow_system">Как в системе</string>
     <string name="settings_visual_effects_title">Визуальные эффекты</string>
-    <string name="settings_visual_effects_subtitle">Управление глубиной, градиентами и размытием. Режим энергосбережения автоматически снижает уровень на ступень.</string>
+    <string name="settings_visual_effects_subtitle">Управление глубиной, градиентами и размытием ореола вокруг обложки. Режим энергосбережения автоматически снижает уровень на ступень.</string>
     <string name="settings_visual_effects_full">Полные</string>
     <string name="settings_visual_effects_balanced">Сбалансированные</string>
     <string name="settings_visual_effects_minimal">Минимальные</string>
@@ -238,14 +238,6 @@
     <string name="settings_palette_style_expressive_desc">Смелые оттенки и высокий контраст.</string>
     <string name="settings_palette_style_fruit_salad">Fruit Salad</string>
     <string name="settings_palette_style_fruit_salad_desc">Игривые смещённые акценты.</string>
-    <string name="settings_palette_style_color_accuracy_title">Точность цветов</string>
-    <string name="settings_palette_style_color_accuracy_subtitle">0 сохраняет текущую настройку. Более высокие значения делают палитру ближе к доминирующему цвету обложки.</string>
-    <string name="settings_palette_style_accuracy_current">Текущая</string>
-    <string name="settings_palette_style_accuracy_more_accurate">Более точная</string>
-    <string name="settings_palette_style_accuracy_summary_current">0 • Текущая</string>
-    <string name="settings_palette_style_accuracy_summary_subtle">%1$d • Незначительная</string>
-    <string name="settings_palette_style_accuracy_summary_balanced">%1$d • Сбалансированная</string>
-    <string name="settings_palette_style_accuracy_summary_precise">%1$d • Точная</string>
 
     <!-- NavBarCornerRadiusScreen -->
 
@@ -286,9 +278,6 @@
     <string name="settings_folders_section">Папки</string>
     <string name="settings_folder_back_gesture_title">Жест назад управляет папками</string>
     <string name="settings_folder_back_gesture_subtitle">На вкладке «Папки» системный жест «Назад» сначала перемещается по иерархии папок, а затем выходит из медиатеки.</string>
-    <string name="settings_player_gestures_section">Жесты плеера</string>
-    <string name="settings_tap_bg_closes_title">Касание фона закрывает плеер</string>
-    <string name="settings_tap_bg_closes_subtitle">Нажмите на размытый фон, чтобы закрыть окно плеера.</string>
     <string name="settings_haptics_section">Тактильная отдача</string>
     <string name="settings_haptic_feedback_title">Тактильная отдача</string>
     <string name="settings_haptic_feedback_subtitle">Включить виброотклик во всём приложении.</string>
@@ -464,9 +453,6 @@
     <string name="settings_exp_animated_lyrics_subtitle">Использует пружинные анимации и визуальные эффекты для текстов песен. На слабых устройствах возможны просадки производительности.</string>
     <string name="settings_exp_lyrics_blur_title">Эффект размытия текста</string>
     <string name="settings_exp_lyrics_blur_subtitle">Применяет эффект глубины резкости к неактивным строкам текста.</string>
-    <string name="settings_exp_lyrics_blur_strength_title">Сила размытия</string>
-    <string name="settings_exp_lyrics_blur_strength_subtitle">Настройте интенсивность эффекта размытия.</string>
-    <string name="settings_exp_lyrics_blur_strength_value">%1$.1fx</string>
     <string name="settings_exp_step1_delay_header">Шаг 1 · Выберите элементы для задержки</string>
     <string name="settings_exp_delay_everything_title">Задерживать всё</string>
     <string name="settings_exp_delay_everything_subtitle">Удерживать всё содержимое плеера, пока панель полностью не раскроется.</string>

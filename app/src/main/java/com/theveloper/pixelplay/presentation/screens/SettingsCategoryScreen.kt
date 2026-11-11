@@ -20,7 +20,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -159,7 +158,8 @@ import com.theveloper.pixelplay.data.preferences.VisualEffectsLevel
 import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.data.model.LyricsSourcePreference
 import com.theveloper.pixelplay.presentation.components.CollapsibleCommonTopBar
-import com.theveloper.pixelplay.presentation.components.ExpressiveTopBarContent
+import com.theveloper.pixelplay.presentation.components.collapsedTopBarHeight
+import com.theveloper.pixelplay.presentation.components.rememberCollapsibleTopBarHeight
 import com.theveloper.pixelplay.presentation.components.FileExplorerDialog
 import com.theveloper.pixelplay.presentation.components.MiniPlayerHeight
 import com.theveloper.pixelplay.presentation.model.SettingsCategory
@@ -277,8 +277,7 @@ fun SettingsCategoryScreen(
     val categoryTitle = stringResource(category.titleRes)
     val isLongTitle = categoryTitle.length > 13
     
-    val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-    val minTopBarHeight = 64.dp + statusBarHeight
+    val minTopBarHeight = collapsedTopBarHeight()
     val maxTopBarHeight = if (isLongTitle) 200.dp else 180.dp //for 2 lines use 220 and make text use \n
 
     val minTopBarHeightPx = with(density) { minTopBarHeight.toPx() }
@@ -286,7 +285,7 @@ fun SettingsCategoryScreen(
     
     val titleMaxLines = if (isLongTitle) 2 else 1
 
-    val topBarHeight = remember(maxTopBarHeightPx) { Animatable(maxTopBarHeightPx) }
+    val topBarHeight = rememberCollapsibleTopBarHeight(minTopBarHeightPx, maxTopBarHeightPx)
     var collapseFraction by remember { mutableStateOf(0f) }
 
     LaunchedEffect(topBarHeight.value, maxTopBarHeightPx) {
@@ -297,7 +296,7 @@ fun SettingsCategoryScreen(
                                 .coerceIn(0f, 1f)
     }
 
-    val nestedScrollConnection = remember {
+    val nestedScrollConnection = remember(topBarHeight, minTopBarHeightPx, maxTopBarHeightPx) {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 val delta = available.y
@@ -692,17 +691,6 @@ fun SettingsCategoryScreen(
                                         onCheckedChange = { settingsViewModel.setAnimatedLyricsBlurEnabled(it) },
                                         leadingIcon = { Icon(Icons.Rounded.BlurOff, null, tint = MaterialTheme.colorScheme.secondary) }
                                     )
-
-                                    if (uiState.animatedLyricsBlurEnabled) {
-                                        SliderSettingsItem(
-                                            label = stringResource(R.string.settings_exp_lyrics_blur_strength_title),
-                                            value = uiState.animatedLyricsBlurStrength,
-                                            valueRange = 1f..4f,
-                                            steps = 2,
-                                            onValueChange = { settingsViewModel.setAnimatedLyricsBlurStrength(it) },
-                                            valueText = { value -> "${"%.1f".format(value)}x" }
-                                        )
-                                    }
                                 }
                             }
 
@@ -893,17 +881,6 @@ fun SettingsCategoryScreen(
                                 )
                             }
                             SettingsSubsection(
-                                title = stringResource(R.string.settings_player_gestures_section)
-                            ) {
-                                SwitchSettingItem(
-                                    title = stringResource(R.string.settings_tap_bg_closes_title),
-                                    subtitle = stringResource(R.string.settings_tap_bg_closes_subtitle),
-                                    checked = uiState.tapBackgroundClosesPlayer,
-                                    onCheckedChange = { settingsViewModel.setTapBackgroundClosesPlayer(it) },
-                                    leadingIcon = { Icon(painterResource(R.drawable.rounded_touch_app_24), null, tint = MaterialTheme.colorScheme.secondary) }
-                                )
-                            }
-                            SettingsSubsection(
                                 title = stringResource(R.string.settings_haptics_section),
                                 addBottomSpace = false
                             ) {
@@ -943,7 +920,7 @@ fun SettingsCategoryScreen(
         }
 
         CollapsibleCommonTopBar(
-            collapseFraction = collapseFraction,
+            collapseFraction = { collapseFraction },
             headerHeight = currentTopBarHeightDp,
             onBackClick = onBackClick,
             title = categoryTitle,

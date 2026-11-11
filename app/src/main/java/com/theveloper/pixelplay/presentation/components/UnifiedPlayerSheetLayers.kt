@@ -50,7 +50,6 @@ import com.theveloper.pixelplay.presentation.viewmodel.StablePlayerState
 @Composable
 internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
     currentSong: Song?,
-    miniPlayerScheme: ColorScheme?,
     infrequentPlayerState: StablePlayerState,
     isCastConnecting: Boolean,
     isPreparingPlayback: Boolean,
@@ -82,65 +81,59 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
     val chrome = LocalBottomChrome.current
     val compactFractionProvider = chrome.mergeFractionProvider
     currentSong?.let { currentSongNonNull ->
-        miniPlayerScheme?.let { readyScheme ->
-            CompositionLocalProvider(
-                LocalMaterialTheme provides readyScheme
-            ) {
-                val miniPlayerZIndex by remember {
-                    derivedStateOf {
-                        if (playerContentExpansionFraction.value < 0.5f) 1f else 0f
-                    }
-                }
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .fillMaxWidth()
-                        .layout { measurable, constraints ->
-                            val height = androidx.compose.ui.util.lerp(chrome.miniPlayerRestingHeight.toPx(), 56.dp.toPx(), compactFractionProvider()).toInt()
-                            val child = measurable.measure(constraints.copy(minHeight = height, maxHeight = height))
-                            layout(child.width, height) { child.placeRelative(0, 0) }
-                        }
-                        .graphicsLayer {
-                            // Compute miniAlpha in the draw phase from the Animatable,
-                            // avoiding per-frame recomposition during gestures.
-                            alpha = (1f - effectiveExpansionFractionProvider() * 2f)
-                                .coerceIn(0f, 1f)
-                        }
-                        .layout { measurable, constraints ->
-                            val targetWidth = (constraints.maxWidth - currentHorizontalPaddingStartPxProvider().toInt() - currentHorizontalPaddingEndPxProvider().toInt())
-                                .coerceAtLeast(0)
-                            val placeable = measurable.measure(
-                                constraints.copy(
-                                    minWidth = targetWidth,
-                                    maxWidth = targetWidth
-                                )
-                            )
-                            layout(constraints.maxWidth, constraints.maxHeight) {
-                                val startPaddingPx = currentHorizontalPaddingStartPxProvider().toInt().coerceAtLeast(0)
-                                placeable.placeRelative(startPaddingPx, 0)
-                            }
-                        }
-                        .zIndex(miniPlayerZIndex)
-                ) {
-                    val isMiniPlayerVisible by remember {
-                        derivedStateOf { playerContentExpansionFraction.value < 0.01f }
-                    }
-                    MiniPlayerContentInternal(
-                        song = currentSongNonNull,
-                        isPlaying = infrequentPlayerState.isPlaying,
-                        isCastConnecting = isCastConnecting,
-                        isPreparingPlayback = isPreparingPlayback,
-                        onPlayPause = { playerViewModel.playPause() },
-                        onPrevious = { playerViewModel.previousSong() },
-                        onNext = { playerViewModel.nextSong() },
-                        compactFractionProvider = compactFractionProvider,
-                        queueIndex = infrequentPlayerState.currentMediaItemIndex,
-                        artworkTransition = artworkTransition,
-                        canScroll = isMiniPlayerVisible && infrequentPlayerState.isPlaying,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
+        val miniPlayerZIndex by remember {
+            derivedStateOf {
+                if (playerContentExpansionFraction.value < 0.5f) 1f else 0f
             }
+        }
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .layout { measurable, constraints ->
+                    val height = androidx.compose.ui.util.lerp(chrome.miniPlayerRestingHeight.toPx(), 56.dp.toPx(), compactFractionProvider()).toInt()
+                    val child = measurable.measure(constraints.copy(minHeight = height, maxHeight = height))
+                    layout(child.width, height) { child.placeRelative(0, 0) }
+                }
+                .graphicsLayer {
+                    // Compute miniAlpha in the draw phase from the Animatable,
+                    // avoiding per-frame recomposition during gestures.
+                    alpha = (1f - effectiveExpansionFractionProvider() * 2f)
+                        .coerceIn(0f, 1f)
+                }
+                .layout { measurable, constraints ->
+                    val targetWidth = (constraints.maxWidth - currentHorizontalPaddingStartPxProvider().toInt() - currentHorizontalPaddingEndPxProvider().toInt())
+                        .coerceAtLeast(0)
+                    val placeable = measurable.measure(
+                        constraints.copy(
+                            minWidth = targetWidth,
+                            maxWidth = targetWidth
+                        )
+                    )
+                    layout(constraints.maxWidth, constraints.maxHeight) {
+                        val startPaddingPx = currentHorizontalPaddingStartPxProvider().toInt().coerceAtLeast(0)
+                        placeable.placeRelative(startPaddingPx, 0)
+                    }
+                }
+                .zIndex(miniPlayerZIndex)
+        ) {
+            val isMiniPlayerVisible by remember {
+                derivedStateOf { playerContentExpansionFraction.value < 0.01f }
+            }
+            MiniPlayerContentInternal(
+                song = currentSongNonNull,
+                isPlaying = infrequentPlayerState.isPlaying,
+                isCastConnecting = isCastConnecting,
+                isPreparingPlayback = isPreparingPlayback,
+                onPlayPause = { playerViewModel.playPause() },
+                onPrevious = { playerViewModel.previousSong() },
+                onNext = { playerViewModel.nextSong() },
+                compactFractionProvider = compactFractionProvider,
+                queueIndex = infrequentPlayerState.currentMediaItemIndex,
+                artworkTransition = artworkTransition,
+                canScroll = isMiniPlayerVisible && infrequentPlayerState.isPlaying,
+                modifier = Modifier.fillMaxSize()
+            )
         }
 
         if (shouldRenderFullPlayer) {

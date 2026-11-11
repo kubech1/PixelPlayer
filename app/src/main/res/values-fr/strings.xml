@@ -125,4 +125,6 @@
     <string name="common_play_album">Lire l\'album</string>
     <string name="common_shuffle_play_album">Lire l\'album en aléatoire</string>
     <string name="common_album_art_for_title">Pochette d\'album pour %1$s</string>
+    <string name="favorite_state_added">Dans les favoris</string>
+    <string name="favorite_state_removed">Hors des favoris</string>
 </resources>

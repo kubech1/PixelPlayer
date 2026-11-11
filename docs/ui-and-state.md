@@ -63,22 +63,36 @@ En [UnifiedPlayerSheetV2](../app/src/main/java/com/theveloper/pixelplay/presenta
 
 En reposo, la píldora de navegación se centra y ajusta su ancho a las tres pestañas. Mide 236 × 56 dp a escala de texto normal. Al fusionarse, se desplaza al inicio de la fila y los tres destinos ceden el área táctil a un único botón que vuelve a abrir la navegación.
 
+La indicación de pulsación se recorta a la forma redondeada del indicador sin reducir el área táctil de la pestaña. Ajustes, sus categorías y la selección de paleta ocultan el mini reproductor y liberan su espacio inferior. Al volver a una pantalla con píldoras, reaparece con la misma pista.
+
 La barra y el mini reproductor usan superficies en píldora. [BottomChromeState](../app/src/main/java/com/theveloper/pixelplay/presentation/components/bottomchrome/BottomChromeState.kt) conserva el estado efímero en Compose; la política recibe desplazamiento consumido mediante `onPostScroll`. Fusiona al acumular 24 dp hacia el final, separa al volver 24 dp, al alcanzar el principio o tras 800 ms sin desplazamiento (incluido el fling). Cambio de ruta, teclado, expansión, TalkBack y la preferencia desactivada restablecen la geometría. Las animaciones desactivadas usan `snap` para la fusión y el cambio horizontal de canción.
 
 `LocalBottomChrome` reserva espacio constante en reposo. La fracción se lee en layout/dibujo, sin cambiar `sheetCollapsedTargetY` por fotograma. El círculo fusionado abre la navegación; reseleccionar Inicio, Buscar o Biblioteca lleva la lista al principio. Las páginas adyacentes del pager de Biblioteca no reciben la acción. El doble toque en Buscar conserva la activación de búsqueda.
 
 El arrastre horizontal del mini reproductor cambia de canción con los callbacks existentes (25 % del ancho o 1000 dp/s; dirección invertida en RTL). Solo portada y texto siguen el dedo. Arrastrar hacia abajo desde colapsado cierra la cola con deshacer (48 dp o 800 dp/s); una cancelación del sistema no confirma el cierre. El gesto hacia arriba sigue abriendo el reproductor.
 
-`nav_compact_on_scroll` es booleano y vale `true` por defecto. [RetiredNavigationPreferencesMigration](../app/src/main/java/com/theveloper/pixelplay/data/preferences/RetiredNavigationPreferences.kt) retira estilo, modo compacto y radio antiguos. Desde la Fase 3 también retira la preferencia de esquinas suaves. Se retiraron la pantalla de radio y la página correspondiente del setup. El overlay externo usa radio fijo de 32 dp. La evidencia de compilación, tests y QA se registra en [Lenguaje visual](design-language.md); lectura estática y build no certifican fluidez ni accesibilidad en hardware.
+`nav_compact_on_scroll` es booleano y vale `true` por defecto. [RetiredUiPreferencesMigration](../app/src/main/java/com/theveloper/pixelplay/data/preferences/RetiredUiPreferences.kt) retira estilo, modo compacto y radio antiguos. Desde la Fase 3 también retira la preferencia de esquinas suaves. Se retiraron la pantalla de radio y la página correspondiente del setup. El overlay externo usa radio fijo de 32 dp. La evidencia de compilación, tests y QA se registra en [Lenguaje visual](design-language.md); lectura estática y build no certifican fluidez ni accesibilidad en hardware.
+
+El reproductor completo se cierra con Atrás o arrastrando hacia abajo. El toque en su fondo se consume sin cerrar el panel. En letras animadas, el desenfoque conserva su interruptor, respeta el nivel global de efectos y usa el valor predeterminado de 2,5 dp por línea de distancia, con un máximo de 10 dp. La selección de paleta conserva los estilos y su vista previa. Las instalaciones anteriores conservan la precisión de color guardada y las nuevas usan el valor predeterminado.
+
+Buscar comparte un medidor de texto entre las tarjetas de géneros y calcula su ancho en el contenedor de la cuadrícula. El paginador de Biblioteca compone las páginas visibles y usa la precarga de Compose durante el desplazamiento horizontal.
 
 ## Portada compartida del reproductor (Fase 3)
+
+El reproductor conserva el esquema de controles entre fotogramas y lo actualiza al cambiar la paleta. El color del fondo se interpola durante el dibujo y la malla toma ese color como base. Las solicitudes de precarga de carátulas vecinas se cancelan cuando cambia la página de referencia. El indicador de progreso reemplaza interpolaciones pendientes al recibir una posición nueva y detiene la onda cuando su amplitud llega a cero.
 
 El contorno del panel pasa de una píldora al reproductor completo con un radio uniforme. La forma y la capa de portada leen en layout o dibujo el mismo progreso visual, que combina la expansión con Atrás predictivo. El menú de Apariencia retira «Usar esquinas suaves».
 
 La transición usa los límites de la miniatura y del elemento activo del carrusel. Dibuja una sola portada entre ambos y reutiliza el dibujo de las imágenes ya cargadas. Si alguno de los extremos todavía no está disponible al iniciar, el reproductor abre al instante con su fundido habitual. El árbol precalentado y la política de carga diferida siguen controlando cuándo se muestra el carrusel.
 
+## Microinteracciones y barras superiores
+
+El corazón del reproductor y de la ficha de canción celebra únicamente la acción local de añadir un favorito. El estado del icono sigue los favoritos de la biblioteca. Con movimiento desactivado, el cambio es inmediato. Aleatorio, repetir y la llegada de la portada respetan la misma preferencia de movimiento.
+
+Las pantallas con encabezado colapsable muestran un título grande al inicio y una píldora al desplazarse. La píldora agrupa Atrás, el título y las acciones. Su altura considera el tamaño del texto y se posiciona dentro del área segura de la ventana. Álbum, Artista y Género usan la misma barra.
+
 ## Halo y fondo de malla (Fase 4)
 
 La portada activa conserva su recorte y recibe la sombra y el halo en una capa situada detrás del carrusel. La miniatura del halo se solicita con Coil al llegar al reproductor completo. Al cambiar de pista o salir del reproductor, se cancela la solicitud anterior. Las portadas vecinas conservan su apariencia y la portada compartida viaja sola durante la apertura y el cierre.
 
-El fondo de malla usa los colores de la paleta del reproductor y cuatro posiciones reproducibles por canción. Atenúa el color y el grano según el contraste con el texto principal. Los niveles efectivos de efectos visuales conservan su reducción por ahorro de batería. Mínimo muestra el fondo sólido y una sombra neutra. Equilibrado añade la malla, el halo y el borde de luz. Completo desenfoca la capa del halo. Con las animaciones del sistema desactivadas se mantienen los efectos estáticos.
+El fondo de malla usa los colores de la paleta del reproductor y cuatro posiciones reproducibles por canción. Atenúa el color y el grano según el contraste con el texto principal. Los niveles efectivos de efectos visuales conservan su reducción por ahorro de batería. Mínimo muestra el fondo sólido y una sombra neutra. Equilibrado añade la malla, el halo y el borde de luz. Completo desenfoca la capa del halo y la extiende detrás del encabezado, el título y el artista. Con las animaciones del sistema desactivadas se mantienen los efectos estáticos.

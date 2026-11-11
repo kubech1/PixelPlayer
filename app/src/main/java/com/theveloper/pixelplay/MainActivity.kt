@@ -587,6 +587,10 @@ class MainActivity : ComponentActivity() {
             derivedStateOf { imeInsets.getBottom(densityForChrome) > 0 }
         }
         val hideCollapsedPlayerForSearch = currentRoute == Screen.Search.route && imeVisibleForChrome
+        val hideCollapsedPlayer = hideCollapsedPlayerForSearch ||
+            currentRoute == Screen.Settings.route ||
+            currentRoute == Screen.SettingsCategory.route ||
+            currentRoute == Screen.PaletteStyle.route
 
         val routesWithHiddenNavigationBar = remember {
             setOf(
@@ -736,12 +740,12 @@ class MainActivity : ComponentActivity() {
             systemNavBarInset,
             navBarOccupiedHeight,
             hasActiveSongForChrome,
-            hideCollapsedPlayerForSearch,
+            hideCollapsedPlayer,
             miniPlayerRestingHeight,
             currentRoute
         ) {
             val navChrome = if (shouldHideNavigationBar) systemNavBarInset else navBarOccupiedHeight
-            val miniChrome = if (hasActiveSongForChrome && !hideCollapsedPlayerForSearch) {
+            val miniChrome = if (hasActiveSongForChrome && !hideCollapsedPlayer) {
                 miniPlayerRestingHeight + MiniPlayerBottomSpacer
             } else {
                 0.dp
@@ -750,8 +754,15 @@ class MainActivity : ComponentActivity() {
         }
         val activeChromeSchemePair by playerViewModel.activePlayerColorSchemePair.collectAsStateWithLifecycle()
         val chromeDark = com.theveloper.pixelplay.ui.theme.LocalPixelPlayDarkTheme.current
-        val chromeScheme = activeChromeSchemePair?.let { if (chromeDark) it.dark else it.light } ?: MaterialTheme.colorScheme
-        val chromeGradientColors = com.theveloper.pixelplay.presentation.components.bottomchrome.PillGradientColors(chromeScheme.primary, chromeScheme.primaryContainer)
+        val chromeScheme = activeChromeSchemePair?.let { if (chromeDark) it.dark else it.light }
+        val chromeGradientColors = if (chromeScheme == null) {
+            com.theveloper.pixelplay.presentation.components.bottomchrome.PillGradientColors()
+        } else {
+            com.theveloper.pixelplay.presentation.components.bottomchrome.PillGradientColors(
+                chromeScheme.primary,
+                chromeScheme.primaryContainer
+            )
+        }
         val bottomChromeMetrics = remember(
             systemNavBarInset,
             navBarOccupiedHeight,
@@ -806,7 +817,6 @@ class MainActivity : ComponentActivity() {
                                 navItems = commonNavItems,
                                 currentRoute = currentRoute,
                                 hasSong = hasActiveSongForChrome,
-                                albumTint = chromeScheme.primary,
                                 mergeFractionProvider = chromeState.mergeFractionProvider,
                                 onSearchIconDoubleTap = playerViewModel::onSearchNavIconDoubleTapped,
                                 modifier = Modifier.align(Alignment.BottomCenter)
@@ -885,9 +895,8 @@ class MainActivity : ComponentActivity() {
                                 .then(
                                     if (isExpandedOrExpanding) {
                                         Modifier.pointerInput(Unit) {
-                                            detectTapGestures {
-                                                playerViewModel.collapsePlayerSheet()
-                                            }
+                                            // Block touches from reaching the screen behind the player.
+                                            detectTapGestures(onTap = {})
                                         }
                                     } else {
                                         Modifier
@@ -899,7 +908,7 @@ class MainActivity : ComponentActivity() {
                             playerViewModel = playerViewModel,
                             sheetCollapsedTargetY = sheetCollapsedTargetY,
                             collapsedStateHorizontalPadding = horizontalPadding,
-                            hideCollapsedPlayer = hideCollapsedPlayerForSearch,
+                            hideCollapsedPlayer = hideCollapsedPlayer,
                             containerHeight = containerHeight,
                             navController = navController,
                             isNavBarHidden = isNavBarEffectivelyHidden

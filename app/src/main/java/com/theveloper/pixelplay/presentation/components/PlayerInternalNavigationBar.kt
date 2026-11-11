@@ -7,6 +7,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
@@ -77,8 +79,7 @@ fun PlayerInternalNavigationBar(
     modifier: Modifier = Modifier,
     hasSong: Boolean,
     mergeFractionProvider: () -> Float,
-    onSearchIconDoubleTap: () -> Unit = {},
-    albumTint: androidx.compose.ui.graphics.Color? = null
+    onSearchIconDoubleTap: () -> Unit = {}
 ) {
     val haptics = androidx.compose.ui.platform.LocalHapticFeedback.current
     val chrome = LocalBottomChromeState.current
@@ -108,9 +109,8 @@ fun PlayerInternalNavigationBar(
     val restingWidth = maxOf(NavigationTabMinWidth, labelWidth + 16.dp) * navItems.size + NavigationPillEdge * 2
     val activeLabel = labels[selectedIndex]
     val showNavigationLabel = stringResource(R.string.show_navigation_current_tab, activeLabel)
-    val scheme = MaterialTheme.colorScheme
-    val pillColors = resolvePillSurfaceColors(scheme, LocalPixelPlayDarkTheme.current, albumTint,
-        com.theveloper.pixelplay.presentation.utils.LocalVisualEffects.current.effectiveLevel)
+    val pillColors = rememberPillSurfaceColors()
+    val pressIndication = ripple(color = pillColors.contentColor)
     BoxWithConstraints(modifier, propagateMinConstraints = true) {
         val availableWidth = maxWidth
         val rest = restingWidth.coerceAtMost(availableWidth)
@@ -142,18 +142,19 @@ fun PlayerInternalNavigationBar(
                     val start = if (hasSong) lerp(centeredStart, 0, f) else centeredStart
                     child.placeRelative(start, constraints.maxHeight - height)
                 }
-            }.pillSurface(CircleShape, albumTint).clip(CircleShape).continuousPillGradient(mergeFractionProvider)
+            }.pillSurface(CircleShape, pillColors).clip(CircleShape).continuousPillGradient(mergeFractionProvider)
                 .then(if (fused) Modifier.semantics {
                     contentDescription = showNavigationLabel
                 }.clickable(role = Role.Button) { chrome?.reset() } else Modifier.selectableGroup()),
             content = {
                 Box(Modifier.graphicsLayer {
                     alpha = if (hasSong) 1f - mergeFractionProvider().coerceIn(0f, 1f) else 1f
-                }.background(scheme.secondaryContainer, CircleShape))
+                }.background(pillColors.controlColor, CircleShape))
                 navItems.forEachIndexed { index, item ->
                     val selected = index == selectedIndex
                     val label = labels[index]
-                    Column(
+                    val interactions = remember { MutableInteractionSource() }
+                    Box(
                         Modifier.graphicsLayer {
                             val f = mergeFractionProvider()
                             alpha = if (hasSong && !selected) (1f - (f - 0.2f) / 0.5f).coerceIn(0f, 1f) else 1f
@@ -161,46 +162,57 @@ fun PlayerInternalNavigationBar(
                             scaleY = scaleX
                         }.then(if (fused) Modifier.clearAndSetSemantics {} else Modifier
                             .semantics { contentDescription = label }
-                            .selectable(selected, enabled = currentRoute != null, role = Role.Tab) click@{
-                            val now = SystemClock.elapsedRealtime()
-                            if (selected) chrome?.reselect(item.screen.route)
-                            else {
-                                if (!navController.navigateToTopLevelSafely(item.screen.route)) {
-                                    lastSearchTap = 0L
-                                    return@click
-                                }
-                                haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.SegmentTick)
-                            }
-                            if (item.screen.route == Screen.Search.route) {
-                                if (lastSearchTap > 0 && now - lastSearchTap <= 350) {
-                                    haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.Confirm)
-                                    lastSearchTap = 0L
-                                    if (selected) searchDoubleTap() else scope.launch {
-                                        delay(160L)
-                                        searchDoubleTap()
+                            .selectable(
+                                selected = selected,
+                                interactionSource = interactions,
+                                indication = null,
+                                enabled = currentRoute != null,
+                                role = Role.Tab
+                            ) click@{
+                                val now = SystemClock.elapsedRealtime()
+                                if (selected) chrome?.reselect(item.screen.route)
+                                else {
+                                    if (!navController.navigateToTopLevelSafely(item.screen.route)) {
+                                        lastSearchTap = 0L
+                                        return@click
                                     }
-                                } else lastSearchTap = now
-                            } else lastSearchTap = 0
-                        }),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Icon(painterResource(if (selected && item.selectedIconResId != null && item.selectedIconResId != 0) item.selectedIconResId else item.iconResId), null,
-                            tint = when {
-                                selected && fused -> pillColors.contentIconColor
-                                selected -> pillColors.selectedContentColor
-                                else -> pillColors.contentIconColor
-                            },
-                            modifier = Modifier.size(24.dp))
-                        Text(label, style = labelStyle, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                            color = if (selected) pillColors.selectedContentColor else pillColors.contentLabelColor,
-                            modifier = Modifier.clearAndSetSemantics {}.layout { measurable, constraints ->
-                                val child = measurable.measure(constraints.copy(minHeight = 0))
-                                val visibility = (1f - mergeFractionProvider() / tabFadeEnd).coerceIn(0f, 1f)
-                                layout(child.width, (child.height * visibility).toInt()) {
-                                    if (visibility > 0f) child.placeRelativeWithLayer(0, 0) { alpha = visibility; scaleY = visibility }
+                                    haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.SegmentTick)
                                 }
-                            })
+                                if (item.screen.route == Screen.Search.route) {
+                                    if (lastSearchTap > 0 && now - lastSearchTap <= 350) {
+                                        haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.Confirm)
+                                        lastSearchTap = 0L
+                                        if (selected) searchDoubleTap() else scope.launch {
+                                            delay(160L)
+                                            searchDoubleTap()
+                                        }
+                                    } else lastSearchTap = now
+                                } else lastSearchTap = 0
+                            }),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (!fused) {
+                            Box(
+                                Modifier.matchParentSize()
+                                    .padding(horizontal = 2.dp, vertical = NavigationPillEdge)
+                                    .clip(CircleShape)
+                                    .indication(interactions, pressIndication)
+                            )
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(painterResource(if (selected && item.selectedIconResId != null && item.selectedIconResId != 0) item.selectedIconResId else item.iconResId), null,
+                                tint = pillColors.contentColor,
+                                modifier = Modifier.size(24.dp))
+                            Text(label, style = labelStyle, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                                color = pillColors.contentColor,
+                                modifier = Modifier.clearAndSetSemantics {}.layout { measurable, constraints ->
+                                    val child = measurable.measure(constraints.copy(minHeight = 0))
+                                    val visibility = (1f - mergeFractionProvider() / tabFadeEnd).coerceIn(0f, 1f)
+                                    layout(child.width, (child.height * visibility).toInt()) {
+                                        if (visibility > 0f) child.placeRelativeWithLayer(0, 0) { alpha = visibility; scaleY = visibility }
+                                    }
+                                })
+                        }
                     }
                 }
             }

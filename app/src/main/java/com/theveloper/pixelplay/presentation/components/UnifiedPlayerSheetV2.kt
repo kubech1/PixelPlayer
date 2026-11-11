@@ -41,6 +41,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import com.theveloper.pixelplay.presentation.utils.interactiveRefreshRate
 import com.theveloper.pixelplay.ui.theme.pillSurface
+import com.theveloper.pixelplay.ui.theme.rememberPillSurfaceColors
 import com.theveloper.pixelplay.presentation.components.bottomchrome.continuousPillGradient
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.Modifier
@@ -222,7 +223,6 @@ fun UnifiedPlayerSheetV2(
     val bottomChrome = LocalBottomChrome.current
     val carouselStyle = playerConfig.carouselStyle
     val fullPlayerLoadingTweaks = playerConfig.fullPlayerLoadingTweaks
-    val tapBackgroundClosesPlayer = playerConfig.tapBackgroundClosesPlayer
     val animationsEnabled = LocalMotionPreferences.current.animationsEnabled
     val playerThemePreference = playerConfig.playerThemePreference
 
@@ -541,7 +541,7 @@ fun UnifiedPlayerSheetV2(
         systemColorScheme = MaterialTheme.colorScheme
     )
     val albumColorScheme = sheetThemeState.albumColorScheme
-    val miniPlayerScheme = sheetThemeState.miniPlayerScheme
+    val pillColors = rememberPillSurfaceColors()
     val isPreparingPlayback = sheetThemeState.isPreparingPlayback
     val miniReadyAlpha = sheetThemeState.miniReadyAlpha
     val miniAppearScale = sheetThemeState.miniAppearScale
@@ -660,11 +660,11 @@ fun UnifiedPlayerSheetV2(
                             // structurally stable avoids the costly relayout/redraw
                             // restructure when the elevation crosses 0.dp during
                             // expand/collapse or right after play/pause.
-                            .pillSurface(sheetInteractionState.playerShadowShape, albumColorScheme.primary)
+                            .pillSurface(sheetInteractionState.playerShadowShape, pillColors)
                             .clip(sheetInteractionState.playerShadowShape)
                             .continuousPillGradient { bottomChrome.mergeFractionProvider() * (1f - effectiveExpansionFractionProvider()) }
                             .drawBehind {
-                                drawRect(playerAreaBackground, alpha = effectiveExpansionFractionProvider())
+                                drawRect(playerAreaBackground.value, alpha = effectiveExpansionFractionProvider())
                             }
                             // innerLayout:
                             // Measures the actual player content with full screen height targetContentHeightPx
@@ -692,7 +692,7 @@ fun UnifiedPlayerSheetV2(
                                 handler = sheetInteractionState.sheetVerticalDragGestureHandler
                             )
                             .clickable(
-                                enabled = tapBackgroundClosesPlayer || currentSheetContentState == PlayerSheetState.COLLAPSED,
+                                enabled = currentSheetContentState == PlayerSheetState.COLLAPSED,
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null
                             ) {
@@ -706,8 +706,8 @@ fun UnifiedPlayerSheetV2(
                         if (depthEffects && songId != null) {
                             PlayerMeshBackground(
                                 songId = songId,
-                                targetScheme = sheetThemeState.targetAlbumColorScheme,
-                                baseColor = playerAreaBackground,
+                                targetScheme = albumColorScheme,
+                                baseColor = { playerAreaBackground.value },
                                 foregroundColor = albumColorScheme.onPrimaryContainer,
                                 expansion = effectiveExpansionFractionProvider,
                                 modifier = Modifier.matchParentSize()
@@ -715,13 +715,12 @@ fun UnifiedPlayerSheetV2(
                         }
                         UnifiedPlayerMiniAndFullLayers(
                             currentSong = infrequentPlayerState.currentSong,
-                            miniPlayerScheme = miniPlayerScheme,
                             infrequentPlayerState = infrequentPlayerState,
                             isCastConnecting = isCastConnecting,
                             isPreparingPlayback = isPreparingPlayback,
                             playerContentExpansionFraction = playerContentExpansionFraction,
                             albumColorScheme = albumColorScheme,
-                            targetArtworkTint = sheetThemeState.targetAlbumColorScheme.primary,
+                            targetArtworkTint = albumColorScheme.primary,
                             bottomSheetOpenFraction = bottomSheetOpenFraction,
                             fullPlayerVisualState = fullPlayerVisualState,
                             containerHeight = containerHeight,

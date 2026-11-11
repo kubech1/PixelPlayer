@@ -474,17 +474,6 @@ class PlayerViewModel @Inject constructor(
             initialValue = true
         )
 
-    /**
-     * Whether tapping the background of the player sheet toggles its state.
-     * When disabled, users must use gestures or buttons to expand/collapse.
-     */
-    val tapBackgroundClosesPlayer: StateFlow<Boolean> = userPreferencesRepository.tapBackgroundClosesPlayerFlow
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = false
-        )
-
     val hapticIntensity = userPreferencesRepository.hapticIntensityFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), com.theveloper.pixelplay.presentation.utils.HapticIntensity.MEDIUM)
 
@@ -1233,20 +1222,17 @@ class PlayerViewModel @Inject constructor(
     data class PlayerConfigSlice(
         val carouselStyle: String = CarouselStyle.NO_PEEK,
         val fullPlayerLoadingTweaks: FullPlayerLoadingTweaks = FullPlayerLoadingTweaks(),
-        val tapBackgroundClosesPlayer: Boolean = false,
         val playerThemePreference: String = ThemePreference.ALBUM_ART
     )
 
     val playerConfigSlice: StateFlow<PlayerConfigSlice> = combine(
         carouselStyle,
         fullPlayerLoadingTweaks,
-        tapBackgroundClosesPlayer,
         playerThemePreference
-    ) { carousel, tweaks, tapClose, themePref ->
+    ) { carousel, tweaks, themePref ->
         PlayerConfigSlice(
             carouselStyle = carousel,
             fullPlayerLoadingTweaks = tweaks,
-            tapBackgroundClosesPlayer = tapClose,
             playerThemePreference = themePref
         )
     }

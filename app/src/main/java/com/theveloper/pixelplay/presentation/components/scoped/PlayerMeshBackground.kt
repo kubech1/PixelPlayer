@@ -128,7 +128,7 @@ private fun shiftSrgb(linear: Float, delta: Float): Float {
 internal fun PlayerMeshBackground(
     songId: String,
     targetScheme: ColorScheme,
-    baseColor: Color,
+    baseColor: () -> Color,
     foregroundColor: Color,
     expansion: () -> Float,
     modifier: Modifier = Modifier
@@ -154,7 +154,6 @@ internal fun PlayerMeshBackground(
     }
 
     Spacer(modifier.graphicsLayer { alpha = expansion().coerceIn(0f, 1f) }.drawWithCache {
-        val base = MeshRgb.from(baseColor)
         val text = MeshRgb.from(foregroundColor)
         shader?.setFloatUniform("resolution", size.width, size.height)
         onDrawBehind {
@@ -162,7 +161,7 @@ internal fun PlayerMeshBackground(
                 val (from, to) = endpoints
                 val blend = progress.value
                 val visible = if (blend >= 1f) to else from.mix(to, blend)
-                val contrast = playerMeshContrast(visible.colors, base, text)
+                val contrast = playerMeshContrast(visible.colors, MeshRgb.from(baseColor()), text)
                 if (brush == null || shader == null || contrast.strength == 0f) {
                     drawRect(contrast.base.color())
                 } else {

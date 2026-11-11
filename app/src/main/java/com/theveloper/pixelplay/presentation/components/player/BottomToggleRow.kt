@@ -6,18 +6,27 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.Player
 import com.theveloper.pixelplay.R
-import com.theveloper.pixelplay.presentation.components.LocalMaterialTheme
+import com.theveloper.pixelplay.presentation.components.FavoriteButton
+import com.theveloper.pixelplay.presentation.components.FavoriteButtonStyle
 import com.theveloper.pixelplay.presentation.components.ToggleSegmentButton
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
+
+internal val PlayerControlOuterCorner = 24.dp
+internal val PlayerControlInnerCorner = 12.dp
+internal val InactiveFavoriteSegmentShape = RoundedCornerShape(
+    topStart = PlayerControlInnerCorner, topEnd = PlayerControlOuterCorner,
+    bottomEnd = PlayerControlOuterCorner, bottomStart = PlayerControlInnerCorner
+)
 
 @Composable
 fun BottomToggleRow(
     modifier: Modifier,
+    songId: String?,
     isShuffleEnabled: Boolean,
     repeatMode: Int,
     isFavoriteProvider: () -> Boolean,
@@ -55,20 +64,7 @@ fun BottomToggleRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
-                .clip(
-                    AbsoluteSmoothCornerShape(
-                        cornerRadiusBL = rowCorners,
-                        smoothnessAsPercentTR = 60,
-                        cornerRadiusBR = rowCorners,
-                        smoothnessAsPercentBL = 60,
-                        cornerRadiusTL = rowCorners,
-                        smoothnessAsPercentBR = 60,
-                        cornerRadiusTR = rowCorners,
-                        smoothnessAsPercentTL = 60
-                    )
-                )
-                .background(Color.Transparent),
+                .padding(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -84,7 +80,10 @@ fun BottomToggleRow(
                 inactiveContentColor = inactiveContentColor,
                 onClick = onShuffleToggle,
                 iconId = R.drawable.rounded_shuffle_24,
-                contentDesc = "Shuffle"
+                rotateOnActivation = true,
+                inactiveCornerRadius = PlayerControlInnerCorner,
+                inactiveStartCornerRadius = PlayerControlOuterCorner,
+                contentDesc = androidx.compose.ui.res.stringResource(R.string.common_shuffle)
             )
             val repeatActive = repeatMode != Player.REPEAT_MODE_OFF
             val repeatIcon = when (repeatMode) {
@@ -102,19 +101,19 @@ fun BottomToggleRow(
                 inactiveContentColor = inactiveContentColor,
                 onClick = onRepeatToggle,
                 iconId = repeatIcon,
-                contentDesc = "Repeat"
+                crossfadeIcon = true,
+                inactiveCornerRadius = PlayerControlInnerCorner,
+                contentDesc = androidx.compose.ui.res.stringResource(R.string.common_repeat)
             )
-            ToggleSegmentButton(
-                modifier = commonModifier,
-                active = isFavorite,
-                activeColor = activeColorTertiary,
-                activeCornerRadius = rowCorners,
-                activeContentColor = onActiveColorTertiary,
-                inactiveColor = inactiveColor,
-                inactiveContentColor = inactiveContentColor,
-                onClick = onFavoriteToggle,
-                iconId = if (isFavorite) R.drawable.round_favorite_24 else R.drawable.rounded_favorite_24,
-                contentDesc = "Favorite"
+            FavoriteButton(
+                songId = songId,
+                isFavorite = isFavorite,
+                onToggle = onFavoriteToggle,
+                modifier = commonModifier.fillMaxHeight(),
+                shape = if (isFavorite) RoundedCornerShape(rowCorners) else InactiveFavoriteSegmentShape,
+                containerColor = if (isFavorite) activeColorTertiary else inactiveColor,
+                contentColor = if (isFavorite) onActiveColorTertiary else inactiveContentColor,
+                style = FavoriteButtonStyle.Full
             )
         }
     }

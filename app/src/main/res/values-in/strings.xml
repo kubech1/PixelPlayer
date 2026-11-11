@@ -125,4 +125,6 @@
     <string name="common_play_album">Putar album</string>
     <string name="common_shuffle_play_album">Putar acak album</string>
     <string name="common_album_art_for_title">Sampul album untuk %1$s</string>
+    <string name="favorite_state_added">Dalam favorit</string>
+    <string name="favorite_state_removed">Tidak dalam favorit</string>
 </resources>

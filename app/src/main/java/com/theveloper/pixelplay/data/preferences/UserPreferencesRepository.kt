@@ -38,7 +38,7 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
         listOf(
             RetiredAiPreferencesMigration(),
             VisualEffectsPreferencesMigration(),
-            RetiredNavigationPreferencesMigration()
+            RetiredUiPreferencesMigration()
         )
     }
 )
@@ -207,7 +207,6 @@ class UserPreferencesRepository @Inject constructor(
         // Developer options
         val ALBUM_ART_QUALITY = stringPreferencesKey("album_art_quality")
         val ALBUM_ART_CACHE_LIMIT_MB = intPreferencesKey("album_art_cache_limit_mb")
-        val TAP_BACKGROUND_CLOSES_PLAYER = booleanPreferencesKey("tap_background_closes_player")
         val HAPTICS_ENABLED = booleanPreferencesKey("haptics_enabled")
         val HAPTIC_INTENSITY = stringPreferencesKey("haptic_intensity")
         val ADVANCED_PERFORMANCE_DIAGNOSTICS_ENABLED =
@@ -220,7 +219,6 @@ class UserPreferencesRepository @Inject constructor(
         val IMMERSIVE_LYRICS_TIMEOUT = longPreferencesKey("immersive_lyrics_timeout")
         val USE_ANIMATED_LYRICS = booleanPreferencesKey("use_animated_lyrics")
         val ANIMATED_LYRICS_BLUR_ENABLED = booleanPreferencesKey("animated_lyrics_blur_enabled")
-        val ANIMATED_LYRICS_BLUR_STRENGTH = androidx.datastore.preferences.core.floatPreferencesKey("animated_lyrics_blur_strength")
         val VISUAL_EFFECTS_LEVEL = stringPreferencesKey("visual_effects_level")
         // View preferences
         val IS_GENRE_GRID_VIEW = booleanPreferencesKey("is_genre_grid_view")
@@ -1066,13 +1064,6 @@ suspend fun markDirectoryRulesVersionApplied(version: Int) {
         dataStore.edit { it[PreferencesKeys.ANIMATED_LYRICS_BLUR_ENABLED] = enabled }
     }
 
-    val animatedLyricsBlurStrengthFlow: Flow<Float> =
-        pref { it[PreferencesKeys.ANIMATED_LYRICS_BLUR_STRENGTH] ?: 2.5f }
-
-    suspend fun setAnimatedLyricsBlurStrength(strength: Float) {
-        dataStore.edit { it[PreferencesKeys.ANIMATED_LYRICS_BLUR_STRENGTH] = strength }
-    }
-
     // ─── Custom genres ────────────────────────────────────────────────────────
 
     val customGenresFlow: Flow<Set<String>> =
@@ -1164,14 +1155,6 @@ suspend fun markDirectoryRulesVersionApplied(version: Int) {
 
     suspend fun setAlbumArtCacheLimitMb(limitMb: Int) {
         dataStore.edit { it[PreferencesKeys.ALBUM_ART_CACHE_LIMIT_MB] = limitMb.coerceIn(50, 1500) }
-    }
-
-    /** Whether tapping the player sheet background closes it. Defaults to false to avoid accidental dismissal. */
-    val tapBackgroundClosesPlayerFlow: Flow<Boolean> =
-        pref { it[PreferencesKeys.TAP_BACKGROUND_CLOSES_PLAYER] ?: false }
-
-    suspend fun setTapBackgroundClosesPlayer(enabled: Boolean) {
-        dataStore.edit { it[PreferencesKeys.TAP_BACKGROUND_CLOSES_PLAYER] = enabled }
     }
 
     val hapticsEnabledFlow: Flow<Boolean> =

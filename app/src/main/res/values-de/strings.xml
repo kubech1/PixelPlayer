@@ -125,4 +125,6 @@
     <string name="common_play_album">Album abspielen</string>
     <string name="common_shuffle_play_album">Album zufällig abspielen</string>
     <string name="common_album_art_for_title">Cover für %1$s</string>
+    <string name="favorite_state_added">In den Favoriten</string>
+    <string name="favorite_state_removed">Nicht in den Favoriten</string>
 </resources>

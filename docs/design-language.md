@@ -62,19 +62,13 @@ Exponer ambos valores en un `LocalMotionPreferences` (`animationsEnabled`, `touc
 - `DataMigration` siguiendo el patrón de [RetiredAiData](../app/src/main/java/com/theveloper/pixelplay/data/preferences/RetiredAiData.kt), registrada en `produceMigrations` de [UserPreferencesRepository](../app/src/main/java/com/theveloper/pixelplay/data/preferences/UserPreferencesRepository.kt). Si existe `disable_blur_all_over` y no existe la nueva clave: `true → MINIMAL`, `false → BALANCED`. Después se elimina la clave antigua. Debe poder repetirse sin efectos.
 - **Nivel efectivo:** si `PowerManager.isPowerSaveMode` está activo, baja un nivel (`FULL→BALANCED`, `BALANCED→MINIMAL`). Se escucha `ACTION_POWER_SAVE_MODE_CHANGED` con un receiver registrado y liberado con el ciclo de vida. Se expone como `LocalVisualEffects`.
 - **Consumidores actuales que hay que migrar:** [ScreenWrapper](../app/src/main/java/com/theveloper/pixelplay/presentation/components/ScreenWrapper.kt) (desenfoque y atenuación), [LyricsSheet](../app/src/main/java/com/theveloper/pixelplay/presentation/components/LyricsSheet.kt) (lee la clave `disable_blur_all_over` directamente del DataStore; debe usar el nuevo valor), `PlayerViewModel.disableBlurAllOver`, `SettingsViewModel` y el interruptor de [SettingsCategoryScreen](../app/src/main/java/com/theveloper/pixelplay/presentation/screens/SettingsCategoryScreen.kt), que se convierte en un selector de 3 opciones con textos en todas las traducciones existentes.
-- **Equivalencia:** `MINIMAL` reproduce el comportamiento actual de `disableBlurAllOver = true`. `BALANCED` y `FULL` reproducen el de `false`. `FULL` añade además el desenfoque de fondo de la Fase 7.
+- **Migración:** `disableBlurAllOver = true` pasa a `MINIMAL` y `false` a `BALANCED`. `FULL` añade el desenfoque de la capa del halo de portada.
 
 ### 1.4 Material de las píldoras y profundidad
 
-Crear `ui/theme/Depth.kt` con un modificador reutilizable `Modifier.pillSurface(...)` que dibuje, en este orden:
+`Modifier.pillSurface` dibuja una sombra neutra de 6 dp, una superficie con opacidad del 92 % y un borde de luz de 1 dp que se omite en Mínimo. La superficie es carbón en tema oscuro y gris pálido en claro. Los iconos y las etiquetas usan blanco y negro, respectivamente, también sobre el fondo del indicador seleccionado y el botón de reproducción.
 
-1. **Sombra teñida:** `shadow(elevation = 6.dp, shape, ambientColor = tint.copy(alpha = 0.30f), spotColor = tint.copy(alpha = 0.40f))`. En `MINIMAL`, sombra neutra.
-2. **Superficie:** `surfaceContainer` con alpha 0,84 en oscuro y 0,88 en claro, mezclada con el tinte al 10 % (`lerp(base, tint, 0.10f)`).
-3. **Borde de luz de 1 dp:** gradiente vertical de blanco (alpha 0,16 en oscuro, 0,45 en claro) a transparente a mitad de altura, y a negro (alpha 0,06) abajo.
-
-**Tinte:** el color primario de `ThemeStateHolder.activePlayerColorSchemePair` si el tema del reproductor usa la portada; si no, `colorScheme.primary`. **Confirma** qué preferencia de `ThemePreference` produce colores de portada en `activePlayerColorSchemePair` antes de cablearlo.
-
-**Contraste:** iconos ≥ 3:1 y etiquetas ≥ 4,5:1 sobre el color compuesto. Prueba unitaria con `ColorUtils.calculateContrast` para paletas sintéticas extremas (casi blanca, casi negra, saturada).
+Al compactarse, ambas píldoras muestrean un solo degradado horizontal basado en la portada, limitado al 12 % de opacidad. Sin paleta de portada se conserva el fondo neutro. La prueba JVM comprueba un contraste de al menos 4,5:1 en reposo y al compactar, con tintes y fondos extremos.
 
 ### 1.5 Medidas inferiores centralizadas
 
@@ -213,11 +207,11 @@ El sheet ya interpolaba el alto, los rellenos y la forma. El mini reproductor y 
 | Capa | Especificación | Nivel mínimo |
 | --- | --- | --- |
 | Sombra teñida | `elevation = 24.dp`, ambient y spot = primario de la paleta (alpha 0,45 / 0,55) | BALANCED (en MINIMAL, sombra neutra) |
-| Halo difuminado | Miniatura de 32 px de la misma portada (Coil a tamaño pequeño, en segundo plano), escalada a 1,25 × los límites de la portada, alpha 0,55 en oscuro y 0,35 en claro, con máscara radial (`BlendMode.DstIn`). El escalado bilineal ya la difumina | BALANCED |
+| Halo difuminado | Miniatura de 32 px de la misma portada (Coil a tamaño pequeño, en segundo plano), escalada a 1,25 × los límites de la portada, alpha 0,55 en oscuro y 0,35 en claro, con máscara radial (`BlendMode.DstIn`). La miniatura se suaviza en segundo plano antes del escalado bilineal | BALANCED |
 | Desenfoque extra del halo | `RenderEffect.createBlurEffect(16.dp)` solo sobre la capa del halo | FULL |
 | Borde de luz | Trazo interior de 1 dp: blanco (alpha 0,22) arriba, transparente a mitad y negro (alpha 0,18) abajo | BALANCED |
 
-**Animación:** al cambiar de canción, los colores pasan de uno a otro con `structuralSlow` y la escala del halo va de 0,92 a 1,0 con `feedback`. En pausa, el alpha del halo baja a × 0,6 (`tween(300)`). Sin bucles. Las portadas vecinas no llevan halo.
+En **Completo**, el halo mide 1,9 veces la portada y alcanza el encabezado, el título y el artista. El tema claro recibe un refuerzo de opacidad y la máscara radial difumina el color hacia los controles. La primera entrada combina un fundido de 550 ms y un crecimiento del 4 %. Al cambiar de pista, las miniaturas se funden en una sola capa de dibujo. En pausa conserva el 80 % de intensidad. Equilibrado conserva un halo más localizado y baja al 60 % en pausa. Con movimiento reducido, la transición es inmediata.
 
 ### 4.2 Fondo de malla
 
@@ -247,18 +241,18 @@ Nuevo componente en `presentation/components/FavoriteButton.kt`, con el estilo `
 | Háptica | `Confirm` (como hoy) | `Confirm` | `ToggleOff` |
 
 - **Regla:** la celebración se dispara en el `onClick` del usuario al pasar de no favorito a favorito, de forma optimista. **Nunca** desde `LaunchedEffect(isFavorite)`: no debe saltar al cambiar a una canción que ya era favorita ni con cambios que lleguen del reloj o de la notificación.
-- Las partículas se dibujan en un overlay sin recorte. En [FullPlayerContent](../app/src/main/java/com/theveloper/pixelplay/presentation/components/player/FullPlayerContent.kt), la fila de botones aplica `.clip(...)`: mueve el recorte o dibuja la celebración en una capa superior para que no se corte.
+- Los segmentos de [FullPlayerContent](../app/src/main/java/com/theveloper/pixelplay/presentation/components/player/FullPlayerContent.kt) recortan sus propios fondos. El corazón dibuja el anillo y las partículas por encima de ese recorte.
 - Con las animaciones desactivadas, el icono cambia sin escala ni partículas.
 - **Semántica:** comportamiento de conmutador (`toggleable`) con `stateDescription` y textos desde recursos (hoy están escritos a mano: «Favorito»/«Favorite»).
 - **Dónde va:**
   - La fila de botones de `FullPlayerContent` y [BottomToggleRow](../app/src/main/java/com/theveloper/pixelplay/presentation/components/player/BottomToggleRow.kt): FULL, conservando el fondo del segmento. Puede ser un slot de contenido en [ToggleSegmentButton](../app/src/main/java/com/theveloper/pixelplay/presentation/components/ToggleSegmentButton.kt) o un `FavoriteToggleSegment`.
   - [SongInfoBottomSheet](../app/src/main/java/com/theveloper/pixelplay/presentation/components/SongInfoBottomSheet.kt): FULL.
-  - Filas y menús compactos: REDUCED.
+  - Las acciones individuales compactas pueden usar REDUCED. En las listas actuales, la acción individual abre la ficha de canción.
   - La acción masiva de `MultiSelectionBottomSheet` y la notificación de Media3 no cambian.
 
 ### 5.2 Otras microinteracciones
 
-- **`ToggleSegmentButton`:** escala de pulsación a 0,96 y vuelta con `feedback`.
+- **`ToggleSegmentButton`:** escala de pulsación a 0,96 y vuelta con `feedback`. Los segmentos del reproductor redondean más las esquinas que siguen el contorno exterior de la fila.
 - **Repetir:** el icono cambia (todas ↔ una) con un fundido cruzado más escala de 0,8 a 1 con `feedback`.
 - **Aleatorio:** al activarlo, el icono gira de −8° a 0° con `feedback`.
 - **Llegada de portada** al cambiar de canción: escala de 0,96 a 1 con `feedback`, coordinada con el halo de la Fase 4.
@@ -271,20 +265,12 @@ Nuevo componente en `presentation/components/FavoriteButton.kt`, con el estilo `
 
 Evolucionar [CollapsibleCommonTopBar](../app/src/main/java/com/theveloper/pixelplay/presentation/components/CollapsibleCommonTopBar.kt) y [ExpressiveTopBarContent](../app/src/main/java/com/theveloper/pixelplay/presentation/components/ExpressiveTopBarContent.kt), que usan About, Accounts, AlbumDetail, ArtistDetail, ArtistSettings y otras pantallas:
 - **Expandida:** título grande sobre un fondo transparente, sin barra sólida.
-- **Colapsada:** píldora flotante de 48 dp de alto con un margen de 16 dp y separada `statusBars + 8 dp` del borde superior. Contiene la flecha de atrás, el título (`titleMedium`, una línea, con elipsis) y las acciones, y usa `pillSurface`.
+- **Colapsada:** píldora flotante de al menos 48 dp de alto, con margen de 16 dp y 8 dp de separación después del inset superior seguro. La altura crece con el texto del sistema. El ancho se ajusta al contenido, con un máximo de 360 dp limitado por el espacio entre los márgenes. Contiene Atrás, el título (`titleMedium`, una línea con elipsis) y las acciones, y usa `pillSurface`.
 - **Transición:** la impulsa el `collapseFraction` existente. La píldora aparece entre 0,6 y 1,0, con el valor leído en layout o dibujo.
-- Las barras propias de AlbumDetail (`CollapsingAlbumTopBar`) y ArtistDetail (`CustomCollapsingTopBar`) adoptan la píldora en su estado colapsado.
+- Álbum, Artista y Género comparten la barra. Álbum y Artista la usan también en sus variantes experimentales.
 - Las barras de Home, Search y Library y las pantallas de proveedores (`TopAppBar` de M3) quedan fuera, salvo decisión posterior.
 
 **Criterio:** zona táctil de atrás de al menos 48 dp, título legible con texto grande y sin solapamiento con la barra de estado en horizontal.
-
----
-
-## Fase 7. Desenfoque de fondo (condicionado)
-
-- **Prototipo:** el contenido del `NavHost` se graba en un `GraphicsLayer` (`drawWithContent { layer.record { drawContent() }; drawLayer(layer) }`). Las píldoras dibujan esa capa desplazada a su posición, recortada a su forma, con `RenderEffect.createBlurEffect(24.dp)` y el tinte de `pillSurface` encima. Solo en nivel `FULL`.
-- **Medición:** macrobenchmark de scroll en Biblioteca (módulo `baselineprofile`, `FrameTimingMetric`) en el SM-S921B, comparando `FULL` con `BALANCED`.
-- **Aceptación propuesta:** el P90 de `frameDurationCpuMs` no empeora más del 10 % y el porcentaje de fotogramas con `frameOverrunMs > 0` no sube más de 1 punto. Si no se cumple, `FULL` queda sin desenfoque de fondo y el resultado se registra aquí.
 
 ---
 
@@ -313,12 +299,16 @@ Comandos (ver [Build y pruebas](build-and-testing.md)): `.\gradlew.bat :app:asse
 - En el emulador API 37 se observaron las dos píldoras en reposo y la navegación de Inicio a Biblioteca. `BottomChromeCompositionTest` ejecutó la animación real del holder y contó las composiciones de una lista de prueba. El informe XML registró 1 prueba sin fallos. El proceso auxiliar del APK de pruebas registró por separado un error de carga de `androidx.startup.InitializationProvider`.
 - El primer arranque sobre una base local antigua del emulador falló con un `identity hash` de Room distinto. La base anterior se conservó y la comprobación visual se hizo con una base nueva. Este cambio no introduce migraciones de Room.
 - `:app:lintDebug` reportó errores globales. El primero fue `MissingDefaultResource` para `sharing_playlists_message`, reproducible por inspección de `HEAD`. El informe no señaló errores en los componentes nuevos o reescritos de las píldoras.
-- Queda pendiente aplicar la matriz visual completa en el Galaxy S24, especialmente las interacciones con TalkBack, los gestos del sistema y la compatibilidad de la instalación que se usará en el equipo.
+- En el Galaxy S24 (SM-S921B, Android API 37, One UI 9) se instaló el APK debug ARM64. Se verificaron la fusión al desplazar, la separación en reposo, el cambio de pista con gesto horizontal, el cierre de la cola y Deshacer, y la ocultación de las píldoras con el teclado. Con texto al 200 %, los objetivos de las tres pestañas permanecieron separados.
+- Se confirmó que TalkBack activó la exploración táctil. Al activarse, PixelPlayer dejó de estar en primer plano, por lo que la interacción con las píldoras mediante TalkBack sigue pendiente. Se restauraron los ajustes de accesibilidad.
+- En una revisión posterior en el S24, el recorte de la pulsación de Buscar dejó intactas las esquinas exteriores en ambos temas. Las dos píldoras se compactaron con un tinte de portada y recuperaron la superficie neutra al separarse. Reproducción y Apariencia abrieron sin el mini reproductor, que reapareció con la misma pista al volver.
 
 ### Evidencia de la Fase 3
 
 - En el emulador API 37, la portada de una pista sintética creció y se desplazó durante el arrastre. El gesto Atrás desde el borde devolvió el reproductor a la píldora. Abrir el teclado de Buscar ocultó las dos píldoras y cerrarlo devolvió el mini reproductor con la misma pista.
-- Las pruebas instrumentadas cubren los píxeles del recorrido reversible, el fundido si falta el carrusel al comenzar y el contador de recomposiciones del contenido de prueba. Sigue pendiente medir la recomposición de `FullPlayerContent` real durante el arrastre y aplicar la matriz de verificación física.
+- Las pruebas instrumentadas cubren los píxeles del recorrido reversible, el fundido si falta el carrusel al comenzar y el contador de recomposiciones del contenido de prueba.
+- En el S24 se verificó la apertura por arrastre y el regreso a la misma pista con Atrás desde el borde. Una apertura usó el fundido y una repetición con la portada precargada mostró su desplazamiento durante el arrastre. Queda pendiente verificar en el teléfono la cancelación a mitad del gesto.
+- Con un APK diagnóstico que marca las composiciones aplicadas de `FullPlayerContent`, Perfetto registró 2 composiciones en 163 fotogramas de la app durante la apertura y 0 en 157 durante Atrás. Los datos corresponden a un recorrido en el S24.
 
 ### Evidencia de la Fase 4
 
@@ -326,16 +316,17 @@ Comandos (ver [Build y pruebas](build-and-testing.md)): `.\gradlew.bat :app:asse
 - En API 37 se capturaron tres portadas sintéticas en tema claro y oscuro y se compararon los tres niveles de efectos. Entre Equilibrado y Completo cambiaron los píxeles de la zona exterior del halo. Las regiones muestreadas en el centro de la portada y en el fondo conservaron los mismos píxeles. También se probaron una pista sin portada, el arrastre de apertura, Atrás desde el borde, los saltos rápidos y el movimiento reducido.
 - Pasaron cinco pruebas instrumentadas en API 37. Cubren fusión de las píldoras, transición reversible de portada, apertura con carga diferida, aislamiento del desenfoque y geometría activa en el estilo heredado Two Peek. El primer intento se detuvo por un ANR de arranque en el emulador. El reintento pasó después de compilar los APK con el perfil de ART `speed`.
 - Con ahorro de batería activo, Completo produjo los mismos píxeles que Equilibrado en la región muestreada del halo. Se comprobó No Peek y One Peek en la app y Two Peek en la prueba del carrusel.
-- La traza Perfetto cubrió 10,07 s en pausa y 10,05 s de reproducción estable. Registró cero ejecuciones de `PixelPlay.playerMesh.draw` y `PixelPlay.playerHalo.draw` en ambos intervalos. El cambio de pista registró cinco ejecuciones de la malla y una del halo. Los marcadores cuentan el dibujo de estas capas. La medición del coste de renderizado en One UI queda para el S24.
+- En el emulador, la traza Perfetto cubrió 10,07 s en pausa y 10,05 s de reproducción estable. Registró cero ejecuciones de `PixelPlay.playerMesh.draw` y `PixelPlay.playerHalo.draw` en ambos intervalos. El cambio de pista registró cinco ejecuciones de la malla y una del halo.
+- En el S24, con Completo y una canción de la biblioteca del teléfono, Perfetto registró cero ejecuciones de ambos marcadores durante 10,10 s en pausa y 10,08 s de reproducción estable. El cambio de pista registró 16 dibujos de la malla y uno del halo. Los marcadores cuentan ejecuciones de las capas en Compose.
+- En las capturas del S24 de una misma portada y con tema oscuro, pasar de Equilibrado a Completo cambió los píxeles del halo en las regiones muestreadas. El interior de la portada y la región de fondo muestreada coincidieron. Quedan pendientes una comparación de los tres niveles con la misma portada y la medición física de contraste y degradación con ahorro de batería.
 
 ## Estado
 
 | Fase | Estado | Notas |
 | --- | --- | --- |
 | 1. Fundamentos | Implementada (código y pruebas JVM; pendiente validación visual en dispositivo) | `Motion.kt` (`PixelMotion`, `PixelPlayMotionScheme`, `LocalMotionPreferences`), `VisualEffectsLevel` (`FULL`/`BALANCED`/`MINIMAL` + `DataMigration` + ahorro de batería en `VisualEffectsState.kt`), `Depth.kt` (`Modifier.pillSurface` + contraste garantizado) y `BottomChromeMetrics.kt` (`LocalBottomChrome` en 8 pantallas). |
-| 2. Píldoras y gestos | Implementada. QA físico pendiente. | Fusión al desplazar, reselección, gestos del mini reproductor, migración y ajuste de compactación. La prueba instrumental comprobó que una lista de prueba no se recompone durante la animación de fusión o separación. |
-| 3. Transformación hacia el reproductor | Implementada. QA físico pendiente. | Portada compartida reversible, apertura inmediata con carrusel no disponible y retirada de «Usar esquinas suaves». |
-| 4. Halo y malla | Implementada. Validada en emulador, QA físico pendiente. | Malla en el reproductor completo, halo de la portada activa, degradación por nivel y dibujo sin invalidaciones continuas en los intervalos medidos. |
-| 5. FavoriteButton y microinteracciones | Pendiente | |
-| 6. Barras superiores | Pendiente | |
-| 7. Desenfoque de fondo | Pendiente (condicionado a benchmark) | |
+| 2. Píldoras y gestos | Implementada. QA físico parcial. | Fusión al desplazar, reselección, gestos del mini reproductor, migración y ajuste de compactación. La prueba instrumental comprobó que una lista de prueba no se recompone durante la animación de fusión o separación. |
+| 3. Transformación hacia el reproductor | Implementada. QA físico parcial. | Portada compartida reversible, apertura inmediata con carrusel no disponible y retirada de «Usar esquinas suaves». |
+| 4. Halo y malla | Implementada. Validada en emulador, QA físico parcial. | Malla en el reproductor completo, halo de la portada activa, degradación por nivel y dibujo sin invalidaciones continuas en los intervalos medidos. |
+| 5. FavoriteButton y microinteracciones | Implementada | Celebración por toque, movimiento reducido y entrada de portada al cambiar de pista. |
+| 6. Barras superiores | Implementada | Píldora al desplazar, título adaptable y acciones compartidas. |

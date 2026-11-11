@@ -180,7 +180,7 @@
     <string name="settings_theme_dark">Dark Theme</string>
     <string name="settings_theme_follow_system">Follow System</string>
     <string name="settings_visual_effects_title">Visual Effects</string>
-    <string name="settings_visual_effects_subtitle">Control depth, gradients, and blur effects across the app. Battery Saver automatically steps down one level.</string>
+    <string name="settings_visual_effects_subtitle">Control depth, gradients, and artwork halo blur. Battery Saver automatically steps down one level.</string>
     <string name="settings_visual_effects_full">Full</string>
     <string name="settings_visual_effects_balanced">Balanced</string>
     <string name="settings_visual_effects_minimal">Minimal</string>
@@ -238,14 +238,6 @@
     <string name="settings_palette_style_expressive_desc">Bold hue shifts and contrast.</string>
     <string name="settings_palette_style_fruit_salad">Fruit Salad</string>
     <string name="settings_palette_style_fruit_salad_desc">Playful rotated accents.</string>
-    <string name="settings_palette_style_color_accuracy_title">Color accuracy</string>
-    <string name="settings_palette_style_color_accuracy_subtitle">0 keeps the current tuning. Higher values stay closer to the album art\'s dominant hue.</string>
-    <string name="settings_palette_style_accuracy_current">Current</string>
-    <string name="settings_palette_style_accuracy_more_accurate">More accurate</string>
-    <string name="settings_palette_style_accuracy_summary_current">0 • Current</string>
-    <string name="settings_palette_style_accuracy_summary_subtle">%1$d • Subtle</string>
-    <string name="settings_palette_style_accuracy_summary_balanced">%1$d • Balanced</string>
-    <string name="settings_palette_style_accuracy_summary_precise">%1$d • Precise</string>
 
     <!-- NavBarCornerRadiusScreen -->
 
@@ -286,9 +278,6 @@
     <string name="settings_folders_section">Folders</string>
     <string name="settings_folder_back_gesture_title">Back gesture controls folders</string>
     <string name="settings_folder_back_gesture_subtitle">In Folders tab, system back navigates folder stack before leaving Library.</string>
-    <string name="settings_player_gestures_section">Player Gestures</string>
-    <string name="settings_tap_bg_closes_title">Tap background closes player</string>
-    <string name="settings_tap_bg_closes_subtitle">Tap the blurred background to close the player sheet.</string>
     <string name="settings_haptics_section">Haptics</string>
     <string name="settings_haptic_feedback_title">Haptic feedback</string>
     <string name="settings_haptic_feedback_subtitle">Enable vibration feedback across the app.</string>
@@ -464,9 +453,6 @@
     <string name="settings_exp_animated_lyrics_subtitle">Uses spring animations and visual effects for lyrics. May cause frame drops on low-end devices.</string>
     <string name="settings_exp_lyrics_blur_title">Lyric Blur Effect</string>
     <string name="settings_exp_lyrics_blur_subtitle">Applies a depth-of-field blur to inactive lyrics.</string>
-    <string name="settings_exp_lyrics_blur_strength_title">Blur Strength</string>
-    <string name="settings_exp_lyrics_blur_strength_subtitle">Adjust the intensity of the blur effect.</string>
-    <string name="settings_exp_lyrics_blur_strength_value">%1$.1fx</string>
     <string name="settings_exp_step1_delay_header">Step 1 · Choose what to delay</string>
     <string name="settings_exp_delay_everything_title">Delay everything</string>
     <string name="settings_exp_delay_everything_subtitle">Hold the full player content until the sheet background is fully expanded.</string>

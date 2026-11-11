@@ -180,7 +180,7 @@
     <string name="settings_theme_dark">深色主题</string>
     <string name="settings_theme_follow_system">跟随系统</string>
     <string name="settings_visual_effects_title">视觉效果</string>
-    <string name="settings_visual_effects_subtitle">控制全局层次感、渐变和模糊效果。省电模式会自动降低一档。</string>
+    <string name="settings_visual_effects_subtitle">调整层次感、渐变和封面光晕的模糊效果。省电模式会自动降低一档。</string>
     <string name="settings_visual_effects_full">完整</string>
     <string name="settings_visual_effects_balanced">均衡</string>
     <string name="settings_visual_effects_minimal">精简</string>
@@ -238,14 +238,6 @@
     <string name="settings_palette_style_expressive_desc">大胆的色调变化和对比。</string>
     <string name="settings_palette_style_fruit_salad">混搭 (Fruit Salad)</string>
     <string name="settings_palette_style_fruit_salad_desc">俏皮的旋转点缀。</string>
-    <string name="settings_palette_style_color_accuracy_title">色彩准确度</string>
-    <string name="settings_palette_style_color_accuracy_subtitle">0 表示保持当前调整。值越高越接近专辑封面的主色调。</string>
-    <string name="settings_palette_style_accuracy_current">当前</string>
-    <string name="settings_palette_style_accuracy_more_accurate">更准确</string>
-    <string name="settings_palette_style_accuracy_summary_current">0 • 当前</string>
-    <string name="settings_palette_style_accuracy_summary_subtle">%1$d • 微妙</string>
-    <string name="settings_palette_style_accuracy_summary_balanced">%1$d • 平衡</string>
-    <string name="settings_palette_style_accuracy_summary_precise">%1$d • 精确</string>
 
     <!-- NavBarCornerRadiusScreen -->
 
@@ -286,9 +278,6 @@
     <string name="settings_folders_section">文件夹</string>
     <string name="settings_folder_back_gesture_title">返回手势控制文件夹</string>
     <string name="settings_folder_back_gesture_subtitle">在“文件夹”选项卡中，系统返回手势会在离开媒体库之前导航文件夹层级。</string>
-    <string name="settings_player_gestures_section">播放器手势</string>
-    <string name="settings_tap_bg_closes_title">点击背景关闭播放器</string>
-    <string name="settings_tap_bg_closes_subtitle">点击模糊的背景以关闭播放器面板。</string>
     <string name="settings_haptics_section">触感反馈</string>
     <string name="settings_haptic_feedback_title">触感反馈</string>
     <string name="settings_haptic_feedback_subtitle">在整个应用中启用震动反馈。</string>
@@ -464,9 +453,6 @@
     <string name="settings_exp_animated_lyrics_subtitle">为歌词使用弹簧动画和视觉效果。在低端设备上可能导致掉帧。</string>
     <string name="settings_exp_lyrics_blur_title">歌词模糊效果</string>
     <string name="settings_exp_lyrics_blur_subtitle">对非活动歌词应用景深模糊。</string>
-    <string name="settings_exp_lyrics_blur_strength_title">模糊强度</string>
-    <string name="settings_exp_lyrics_blur_strength_subtitle">调整模糊效果的强度。</string>
-    <string name="settings_exp_lyrics_blur_strength_value">%1$.1fx</string>
     <string name="settings_exp_step1_delay_header">第 1 步 · 选择要延迟的内容</string>
     <string name="settings_exp_delay_everything_title">延迟所有内容</string>
     <string name="settings_exp_delay_everything_subtitle">在面板背景完全展开之前，保留所有播放器内容。</string>

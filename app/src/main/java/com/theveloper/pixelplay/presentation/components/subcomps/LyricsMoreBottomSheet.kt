@@ -86,6 +86,7 @@ fun LyricsMoreBottomSheet(
     onShowRomanizationChange: (Boolean) -> Unit,
     immersiveLyricsEnabled: Boolean,
     // BottomToggleRow params
+    songId: String?,
     isShuffleEnabled: Boolean,
     repeatMode: Int,
     isFavoriteProvider: () -> Boolean,
@@ -546,11 +547,10 @@ fun LyricsMoreBottomSheet(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(24.dp))
-                    //.background(contentColor.copy(alpha = 0.08f))
                     .padding(vertical = 0.dp, horizontal = 0.dp)
             ) {
                  BottomToggleRow(
+                    songId = songId,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(74.dp)

@@ -55,7 +55,7 @@ En otros shells, usar `./gradlew` en vez de `gradlew.bat`. Los workflows actuale
 | Área | Ubicación y ejemplos |
 | --- | --- |
 | JVM / lógica y repositorios | [app/src/test](../app/src/test): cola/estado, almacenamiento, filtros, letras, seguridad, backups, políticas de audio, diagnósticos y proveedores |
-| Android / Room / workers | [app/src/androidTest](../app/src/androidTest): DAOs, migraciones, conteo de playlists, sync y benchmark de startup |
+| Android / Room / workers / interfaz | [app/src/androidTest](../app/src/androidTest): DAOs, migraciones, conteo de playlists, sync y componentes Compose |
 | Perfiles / macrobenchmark | [baselineprofile/src/main](../baselineprofile/src/main): generador, startup, player sheet y preparación del entorno |
 | Wear / shared | No hay fuentes de tests propias en esos módulos en esta copia. Verificar ambos consumidores al cambiar contratos. |
 

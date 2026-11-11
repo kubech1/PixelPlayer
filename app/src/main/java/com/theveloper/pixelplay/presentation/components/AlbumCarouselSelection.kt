@@ -1,6 +1,7 @@
 package com.theveloper.pixelplay.presentation.components
 
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -11,6 +12,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.unit.*
@@ -31,6 +33,8 @@ import com.theveloper.pixelplay.presentation.components.scoped.LocalPlayerArtwor
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerArtworkHalo
 import com.theveloper.pixelplay.presentation.components.scoped.artworkLightEdge
 import com.theveloper.pixelplay.presentation.utils.LocalVisualEffects
+import com.theveloper.pixelplay.ui.theme.LocalMotionPreferences
+import com.theveloper.pixelplay.ui.theme.PixelMotion
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.first
 
@@ -200,18 +204,41 @@ internal fun AlbumCarouselSection(
         derivedStateOf { depth != null && depth.expansion() >= 0.999f }
     }
     val showDepth = expandedForDepth && !carouselState.pagerState.isScrollInProgress
+    val animated = LocalMotionPreferences.current.animationsEnabled
+    val track = currentSong?.id to currentMediaItemIndex
+    var previousTrack by remember { mutableStateOf(track) }
+    var arrivalPending by remember { mutableStateOf(false) }
+    val arrivalScale = remember { Animatable(1f) }
+    val canAnimateArrival = animated && expandedForDepth && artworkTransition?.isMoving != true
+    val activePageSettled = showDepth && carouselState.pagerState.settledPage == currentSongIndex
+    LaunchedEffect(track, canAnimateArrival, activePageSettled) {
+        if (track != previousTrack) {
+            previousTrack = track
+            arrivalPending = canAnimateArrival && track.first != null
+        }
+        if (!canAnimateArrival) arrivalPending = false
+        if (arrivalPending && activePageSettled) {
+            arrivalPending = false
+            arrivalScale.snapTo(0.96f)
+            arrivalScale.animateTo(1f, PixelMotion.feedback())
+        } else {
+            arrivalScale.snapTo(1f)
+        }
+    }
     val edgeEnabled = LocalVisualEffects.current.allowsDepthEffects
     val occurrence = carouselItemKeys[currentSongIndex]
     var viewport by remember { mutableStateOf<LayoutCoordinates?>(null) }
     val anchor = remember(occurrence) { mutableStateOf<LayoutCoordinates?>(null) }
     val maskProvider = remember(occurrence) { mutableStateOf<(() -> Rect)?>(null) }
+    val lastArtworkBounds = remember { arrayOfNulls<Rect>(1) }
     val artworkBounds = remember(anchor, maskProvider) {
         bounds@{
             val root = viewport ?: return@bounds null
-            val item = anchor.value ?: return@bounds null
-            val mask = maskProvider.value?.invoke() ?: return@bounds null
-            if (!root.isAttached || !item.isAttached || mask.isEmpty) return@bounds null
+            val item = anchor.value ?: return@bounds lastArtworkBounds[0]
+            val mask = maskProvider.value?.invoke() ?: return@bounds lastArtworkBounds[0]
+            if (!root.isAttached || !item.isAttached || mask.isEmpty) return@bounds lastArtworkBounds[0]
             Rect(root.localPositionOf(item, mask.topLeft), root.localPositionOf(item, mask.bottomRight))
+                .also { lastArtworkBounds[0] = it }
         }
     }
     BoxWithConstraints(modifier = modifier.onPlaced { viewport = it }) {
@@ -223,7 +250,7 @@ internal fun AlbumCarouselSection(
                 uri = currentSong.albumArtUriString,
                 tint = depth.targetTint,
                 paused = paused,
-                visible = showDepth,
+                visible = activePageSettled,
                 bounds = artworkBounds,
                 modifier = Modifier.matchParentSize()
             )
@@ -275,7 +302,11 @@ internal fun AlbumCarouselSection(
                     OptimizedAlbumArt(
                         uri = song.albumArtUriString,
                         title = song.title,
-                        modifier = Modifier.fillMaxSize().then(capture),
+                        modifier = Modifier.fillMaxSize().then(capture).graphicsLayer {
+                            val scale = if (decorate && canAnimateArrival) arrivalScale.value else 1f
+                            scaleX = scale
+                            scaleY = scale
+                        },
                         targetSize = targetSize,
                         placeholderModel = if (song.albumArtUriString?.startsWith("telegram_art") == true) {
                              "${song.albumArtUriString}?quality=thumb"

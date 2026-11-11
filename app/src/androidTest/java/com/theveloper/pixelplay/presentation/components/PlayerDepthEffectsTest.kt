@@ -77,7 +77,7 @@ class PlayerDepthEffectsTest {
                             PlayerMeshBackground(
                                 songId = "test-cover",
                                 targetScheme = scheme,
-                                baseColor = Color.Black,
+                                baseColor = { Color.Black },
                                 foregroundColor = Color.White,
                                 expansion = { 1f },
                                 modifier = Modifier.matchParentSize()

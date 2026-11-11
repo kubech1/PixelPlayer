@@ -1,7 +1,6 @@
 package com.theveloper.pixelplay.presentation.screens
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
@@ -10,7 +9,6 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.animateIntAsState // Added
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -62,6 +60,7 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.TabPosition
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
@@ -101,7 +100,8 @@ import androidx.navigation.NavController
 import com.theveloper.pixelplay.R
 import com.theveloper.pixelplay.data.equalizer.EqualizerPreset
 import com.theveloper.pixelplay.presentation.components.CollapsibleCommonTopBar
-import com.theveloper.pixelplay.presentation.components.ExpressiveTopBarContent
+import com.theveloper.pixelplay.presentation.components.collapsedTopBarHeight
+import com.theveloper.pixelplay.presentation.components.rememberCollapsibleTopBarHeight
 import com.theveloper.pixelplay.presentation.viewmodel.EqualizerViewModel
 import com.theveloper.pixelplay.presentation.viewmodel.PlayerViewModel
 import kotlinx.coroutines.launch
@@ -227,21 +227,21 @@ fun EqualizerScreen(
     val coroutineScope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
     
-    val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-    val minTopBarHeight = 64.dp + statusBarHeight
+    val minTopBarHeight = collapsedTopBarHeight()
     val maxTopBarHeight = 180.dp
     
     val minTopBarHeightPx = with(density) { minTopBarHeight.toPx() }
     val maxTopBarHeightPx = with(density) { maxTopBarHeight.toPx() }
     
-    val topBarHeight = remember { Animatable(maxTopBarHeightPx) }
-    var collapseFraction by remember { mutableFloatStateOf(0f) }
-    
-    LaunchedEffect(topBarHeight.value) {
-        collapseFraction = 1f - ((topBarHeight.value - minTopBarHeightPx) / (maxTopBarHeightPx - minTopBarHeightPx)).coerceIn(0f, 1f)
+    val topBarHeight = rememberCollapsibleTopBarHeight(minTopBarHeightPx, maxTopBarHeightPx)
+    val collapseFraction by remember(minTopBarHeightPx, maxTopBarHeightPx) {
+        derivedStateOf {
+            1f - ((topBarHeight.value - minTopBarHeightPx) /
+                (maxTopBarHeightPx - minTopBarHeightPx)).coerceIn(0f, 1f)
+        }
     }
     
-    val nestedScrollConnection = remember {
+    val nestedScrollConnection = remember(topBarHeight, minTopBarHeightPx, maxTopBarHeightPx) {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 val delta = available.y
@@ -376,11 +376,10 @@ fun EqualizerScreen(
         
         CollapsibleCommonTopBar(
             title = stringResource(R.string.settings_category_equalizer_title),
-            collapseFraction = collapseFraction,
+            collapseFraction = { collapseFraction },
             headerHeight = currentTopBarHeightDp,
             onBackClick = { navController.popBackStack() },
             expandedTitleStartPadding = 20.dp,
-            collapsedTitleStartPadding = 72.dp,
             actions = {
                 // View Mode Toggle
                 FilledIconButton(
@@ -400,19 +399,13 @@ fun EqualizerScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.width(12.dp))
-
                 // Power toggle
                 val isEnabled = uiState.isEnabled
-                val powerButtonCorner by animateIntAsState(
-                    targetValue = if (isEnabled) 50 else 12,
-                    label = "PowerButtonShape"
-                )
 
                 FilledIconToggleButton(
                     checked = isEnabled,
                     onCheckedChange = { equalizerViewModel.toggleEqualizer() },
-                    shape = RoundedCornerShape(powerButtonCorner),
+                    shape = CircleShape,
                     colors = IconButtonDefaults.filledIconToggleButtonColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                         contentColor = MaterialTheme.colorScheme.onSurface,
@@ -429,8 +422,6 @@ fun EqualizerScreen(
                         }
                     )
                 }
-                
-                Spacer(modifier = Modifier.width(12.dp))
             }
         )
     }

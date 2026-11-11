@@ -126,4 +126,6 @@
     <string name="common_shuffle_play_album">Albümü karışık oynat</string>
     <string name="common_album_art_for_title">%1$s için albüm kapağı</string>
 
+    <string name="favorite_state_added">Favorilerde</string>
+    <string name="favorite_state_removed">Favorilerde değil</string>
 </resources>

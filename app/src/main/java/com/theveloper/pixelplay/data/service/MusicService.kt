@@ -3,6 +3,7 @@ package com.theveloper.pixelplay.data.service
 import android.app.AlarmManager
 import android.app.BackgroundServiceStartNotAllowedException
 import android.app.ForegroundServiceStartNotAllowedException
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
@@ -260,7 +261,7 @@ class MusicService : MediaLibraryService() {
 
     companion object {
         private const val TAG = "MusicService_PixelPlay"
-        const val NOTIFICATION_ID = 101
+        private const val LEGACY_COMMAND_NOTIFICATION_ID = 101
         const val ACTION_SLEEP_TIMER_EXPIRED = "com.theveloper.pixelplay.ACTION_SLEEP_TIMER_EXPIRED"
         const val EXTRA_FORCE_FOREGROUND_ON_START =
             "com.theveloper.pixelplay.extra.FORCE_FOREGROUND_ON_START"
@@ -406,6 +407,7 @@ class MusicService : MediaLibraryService() {
         // receives the media-button intent.
         consumePendingMediaButtonForegroundStart()
         temporaryForegroundStartedInOnCreate = startTemporaryForegroundForCommand()
+        getSystemService(NotificationManager::class.java).cancel(LEGACY_COMMAND_NOTIFICATION_ID)
 
         super.onCreate()
         setListener(object : androidx.media3.session.MediaSessionService.Listener {
@@ -1016,8 +1018,8 @@ class MusicService : MediaLibraryService() {
         )
             .setSmallIcon(R.drawable.monochrome_player)
             .setContentTitle(getString(R.string.app_name))
-            .setContentText(getString(R.string.service_processing_action))
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_DEFERRED)
             .setContentIntent(getOpenAppPendingIntent())
             .setOnlyAlertOnce(true)
             .setSilent(true)
@@ -1029,7 +1031,7 @@ class MusicService : MediaLibraryService() {
         try {
             ServiceCompat.startForeground(
                 this,
-                NOTIFICATION_ID,
+                androidx.media3.session.DefaultMediaNotificationProvider.DEFAULT_NOTIFICATION_ID,
                 notification,
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
             )
@@ -1051,10 +1053,8 @@ class MusicService : MediaLibraryService() {
         Timber.tag(TAG).w("Foreground playback rejected; waiting for a new user action")
     }
 
-    private fun isServiceAlreadyForeground(): Boolean {
-        val player = mediaSession?.player ?: return false
-        return player.hasForegroundPlaybackIntent()
-    }
+    private fun isServiceAlreadyForeground(): Boolean =
+        foregroundServiceType and ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK != 0
 
     private fun Player.hasForegroundPlaybackIntent(): Boolean {
         return playWhenReady &&
@@ -1070,11 +1070,9 @@ class MusicService : MediaLibraryService() {
         val forcedForegroundStart =
             intent?.getBooleanExtra(EXTRA_FORCE_FOREGROUND_ON_START, false) == true
         val isMediaButtonIntent = intent?.action == Intent.ACTION_MEDIA_BUTTON
-        val needsTemporaryForeground = forcedForegroundStart ||
+        val commandRequiresForeground = forcedForegroundStart ||
             pendingMediaButtonForegroundStart ||
-            (isMediaButtonIntent &&
-                !startedTemporaryForegroundInOnCreate &&
-                !isServiceAlreadyForeground()) ||
+            isMediaButtonIntent ||
             when (intent?.action) {
                 PlayerActions.PLAY_PAUSE,
                 PlayerActions.NEXT,
@@ -1085,7 +1083,9 @@ class MusicService : MediaLibraryService() {
                 PlayerActions.REPEAT -> true
                 else -> false
             }
-        if (needsTemporaryForeground && !startedTemporaryForegroundInOnCreate && !startTemporaryForegroundForCommand()) {
+        val needsTemporaryForeground = commandRequiresForeground &&
+            !startedTemporaryForegroundInOnCreate && !isServiceAlreadyForeground()
+        if (needsTemporaryForeground && !startTemporaryForegroundForCommand()) {
             pauseAfterForegroundRejection()
             stopSelfResult(startId)
             return START_NOT_STICKY
@@ -1173,7 +1173,9 @@ class MusicService : MediaLibraryService() {
         if (needsTemporaryForeground || startedTemporaryForegroundInOnCreate) {
             if (mediaSession?.player?.hasForegroundPlaybackIntent() != true) {
                 stopForeground(STOP_FOREGROUND_REMOVE)
-                if (needsTemporaryForeground) {
+                if (needsTemporaryForeground || forcedForegroundStart || pendingMediaButtonForegroundStart ||
+                    (commandRequiresForeground && !isMediaButtonIntent)
+                ) {
                     stopSelfResult(startId)
                 }
             }

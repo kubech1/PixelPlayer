@@ -24,7 +24,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -63,7 +62,9 @@ import com.theveloper.pixelplay.data.model.Artist
 import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.data.preferences.AlbumArtPaletteStyle
 import com.theveloper.pixelplay.presentation.components.AutoScrollingTextOnDemand
-import com.theveloper.pixelplay.presentation.components.ExpressiveTopBarContent
+import com.theveloper.pixelplay.presentation.components.CollapsibleCommonTopBar
+import com.theveloper.pixelplay.presentation.components.collapsedTopBarHeight
+import com.theveloper.pixelplay.presentation.components.rememberCollapsibleTopBarHeight
 import com.theveloper.pixelplay.presentation.components.ExpressiveScrollBar
 import com.theveloper.pixelplay.ui.theme.LocalShowScrollbar
 import com.theveloper.pixelplay.presentation.components.GenreSortBottomSheet
@@ -144,14 +145,13 @@ fun GenreDetailScreen(
     val coroutineScope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
 
-    val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val systemNavBarInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    val minTopBarHeight = 58.dp + statusBarHeight // Reduced by 6dp from 64.dp
+    val minTopBarHeight = collapsedTopBarHeight()
     val maxTopBarHeight = 200.dp
     val minTopBarHeightPx = with(density) { minTopBarHeight.toPx() }
     val maxTopBarHeightPx = with(density) { maxTopBarHeight.toPx() }
 
-    val topBarHeight = remember { Animatable(maxTopBarHeightPx) }
+    val topBarHeight = rememberCollapsibleTopBarHeight(minTopBarHeightPx, maxTopBarHeightPx)
     val collapseFraction by remember(minTopBarHeightPx, maxTopBarHeightPx) {
         derivedStateOf {
             1f - ((topBarHeight.value - minTopBarHeightPx) / (maxTopBarHeightPx - minTopBarHeightPx)).coerceIn(0f, 1f)
@@ -166,7 +166,7 @@ fun GenreDetailScreen(
         }
     }
 
-    val nestedScrollConnection = remember {
+    val nestedScrollConnection = remember(topBarHeight, minTopBarHeightPx, maxTopBarHeightPx) {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 val delta = available.y
@@ -414,9 +414,7 @@ fun GenreDetailScreen(
                 headerHeight = currentTopBarHeightDp,
                 onBackPressed = { navController.popBackStack() },
                 startColor = startColor,
-                contentColor = contentColor,
-                containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                collapsedContentColor = MaterialTheme.colorScheme.onSurface
+                contentColor = contentColor
             )
         
             // Selection Count Pill (Top-Center below collapsed top bar)
@@ -764,75 +762,23 @@ fun GenreCollapsibleTopBar(
     headerHeight: Dp,
     onBackPressed: () -> Unit,
     startColor: Color,
-    containerColor: Color,
-    contentColor: Color,
-    collapsedContentColor: Color
+    contentColor: Color
 ) {
-    val solidAlpha = (collapseFraction * 2f).coerceIn(0f, 1f)
-    val animatedContentColor = androidx.compose.ui.graphics.lerp(
-        start = contentColor,
-        stop = collapsedContentColor,
-        fraction = solidAlpha
-    )
-
-    // Optimization: Pre-calculate alpha values
-    val gradientAlpha = 0.8f * (1f - solidAlpha)
-    
-    // Optimization: Reuse gradient brush to avoid allocation on every pixel scroll
-    val verticalGradient = remember(startColor, gradientAlpha) {
-        Brush.verticalGradient(
-            colors = listOf(
-                startColor.copy(alpha = gradientAlpha),
-                startColor.copy(alpha = 0f)
-            )
+    Box(Modifier.fillMaxWidth().height(headerHeight)) {
+        val gradient = remember(startColor) { Brush.verticalGradient(listOf(startColor.copy(alpha = 0.8f), Color.Transparent)) }
+        Box(Modifier.matchParentSize().graphicsLayer {
+            alpha = 1f - (collapseFraction * 2f).coerceIn(0f, 1f)
+        }.background(gradient))
+        CollapsibleCommonTopBar(
+            title = title,
+            collapseFraction = { collapseFraction },
+            headerHeight = headerHeight,
+            onBackClick = onBackPressed,
+            contentColor = contentColor,
+            syncStatusBarWithContainer = false
         )
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(headerHeight)
-            .zIndex(5f)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(containerColor.copy(alpha = solidAlpha)) 
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(verticalGradient)
-        )
-
-        Box(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
-             FilledIconButton(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(start = 12.dp, top = 4.dp)
-                    .zIndex(10f),
-                onClick = onBackPressed,
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = animatedContentColor.copy(alpha = 0.1f),
-                    contentColor = animatedContentColor
-                )
-            ) {
-                Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.common_back), tint = animatedContentColor)
-            }
-
-            ExpressiveTopBarContent(
-                title = title,
-                collapseFraction = collapseFraction,
-                modifier = Modifier.fillMaxSize(),
-                collapsedTitleStartPadding = 68.dp,
-                expandedTitleStartPadding = 20.dp,
-                maxLines = 1,
-                contentColor = animatedContentColor
-            )
-        }
     }
 }
-
 
 // --- Section Extensions ---
 

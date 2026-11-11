@@ -180,7 +180,7 @@
     <string name="settings_theme_dark">Tema scuro</string>
     <string name="settings_theme_follow_system">Segui sistema</string>
     <string name="settings_visual_effects_title">Effetti visivi</string>
-    <string name="settings_visual_effects_subtitle">Controlla profondità, gradienti e sfocatura nell\'app. Il risparmio energetico riduce automaticamente di un livello.</string>
+    <string name="settings_visual_effects_subtitle">Controlla profondità, gradienti e sfocatura dell\'alone della copertina. Il risparmio energetico riduce automaticamente di un livello.</string>
     <string name="settings_visual_effects_full">Completi</string>
     <string name="settings_visual_effects_balanced">Bilanciati</string>
     <string name="settings_visual_effects_minimal">Minimi</string>
@@ -238,14 +238,6 @@
     <string name="settings_palette_style_expressive_desc">Cambiamenti di tonalità audaci e contrasto.</string>
     <string name="settings_palette_style_fruit_salad">Fruit Salad</string>
     <string name="settings_palette_style_fruit_salad_desc">Accenti ruotati giocosi.</string>
-    <string name="settings_palette_style_color_accuracy_title">Accuratezza del colore</string>
-    <string name="settings_palette_style_color_accuracy_subtitle">0 mantiene la sintonizzazione corrente. Valori più alti rimangono più vicini alla tonalità dominante della copertina dell\'album.</string>
-    <string name="settings_palette_style_accuracy_current">Corrente</string>
-    <string name="settings_palette_style_accuracy_more_accurate">Più accurato</string>
-    <string name="settings_palette_style_accuracy_summary_current">0 • Corrente</string>
-    <string name="settings_palette_style_accuracy_summary_subtle">%1$d • Sottile</string>
-    <string name="settings_palette_style_accuracy_summary_balanced">%1$d • Bilanciato</string>
-    <string name="settings_palette_style_accuracy_summary_precise">%1$d • Preciso</string>
 
     <!-- NavBarCornerRadiusScreen -->
 
@@ -286,9 +278,6 @@
     <string name="settings_folders_section">Cartelle</string>
     <string name="settings_folder_back_gesture_title">Gesto indietro controlla cartelle</string>
     <string name="settings_folder_back_gesture_subtitle">Nella scheda Cartelle, il tasto indietro di sistema naviga lo stack cartelle prima di uscire dalla libreria.</string>
-    <string name="settings_player_gestures_section">Gesti player</string>
-    <string name="settings_tap_bg_closes_title">Tocca sfondo chiude player</string>
-    <string name="settings_tap_bg_closes_subtitle">Tocca lo sfondo sfocato per chiudere il foglio del player.</string>
     <string name="settings_haptics_section">Feedback aptico</string>
     <string name="settings_haptic_feedback_title">Feedback aptico</string>
     <string name="settings_haptic_feedback_subtitle">Abilita vibrazione di feedback in tutta l\'app.</string>
@@ -464,9 +453,6 @@
     <string name="settings_exp_animated_lyrics_subtitle">Usa animazioni a molla ed effetti visivi per i testi. Può causare cali di frame su dispositivi di fascia bassa.</string>
     <string name="settings_exp_lyrics_blur_title">Effetto sfocatura testi</string>
     <string name="settings_exp_lyrics_blur_subtitle">Applica una sfocatura profondità di campo ai testi inattivi.</string>
-    <string name="settings_exp_lyrics_blur_strength_title">Intensità sfocatura</string>
-    <string name="settings_exp_lyrics_blur_strength_subtitle">Regola l\'intensità dell\'effetto sfocatura.</string>
-    <string name="settings_exp_lyrics_blur_strength_value">%1$.1fx</string>
     <string name="settings_exp_step1_delay_header">Passo 1 · Scegli cosa ritardare</string>
     <string name="settings_exp_delay_everything_title">Ritarda tutto</string>
     <string name="settings_exp_delay_everything_subtitle">Trattiene l\'intero contenuto del player finché lo sfondo del foglio non è completamente espanso.</string>

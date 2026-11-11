@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.times
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.flow.collectLatest
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -91,9 +92,10 @@ fun WavySliderExpressive(
         Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
     }
 
+    val latestValue by rememberUpdatedState(value)
     val normalizedValueState = remember(valueRange) {
         derivedStateOf {
-            val v = value()
+            val v = latestValue()
             if (valueRange.endInclusive == valueRange.start) 0f
             else ((v - valueRange.start) / (valueRange.endInclusive - valueRange.start)).coerceIn(0f, 1f)
         }
@@ -127,6 +129,9 @@ fun WavySliderExpressive(
         animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
         label = "amplitude"
     )
+    val shouldRunWave by remember {
+        derivedStateOf { animatedAmplitude > 0f }
+    }
 
     val currentHalfWidth = remember(thumbRadius, strokeWidth) {
         derivedStateOf {
@@ -157,11 +162,11 @@ fun WavySliderExpressive(
     }
     var lastProgressUpdateNanos by remember { mutableLongStateOf(0L) }
     LaunchedEffect(isInteracting, enabled) {
-        snapshotFlow { normalizedValueState.value }.collect { target ->
+        snapshotFlow { normalizedValueState.value }.collectLatest { target ->
             if (!enabled || isInteracting) {
                 renderedNormalizedProgress.floatValue = target
                 lastProgressUpdateNanos = System.nanoTime()
-                return@collect
+                return@collectLatest
             }
 
             val start = renderedNormalizedProgress.floatValue
@@ -172,7 +177,7 @@ fun WavySliderExpressive(
             if (abs(start - target) > 0.1f) {
                 renderedNormalizedProgress.floatValue = target
                 lastProgressUpdateNanos = System.nanoTime()
-                return@collect
+                return@collectLatest
             }
 
             val nowNanos = System.nanoTime()
@@ -188,7 +193,7 @@ fun WavySliderExpressive(
 
             if (abs(start - target) <= 0.0001f) {
                 renderedNormalizedProgress.floatValue = target
-                return@collect
+                return@collectLatest
             }
 
             val durationNanos = (intervalMs * 900_000L).coerceAtLeast(1_000_000L)
@@ -244,11 +249,11 @@ fun WavySliderExpressive(
                 trackColor = inactiveTrackColor,
                 stroke = stroke,
                 trackStroke = stroke,
-                gapSize = 2f * dynamicGapSize.value * (1.0f + 0.1573f * animatedAmplitude * animatedAmplitude),
+                gapSize = 2f * dynamicGapSize.value * (if (enabled && isPlaying && !isInteracting) 1.1573f else 1f),
                 stopSize = 3.dp,
                 amplitude = { progress -> if (progress > 0f) animatedAmplitude else 0f },
                 wavelength = wavelength,
-                waveSpeed = waveSpeed
+                waveSpeed = if (shouldRunWave) waveSpeed else 0.dp
             )
         } else {
             Spacer(modifier = Modifier.fillMaxWidth().height(containerHeight))

@@ -244,4 +244,7 @@
     <string name="batch_edit_remove_all_art">إزالة جميع أغلفة الألبومات</string>
     <string name="batch_edit_multiple_covers">(أغلفة متعددة مختلفة)</string>
     <string name="player_playback_error">خطأ في التشغيل: %1$s</string>
+    <string name="common_favorite">المفضلة</string>
+    <string name="favorite_state_added">في المفضلة</string>
+    <string name="favorite_state_removed">خارج المفضلة</string>
 </resources>

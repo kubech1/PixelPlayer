@@ -125,4 +125,6 @@
     <string name="common_play_album">Воспроизвести альбом</string>
     <string name="common_shuffle_play_album">Перемешать альбом</string>
     <string name="common_album_art_for_title">Обложка альбома: %1$s</string>
+    <string name="favorite_state_added">В избранном</string>
+    <string name="favorite_state_removed">Не в избранном</string>
 </resources>

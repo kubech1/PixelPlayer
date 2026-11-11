@@ -67,14 +67,12 @@ data class SettingsUiState(
     val showPlayerFileInfo: Boolean = true,
     val albumArtQuality: AlbumArtQuality = AlbumArtQuality.MEDIUM,
     val albumArtCacheLimitMb: Int = 200,
-    val tapBackgroundClosesPlayer: Boolean = false,
     val hapticsEnabled: Boolean = true,
     val hapticIntensity: com.theveloper.pixelplay.presentation.utils.HapticIntensity = com.theveloper.pixelplay.presentation.utils.HapticIntensity.MEDIUM,
     val immersiveLyricsEnabled: Boolean = false,
     val immersiveLyricsTimeout: Long = 4000L,
     val useAnimatedLyrics: Boolean = false,
     val animatedLyricsBlurEnabled: Boolean = true,
-    val animatedLyricsBlurStrength: Float = 2.5f,
     val visualEffectsLevel: com.theveloper.pixelplay.data.preferences.VisualEffectsLevel =
         com.theveloper.pixelplay.data.preferences.VisualEffectsLevel.DEFAULT,
     val collagePattern: CollagePattern = CollagePattern.default,
@@ -140,7 +138,6 @@ private sealed interface SettingsUiUpdate {
         val immersiveLyricsEnabled: Boolean,
         val immersiveLyricsTimeout: Long,
         val animatedLyricsBlurEnabled: Boolean,
-        val animatedLyricsBlurStrength: Float,
         val visualEffectsLevel: com.theveloper.pixelplay.data.preferences.VisualEffectsLevel,
         val showScrollbar: Boolean
     ) : SettingsUiUpdate
@@ -286,7 +283,6 @@ class SettingsViewModel @Inject constructor(
                 userPreferencesRepository.immersiveLyricsEnabledFlow,
                 userPreferencesRepository.immersiveLyricsTimeoutFlow,
                 userPreferencesRepository.animatedLyricsBlurEnabledFlow,
-                userPreferencesRepository.animatedLyricsBlurStrengthFlow,
                 userPreferencesRepository.visualEffectsLevelFlow,
                 userPreferencesRepository.showScrollbarFlow
             ) { values ->
@@ -308,9 +304,8 @@ class SettingsViewModel @Inject constructor(
                     immersiveLyricsEnabled = values[14] as Boolean,
                     immersiveLyricsTimeout = values[15] as Long,
                     animatedLyricsBlurEnabled = values[16] as Boolean,
-                    animatedLyricsBlurStrength = values[17] as Float,
-                    visualEffectsLevel = values[18] as com.theveloper.pixelplay.data.preferences.VisualEffectsLevel,
-                    showScrollbar = values[19] as Boolean
+                    visualEffectsLevel = values[17] as com.theveloper.pixelplay.data.preferences.VisualEffectsLevel,
+                    showScrollbar = values[18] as Boolean
                 )
             }.collect { update ->
                 _uiState.update { state ->
@@ -332,7 +327,6 @@ class SettingsViewModel @Inject constructor(
                         immersiveLyricsEnabled = update.immersiveLyricsEnabled,
                         immersiveLyricsTimeout = update.immersiveLyricsTimeout,
                         animatedLyricsBlurEnabled = update.animatedLyricsBlurEnabled,
-                        animatedLyricsBlurStrength = update.animatedLyricsBlurStrength,
                         visualEffectsLevel = update.visualEffectsLevel,
                         showScrollbar = update.showScrollbar
                     )
@@ -369,12 +363,6 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             userPreferencesRepository.albumArtCacheLimitMbFlow.collect { limitMb ->
                 _uiState.update { it.copy(albumArtCacheLimitMb = limitMb) }
-            }
-        }
-
-        viewModelScope.launch {
-            userPreferencesRepository.tapBackgroundClosesPlayerFlow.collect { enabled ->
-                _uiState.update { it.copy(tapBackgroundClosesPlayer = enabled) }
             }
         }
 
@@ -468,15 +456,6 @@ class SettingsViewModel @Inject constructor(
     fun setAlbumArtPaletteStyle(style: AlbumArtPaletteStyle) {
         viewModelScope.launch {
             themePreferencesRepository.setAlbumArtPaletteStyle(style)
-        }
-    }
-
-    fun setAlbumArtPaletteSettings(
-        style: AlbumArtPaletteStyle,
-        accuracyLevel: Int
-    ) {
-        viewModelScope.launch {
-            themePreferencesRepository.setAlbumArtPaletteSettings(style, accuracyLevel)
         }
     }
 
@@ -707,12 +686,6 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun setAnimatedLyricsBlurStrength(strength: Float) {
-        viewModelScope.launch {
-            userPreferencesRepository.setAnimatedLyricsBlurStrength(strength)
-        }
-    }
-
     fun setVisualEffectsLevel(level: com.theveloper.pixelplay.data.preferences.VisualEffectsLevel) {
         viewModelScope.launch {
             userPreferencesRepository.setVisualEffectsLevel(level)
@@ -796,9 +769,6 @@ class SettingsViewModel @Inject constructor(
     val albumArtQuality: StateFlow<AlbumArtQuality> = userPreferencesRepository.albumArtQualityFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AlbumArtQuality.MEDIUM)
 
-    val tapBackgroundClosesPlayer: StateFlow<Boolean> = userPreferencesRepository.tapBackgroundClosesPlayerFlow
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
-
     fun setAlbumArtQuality(quality: AlbumArtQuality) {
         viewModelScope.launch {
             userPreferencesRepository.setAlbumArtQuality(quality)
@@ -809,12 +779,6 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             userPreferencesRepository.setAlbumArtCacheLimitMb(limitMb)
             com.theveloper.pixelplay.utils.AlbumArtCacheManager.configuredCacheLimitMb = limitMb.toLong()
-        }
-    }
-
-    fun setTapBackgroundClosesPlayer(enabled: Boolean) {
-        viewModelScope.launch {
-            userPreferencesRepository.setTapBackgroundClosesPlayer(enabled)
         }
     }
 

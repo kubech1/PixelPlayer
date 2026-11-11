@@ -180,7 +180,7 @@
     <string name="settings_theme_dark">Koyu Tema</string>
     <string name="settings_theme_follow_system">Sistemi Takip Et</string>
     <string name="settings_visual_effects_title">Görsel Efektler</string>
-    <string name="settings_visual_effects_subtitle">Uygulama genelinde derinlik, gradyan ve bulanıklık efektlerini kontrol edin. Pil Tasarrufu otomatik olarak bir seviye düşürür.</string>
+    <string name="settings_visual_effects_subtitle">Derinliği, gradyanları ve kapak halesinin bulanıklığını kontrol edin. Pil Tasarrufu otomatik olarak bir seviye düşürür.</string>
     <string name="settings_visual_effects_full">Tam</string>
     <string name="settings_visual_effects_balanced">Dengeli</string>
     <string name="settings_visual_effects_minimal">Minimal</string>
@@ -238,14 +238,6 @@
     <string name="settings_palette_style_expressive_desc">Belirgin ton geçişleri ve kontrast.</string>
     <string name="settings_palette_style_fruit_salad">Meyve Salatası</string>
     <string name="settings_palette_style_fruit_salad_desc">Eğlenceli döndürülmüş vurgular.</string>
-    <string name="settings_palette_style_color_accuracy_title">Renk doğruluğu</string>
-    <string name="settings_palette_style_color_accuracy_subtitle">0 mevcut ayarı korur. Daha yüksek değerler, albüm kapağının baskın tonuna daha yakın kalır.</string>
-    <string name="settings_palette_style_accuracy_current">Mevcut</string>
-    <string name="settings_palette_style_accuracy_more_accurate">Daha doğru</string>
-    <string name="settings_palette_style_accuracy_summary_current">0 • Mevcut</string>
-    <string name="settings_palette_style_accuracy_summary_subtle">%1$d • Hafif</string>
-    <string name="settings_palette_style_accuracy_summary_balanced">%1$d • Dengeli</string>
-    <string name="settings_palette_style_accuracy_summary_precise">%1$d • Hassas</string>
 
     <!-- NavBarCornerRadiusScreen -->
 
@@ -286,9 +278,6 @@
     <string name="settings_folders_section">Klasörler</string>
     <string name="settings_folder_back_gesture_title">Geri hareketi klasörleri kontrol eder</string>
     <string name="settings_folder_back_gesture_subtitle">Klasörler sekmesinde, sistem geri hareketi Kitaplık\'tan çıkmadan önce klasör geçmişinde geriye gider.</string>
-    <string name="settings_player_gestures_section">Oynatıcı Hareketleri</string>
-    <string name="settings_tap_bg_closes_title">Arka plana dokunulduğunda oynatıcıyı kapatır</string>
-    <string name="settings_tap_bg_closes_subtitle">Oynatıcı panelini kapatmak için bulanık arka plana dokunun.</string>
     <string name="settings_haptics_section">Dokunsal Geribildirim</string>
     <string name="settings_haptic_feedback_title">Dokunsal geribildirim</string>
     <string name="settings_haptic_feedback_subtitle">Uygulama genelinde titreşimli geri bildirimi etkinleştirin.</string>
@@ -464,9 +453,6 @@
     <string name="settings_exp_animated_lyrics_subtitle">Şarkı sözleri için yay animasyonları ve görsel efektler kullanır. Düşük kaliteli cihazlarda kare düşüşlerine neden olabilir.</string>
     <string name="settings_exp_lyrics_blur_title">Şarkı Sözü Bulanıklaştırma Efekti</string>
     <string name="settings_exp_lyrics_blur_subtitle">Aktif olmayan şarkı sözlerine alan derinliği bulanıklığı uygular.</string>
-    <string name="settings_exp_lyrics_blur_strength_title">Bulanıklık Derecesi</string>
-    <string name="settings_exp_lyrics_blur_strength_subtitle">Bulanıklık efektinin yoğunluğunu ayarlar.</string>
-    <string name="settings_exp_lyrics_blur_strength_value">%1$.1fx</string>
     <string name="settings_exp_step1_delay_header">Adım 1 · Nelerin geciktirileceğini seçin</string>
     <string name="settings_exp_delay_everything_title">Her şeyi geciktir</string>
     <string name="settings_exp_delay_everything_subtitle">Panel arka planı tamamen açılana kadar tüm oynatıcı içeriğini bekletin.</string>

@@ -5,6 +5,7 @@ import android.graphics.RenderEffect
 import android.graphics.Shader
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
@@ -64,7 +65,16 @@ import kotlin.math.roundToInt
 
 internal const val PlayerHaloDrawTrace = "PixelPlay.playerHalo.draw"
 private const val ThumbnailSide = 32
-private const val HaloSizeMultiplier = 1.25f
+private const val BalancedHaloSize = 1.25f
+private const val FullHaloSize = 1.9f
+private const val HaloEntranceMillis = 550
+
+private sealed interface HaloThumbnail {
+    data object Loading : HaloThumbnail
+    data class Ready(val bitmap: ImageBitmap?) : HaloThumbnail
+}
+
+private data class HaloBlend(val from: ImageBitmap?, val to: ImageBitmap?)
 
 @Immutable
 internal data class PlayerArtworkDepth(val expansion: () -> Float, val targetTint: Color)
@@ -99,46 +109,73 @@ internal fun PlayerArtworkHalo(
                     spotShadowColor = if (effects.isMinimal) Color.Black else tintState.value.copy(alpha = 0.55f)
                 }
         )
-        if (effects.allowsDepthEffects && !uri.isNullOrBlank()) {
-            val thumbnail by rememberHaloThumbnail(occurrence, uri)
-            val imageReady = thumbnail != null
-            val scale = remember(occurrence, animated) { Animatable(if (animated) 0.92f else 1f) }
-            var lastAnimatedOccurrence by remember { mutableStateOf<String?>(null) }
-            LaunchedEffect(occurrence, animated, visible, imageReady) {
+        if (effects.allowsDepthEffects) {
+            val loaded = if (uri.isNullOrBlank()) HaloThumbnail.Ready(null)
+            else rememberHaloThumbnail(occurrence, uri).value
+            val progress = remember { Animatable(1f) }
+            var blend by remember { mutableStateOf(HaloBlend(null, null)) }
+            val full = effects.allowsRealtimeBlur
+            LaunchedEffect(loaded, visible, animated, full) {
+                if (!visible || loaded !is HaloThumbnail.Ready) return@LaunchedEffect
+                val target = loaded.bitmap
                 if (!animated) {
-                    scale.snapTo(1f)
-                } else if (visible && imageReady && lastAnimatedOccurrence != occurrence) {
-                    lastAnimatedOccurrence = occurrence
-                    scale.snapTo(0.92f)
-                    scale.animateTo(1f, PixelMotion.feedback())
-                } else if (visible && imageReady) {
-                    scale.snapTo(1f)
+                    blend = HaloBlend(target, target)
+                    progress.snapTo(1f)
+                } else if (blend.to !== target) {
+                    val previous = if (progress.value >= 0.5f) blend.to else blend.from
+                    progress.snapTo(0f)
+                    blend = HaloBlend(previous, target)
+                }
+                if (progress.value < 1f) {
+                    progress.animateTo(1f, tween(
+                        durationMillis = if (full) HaloEntranceMillis else 300,
+                        easing = FastOutSlowInEasing
+                    ))
+                    blend = HaloBlend(target, target)
                 }
             }
+            val dark = LocalPixelPlayDarkTheme.current
+            val baseOpacity = if (full) {
+                if (dark) 0.80f else 0.68f
+            } else {
+                if (dark) 0.55f else 0.35f
+            }
             val opacity = animateFloatAsState(
-                targetValue = (if (LocalPixelPlayDarkTheme.current) 0.55f else 0.35f) * if (paused) 0.6f else 1f,
+                targetValue = baseOpacity * if (paused) (if (full) 0.8f else 0.6f) else 1f,
                 animationSpec = if (animated) tween(300) else snap(),
                 label = "Artwork halo opacity"
             )
             val density = LocalDensity.current
             val hardware = LocalView.current.isHardwareAccelerated
             val radius = with(density) { 16.dp.toPx() }
-            val blur = remember(effects.allowsRealtimeBlur, hardware, radius) {
-                if (effects.allowsRealtimeBlur && hardware) {
+            val blur = remember(full, hardware, radius) {
+                if (full && hardware) {
                     runCatching {
                         RenderEffect.createBlurEffect(radius, radius, Shader.TileMode.DECAL).asComposeRenderEffect()
                     }.getOrNull()
                 } else null
             }
             val padding = if (blur != null) 32.dp else 0.dp
-            val bitmap = thumbnail
-            if (bitmap != null) {
+            val hasImage = blend.from != null || blend.to != null
+            if (hasImage) {
                 Spacer(
-                    Modifier.artworkEffectBounds(bounds, HaloSizeMultiplier, padding)
+                    Modifier.artworkEffectBounds(
+                        bounds,
+                        scale = if (full) FullHaloSize else BalancedHaloSize,
+                        padding = padding,
+                        upwardBias = if (full) 0.02f else 0f
+                    )
                         .graphicsLayer {
-                            alpha = opacity.value
-                            scaleX = scale.value
-                            scaleY = scale.value
+                            val fade = progress.value
+                            val (from, to) = blend
+                            alpha = opacity.value * when {
+                                from == null -> fade
+                                to == null -> 1f - fade
+                                else -> 1f
+                            }
+                            val growth = if (from == null && to != null) 0.96f + 0.04f * fade else 1f
+                            scaleX = growth
+                            scaleY = growth
                             compositingStrategy = CompositingStrategy.Offscreen
                             renderEffect = blur
                         }
@@ -148,20 +185,44 @@ internal fun PlayerArtworkHalo(
                             val height = (size.height.roundToInt() - 2 * pad).coerceAtLeast(0)
                             val mask = Brush.radialGradient(
                                 0f to Color.White,
-                                0.72f to Color.White.copy(alpha = 0.85f),
+                                0.68f to Color.White.copy(alpha = 0.88f),
+                                0.84f to Color.White.copy(alpha = if (full) 0.42f else 0.48f),
                                 1f to Color.Transparent,
                                 center = Offset(size.width / 2f, size.height / 2f),
                                 radius = (maxOf(width, height) / 2f).coerceAtLeast(1f)
                             )
+                            val imageOffset = IntOffset(pad, pad)
+                            val imageSize = IntSize(width, height)
                             onDrawBehind {
                                 if (width == 0 || height == 0) return@onDrawBehind
                                 tracePlayerDepthDraw(PlayerHaloDrawTrace) {
-                                    drawImage(
-                                        bitmap,
-                                        dstOffset = IntOffset(pad, pad),
-                                        dstSize = IntSize(width, height),
-                                        filterQuality = FilterQuality.Low
-                                    )
+                                    val (from, to) = blend
+                                    fun drawThumbnail(image: ImageBitmap, alpha: Float = 1f) {
+                                        drawImage(
+                                            image,
+                                            dstOffset = imageOffset,
+                                            dstSize = imageSize,
+                                            alpha = alpha,
+                                            filterQuality = FilterQuality.Low
+                                        )
+                                    }
+                                    when {
+                                        from == null -> to?.let { drawThumbnail(it) }
+                                        to == null -> drawThumbnail(from)
+                                        from === to -> drawThumbnail(to)
+                                        else -> {
+                                            val fade = progress.value
+                                            if (fade < 1f) drawThumbnail(from)
+                                            drawThumbnail(to, fade)
+                                        }
+                                    }
+                                    // Soften artwork extremes behind the header and track text.
+                                    if (full) {
+                                        drawRect(
+                                            (if (dark) Color.Black else Color.White).copy(alpha = if (dark) 0.24f else 0.36f),
+                                            blendMode = BlendMode.SrcAtop
+                                        )
+                                    }
                                     drawRect(mask, blendMode = BlendMode.DstIn)
                                 }
                             }
@@ -172,7 +233,12 @@ internal fun PlayerArtworkHalo(
     }
 }
 
-private fun Modifier.artworkEffectBounds(bounds: () -> Rect?, scale: Float, padding: Dp = 0.dp) =
+private fun Modifier.artworkEffectBounds(
+    bounds: () -> Rect?,
+    scale: Float,
+    padding: Dp = 0.dp,
+    upwardBias: Float = 0f
+) =
     layout { measurable, constraints ->
         val rect = bounds()
         val pad = padding.roundToPx()
@@ -181,17 +247,17 @@ private fun Modifier.artworkEffectBounds(bounds: () -> Rect?, scale: Float, padd
         val child = measurable.measure(Constraints.fixed(width, height))
         layout(constraints.maxWidth, constraints.maxHeight) {
             if (rect != null && width > 0 && height > 0) {
-                child.place((rect.center.x - width / 2f).roundToInt(), (rect.center.y - height / 2f).roundToInt())
+                child.place((rect.center.x - width / 2f).roundToInt(), (rect.center.y - height / 2f - rect.height * upwardBias).roundToInt())
             }
         }
     }
 
 @Composable
-private fun rememberHaloThumbnail(occurrence: String, uri: String): androidx.compose.runtime.State<ImageBitmap?> {
+private fun rememberHaloThumbnail(occurrence: String, uri: String): androidx.compose.runtime.State<HaloThumbnail> {
     val context = LocalContext.current
     // Key the state as well as the job so a new track cannot display the previous bitmap.
     return key(occurrence, uri) {
-        produceState<ImageBitmap?>(initialValue = null, context) {
+        produceState<HaloThumbnail>(initialValue = HaloThumbnail.Loading, context) {
             val size = coil.size.Size(ThumbnailSide, ThumbnailSide)
             val request = ImageRequest.Builder(context)
                 .data(uri)
@@ -201,14 +267,63 @@ private fun rememberHaloThumbnail(occurrence: String, uri: String): androidx.com
                 .memoryCacheKey(albumArtMemoryCacheKey(uri, size))
                 .diskCachePolicy(if (LocalArtworkUri.isLocalArtworkUri(uri)) CachePolicy.DISABLED else CachePolicy.ENABLED)
                 .build()
-            val result = context.imageLoader.execute(request) as? SuccessResult ?: return@produceState
-            value = withContext(Dispatchers.Default) {
-                runCatching {
-                    result.drawable.toBitmap(ThumbnailSide, ThumbnailSide, Bitmap.Config.ARGB_8888).asImageBitmap()
-                }.getOrNull()
+            val result = context.imageLoader.execute(request) as? SuccessResult
+            val bitmap = result?.let { success ->
+                withContext(Dispatchers.Default) {
+                    runCatching {
+                        val thumbnail = success.drawable.toBitmap(ThumbnailSide, ThumbnailSide, Bitmap.Config.ARGB_8888)
+                        smoothHaloThumbnail(thumbnail).asImageBitmap()
+                    }.getOrNull()
+                }
+            }
+            value = HaloThumbnail.Ready(bitmap)
+        }
+    }
+}
+
+// Filter the colors at thumbnail size before stretching them across the screen.
+private fun smoothHaloThumbnail(thumbnail: Bitmap): Bitmap {
+    val width = thumbnail.width
+    val height = thumbnail.height
+    val pixels = IntArray(width * height)
+    val horizontal = IntArray(pixels.size)
+    val filtered = IntArray(pixels.size)
+    val kernel = intArrayOf(1, 4, 6, 4, 1)
+    thumbnail.getPixels(pixels, 0, width, 0, 0, width, height)
+
+    fun blur(source: IntArray, destination: IntArray, alongRows: Boolean) {
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                var alpha = 0
+                var red = 0
+                var green = 0
+                var blue = 0
+                for (index in kernel.indices) {
+                    val offset = index - kernel.size / 2
+                    val sampleX = if (alongRows) (x + offset).coerceIn(0, width - 1) else x
+                    val sampleY = if (alongRows) y else (y + offset).coerceIn(0, height - 1)
+                    val pixel = source[sampleY * width + sampleX]
+                    val weight = (pixel ushr 24) * kernel[index]
+                    alpha += weight
+                    red += ((pixel ushr 16) and 255) * weight
+                    green += ((pixel ushr 8) and 255) * weight
+                    blue += (pixel and 255) * weight
+                }
+                if (alpha > 0) {
+                    destination[y * width + x] = android.graphics.Color.argb(
+                        (alpha + 8) / 16,
+                        (red + alpha / 2) / alpha,
+                        (green + alpha / 2) / alpha,
+                        (blue + alpha / 2) / alpha
+                    )
+                }
             }
         }
     }
+
+    blur(pixels, horizontal, alongRows = true)
+    blur(horizontal, filtered, alongRows = false)
+    return Bitmap.createBitmap(filtered, width, height, Bitmap.Config.ARGB_8888)
 }
 
 internal fun Modifier.artworkLightEdge(mask: () -> Rect): Modifier = drawWithCache {

@@ -176,7 +176,7 @@
     <string name="settings_theme_dark">Tema Gelap</string>
     <string name="settings_theme_follow_system">Ikuti Sistem</string>
     <string name="settings_visual_effects_title">Efek Visual</string>
-    <string name="settings_visual_effects_subtitle">Kontrol kedalaman, gradien, dan efek blur. Penghemat Baterai menurunkan satu tingkat secara otomatis.</string>
+    <string name="settings_visual_effects_subtitle">Kontrol kedalaman, gradien, dan efek blur pada halo sampul. Penghemat Baterai menurunkan satu tingkat secara otomatis.</string>
     <string name="settings_visual_effects_full">Penuh</string>
     <string name="settings_visual_effects_balanced">Seimbang</string>
     <string name="settings_visual_effects_minimal">Minimal</string>
@@ -234,14 +234,6 @@
     <string name="settings_palette_style_expressive_desc">Pergeseran rona dan kontras yang berani.</string>
     <string name="settings_palette_style_fruit_salad">Fruit Salad</string>
     <string name="settings_palette_style_fruit_salad_desc">Aksen rotasi yang menyenangkan.</string>
-    <string name="settings_palette_style_color_accuracy_title">Akurasi warna</string>
-    <string name="settings_palette_style_color_accuracy_subtitle">0 mempertahankan penyetelan saat ini. Nilai yang lebih tinggi tetap lebih dekat dengan rona dominan seni album.</string>
-    <string name="settings_palette_style_accuracy_current">Saat ini</string>
-    <string name="settings_palette_style_accuracy_more_accurate">Lebih akurat</string>
-    <string name="settings_palette_style_accuracy_summary_current">0 • Saat ini</string>
-    <string name="settings_palette_style_accuracy_summary_subtle">%1$d • Halus</string>
-    <string name="settings_palette_style_accuracy_summary_balanced">%1$d • Seimbang</string>
-    <string name="settings_palette_style_accuracy_summary_precise">%1$d • Presisi</string>
 
     <!-- NavBarCornerRadiusScreen -->
 
@@ -282,9 +274,6 @@
     <string name="settings_folders_section">Folder</string>
     <string name="settings_folder_back_gesture_title">Gerakan kembali mengontrol folder</string>
     <string name="settings_folder_back_gesture_subtitle">Di tab Folder, tombol kembali sistem menavigasi tumpukan folder sebelum meninggalkan Pustaka.</string>
-    <string name="settings_player_gestures_section">Gerakan Pemutar</string>
-    <string name="settings_tap_bg_closes_title">Ketuk latar belakang menutup pemutar</string>
-    <string name="settings_tap_bg_closes_subtitle">Ketuk latar belakang yang kabur untuk menutup panel pemutar.</string>
     <string name="settings_haptics_section">Haptic</string>
     <string name="settings_haptic_feedback_title">Haptic feedback</string>
     <string name="settings_haptic_feedback_subtitle">Aktifkan haptic feedback di seluruh aplikasi.</string>
@@ -460,9 +449,6 @@
     <string name="settings_exp_animated_lyrics_subtitle">Menggunakan animasi pegas dan efek visual untuk lirik. Dapat menyebabkan penurunan frame pada perangkat spesifikasi rendah.</string>
     <string name="settings_exp_lyrics_blur_title">Efek Buram Lirik</string>
     <string name="settings_exp_lyrics_blur_subtitle">Menerapkan efek buram depth-of-field pada lirik yang tidak aktif.</string>
-    <string name="settings_exp_lyrics_blur_strength_title">Kekuatan Buram</string>
-    <string name="settings_exp_lyrics_blur_strength_subtitle">Sesuaikan intensitas efek buram.</string>
-    <string name="settings_exp_lyrics_blur_strength_value">%1$.1fx</string>
     <string name="settings_exp_step1_delay_header">Langkah 1 · Pilih apa yang akan ditunda</string>
     <string name="settings_exp_delay_everything_title">Tunda semuanya</string>
     <string name="settings_exp_delay_everything_subtitle">Tahan seluruh konten pemutar sampai latar belakang panel mengembang sepenuhnya.</string>

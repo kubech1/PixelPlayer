@@ -180,7 +180,7 @@
     <string name="settings_theme_dark">어두운 테마</string>
     <string name="settings_theme_follow_system">시스템 설정 따르기</string>
     <string name="settings_visual_effects_title">시각 효과</string>
-    <string name="settings_visual_effects_subtitle">앱 전반의 깊이감, 그라데이션 및 블러 효과를 조절합니다. 절전 모드 시 자동으로 한 단계 낮아집니다.</string>
+    <string name="settings_visual_effects_subtitle">깊이감, 그라데이션 및 앨범 표지 후광의 블러 효과를 조절합니다. 절전 모드 시 자동으로 한 단계 낮아집니다.</string>
     <string name="settings_visual_effects_full">최대</string>
     <string name="settings_visual_effects_balanced">균형</string>
     <string name="settings_visual_effects_minimal">최소</string>
@@ -238,14 +238,6 @@
     <string name="settings_palette_style_expressive_desc">대담한 색조 변화와 대비.</string>
     <string name="settings_palette_style_fruit_salad">Fruit Salad</string>
     <string name="settings_palette_style_fruit_salad_desc">장난스러운 회전 강조색.</string>
-    <string name="settings_palette_style_color_accuracy_title">색상 정확도</string>
-    <string name="settings_palette_style_color_accuracy_subtitle">0은 현재 조정을 유지합니다. 값이 높을수록 앨범 아트의 지배적인 색상에 더 가깝게 유지됩니다.</string>
-    <string name="settings_palette_style_accuracy_current">현재</string>
-    <string name="settings_palette_style_accuracy_more_accurate">정확함</string>
-    <string name="settings_palette_style_accuracy_summary_current">0 • 현재</string>
-    <string name="settings_palette_style_accuracy_summary_subtle">%1$d • 미묘함</string>
-    <string name="settings_palette_style_accuracy_summary_balanced">%1$d • 균형</string>
-    <string name="settings_palette_style_accuracy_summary_precise">%1$d • 정밀함</string>
 
     <!-- NavBarCornerRadiusScreen -->
 
@@ -286,9 +278,6 @@
     <string name="settings_folders_section">폴더</string>
     <string name="settings_folder_back_gesture_title">뒤로 가기 제스처로 폴더 제어</string>
     <string name="settings_folder_back_gesture_subtitle">폴더 탭에서 시스템 뒤로 가기가 라이브러리를 나가기 전에 폴더 스택을 탐색합니다.</string>
-    <string name="settings_player_gestures_section">플레이어 제스처</string>
-    <string name="settings_tap_bg_closes_title">배경 탭 시 플레이어 닫기</string>
-    <string name="settings_tap_bg_closes_subtitle">흐릿한 배경을 탭하여 플레이어 시트를 닫습니다.</string>
     <string name="settings_haptics_section">햅틱</string>
     <string name="settings_haptic_feedback_title">햅틱 피드백</string>
     <string name="settings_haptic_feedback_subtitle">앱 전반에서 진동 피드백을 활성화합니다.</string>
@@ -464,9 +453,6 @@
     <string name="settings_exp_animated_lyrics_subtitle">가사에 스프링 애니메이션과 시각 효과를 사용합니다. 저사양 기기에서는 프레임 드랍이 발생할 수 있습니다.</string>
     <string name="settings_exp_lyrics_blur_title">가사 블러 효과</string>
     <string name="settings_exp_lyrics_blur_subtitle">비활성 가사에 피사체 심도 블러를 적용합니다.</string>
-    <string name="settings_exp_lyrics_blur_strength_title">블러 강도</string>
-    <string name="settings_exp_lyrics_blur_strength_subtitle">블러 효과의 강도를 조정합니다.</string>
-    <string name="settings_exp_lyrics_blur_strength_value">%1$.1fx</string>
     <string name="settings_exp_step1_delay_header">1단계 · 지연할 항목 선택</string>
     <string name="settings_exp_delay_everything_title">모두 지연</string>
     <string name="settings_exp_delay_everything_subtitle">시트 배경이 완전히 확장될 때까지 전체 플레이어 콘텐츠를 보류합니다.</string>

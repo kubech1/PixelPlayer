@@ -4,7 +4,7 @@
 
 Regenerar desde la raíz: `python scripts/context_docs.py generate`.
 
-Archivos: **414**. Huella de rutas y contenido: `ec5a35f23d3b0397cdd53d99bb945a621f82032ed87013e9d90017dc050f0695`.
+Archivos: **414**. Huella de rutas y contenido: `540fe1d60f19c6a9d469900966520de1c0b9f0ed309874c6c0556621f6bac65c`.
 
 Este índice permite localizar archivos; no certifica su comportamiento ni sustituye los documentos temáticos. Los símbolos son una extracción léxica parcial, no un análisis del compilador. Se excluyen cachés, salidas de build, entornos virtuales y archivos locales de credenciales.
 
@@ -372,7 +372,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [font_certs.xml](../../app/src/main/res/values/font_certs.xml) | 17 |
 | [ids.xml](../../app/src/main/res/values/ids.xml) | 3 |
 | [preloaded_fonts.xml](../../app/src/main/res/values/preloaded_fonts.xml) | 6 |
-| [strings.xml](../../app/src/main/res/values/strings.xml) | 128 |
+| [strings.xml](../../app/src/main/res/values/strings.xml) | 130 |
 | [strings_changelogs.xml](../../app/src/main/res/values/strings_changelogs.xml) | 145 |
 | [strings_cloud_services.xml](../../app/src/main/res/values/strings_cloud_services.xml) | 228 |
 | [strings_equalizer.xml](../../app/src/main/res/values/strings_equalizer.xml) | 57 |
@@ -381,7 +381,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values/strings_settings.xml) | 651 |
+| [strings_settings.xml](../../app/src/main/res/values/strings_settings.xml) | 637 |
 | [strings_widget.xml](../../app/src/main/res/values/strings_widget.xml) | 17 |
 | [themes.xml](../../app/src/main/res/values/themes.xml) | 26 |
 
@@ -390,7 +390,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | Archivo | Líneas |
 | --- | ---: |
 | [plurals.xml](../../app/src/main/res/values-ar/plurals.xml) | 75 |
-| [strings.xml](../../app/src/main/res/values-ar/strings.xml) | 247 |
+| [strings.xml](../../app/src/main/res/values-ar/strings.xml) | 250 |
 | [strings_auth.xml](../../app/src/main/res/values-ar/strings_auth.xml) | 74 |
 | [strings_components.xml](../../app/src/main/res/values-ar/strings_components.xml) | 190 |
 | [strings_modernization.xml](../../app/src/main/res/values-ar/strings_modernization.xml) | 28 |
@@ -408,7 +408,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 
 | Archivo | Líneas |
 | --- | ---: |
-| [strings.xml](../../app/src/main/res/values-de/strings.xml) | 128 |
+| [strings.xml](../../app/src/main/res/values-de/strings.xml) | 130 |
 | [strings_changelogs.xml](../../app/src/main/res/values-de/strings_changelogs.xml) | 128 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-de/strings_cloud_services.xml) | 228 |
 | [strings_equalizer.xml](../../app/src/main/res/values-de/strings_equalizer.xml) | 57 |
@@ -417,14 +417,14 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-de/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-de/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-de/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-de/strings_settings.xml) | 642 |
+| [strings_settings.xml](../../app/src/main/res/values-de/strings_settings.xml) | 628 |
 | [strings_widget.xml](../../app/src/main/res/values-de/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-es
 
 | Archivo | Líneas |
 | --- | ---: |
-| [strings.xml](../../app/src/main/res/values-es/strings.xml) | 128 |
+| [strings.xml](../../app/src/main/res/values-es/strings.xml) | 130 |
 | [strings_changelogs.xml](../../app/src/main/res/values-es/strings_changelogs.xml) | 128 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-es/strings_cloud_services.xml) | 228 |
 | [strings_equalizer.xml](../../app/src/main/res/values-es/strings_equalizer.xml) | 57 |
@@ -433,14 +433,14 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-es/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-es/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-es/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-es/strings_settings.xml) | 642 |
+| [strings_settings.xml](../../app/src/main/res/values-es/strings_settings.xml) | 628 |
 | [strings_widget.xml](../../app/src/main/res/values-es/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-fr
 
 | Archivo | Líneas |
 | --- | ---: |
-| [strings.xml](../../app/src/main/res/values-fr/strings.xml) | 128 |
+| [strings.xml](../../app/src/main/res/values-fr/strings.xml) | 130 |
 | [strings_changelogs.xml](../../app/src/main/res/values-fr/strings_changelogs.xml) | 165 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-fr/strings_cloud_services.xml) | 228 |
 | [strings_equalizer.xml](../../app/src/main/res/values-fr/strings_equalizer.xml) | 57 |
@@ -449,14 +449,14 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-fr/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-fr/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-fr/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-fr/strings_settings.xml) | 638 |
+| [strings_settings.xml](../../app/src/main/res/values-fr/strings_settings.xml) | 624 |
 | [strings_widget.xml](../../app/src/main/res/values-fr/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-in
 
 | Archivo | Líneas |
 | --- | ---: |
-| [strings.xml](../../app/src/main/res/values-in/strings.xml) | 128 |
+| [strings.xml](../../app/src/main/res/values-in/strings.xml) | 130 |
 | [strings_changelogs.xml](../../app/src/main/res/values-in/strings_changelogs.xml) | 128 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-in/strings_cloud_services.xml) | 228 |
 | [strings_equalizer.xml](../../app/src/main/res/values-in/strings_equalizer.xml) | 57 |
@@ -465,14 +465,14 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-in/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-in/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-in/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-in/strings_settings.xml) | 638 |
+| [strings_settings.xml](../../app/src/main/res/values-in/strings_settings.xml) | 624 |
 | [strings_widget.xml](../../app/src/main/res/values-in/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-it
 
 | Archivo | Líneas |
 | --- | ---: |
-| [strings.xml](../../app/src/main/res/values-it/strings.xml) | 128 |
+| [strings.xml](../../app/src/main/res/values-it/strings.xml) | 130 |
 | [strings_changelogs.xml](../../app/src/main/res/values-it/strings_changelogs.xml) | 165 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-it/strings_cloud_services.xml) | 228 |
 | [strings_equalizer.xml](../../app/src/main/res/values-it/strings_equalizer.xml) | 57 |
@@ -481,14 +481,14 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-it/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-it/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-it/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-it/strings_settings.xml) | 642 |
+| [strings_settings.xml](../../app/src/main/res/values-it/strings_settings.xml) | 628 |
 | [strings_widget.xml](../../app/src/main/res/values-it/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-ko
 
 | Archivo | Líneas |
 | --- | ---: |
-| [strings.xml](../../app/src/main/res/values-ko/strings.xml) | 128 |
+| [strings.xml](../../app/src/main/res/values-ko/strings.xml) | 130 |
 | [strings_changelogs.xml](../../app/src/main/res/values-ko/strings_changelogs.xml) | 128 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-ko/strings_cloud_services.xml) | 226 |
 | [strings_equalizer.xml](../../app/src/main/res/values-ko/strings_equalizer.xml) | 57 |
@@ -497,14 +497,14 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-ko/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-ko/strings_player.xml) | 195 |
 | [strings_screens.xml](../../app/src/main/res/values-ko/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-ko/strings_settings.xml) | 642 |
+| [strings_settings.xml](../../app/src/main/res/values-ko/strings_settings.xml) | 628 |
 | [strings_widget.xml](../../app/src/main/res/values-ko/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-nb
 
 | Archivo | Líneas |
 | --- | ---: |
-| [strings.xml](../../app/src/main/res/values-nb/strings.xml) | 128 |
+| [strings.xml](../../app/src/main/res/values-nb/strings.xml) | 130 |
 | [strings_changelogs.xml](../../app/src/main/res/values-nb/strings_changelogs.xml) | 128 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-nb/strings_cloud_services.xml) | 228 |
 | [strings_equalizer.xml](../../app/src/main/res/values-nb/strings_equalizer.xml) | 57 |
@@ -513,7 +513,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-nb/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-nb/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-nb/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-nb/strings_settings.xml) | 642 |
+| [strings_settings.xml](../../app/src/main/res/values-nb/strings_settings.xml) | 628 |
 | [strings_widget.xml](../../app/src/main/res/values-nb/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-night
@@ -526,7 +526,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 
 | Archivo | Líneas |
 | --- | ---: |
-| [strings.xml](../../app/src/main/res/values-ru/strings.xml) | 128 |
+| [strings.xml](../../app/src/main/res/values-ru/strings.xml) | 130 |
 | [strings_changelogs.xml](../../app/src/main/res/values-ru/strings_changelogs.xml) | 128 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-ru/strings_cloud_services.xml) | 233 |
 | [strings_equalizer.xml](../../app/src/main/res/values-ru/strings_equalizer.xml) | 57 |
@@ -535,14 +535,14 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-ru/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-ru/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-ru/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-ru/strings_settings.xml) | 642 |
+| [strings_settings.xml](../../app/src/main/res/values-ru/strings_settings.xml) | 628 |
 | [strings_widget.xml](../../app/src/main/res/values-ru/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-tr
 
 | Archivo | Líneas |
 | --- | ---: |
-| [strings.xml](../../app/src/main/res/values-tr/strings.xml) | 129 |
+| [strings.xml](../../app/src/main/res/values-tr/strings.xml) | 131 |
 | [strings_changelogs.xml](../../app/src/main/res/values-tr/strings_changelogs.xml) | 128 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-tr/strings_cloud_services.xml) | 228 |
 | [strings_equalizer.xml](../../app/src/main/res/values-tr/strings_equalizer.xml) | 57 |
@@ -551,14 +551,14 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-tr/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-tr/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-tr/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-tr/strings_settings.xml) | 642 |
+| [strings_settings.xml](../../app/src/main/res/values-tr/strings_settings.xml) | 628 |
 | [strings_widget.xml](../../app/src/main/res/values-tr/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-zh-rCN
 
 | Archivo | Líneas |
 | --- | ---: |
-| [strings.xml](../../app/src/main/res/values-zh-rCN/strings.xml) | 128 |
+| [strings.xml](../../app/src/main/res/values-zh-rCN/strings.xml) | 130 |
 | [strings_changelogs.xml](../../app/src/main/res/values-zh-rCN/strings_changelogs.xml) | 128 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-zh-rCN/strings_cloud_services.xml) | 228 |
 | [strings_equalizer.xml](../../app/src/main/res/values-zh-rCN/strings_equalizer.xml) | 57 |
@@ -567,7 +567,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_modernization.xml](../../app/src/main/res/values-zh-rCN/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-zh-rCN/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-zh-rCN/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-zh-rCN/strings_settings.xml) | 642 |
+| [strings_settings.xml](../../app/src/main/res/values-zh-rCN/strings_settings.xml) | 628 |
 | [strings_widget.xml](../../app/src/main/res/values-zh-rCN/strings_widget.xml) | 17 |
 
 ## app/src/main/res/xml

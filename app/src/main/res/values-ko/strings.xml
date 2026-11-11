@@ -125,4 +125,6 @@
     <string name="common_play_album">앨범 재생</string>
     <string name="common_shuffle_play_album">앨범 셔플 재생</string>
     <string name="common_album_art_for_title">%1$s의 앨범 아트</string>
+    <string name="favorite_state_added">즐겨찾기에 추가됨</string>
+    <string name="favorite_state_removed">즐겨찾기에 없음</string>
 </resources>

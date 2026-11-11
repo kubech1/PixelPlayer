@@ -180,7 +180,7 @@
     <string name="settings_theme_dark">Dunkel</string>
     <string name="settings_theme_follow_system">System folgen</string>
     <string name="settings_visual_effects_title">Visuelle Effekte</string>
-    <string name="settings_visual_effects_subtitle">Tiefe, Farbverläufe und Weichzeichnung steuern. Der Energiesparmodus senkt die Stufe automatisch.</string>
+    <string name="settings_visual_effects_subtitle">Tiefe, Farbverläufe und die Weichzeichnung des Cover-Halos steuern. Der Energiesparmodus senkt die Stufe automatisch.</string>
     <string name="settings_visual_effects_full">Vollständig</string>
     <string name="settings_visual_effects_balanced">Ausgewogen</string>
     <string name="settings_visual_effects_minimal">Minimal</string>
@@ -238,14 +238,6 @@
     <string name="settings_palette_style_expressive_desc">Starke Farbwechsel und Kontraste.</string>
     <string name="settings_palette_style_fruit_salad">Fruit Salad</string>
     <string name="settings_palette_style_fruit_salad_desc">Verspielte, gedrehte Akzente.</string>
-    <string name="settings_palette_style_color_accuracy_title">Farbtreue</string>
-    <string name="settings_palette_style_color_accuracy_subtitle">0 = aktuelle Einstellung. Höhere Werte = näher am dominanten Cover-Farbton.</string>
-    <string name="settings_palette_style_accuracy_current">Aktuell</string>
-    <string name="settings_palette_style_accuracy_more_accurate">Genauer</string>
-    <string name="settings_palette_style_accuracy_summary_current">0 • Aktuell</string>
-    <string name="settings_palette_style_accuracy_summary_subtle">%1$d • Subtil</string>
-    <string name="settings_palette_style_accuracy_summary_balanced">%1$d • Ausgewogen</string>
-    <string name="settings_palette_style_accuracy_summary_precise">%1$d • Präzise</string>
 
     <!-- NavBarCornerRadiusScreen -->
 
@@ -286,9 +278,6 @@
     <string name="settings_folders_section">Ordner</string>
     <string name="settings_folder_back_gesture_title">Zurück navigiert durch Ordner</string>
     <string name="settings_folder_back_gesture_subtitle">Im Ordner-Tab geht die Zurück-Geste zuerst eine Ebene hoch, bevor die Bibliothek verlassen wird.</string>
-    <string name="settings_player_gestures_section">Player-Gesten</string>
-    <string name="settings_tap_bg_closes_title">Hintergrund antippen schließt Player</string>
-    <string name="settings_tap_bg_closes_subtitle">Auf den unscharfen Hintergrund tippen, um den Player zu schließen.</string>
     <string name="settings_haptics_section">Haptik</string>
     <string name="settings_haptic_feedback_title">Haptisches Feedback</string>
     <string name="settings_haptic_feedback_subtitle">Vibrieren bei Interaktionen in der gesamten App.</string>
@@ -464,9 +453,6 @@
     <string name="settings_exp_animated_lyrics_subtitle">Spring-Animationen und visuelle Effekte für Lyrics. Kann auf schwächeren Geräten Frames kosten.</string>
     <string name="settings_exp_lyrics_blur_title">Lyrics-Blur-Effekt</string>
     <string name="settings_exp_lyrics_blur_subtitle">Inaktive Lyrics mit Tiefenschärfe-Blur versehen.</string>
-    <string name="settings_exp_lyrics_blur_strength_title">Blur-Stärke</string>
-    <string name="settings_exp_lyrics_blur_strength_subtitle">Intensität des Blur-Effekts anpassen.</string>
-    <string name="settings_exp_lyrics_blur_strength_value">%1$.1fx</string>
     <string name="settings_exp_step1_delay_header">Schritt 1 · Was verzögert werden soll</string>
     <string name="settings_exp_delay_everything_title">Alles verzögern</string>
     <string name="settings_exp_delay_everything_subtitle">Gesamten Player-Inhalt zurückhalten, bis der Sheet-Hintergrund vollständig aufgeklappt ist.</string>

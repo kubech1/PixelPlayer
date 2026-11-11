@@ -14,6 +14,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.snap
+import androidx.compose.ui.zIndex
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
@@ -40,15 +41,11 @@ import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
 import androidx.compose.material.icons.automirrored.rounded.QueueMusic
 import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.QueueMusic
 import androidx.compose.material.icons.rounded.Album
 import androidx.compose.material.icons.rounded.AudioFile
 import androidx.compose.material.icons.rounded.Cloud
-import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -499,6 +496,7 @@ fun SongInfoBottomSheet(
                                         verticalArrangement = Arrangement.spacedBy(10.dp)
                                     ) {
                                         Row1Actions(
+                                            songId = song.id,
                                             isFavorite = isFavorite,
                                             onPlaySong = onPlaySong,
                                             onToggleFavorite = onToggleFavorite,
@@ -1130,6 +1128,7 @@ private fun SongInfoSegmentedListItem(
 
 @Composable
 private fun Row1Actions(
+    songId: String,
     isFavorite: Boolean,
     onPlaySong: () -> Unit,
     onToggleFavorite: () -> Unit,
@@ -1149,18 +1148,6 @@ private fun Row1Actions(
         } else {
             kotlinx.coroutines.delay(180)
             playVisualPressed = false
-        }
-    }
-
-    val favoriteInteractionSource = remember { MutableInteractionSource() }
-    val isFavoritePressed by favoriteInteractionSource.collectIsPressedAsState()
-    var favoriteVisualPressed by remember { mutableStateOf(false) }
-    LaunchedEffect(isFavoritePressed) {
-        if (isFavoritePressed) {
-            favoriteVisualPressed = true
-        } else {
-            kotlinx.coroutines.delay(180)
-            favoriteVisualPressed = false
         }
     }
 
@@ -1186,33 +1173,31 @@ private fun Row1Actions(
         animationSpec = pressSpec,
         label = "PlayPressFraction"
     )
-    val pressFractionFavorite by animateFloatAsState(
-        targetValue = if (favoriteVisualPressed) 1f else 0f,
-        animationSpec = pressSpec,
-        label = "FavoritePressFraction"
-    )
     val pressFractionShare by animateFloatAsState(
         targetValue = if (shareVisualPressed) 1f else 0f,
         animationSpec = pressSpec,
         label = "SharePressFraction"
     )
 
-    val weightPlay = (0.5f + 0.08f * pressFractionPlay - 0.05f * pressFractionFavorite - 0.05f * pressFractionShare).coerceAtLeast(0.1f)
-    val weightFavorite = (0.25f + 0.08f * pressFractionFavorite - 0.04f * pressFractionPlay - 0.03f * pressFractionShare).coerceAtLeast(0.05f)
-    val weightShare = (0.25f + 0.08f * pressFractionShare - 0.04f * pressFractionPlay - 0.03f * pressFractionFavorite).coerceAtLeast(0.05f)
+    val weightPlay = (0.5f + 0.08f * pressFractionPlay - 0.05f * pressFractionShare).coerceAtLeast(0.1f)
+    val weightFavorite = (0.25f - 0.04f * pressFractionPlay - 0.03f * pressFractionShare).coerceAtLeast(0.05f)
+    val weightShare = (0.25f + 0.08f * pressFractionShare - 0.04f * pressFractionPlay).coerceAtLeast(0.05f)
 
-    // Local favorite button animations
+    val favoriteMotion = com.theveloper.pixelplay.ui.theme.LocalMotionPreferences.current.animationsEnabled
     val favoriteButtonCornerRadius by animateDpAsState(
         targetValue = if (isFavorite) evenCornerRadiusElems else 60.dp,
-        animationSpec = tween(durationMillis = 300), label = "FavoriteCornerAnimation"
+        animationSpec = if (favoriteMotion) tween(300) else snap(),
+        label = "FavoriteCornerAnimation"
     )
     val favoriteButtonContainerColor by animateColorAsState(
         targetValue = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-        animationSpec = tween(durationMillis = 300), label = "FavoriteContainerColorAnimation"
+        animationSpec = if (favoriteMotion) tween(300) else snap(),
+        label = "FavoriteContainerColorAnimation"
     )
     val favoriteButtonContentColor by animateColorAsState(
         targetValue = if (isFavorite) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-        animationSpec = tween(durationMillis = 300), label = "FavoriteContentColorAnimation"
+        animationSpec = if (favoriteMotion) tween(300) else snap(),
+        label = "FavoriteContentColorAnimation"
     )
 
     val favoriteButtonShape = remember(favoriteButtonCornerRadius) {
@@ -1269,37 +1254,17 @@ private fun Row1Actions(
             )
         }
 
-        FilledIconButton(
-            modifier = Modifier
-                .weight(weightFavorite)
-                .fillMaxHeight(),
-            onClick = {
-                if (clickPending) return@FilledIconButton
-                clickPending = true
-                favoriteVisualPressed = true
-                android.util.Log.d("PixelPlayerDebug", "Row1Actions: Favorite clicked")
-                coroutineScope.launch {
-                    kotlinx.coroutines.delay(180)
-                    favoriteVisualPressed = false
-                    clickPending = false
-                    onToggleFavorite()
-                }
-            },
+        FavoriteButton(
+            songId = songId,
+            isFavorite = isFavorite,
+            onToggle = onToggleFavorite,
+            modifier = Modifier.weight(weightFavorite).fillMaxHeight().zIndex(1f),
             shape = favoriteButtonShape,
-            interactionSource = favoriteInteractionSource,
-            colors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = favoriteButtonContainerColor,
-                contentColor = favoriteButtonContentColor
-            )
-        ) {
-            Icon(
-                modifier = Modifier.size(FloatingActionButtonDefaults.LargeIconSize),
-                imageVector = if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                contentDescription = stringResource(
-                    if (isFavorite) R.string.song_info_cd_remove_from_favorites else R.string.song_info_cd_add_to_favorites
-                )
-            )
-        }
+            iconSize = FloatingActionButtonDefaults.LargeIconSize,
+            containerColor = favoriteButtonContainerColor,
+            contentColor = favoriteButtonContentColor,
+            style = FavoriteButtonStyle.Full
+        )
 
         FilledTonalIconButton(
             modifier = Modifier

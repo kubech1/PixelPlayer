@@ -33,6 +33,7 @@ class ThemePreferencesRepository @Inject constructor(
         AlbumArtPaletteStyle.fromStorageKey(preferences[Keys.ALBUM_ART_PALETTE_STYLE])
     }
 
+    // Keep previously saved accuracy consistent across previews, playback and Wear transfers.
     val albumArtColorAccuracyFlow: Flow<Int> = dataStore.data.map { preferences ->
         AlbumArtColorAccuracy.clamp(preferences[Keys.ALBUM_ART_COLOR_ACCURACY] ?: AlbumArtColorAccuracy.DEFAULT)
     }
@@ -58,17 +59,4 @@ class ThemePreferencesRepository @Inject constructor(
         dataStore.edit { preferences ->
             preferences[Keys.ALBUM_ART_PALETTE_STYLE] = style.storageKey
         }
-
-    suspend fun setAlbumArtColorAccuracy(level: Int) =
-        dataStore.edit { preferences ->
-            preferences[Keys.ALBUM_ART_COLOR_ACCURACY] = AlbumArtColorAccuracy.clamp(level)
-        }
-
-    suspend fun setAlbumArtPaletteSettings(
-        style: AlbumArtPaletteStyle,
-        accuracyLevel: Int
-    ) = dataStore.edit { preferences ->
-        preferences[Keys.ALBUM_ART_PALETTE_STYLE] = style.storageKey
-        preferences[Keys.ALBUM_ART_COLOR_ACCURACY] = AlbumArtColorAccuracy.clamp(accuracyLevel)
-    }
 }
