@@ -1,15 +1,30 @@
-# Lenguaje visual contemporáneo: especificación de implementación
+# Lenguaje visual de PixelPlayer
 
-Estado: **Fases 2 a 4 implementadas y comprobadas en emulador. QA físico pendiente** (10 de noviembre de 2026). Decisión y alternativas: [ADR 0004](decisions/0004-contemporary-design-language.md). Contexto general de UI: [Interfaz y estado](ui-and-state.md).
+Esta guía describe los patrones visuales vigentes. Las fases conservan las especificaciones y la evidencia de su implementación. Consulta el [ADR 0004](decisions/0004-contemporary-design-language.md) para el contexto de la decisión y [Interfaz y estado](ui-and-state.md) para los recorridos de la app.
 
-Las referencias a código son **observadas en lectura estática** en esa fecha; revalídalas antes de editar. Las medidas y tiempos son **valores de partida**: pueden ajustarse tras la verificación visual en dispositivo, y el ajuste se registra en este documento.
+## Píldoras flotantes y continuidad
+
+Las píldoras son el lenguaje principal de los controles que flotan sobre el contenido. Úsalas para navegación, acciones de barra y accesos cortos. Las portadas mantienen el formato que necesita su composición. En superficies de lectura, la jerarquía nace del contenido, los márgenes y la tipografía.
+
+- **Anclajes.** Cada grupo conserva una posición reconocible durante la transformación. En Inicio, el título permanece al inicio y nube y Ajustes permanecen al final. Al compactar, aparecen dos superficies separadas. Los dos iconos de la derecha comparten superficie y conservan objetivos táctiles independientes de 48 dp. Los anclajes respetan el sentido de lectura y los insets.
+- **Material.** Comparte `pillSurface` para los controles flotantes. El fondo general permanece neutro en claro y oscuro. El color más expresivo pertenece al arte y a los tintes localizados definidos para cada transición.
+- **Transformaciones.** Haz que tamaño, posición, forma y opacidad respondan al mismo gesto o cambio de estado. La fusión de la barra inferior y el mini reproductor es la referencia. Comparten `mergeFraction` y reserva inferior estable. El contenido conserva su posición mientras los controles se recolocan. Comprueba la inversión a mitad del gesto, el cambio de ruta, el teclado y la expansión del reproductor.
+- **Accesibilidad.** La semántica y los objetivos táctiles siguen a los controles durante la transformación. Revisa claro, oscuro, texto al 200 %, RTL y movimiento reducido. El estado final debe ser reconocible al aplicar el cambio con `snap`. Aplica el movimiento expresivo a la respuesta de una acción y deja estáticas las ilustraciones de Inicio y Buscar.
+
+## Arte en Inicio y Buscar
+
+En Inicio, Compose dibuja las composiciones con trazados y gradientes. El Mix del día combina surcos de cobre y magenta con hasta tres carátulas de álbumes distintos. Los rotativos tienen motivos propios, como una onda nacarada, un pliegue violeta o un abanico coral. La carátula de una canción de la selección ocupa el espacio que deja libre la ilustración. El recorte, la posición y la orientación son estables en el carrusel y el detalle. Si faltan carátulas, la ilustración llena la tarjeta. Las fotos de las portadas provienen de la biblioteca. El arte de los mixes se mantiene en código, sin imágenes generadas.
+
+En Buscar, las píldoras neutras contienen una escena vectorial en un círculo y el nombre del género en Google Sans Rounded. El arte evoca cómo se siente escucharlo. Rock muestra una guitarra roja y blanca, Dance usa pliegues satinados y Electrónica cruza haces de luz en la niebla. El nombre puede ocupar dos líneas y la cuadrícula cede a la lista si el ancho o la escala de texto requieren más espacio. El círculo conserva la imagen cuando el usuario ha personalizado un género. Para TalkBack, el nombre del género identifica la acción.
+
+Las ilustraciones quedan estáticas en reposo. Al abrir el detalle, un reflejo breve recorre las superficies pulidas cuando los efectos de profundidad y las animaciones están activos.
 
 ## Instrucciones para quien implemente
 
-- Sigue [AGENTS.md](../AGENTS.md): comunicación en español, cambios limitados a la fase en curso, sin mover disco, red ni metadatos al hilo principal y sin tocar `MusicService`/Media3.
-- **Una fase por entrega.** Cada fase debe compilar, pasar sus pruebas y dejar la app usable. No mezcles fases en un mismo cambio.
+- Sigue [AGENTS.md](../AGENTS.md) y limita los cambios al alcance acordado. Mantén las tareas de disco, red y metadatos fuera del hilo principal. `MusicService` y Media3 conservan la responsabilidad de reproducción.
+- Verifica cada flujo visible al que afecta el cambio y usa las fases de esta guía para localizar patrones y su evidencia.
 - **No añadas dependencias.** Nada de Haze, Lottie ni bibliotecas de animación o desenfoque. Todo con Compose, `graphics-shapes`, `RenderEffect` y `RuntimeShader` (`minSdk = 37`).
-- **Rendimiento:** los valores que cambian por fotograma (fracción de fusión, expansión, colapso) se leen como lambdas o `State` dentro de `layout {}`, `graphicsLayer {}` o `drawBehind {}`. Nunca se leen en composición. Sigue el patrón existente de `visualSheetTranslationYProvider` y `currentHorizontalPaddingStartPxProvider` en [UnifiedPlayerSheetV2](../app/src/main/java/com/theveloper/pixelplay/presentation/components/UnifiedPlayerSheetV2.kt).
+- **Rendimiento.** Lee los valores animados de posición, opacidad y forma en `layout {}`, `graphicsLayer {}` o en dibujo. Si una transición cambia la métrica del texto, limita la remedición a ese componente. Consulta `visualSheetTranslationYProvider` y `currentHorizontalPaddingStartPxProvider` en [UnifiedPlayerSheetV2](../app/src/main/java/com/theveloper/pixelplay/presentation/components/UnifiedPlayerSheetV2.kt).
 - **Estado efímero de UI** (fusión, celebración) en state holders de Compose, no en `PlayerViewModel`. **Preferencias** en `UserPreferencesRepository`.
 - Al terminar cada fase, actualiza [ui-and-state.md](ui-and-state.md), marca la fase en la tabla de estado del final de este documento, ejecuta `python scripts/context_docs.py generate` y luego `check`. En la entrega, distingue «compiló», «pruebas pasaron» y «verificado visualmente».
 
@@ -268,7 +283,7 @@ Evolucionar [CollapsibleCommonTopBar](../app/src/main/java/com/theveloper/pixelp
 - **Colapsada:** píldora flotante de al menos 48 dp de alto, con margen de 16 dp y 8 dp de separación después del inset superior seguro. La altura crece con el texto del sistema. El ancho se ajusta al contenido, con un máximo de 360 dp limitado por el espacio entre los márgenes. Contiene Atrás, el título (`titleMedium`, una línea con elipsis) y las acciones, y usa `pillSurface`.
 - **Transición:** la impulsa el `collapseFraction` existente. La píldora aparece entre 0,6 y 1,0, con el valor leído en layout o dibujo.
 - Álbum, Artista y Género comparten la barra. Álbum y Artista la usan también en sus variantes experimentales.
-- Las barras de Home, Search y Library y las pantallas de proveedores (`TopAppBar` de M3) quedan fuera, salvo decisión posterior.
+- Inicio compacta el título en una píldora al inicio y agrupa proveedores y Ajustes en otra al final. Los dos iconos pierden sus fondos circulares individuales al compactar. Buscar, Biblioteca y proveedores usan sus encabezados específicos.
 
 **Criterio:** zona táctil de atrás de al menos 48 dp, título legible con texto grande y sin solapamiento con la barra de estado en horizontal.
 
@@ -276,7 +291,7 @@ Evolucionar [CollapsibleCommonTopBar](../app/src/main/java/com/theveloper/pixelp
 
 ## Matriz de verificación por fase visual
 
-Ejecutar en el SM-S921B, como mínimo:
+Elige los casos que correspondan al cambio. El emulador permite repetir los recorridos. El SM-S921B aporta evidencia física de gestos, contraste y fluidez.
 
 | Caso | Qué comprobar |
 | --- | --- |
@@ -289,9 +304,12 @@ Ejecutar en el SM-S921B, como mínimo:
 | RTL (pseudolocale `ar-XB`) | Anclaje del círculo y dirección de los gestos invertidos |
 | Horizontal, pantalla dividida y ventana libre | Insets (ya saneados con `sanitizeNavigationBarBottomInset`) |
 | Buscar con el teclado abierto | Píldoras ocultas |
+| Inicio de reposo a compacto y regreso | Título y acciones conservan sus extremos y los dos iconos comparten una superficie |
+| «A mano» → «Me gusta» → Inicio o Buscar | Ambas pestañas responden con la barra visible, incluso al entrar por un acceso directo |
+| Carrusel y géneros con o sin carátulas | Arte reconocible en cada formato, etiqueta legible y correspondencia entre carrusel y detalle |
 | Sin música → con música → cerrar cola → deshacer | Transiciones de una a dos píldoras y vuelta |
 
-Comandos (ver [Build y pruebas](build-and-testing.md)): `.\gradlew.bat :app:assembleDebug -Ppixelplay.enableAbiSplits=false`, `:app:testDebugUnitTest`, `:app:lintDebug` y `python scripts/context_docs.py check`.
+Comandos (ver [Build y pruebas](build-and-testing.md)): `.\gradlew.bat :app:assembleDebug '-Ppixelplay.enableX86Debug=true'`, `:app:testDebugUnitTest`, `:app:lintDebug` y `python scripts/context_docs.py check`.
 
 ### Evidencia de la Fase 2
 
@@ -321,6 +339,8 @@ Comandos (ver [Build y pruebas](build-and-testing.md)): `.\gradlew.bat :app:asse
 - En las capturas del S24 de una misma portada y con tema oscuro, pasar de Equilibrado a Completo cambió los píxeles del halo en las regiones muestreadas. El interior de la portada y la región de fondo muestreada coincidieron. Quedan pendientes una comparación de los tres niveles con la misma portada y la medición física de contraste y degradación con ahorro de batería.
 
 ## Estado
+
+El rediseño de [Inicio](ui-and-state.md#inicio-y-detalle-de-mixes) aplica las píldoras de superficie neutra en «A mano» y en el encabezado al desplazar. El carrusel reúne las selecciones con el mismo peso visual y confina el color al arte. La [decisión sobre recomendaciones](decisions/0005-home-discovery-and-acoustic-similarity.md) describe la selección y la validación acústica.
 
 | Fase | Estado | Notas |
 | --- | --- | --- |

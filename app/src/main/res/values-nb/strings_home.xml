@@ -1,0 +1,29 @@
+<resources>
+    <string name="home_title">Hjem</string>
+    <string name="home_mix_daily">Dagens miks</string>
+    <string name="home_mix_underplayed">Lite spilt</string>
+    <string name="home_mix_rediscover">Ikke hørt på en stund</string>
+    <string name="home_mix_artist">Utforsk mer av %1$s</string>
+    <string name="home_mix_genre">Utforsk %1$s</string>
+    <string name="home_mix_recently_added">Nylig lagt til</string>
+    <plurals name="home_mix_personalized_song_count">
+        <item quantity="one">%1$d spor · Basert på lyttingen din</item>
+        <item quantity="other">%1$d spor · Basert på lyttingen din</item>
+    </plurals>
+    <plurals name="home_mix_song_count">
+        <item quantity="one">%1$d spor</item>
+        <item quantity="other">%1$d spor</item>
+    </plurals>
+    <string name="home_mix_play">Spill av %1$s</string>
+    <string name="home_explore_library">Utforsk biblioteket</string>
+    <string name="home_recently_played">Nylig spilt</string>
+    <string name="home_see_all">Se alle</string>
+    <string name="home_listening_title">Lyttestatistikk</string>
+    <string name="home_listening_today">I dag</string>
+    <string name="home_listening_week">Denne uken</string>
+    <string name="home_listening_top_song">Mest spilt: %1$s</string>
+    <string name="home_minutes">%1$d min</string>
+    <string name="home_less_than_minute">Under 1 min</string>
+    <string name="home_quick_title">Hurtigtilgang</string>
+    <string name="home_quick_recent_album">Sist spilte album</string>
+</resources>

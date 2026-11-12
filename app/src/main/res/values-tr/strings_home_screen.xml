@@ -274,4 +274,5 @@
     <string name="song_count_singular">%1$d Şarkı</string>
     <string name="song_count_plural">%1$d Şarkı</string>
     <string name="stats_week_label">%1$d. Hafta</string>
+    <string name="mix_detail_unavailable">Bu miks artık kullanılamıyor.</string>
 </resources>

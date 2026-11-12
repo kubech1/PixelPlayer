@@ -169,7 +169,12 @@ fun AppNavigation(
                 }
             }
             composable(
-                Screen.Library.route,
+                Screen.Library.pattern,
+                arguments = listOf(navArgument(Screen.Library.TAB_ARGUMENT) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }),
                 enterTransition = {
                     mainRootEnterTransition(
                         fromRoute = initialState.destination.route,
@@ -198,9 +203,13 @@ fun AppNavigation(
                         fallback = popExitTransition()
                     )
                 },
-            ) {
+            ) { entry ->
                 ScreenWrapper(navController = navController, playerViewModel = playerViewModel, animatedVisibilityScope = this) {
-                    LibraryScreen(navController = navController, playerViewModel = playerViewModel)
+                    LibraryScreen(
+                        navController = navController,
+                        playerViewModel = playerViewModel,
+                        requestedTabKey = entry.arguments?.getString(Screen.Library.TAB_ARGUMENT)
+                    )
                 }
             }
             composable(
@@ -265,11 +274,16 @@ fun AppNavigation(
             }
             composable(
                 Screen.DailyMixScreen.route,
-            ) {
+                arguments = listOf(navArgument("mixId") {
+                    type = NavType.StringType
+                    defaultValue = "daily"
+                }),
+            ) { entry ->
                 ScreenWrapper(navController = navController, playerViewModel = playerViewModel, animatedVisibilityScope = this) {
                     DailyMixScreen(
                         playerViewModel = playerViewModel,
-                        navController = navController
+                        navController = navController,
+                        mixId = entry.arguments?.getString("mixId") ?: "daily"
                     )
                 }
             }
@@ -490,7 +504,7 @@ fun AppNavigation(
 
 private fun String.toRoute(): String = when (this) {
     LaunchTab.SEARCH -> Screen.Search.route
-    LaunchTab.LIBRARY -> Screen.Library.route
+    LaunchTab.LIBRARY -> Screen.Library.pattern
     else -> Screen.Home.route
 }
 

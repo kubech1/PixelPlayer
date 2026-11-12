@@ -100,8 +100,8 @@
 
     <!-- Your Mix -->
     <string name="home_your_mix_title">Your\nMix</string>
-    <string name="home_empty_placeholder_title">No data to show yet</string>
-    <string name="home_empty_placeholder_subtitle">Your mix will appear here when PixelPlayer finds songs or syncs a source.</string>
+    <string name="home_empty_placeholder_title">Nothing to show yet</string>
+    <string name="home_empty_placeholder_subtitle">Your daily mix will appear when PixelPlayer finds songs or syncs a music source.</string>
     <string name="home_empty_placeholder_refresh">Refresh</string>
 
     <!-- DailyMixSection -->
@@ -112,6 +112,7 @@
 
     <!-- DailyMixScreen -->
     <string name="daily_mix_title">Daily Mix</string>
+    <string name="mix_detail_unavailable">This mix is no longer available.</string>
     <plurals name="daily_mix_songs_dot_duration">
         <item quantity="one">%1$d song • %2$s</item>
         <item quantity="other">%1$d songs • %2$s</item>

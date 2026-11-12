@@ -46,6 +46,7 @@ import com.theveloper.pixelplay.data.model.Lyrics
 import com.theveloper.pixelplay.data.model.LyricsSourcePreference
 import com.theveloper.pixelplay.data.model.SearchFilterType
 import com.theveloper.pixelplay.data.model.Song
+import com.theveloper.pixelplay.data.model.HomeMixFeed
 import com.theveloper.pixelplay.data.model.SortOption
 import com.theveloper.pixelplay.data.model.toLibraryTabIdOrNull
 import com.theveloper.pixelplay.data.provider.SharedArtworkContentProvider
@@ -1244,12 +1245,7 @@ class PlayerViewModel @Inject constructor(
     val favoritesPagingFlow = libraryStateHolder.favoritesPagingFlow
 
     // Daily mix state is now managed by DailyMixStateHolder
-    val dailyMixSongs: StateFlow<ImmutableList<Song>> = dailyMixStateHolder.dailyMixSongs
-    val yourMixSongs: StateFlow<ImmutableList<Song>> = dailyMixStateHolder.yourMixSongs
-
-    fun removeFromDailyMix(songId: String) {
-        dailyMixStateHolder.removeFromDailyMix(songId)
-    }
+    val homeMixFeed: StateFlow<HomeMixFeed?> = dailyMixStateHolder.homeMixFeed
 
     /**
      * Observes a song by ID from Room DB, combined with the latest favorite status.
@@ -1267,12 +1263,7 @@ class PlayerViewModel @Inject constructor(
 
 
 
-    private fun updateDailyMix() {
-        // Delegate to DailyMixStateHolder
-        dailyMixStateHolder.updateDailyMix(
-            favoriteSongIdsFlow = favoriteSongIds
-        )
-    }
+    fun refreshHomeMixes() = dailyMixStateHolder.refreshHomeMixes(favoriteSongIds)
 
     fun shuffleAllSongs(queueName: String = "All Songs (Shuffled)") =
         queueStateHolder.shuffleAll(queueName, shufflePlaybackCallbacks())
@@ -1299,11 +1290,6 @@ class PlayerViewModel @Inject constructor(
     fun shuffleRandomArtist() =
         queueStateHolder.shuffleRandomArtist(shufflePlaybackCallbacks())
 
-
-    private fun loadPersistedDailyMix() {
-        // Delegate to DailyMixStateHolder
-        dailyMixStateHolder.loadPersistedDailyMix()
-    }
 
     fun forceUpdateDailyMix() {
         // Delegate to DailyMixStateHolder
@@ -1553,7 +1539,6 @@ class PlayerViewModel @Inject constructor(
 
         // launchColorSchemeProcessor() - Handled by ThemeStateHolder and on-demand calls
 
-        loadPersistedDailyMix()
         loadSearchHistory()
 
         viewModelScope.launch {
@@ -1564,6 +1549,7 @@ class PlayerViewModel @Inject constructor(
                 if (oldSyncingLibraryState && !isSyncing) {
                     Log.i("PlayerViewModel", "Sync completed. Calling resetAndLoadInitialData from isSyncingStateFlow observer.")
                     resetAndLoadInitialData("isSyncingStateFlow observer")
+                    refreshHomeMixes()
                 }
             }
         }
@@ -1774,19 +1760,11 @@ class PlayerViewModel @Inject constructor(
         Trace.beginSection("PlayerViewModel.onMainActivityStart")
         try {
             preloadThemesAndInitialData()
-            checkAndUpdateDailyMixIfNeeded()
         } finally {
             Trace.endSection()
         }
     }
 
-
-    private fun checkAndUpdateDailyMixIfNeeded() {
-        // Delegate to DailyMixStateHolder
-        dailyMixStateHolder.checkAndUpdateIfNeeded(
-            favoriteSongIdsFlow = favoriteSongIds
-        )
-    }
 
     private fun preloadThemesAndInitialData() {
         Trace.beginSection("PlayerViewModel.preloadThemesAndInitialData")
@@ -1817,7 +1795,6 @@ class PlayerViewModel @Inject constructor(
         try {
             Log.d("PlayerViewModel", "resetAndLoadInitialData called by $caller")
             loadInitialLibraryDataParallel()
-            updateDailyMix()
         } finally {
             Trace.endSection()
         }
@@ -2046,6 +2023,14 @@ class PlayerViewModel @Inject constructor(
     // rebuildPlayerQueue functionality moved to PlaybackStateHolder (simplified)
     fun playSongs(songsToPlay: List<Song>, startSong: Song, queueName: String = "None", playlistId: String? = null) =
         playbackDispatchStateHolder.playSongs(songsToPlay, startSong, queueName, playlistId)
+
+    fun playHomeMix(songs: List<Song>, startSong: Song, queueName: String) =
+        playbackDispatchStateHolder.playSongs(
+            songsToPlay = songs,
+            startSong = startSong,
+            queueName = queueName,
+            allowPersistentShuffle = false
+        )
 
     fun playSongsShuffled(
         songsToPlay: List<Song>,
@@ -2779,6 +2764,7 @@ class PlayerViewModel @Inject constructor(
         viewModelScope.launch {
             musicRepository.invalidateCachesDependentOnAllowedDirectories()
             resetAndLoadInitialData("Blocked directories changed")
+            refreshHomeMixes()
         }
     }
 

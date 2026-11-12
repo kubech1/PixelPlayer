@@ -39,7 +39,12 @@ misc.xml
 CLAUDE.md
 markdown.xml
 .vscode/
-.agents/
+/.agents/*
+!/.agents/skills/
+/.agents/skills/*
+!/.agents/skills/frontend-design/
+!/.agents/skills/frontend-design/**
+/graphify-out/
 
 # Node/tooling dependencies and local env files
 **/node_modules/

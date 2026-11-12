@@ -16,6 +16,34 @@ import org.junit.jupiter.api.Test
 class PlaybackStatsRepositoryTest {
 
     @Test
+    fun `home listening clips a session at local midnight and ranks the week by plays`() {
+        val repository = createRepository()
+        val zone = ZoneId.of("America/Bogota")
+        val midnight = LocalDate.of(2026, 11, 11).atStartOfDay(zone).toInstant().toEpochMilli()
+        val events = listOf(
+            PlaybackStatsRepository.PlaybackEvent("long", midnight + 30_000, 90_000),
+            PlaybackStatsRepository.PlaybackEvent("repeated", midnight - 90_000, 15_000),
+            PlaybackStatsRepository.PlaybackEvent("repeated", midnight + 60_000, 15_000)
+        )
+        val summary = repository.buildHomeListeningTotals(events, midnight + 70_000, zone)
+        assertThat(summary.todayDurationMs).isEqualTo(45_000L)
+        assertThat(summary.weekDurationMs).isEqualTo(120_000L)
+        assertThat(summary.topSongId).isEqualTo("repeated")
+    }
+
+    @Test
+    fun `home listening reports an empty week even with older events`() {
+        val repository = createRepository()
+        val zone = ZoneId.of("America/Bogota")
+        val monday = LocalDate.of(2026, 11, 9).atStartOfDay(zone).toInstant().toEpochMilli()
+        val events = listOf(PlaybackStatsRepository.PlaybackEvent("old", monday, 60_000L))
+        val summary = repository.buildHomeListeningTotals(events, monday + 60_000, zone)
+        assertThat(summary.todayDurationMs).isEqualTo(0L)
+        assertThat(summary.weekDurationMs).isEqualTo(0L)
+        assertThat(summary.topSongId).isNull()
+    }
+
+    @Test
     fun `loadSummary excludes event that only touches the start boundary`() = runTest {
         val repository = createRepository()
         val zoneId = ZoneId.systemDefault()

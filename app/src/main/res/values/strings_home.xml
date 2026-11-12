@@ -1,0 +1,29 @@
+<resources>
+    <string name="home_title">Home</string>
+    <string name="home_mix_daily">Daily mix</string>
+    <string name="home_mix_underplayed">Rarely played</string>
+    <string name="home_mix_rediscover">Haven’t heard in a while</string>
+    <string name="home_mix_artist">Explore %1$s</string>
+    <string name="home_mix_genre">Explore %1$s</string>
+    <string name="home_mix_recently_added">Recently added</string>
+    <plurals name="home_mix_personalized_song_count">
+        <item quantity="one">%1$d song · Based on your listening</item>
+        <item quantity="other">%1$d songs · Based on your listening</item>
+    </plurals>
+    <plurals name="home_mix_song_count">
+        <item quantity="one">%1$d song</item>
+        <item quantity="other">%1$d songs</item>
+    </plurals>
+    <string name="home_mix_play">Play %1$s</string>
+    <string name="home_explore_library">Explore your library</string>
+    <string name="home_recently_played">Recently played</string>
+    <string name="home_see_all">See all</string>
+    <string name="home_listening_title">Listening stats</string>
+    <string name="home_listening_today">Today</string>
+    <string name="home_listening_week">This week</string>
+    <string name="home_listening_top_song">Most played: %1$s</string>
+    <string name="home_minutes">%1$d min</string>
+    <string name="home_less_than_minute">&lt;1 min</string>
+    <string name="home_quick_title">Quick access</string>
+    <string name="home_quick_recent_album">Last played album</string>
+</resources>

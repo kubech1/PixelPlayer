@@ -1,37 +1,34 @@
 package com.theveloper.pixelplay.presentation.viewmodel
 
 import com.theveloper.pixelplay.data.DailyMixManager
+import com.theveloper.pixelplay.data.model.HomeMix
+import com.theveloper.pixelplay.data.model.HomeMixFeed
+import com.theveloper.pixelplay.data.model.HomeMixKind
+import com.theveloper.pixelplay.data.model.HomeMixSnapshot
 import com.theveloper.pixelplay.data.model.Song
+import com.theveloper.pixelplay.data.model.StorageFilter
+import com.theveloper.pixelplay.data.database.SourceType
 import com.theveloper.pixelplay.data.preferences.UserPreferencesRepository
 import com.theveloper.pixelplay.data.repository.MusicRepository
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Calendar
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.concurrent.atomic.AtomicLong
+import java.security.MessageDigest
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
-/**
- * Manages Daily Mix and Your Mix state.
- * Extracted from PlayerViewModel to improve modularity.
- *
- * Responsibilities:
- * - Generate and update daily/your mixes
- * - Persist and restore mix state
- * - Check if mix needs updating based on day change
- */
 @Singleton
 class DailyMixStateHolder @Inject constructor(
     private val dailyMixManager: DailyMixManager,
@@ -39,125 +36,164 @@ class DailyMixStateHolder @Inject constructor(
     private val musicRepository: MusicRepository
 ) {
     private var scope: CoroutineScope? = null
-    private var updateJob: Job? = null
+    private var refreshJob: Job? = null
+    private val generation = AtomicLong(0L)
+    private val _homeMixFeed = MutableStateFlow<HomeMixFeed?>(null)
+    val homeMixFeed: StateFlow<HomeMixFeed?> = _homeMixFeed.asStateFlow()
 
-    private val _dailyMixSongs = MutableStateFlow<ImmutableList<Song>>(persistentListOf())
-    val dailyMixSongs: StateFlow<ImmutableList<Song>> = _dailyMixSongs.asStateFlow()
-
-    private val _yourMixSongs = MutableStateFlow<ImmutableList<Song>>(persistentListOf())
-    val yourMixSongs: StateFlow<ImmutableList<Song>> = _yourMixSongs.asStateFlow()
-
-    /**
-     * Initialize with coroutine scope from ViewModel.
-     */
     fun initialize(coroutineScope: CoroutineScope) {
         scope = coroutineScope
     }
 
-    /**
-     * Remove a song from the daily mix.
-     */
-    fun removeFromDailyMix(songId: String) {
-        _dailyMixSongs.update { currentList ->
-            currentList.filterNot { it.id == songId }.toImmutableList()
-        }
-    }
+    fun refreshHomeMixes(favoriteSongIdsFlow: kotlinx.coroutines.flow.Flow<Set<String>>, dailyOnly: Boolean = false) {
+        val currentScope = scope ?: return
+        val request = generation.incrementAndGet()
+        refreshJob?.cancel()
+        refreshJob = currentScope.launch {
+            try {
+                val zoneId = ZoneId.systemDefault()
+                val today = LocalDate.now(zoneId)
+                val stored = withContext(Dispatchers.IO) { userPreferencesRepository.homeMixSnapshotsFlow.first() }
+                val visible = withContext(Dispatchers.IO) { loadVisibleSongs() }
+                if (request != generation.get()) return@launch
+                val allSongs = visible.songs
+                if (allSongs.isEmpty()) {
+                    publishFeed(HomeMixFeed(daily = null, rotating = persistentListOf()))
+                    return@launch
+                }
+                val todaySnapshots = stored.filter {
+                    it.localDate == today.toString() && it.filterKey == visible.filterKey
+                }
+                val dailyCached = todaySnapshots.firstOrNull { it.id == DAILY_ID }
+                val rotationsCached = todaySnapshots.filter { it.id != DAILY_ID }.sortedBy(HomeMixSnapshot::slot)
+                val catalogFingerprint = visible.catalogFingerprint
+                val validIds = withContext(Dispatchers.Default) { allSongs.mapTo(HashSet(allSongs.size), Song::id) }
+                val snapshotsMatchCatalog = todaySnapshots.all {
+                    it.filterKey == visible.filterKey && it.catalogFingerprint == catalogFingerprint
+                }
+                val canReuseDaily = dailyCached != null && dailyCached.rotationSlotsGenerated &&
+                    dailyCached.songIds.all(validIds::contains)
+                val canReuseRotations = rotationsCached.size <= ROTATING_COUNT &&
+                    rotationsCached.all { snapshot -> snapshot.songIds.all(validIds::contains) }
 
-    /**
-     * Update the daily mix with new songs.
-     * Uses getAllSongsOnce() to load songs on-demand instead of keeping a permanent subscription.
-     */
-    fun updateDailyMix(favoriteSongIdsFlow: kotlinx.coroutines.flow.Flow<Set<String>>) {
-        updateJob?.cancel()
-        updateJob = scope?.launch(Dispatchers.IO) {
-            val allSongs = musicRepository.getAllSongsOnce()
-            if (allSongs.isNotEmpty()) {
-                val favoriteIds = favoriteSongIdsFlow.first()
+                suspend fun generate(variantSeed: Long = 0L, excluded: Set<String> = emptySet()) = withContext(Dispatchers.Default) {
+                    dailyMixManager.generateHomeMixSnapshots(
+                        allSongs, favoriteSongIdsFlow.first(), today, stored, DAILY_LIMIT,
+                        variantSeed = variantSeed,
+                        filterKey = visible.filterKey,
+                        catalogFingerprint = catalogFingerprint,
+                        zoneId = zoneId,
+                        dailyExcludedSongIds = excluded
+                    )
+                }
 
-                // Generate daily mix
-                val mix = dailyMixManager.generateDailyMix(allSongs, favoriteIds)
-                _dailyMixSongs.value = mix.toImmutableList()
-                userPreferencesRepository.saveDailyMixSongIds(mix.map { it.id })
+                val snapshots = when {
+                    dailyOnly && dailyCached != null && canReuseRotations -> {
+                        val rotatingIds = rotationsCached.flatMapTo(mutableSetOf()) { it.songIds }
+                        val regenerated = generate(variantSeed = System.currentTimeMillis(), excluded = rotatingIds)
+                            .firstOrNull { it.id == DAILY_ID }
+                        listOfNotNull(regenerated) + rotationsCached.map { rotation ->
+                            rotation.copy(
+                                songIds = rotation.songIds.filter(validIds::contains),
+                                filterKey = visible.filterKey,
+                                catalogFingerprint = catalogFingerprint
+                            )
+                        }
+                    }
+                    !dailyOnly && snapshotsMatchCatalog && canReuseDaily && canReuseRotations -> todaySnapshots
+                    else -> generate()
+                }
+                if (request != generation.get()) return@launch
 
-                // Generate your mix
-                val yourMix = dailyMixManager.generateYourMix(allSongs, favoriteIds)
-                _yourMixSongs.value = yourMix.toImmutableList()
-                userPreferencesRepository.saveYourMixSongIds(yourMix.map { it.id })
-            } else {
-                _yourMixSongs.value = persistentListOf()
+                val retained = stored.filter { snapshot ->
+                    runCatching { LocalDate.parse(snapshot.localDate) }.getOrNull()?.let { date ->
+                        !date.isBefore(today.minusDays(EXPOSURE_DAYS - 1)) && !date.isAfter(today) &&
+                            !(date == today && snapshot.filterKey == visible.filterKey)
+                    } == true
+                }
+                val completeSnapshots = (retained + snapshots)
+                    .distinctBy { Triple(it.localDate, it.filterKey, it.id) }
+                    .sortedWith(compareBy<HomeMixSnapshot> { it.localDate }.thenBy { it.filterKey }.thenBy { it.slot })
+                if (completeSnapshots != stored) {
+                    withContext(Dispatchers.IO) { userPreferencesRepository.saveHomeMixSnapshots(completeSnapshots) }
+                }
+                if (request != generation.get()) return@launch
+                val feed = withContext(Dispatchers.Default) { snapshots.sortedBy(HomeMixSnapshot::slot).toFeed(allSongs) }
+                if (request == generation.get()) publishFeed(feed)
+            } catch (throwable: Exception) {
+                if (throwable is kotlinx.coroutines.CancellationException) throw throwable
+                Timber.e(throwable, "Failed to refresh home mix recommendations")
+                if (request == generation.get()) publishFeed(HomeMixFeed(daily = null, rotating = persistentListOf()))
             }
         }
     }
 
-    /**
-     * Load persisted daily mix from storage using direct DB queries by IDs
-     * instead of combining with the full allSongs flow.
-     */
-    fun loadPersistedDailyMix() {
-        // Load Daily Mix
-        scope?.launch {
-            val dailyMixIds = userPreferencesRepository.dailyMixSongIdsFlow.first()
-            if (dailyMixIds.isNotEmpty() && _dailyMixSongs.value.isEmpty()) {
-                val songs = withContext(Dispatchers.IO) {
-                    musicRepository.getSongsByIds(dailyMixIds).first()
-                }
-                if (songs.isNotEmpty()) {
-                    // Maintain persisted order
-                    val songMap = songs.associateBy { it.id }
-                    val orderedSongs = dailyMixIds.mapNotNull { songMap[it] }
-                    _dailyMixSongs.value = orderedSongs.toImmutableList()
-                }
-            }
-        }
-
-        // Load Your Mix
-        scope?.launch {
-            val yourMixIds = userPreferencesRepository.yourMixSongIdsFlow.first()
-            if (yourMixIds.isNotEmpty() && _yourMixSongs.value.isEmpty()) {
-                val songs = withContext(Dispatchers.IO) {
-                    musicRepository.getSongsByIds(yourMixIds).first()
-                }
-                if (songs.isNotEmpty()) {
-                    val songMap = songs.associateBy { it.id }
-                    val orderedSongs = yourMixIds.mapNotNull { songMap[it] }
-                    _yourMixSongs.value = orderedSongs.toImmutableList()
-                }
-            }
-        }
-    }
-
-    /**
-     * Force update the daily mix regardless of day.
-     */
-    fun forceUpdate(favoriteSongIdsFlow: kotlinx.coroutines.flow.Flow<Set<String>>) {
-        scope?.launch {
-            updateDailyMix(favoriteSongIdsFlow)
-            userPreferencesRepository.saveLastDailyMixUpdateTimestamp(System.currentTimeMillis())
-        }
-    }
-
-    /**
-     * Check if daily mix needs updating (new day) and update if so.
-     */
-    fun checkAndUpdateIfNeeded(favoriteSongIdsFlow: kotlinx.coroutines.flow.Flow<Set<String>>) {
-        scope?.launch {
-            val lastUpdate = userPreferencesRepository.lastDailyMixUpdateFlow.first()
-            val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
-            val lastUpdateDay = Calendar.getInstance().apply {
-                timeInMillis = lastUpdate
-            }.get(Calendar.DAY_OF_YEAR)
-
-            if (today != lastUpdateDay) {
-                updateDailyMix(favoriteSongIdsFlow)
-                userPreferencesRepository.saveLastDailyMixUpdateTimestamp(System.currentTimeMillis())
-            }
-        }
-    }
-
-
+    fun forceUpdate(favoriteSongIdsFlow: kotlinx.coroutines.flow.Flow<Set<String>>) =
+        refreshHomeMixes(favoriteSongIdsFlow, dailyOnly = true)
 
     fun onCleared() {
-        updateJob?.cancel()
+        generation.incrementAndGet()
+        refreshJob?.cancel()
         scope = null
+    }
+
+    private fun publishFeed(feed: HomeMixFeed) {
+        _homeMixFeed.value = feed
+    }
+
+    private data class VisibleCatalog(val songs: List<Song>, val filterKey: String, val catalogFingerprint: String)
+
+    private suspend fun loadVisibleSongs(): VisibleCatalog {
+        val all = musicRepository.getAllSongsOnce()
+        val storageFilter = userPreferencesRepository.lastStorageFilterFlow.first()
+        val hideLocal = userPreferencesRepository.hideLocalMediaFlow.first()
+        val effectiveFilter = if (hideLocal) StorageFilter.ONLINE else storageFilter
+        val songs = all.filter { song ->
+            val online = isOnlineSong(song)
+            song.contentUriString.isNotBlank() && when (effectiveFilter) {
+                StorageFilter.ALL -> true
+                StorageFilter.ONLINE -> online
+                StorageFilter.OFFLINE -> !online
+            }
+        }
+        val filterKey = effectiveFilter.name
+        val catalogDescription = songs.sortedBy(Song::id).joinToString("\n") { song ->
+            listOf(song.id, song.artistId, song.albumId, song.genre.orEmpty(), song.dateAdded, song.contentUriString).joinToString("|")
+        }
+        val fingerprint = fingerprint(catalogDescription)
+        return VisibleCatalog(songs, filterKey, fingerprint)
+    }
+
+    private fun fingerprint(value: String): String = MessageDigest.getInstance("SHA-256")
+        .digest(value.toByteArray())
+        .joinToString("") { byte -> "%02x".format(byte) }
+
+    private fun isOnlineSong(song: Song): Boolean =
+        SourceType.fromContentUri(song.contentUriString) != SourceType.LOCAL ||
+            song.contentUriString.startsWith("telegram:") ||
+            song.telegramFileId != null || song.neteaseId != null || song.gdriveFileId != null ||
+            song.qqMusicMid != null || song.navidromeId != null || song.jellyfinId != null
+
+    private fun List<HomeMixSnapshot>.toFeed(allSongs: List<Song>): HomeMixFeed {
+        val songsById = allSongs.associateBy(Song::id)
+        fun HomeMixSnapshot.toHomeMix(): HomeMix? {
+            val mixSongs = songIds.mapNotNull(songsById::get).toImmutableList()
+            if (mixSongs.isEmpty()) return null
+            val cover = coverSongId?.let(songsById::get)
+                ?: mixSongs.firstOrNull { !it.albumArtUriString.isNullOrBlank() }
+                ?: mixSongs.firstOrNull()
+            return HomeMix(id, kind, subject, mixSongs, cover, isPersonalized)
+        }
+        val daily = firstOrNull { it.id == DAILY_ID }?.toHomeMix()
+        val rotations = filter { it.id != DAILY_ID }.sortedBy(HomeMixSnapshot::slot)
+            .mapNotNull { it.toHomeMix() }.toImmutableList()
+        return HomeMixFeed(daily, rotations)
+    }
+
+    companion object {
+        private const val DAILY_ID = "daily"
+        private const val DAILY_LIMIT = 24
+        private const val ROTATING_COUNT = 3
+        private const val EXPOSURE_DAYS = 7L
     }
 }

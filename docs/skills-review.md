@@ -1,5 +1,11 @@
 # Revisión de skills para PixelPlayer
 
+## Actualización del inventario (11 de noviembre de 2026)
+
+A petición del usuario, se retiraron del perfil personal `~/.codex/skills` las skills `ui-ux-pro-max` y `code-simplifier`. Se añadió `frontend-design` al proyecto en `.agents/skills/frontend-design/`, junto con su licencia.
+
+El repositorio [anthropics/claude-code](https://github.com/anthropics/claude-code) indica que sus plugins oficiales se mantienen en [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official). La skill se tomó de [`plugins/frontend-design/skills/frontend-design`](https://github.com/anthropics/claude-plugins-official/tree/e37d307bd9f85dab6fea5dfb5e3dc146753b2d2d/plugins/frontend-design/skills/frontend-design) en el commit `e37d307bd9f85dab6fea5dfb5e3dc146753b2d2d`; se conserva `SKILL.md` y `LICENSE.txt`. Para PixelPlayer, sus indicaciones web se adaptan a Jetpack Compose según [AGENTS.md](../AGENTS.md).
+
 Fecha: 31 de octubre de 2026. Solicitud: instalar las seis skills indicadas por el usuario mediante descubrimiento y revisión en OMGSkills, evitando duplicados.
 
 ## Procedencia fijada

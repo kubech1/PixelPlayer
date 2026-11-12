@@ -4,7 +4,7 @@
 
 Regenerar desde la raíz: `python scripts/context_docs.py generate`.
 
-Archivos: **414**. Huella de rutas y contenido: `540fe1d60f19c6a9d469900966520de1c0b9f0ed309874c6c0556621f6bac65c`.
+Archivos: **425**. Huella de rutas y contenido: `590eb0a7764a96cfc811d02e86aaee157fb105f1777b525bf523218027d71d1a`.
 
 Este índice permite localizar archivos; no certifica su comportamiento ni sustituye los documentos temáticos. Los símbolos son una extracción léxica parcial, no un análisis del compilador. Se excluyen cachés, salidas de build, entornos virtuales y archivos locales de credenciales.
 
@@ -15,8 +15,8 @@ Lectura inicial: [guía del proyecto](../README.md).
 | Área | Archivos |
 | --- | ---: |
 | `(raíz)` | 2 |
-| `.github` | 9 |
-| `app` | 372 |
+| `.github` | 6 |
+| `app` | 386 |
 | `assets` | 1 |
 | `baselineprofile` | 2 |
 | `docs` | 1 |
@@ -29,7 +29,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 
 | Archivo | Líneas |
 | --- | ---: |
-| [.gitignore](../../.gitignore) | 51 |
+| [.gitignore](../../.gitignore) | 56 |
 | [gradle.properties](../../gradle.properties) | 35 |
 
 ## .github
@@ -51,10 +51,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 | Archivo | Líneas |
 | --- | ---: |
 | [codeql.yml](../../.github/workflows/codeql.yml) | 57 |
-| [nightly-apk.yml](../../.github/workflows/nightly-apk.yml) | 142 |
-| [phone-debug.yml](../../.github/workflows/phone-debug.yml) | 54 |
-| [phone-release.yml](../../.github/workflows/phone-release.yml) | 76 |
-| [wearos-apk.yml](../../.github/workflows/wearos-apk.yml) | 39 |
+| [phone-release.yml](../../.github/workflows/phone-release.yml) | 48 |
 
 ## app
 
@@ -93,6 +90,12 @@ Lectura inicial: [guía del proyecto](../README.md).
 | Archivo | Líneas |
 | --- | ---: |
 | [AndroidManifest.xml](../../app/src/benchmark/AndroidManifest.xml) | 6 |
+
+## app/src/debug
+
+| Archivo | Líneas |
+| --- | ---: |
+| [AndroidManifest.xml](../../app/src/debug/AndroidManifest.xml) | 11 |
 
 ## app/src/debug/res/values
 
@@ -376,7 +379,8 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_changelogs.xml](../../app/src/main/res/values/strings_changelogs.xml) | 145 |
 | [strings_cloud_services.xml](../../app/src/main/res/values/strings_cloud_services.xml) | 228 |
 | [strings_equalizer.xml](../../app/src/main/res/values/strings_equalizer.xml) | 57 |
-| [strings_home_screen.xml](../../app/src/main/res/values/strings_home_screen.xml) | 277 |
+| [strings_home.xml](../../app/src/main/res/values/strings_home.xml) | 29 |
+| [strings_home_screen.xml](../../app/src/main/res/values/strings_home_screen.xml) | 278 |
 | [strings_library.xml](../../app/src/main/res/values/strings_library.xml) | 544 |
 | [strings_modernization.xml](../../app/src/main/res/values/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values/strings_player.xml) | 198 |
@@ -393,6 +397,8 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings.xml](../../app/src/main/res/values-ar/strings.xml) | 250 |
 | [strings_auth.xml](../../app/src/main/res/values-ar/strings_auth.xml) | 74 |
 | [strings_components.xml](../../app/src/main/res/values-ar/strings_components.xml) | 190 |
+| [strings_home.xml](../../app/src/main/res/values-ar/strings_home.xml) | 37 |
+| [strings_home_screen.xml](../../app/src/main/res/values-ar/strings_home_screen.xml) | 3 |
 | [strings_modernization.xml](../../app/src/main/res/values-ar/strings_modernization.xml) | 28 |
 | [strings_presentation_batch_a.xml](../../app/src/main/res/values-ar/strings_presentation_batch_a.xml) | 17 |
 | [strings_presentation_batch_b.xml](../../app/src/main/res/values-ar/strings_presentation_batch_b.xml) | 88 |
@@ -412,7 +418,8 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_changelogs.xml](../../app/src/main/res/values-de/strings_changelogs.xml) | 128 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-de/strings_cloud_services.xml) | 228 |
 | [strings_equalizer.xml](../../app/src/main/res/values-de/strings_equalizer.xml) | 57 |
-| [strings_home_screen.xml](../../app/src/main/res/values-de/strings_home_screen.xml) | 277 |
+| [strings_home.xml](../../app/src/main/res/values-de/strings_home.xml) | 29 |
+| [strings_home_screen.xml](../../app/src/main/res/values-de/strings_home_screen.xml) | 278 |
 | [strings_library.xml](../../app/src/main/res/values-de/strings_library.xml) | 544 |
 | [strings_modernization.xml](../../app/src/main/res/values-de/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-de/strings_player.xml) | 198 |
@@ -428,7 +435,8 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_changelogs.xml](../../app/src/main/res/values-es/strings_changelogs.xml) | 128 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-es/strings_cloud_services.xml) | 228 |
 | [strings_equalizer.xml](../../app/src/main/res/values-es/strings_equalizer.xml) | 57 |
-| [strings_home_screen.xml](../../app/src/main/res/values-es/strings_home_screen.xml) | 277 |
+| [strings_home.xml](../../app/src/main/res/values-es/strings_home.xml) | 31 |
+| [strings_home_screen.xml](../../app/src/main/res/values-es/strings_home_screen.xml) | 278 |
 | [strings_library.xml](../../app/src/main/res/values-es/strings_library.xml) | 544 |
 | [strings_modernization.xml](../../app/src/main/res/values-es/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-es/strings_player.xml) | 198 |
@@ -444,7 +452,8 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_changelogs.xml](../../app/src/main/res/values-fr/strings_changelogs.xml) | 165 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-fr/strings_cloud_services.xml) | 228 |
 | [strings_equalizer.xml](../../app/src/main/res/values-fr/strings_equalizer.xml) | 57 |
-| [strings_home_screen.xml](../../app/src/main/res/values-fr/strings_home_screen.xml) | 277 |
+| [strings_home.xml](../../app/src/main/res/values-fr/strings_home.xml) | 31 |
+| [strings_home_screen.xml](../../app/src/main/res/values-fr/strings_home_screen.xml) | 278 |
 | [strings_library.xml](../../app/src/main/res/values-fr/strings_library.xml) | 544 |
 | [strings_modernization.xml](../../app/src/main/res/values-fr/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-fr/strings_player.xml) | 198 |
@@ -460,7 +469,8 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_changelogs.xml](../../app/src/main/res/values-in/strings_changelogs.xml) | 128 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-in/strings_cloud_services.xml) | 228 |
 | [strings_equalizer.xml](../../app/src/main/res/values-in/strings_equalizer.xml) | 57 |
-| [strings_home_screen.xml](../../app/src/main/res/values-in/strings_home_screen.xml) | 277 |
+| [strings_home.xml](../../app/src/main/res/values-in/strings_home.xml) | 29 |
+| [strings_home_screen.xml](../../app/src/main/res/values-in/strings_home_screen.xml) | 278 |
 | [strings_library.xml](../../app/src/main/res/values-in/strings_library.xml) | 544 |
 | [strings_modernization.xml](../../app/src/main/res/values-in/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-in/strings_player.xml) | 198 |
@@ -476,7 +486,8 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_changelogs.xml](../../app/src/main/res/values-it/strings_changelogs.xml) | 165 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-it/strings_cloud_services.xml) | 228 |
 | [strings_equalizer.xml](../../app/src/main/res/values-it/strings_equalizer.xml) | 57 |
-| [strings_home_screen.xml](../../app/src/main/res/values-it/strings_home_screen.xml) | 277 |
+| [strings_home.xml](../../app/src/main/res/values-it/strings_home.xml) | 31 |
+| [strings_home_screen.xml](../../app/src/main/res/values-it/strings_home_screen.xml) | 278 |
 | [strings_library.xml](../../app/src/main/res/values-it/strings_library.xml) | 544 |
 | [strings_modernization.xml](../../app/src/main/res/values-it/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-it/strings_player.xml) | 198 |
@@ -492,7 +503,8 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_changelogs.xml](../../app/src/main/res/values-ko/strings_changelogs.xml) | 128 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-ko/strings_cloud_services.xml) | 226 |
 | [strings_equalizer.xml](../../app/src/main/res/values-ko/strings_equalizer.xml) | 57 |
-| [strings_home_screen.xml](../../app/src/main/res/values-ko/strings_home_screen.xml) | 276 |
+| [strings_home.xml](../../app/src/main/res/values-ko/strings_home.xml) | 29 |
+| [strings_home_screen.xml](../../app/src/main/res/values-ko/strings_home_screen.xml) | 277 |
 | [strings_library.xml](../../app/src/main/res/values-ko/strings_library.xml) | 536 |
 | [strings_modernization.xml](../../app/src/main/res/values-ko/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-ko/strings_player.xml) | 195 |
@@ -508,7 +520,8 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_changelogs.xml](../../app/src/main/res/values-nb/strings_changelogs.xml) | 128 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-nb/strings_cloud_services.xml) | 228 |
 | [strings_equalizer.xml](../../app/src/main/res/values-nb/strings_equalizer.xml) | 57 |
-| [strings_home_screen.xml](../../app/src/main/res/values-nb/strings_home_screen.xml) | 277 |
+| [strings_home.xml](../../app/src/main/res/values-nb/strings_home.xml) | 29 |
+| [strings_home_screen.xml](../../app/src/main/res/values-nb/strings_home_screen.xml) | 278 |
 | [strings_library.xml](../../app/src/main/res/values-nb/strings_library.xml) | 544 |
 | [strings_modernization.xml](../../app/src/main/res/values-nb/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-nb/strings_player.xml) | 198 |
@@ -530,7 +543,8 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_changelogs.xml](../../app/src/main/res/values-ru/strings_changelogs.xml) | 128 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-ru/strings_cloud_services.xml) | 233 |
 | [strings_equalizer.xml](../../app/src/main/res/values-ru/strings_equalizer.xml) | 57 |
-| [strings_home_screen.xml](../../app/src/main/res/values-ru/strings_home_screen.xml) | 279 |
+| [strings_home.xml](../../app/src/main/res/values-ru/strings_home.xml) | 33 |
+| [strings_home_screen.xml](../../app/src/main/res/values-ru/strings_home_screen.xml) | 280 |
 | [strings_library.xml](../../app/src/main/res/values-ru/strings_library.xml) | 544 |
 | [strings_modernization.xml](../../app/src/main/res/values-ru/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-ru/strings_player.xml) | 198 |
@@ -546,7 +560,8 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_changelogs.xml](../../app/src/main/res/values-tr/strings_changelogs.xml) | 128 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-tr/strings_cloud_services.xml) | 228 |
 | [strings_equalizer.xml](../../app/src/main/res/values-tr/strings_equalizer.xml) | 57 |
-| [strings_home_screen.xml](../../app/src/main/res/values-tr/strings_home_screen.xml) | 277 |
+| [strings_home.xml](../../app/src/main/res/values-tr/strings_home.xml) | 29 |
+| [strings_home_screen.xml](../../app/src/main/res/values-tr/strings_home_screen.xml) | 278 |
 | [strings_library.xml](../../app/src/main/res/values-tr/strings_library.xml) | 544 |
 | [strings_modernization.xml](../../app/src/main/res/values-tr/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-tr/strings_player.xml) | 198 |
@@ -562,7 +577,8 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_changelogs.xml](../../app/src/main/res/values-zh-rCN/strings_changelogs.xml) | 128 |
 | [strings_cloud_services.xml](../../app/src/main/res/values-zh-rCN/strings_cloud_services.xml) | 228 |
 | [strings_equalizer.xml](../../app/src/main/res/values-zh-rCN/strings_equalizer.xml) | 57 |
-| [strings_home_screen.xml](../../app/src/main/res/values-zh-rCN/strings_home_screen.xml) | 277 |
+| [strings_home.xml](../../app/src/main/res/values-zh-rCN/strings_home.xml) | 29 |
+| [strings_home_screen.xml](../../app/src/main/res/values-zh-rCN/strings_home_screen.xml) | 278 |
 | [strings_library.xml](../../app/src/main/res/values-zh-rCN/strings_library.xml) | 544 |
 | [strings_modernization.xml](../../app/src/main/res/values-zh-rCN/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-zh-rCN/strings_player.xml) | 198 |

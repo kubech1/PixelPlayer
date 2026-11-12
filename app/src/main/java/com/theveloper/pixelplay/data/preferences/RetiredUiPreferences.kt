@@ -14,7 +14,9 @@ internal class RetiredUiPreferencesMigration : DataMigration<Preferences> {
         intPreferencesKey("nav_bar_corner_radius"),
         booleanPreferencesKey("use_smooth_corners"),
         booleanPreferencesKey("tap_background_closes_player"),
-        floatPreferencesKey("animated_lyrics_blur_strength")
+        floatPreferencesKey("animated_lyrics_blur_strength"),
+        stringPreferencesKey("collage_pattern"),
+        booleanPreferencesKey("collage_auto_rotate")
     )
     override suspend fun shouldMigrate(currentData: Preferences) = keys.any { currentData.asMap().containsKey(it) }
     override suspend fun migrate(currentData: Preferences): Preferences = currentData.toMutablePreferences().apply {

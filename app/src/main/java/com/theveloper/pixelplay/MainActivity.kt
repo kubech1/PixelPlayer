@@ -579,7 +579,9 @@ class MainActivity : ComponentActivity() {
             )
         }
         val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route
+        val currentRoute = navBackStackEntry?.destination?.route?.let { route ->
+            if (route == Screen.Library.pattern) Screen.Library.route else route
+        }
         var isSearchBarActive by remember { mutableStateOf(false) }
         val densityForChrome = LocalDensity.current
         val imeInsets = WindowInsets.ime

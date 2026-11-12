@@ -16,6 +16,7 @@ import androidx.media3.common.Player
 import com.theveloper.pixelplay.data.equalizer.EqualizerPreset
 import com.theveloper.pixelplay.data.diagnostics.AdvancedPerformanceDiagnostics
 import com.theveloper.pixelplay.data.model.FolderSource
+import com.theveloper.pixelplay.data.model.HomeMixSnapshot
 import com.theveloper.pixelplay.data.model.LyricsSourcePreference
 import com.theveloper.pixelplay.data.model.PlaybackQueueSnapshot
 import com.theveloper.pixelplay.data.model.Playlist
@@ -117,9 +118,7 @@ class UserPreferencesRepository @Inject constructor(
         val LAST_LIBRARY_TAB_INDEX = intPreferencesKey("last_library_tab_index")
         val LAST_STORAGE_FILTER = stringPreferencesKey("last_storage_filter")
         val MOCK_GENRES_ENABLED = booleanPreferencesKey("mock_genres_enabled")
-        val LAST_DAILY_MIX_UPDATE = longPreferencesKey("last_daily_mix_update")
-        val DAILY_MIX_SONG_IDS = stringPreferencesKey("daily_mix_song_ids")
-        val YOUR_MIX_SONG_IDS = stringPreferencesKey("your_mix_song_ids")
+        val HOME_MIX_SNAPSHOTS = stringPreferencesKey("home_mix_snapshots_v1")
         val CAROUSEL_STYLE = stringPreferencesKey("carousel_style")
         val LIBRARY_NAVIGATION_MODE = stringPreferencesKey("library_navigation_mode")
         val LAUNCH_TAB = stringPreferencesKey("launch_tab")
@@ -223,10 +222,6 @@ class UserPreferencesRepository @Inject constructor(
         // View preferences
         val IS_GENRE_GRID_VIEW = booleanPreferencesKey("is_genre_grid_view")
         val IS_ALBUMS_LIST_VIEW = booleanPreferencesKey("is_albums_list_view")
-
-        // Collage
-        val COLLAGE_PATTERN = stringPreferencesKey("collage_pattern")
-        val COLLAGE_AUTO_ROTATE = booleanPreferencesKey("collage_auto_rotate")
 
         // Quick settings / last playlist
         val LAST_PLAYLIST_ID = stringPreferencesKey("last_playlist_id")
@@ -583,46 +578,6 @@ suspend fun markDirectoryRulesVersionApplied(version: Int) {
         dataStore.edit { it[PreferencesKeys.LAST_APPLIED_DIRECTORY_RULES_VERSION] = version }
     }
 
-    val dailyMixSongIdsFlow: Flow<List<String>> =
-            dataStore.data.map { preferences ->
-                val jsonString = preferences[PreferencesKeys.DAILY_MIX_SONG_IDS]
-                if (jsonString != null) {
-                    try {
-                        json.decodeFromString<List<String>>(jsonString)
-                    } catch (e: Exception) {
-                        emptyList()
-                    }
-                } else {
-                    emptyList()
-                }
-            }
-
-    suspend fun saveDailyMixSongIds(songIds: List<String>) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.DAILY_MIX_SONG_IDS] = json.encodeToString(songIds)
-        }
-    }
-
-    val yourMixSongIdsFlow: Flow<List<String>> =
-            dataStore.data.map { preferences ->
-                val jsonString = preferences[PreferencesKeys.YOUR_MIX_SONG_IDS]
-                if (jsonString != null) {
-                    try {
-                        json.decodeFromString<List<String>>(jsonString)
-                    } catch (e: Exception) {
-                        emptyList()
-                    }
-                } else {
-                    emptyList()
-                }
-            }
-
-    suspend fun saveYourMixSongIds(songIds: List<String>) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.YOUR_MIX_SONG_IDS] = json.encodeToString(songIds)
-        }
-    }
-
     val isGenreGridViewFlow: Flow<Boolean> =
         dataStore.data.map { preferences ->
             preferences[PreferencesKeys.IS_GENRE_GRID_VIEW] ?: true
@@ -645,14 +600,17 @@ suspend fun markDirectoryRulesVersionApplied(version: Int) {
         }
     }
 
-    val lastDailyMixUpdateFlow: Flow<Long> =
-            dataStore.data.map { preferences ->
-                preferences[PreferencesKeys.LAST_DAILY_MIX_UPDATE] ?: 0L
-            }
+    val homeMixSnapshotsFlow: Flow<List<HomeMixSnapshot>> =
+        pref { preferences ->
+            preferences[PreferencesKeys.HOME_MIX_SNAPSHOTS]?.let { encoded ->
+                runCatching { json.decodeFromString<List<HomeMixSnapshot>>(encoded) }.getOrNull()
+            }.orEmpty()
+        }
 
-    suspend fun saveLastDailyMixUpdateTimestamp(timestamp: Long) {
+    /** Replaces all recommendation snapshots in one DataStore transaction. */
+    suspend fun saveHomeMixSnapshots(snapshots: List<HomeMixSnapshot>) {
         dataStore.edit { preferences ->
-            preferences[PreferencesKeys.LAST_DAILY_MIX_UPDATE] = timestamp
+            preferences[PreferencesKeys.HOME_MIX_SNAPSHOTS] = json.encodeToString(snapshots)
         }
     }
 
@@ -1093,22 +1051,6 @@ suspend fun markDirectoryRulesVersionApplied(version: Int) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.VISUAL_EFFECTS_LEVEL] = level.storageKey
         }
-    }
-
-    // ─── Collage ──────────────────────────────────────────────────────────────
-
-    val collagePatternFlow: Flow<CollagePattern> =
-        pref { CollagePattern.fromStorageKey(it[PreferencesKeys.COLLAGE_PATTERN]) }
-
-    suspend fun setCollagePattern(pattern: CollagePattern) {
-        dataStore.edit { it[PreferencesKeys.COLLAGE_PATTERN] = pattern.storageKey }
-    }
-
-    val collageAutoRotateFlow: Flow<Boolean> =
-        pref { it[PreferencesKeys.COLLAGE_AUTO_ROTATE] ?: false }
-
-    suspend fun setCollageAutoRotate(enabled: Boolean) {
-        dataStore.edit { it[PreferencesKeys.COLLAGE_AUTO_ROTATE] = enabled }
     }
 
     // ─── Quick settings / last playlist ──────────────────────────────────────

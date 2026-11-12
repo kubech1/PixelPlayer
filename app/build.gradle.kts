@@ -54,8 +54,12 @@ val localProperties = Properties().apply {
     }
 }
 
-val enableAbiSplits = providers.gradleProperty("pixelplay.enableAbiSplits")
-    .getOrElse("true")
+val enableX86Debug = providers.gradleProperty("pixelplay.enableX86Debug")
+    .getOrElse("false")
+    .toBoolean()
+
+val unsignedRelease = providers.gradleProperty("pixelplay.unsignedRelease")
+    .getOrElse("false")
     .toBoolean()
 
 val enableComposeCompilerReports = providers.gradleProperty("pixelplay.enableComposeCompilerReports")
@@ -104,6 +108,8 @@ android {
         versionCode = (project.findProperty("APP_VERSION_CODE") as? String)?.toInt() ?: 1
         versionName = (project.findProperty("APP_VERSION_NAME") as? String) ?: "1.0.0"
 
+        ndk.abiFilters += "arm64-v8a"
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         val telegramApiId = localProperties.getProperty("TELEGRAM_API_ID")?.ifEmpty { null }
@@ -126,14 +132,17 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
+            if (enableX86Debug) {
+                ndk.abiFilters += "x86_64"
+            }
         }
 
         release {
             val keystoreFile = file("$rootDir/vz-pixelplay.jks")
-            signingConfig = if (keystoreFile.exists()) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
+            signingConfig = when {
+                unsignedRelease -> null
+                keystoreFile.exists() -> signingConfigs.getByName("release")
+                else -> signingConfigs.getByName("debug")
             }
             isMinifyEnabled = true
             isShrinkResources = true
@@ -168,17 +177,6 @@ android {
 
     lint {
         checkReleaseBuilds = false
-    }
-
-    splits {
-        abi {
-            isEnable = enableAbiSplits
-            reset()
-            if (enableAbiSplits) {
-                include("arm64-v8a", "armeabi-v7a")
-                isUniversalApk = false
-            }
-        }
     }
 
     bundle {

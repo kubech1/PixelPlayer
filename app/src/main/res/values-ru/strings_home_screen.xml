@@ -276,4 +276,5 @@
     <string name="song_count_singular">%1$d песня</string>
     <string name="song_count_plural">%1$d песен</string>
     <string name="stats_week_label">Неделя %1$d</string>
+    <string name="mix_detail_unavailable">Этот микс больше недоступен.</string>
 </resources>

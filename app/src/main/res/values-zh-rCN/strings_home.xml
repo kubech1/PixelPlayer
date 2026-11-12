@@ -1,0 +1,29 @@
+<resources>
+    <string name="home_title">首页</string>
+    <string name="home_mix_daily">每日混音</string>
+    <string name="home_mix_underplayed">很少播放</string>
+    <string name="home_mix_rediscover">很久没听</string>
+    <string name="home_mix_artist">探索 %1$s 的更多歌曲</string>
+    <string name="home_mix_genre">探索 %1$s</string>
+    <string name="home_mix_recently_added">最近添加</string>
+    <plurals name="home_mix_personalized_song_count">
+        <item quantity="one">%1$d 首歌曲 · 根据你的收听记录</item>
+        <item quantity="other">%1$d 首歌曲 · 根据你的收听记录</item>
+    </plurals>
+    <plurals name="home_mix_song_count">
+        <item quantity="one">%1$d 首歌曲</item>
+        <item quantity="other">%1$d 首歌曲</item>
+    </plurals>
+    <string name="home_mix_play">播放 %1$s</string>
+    <string name="home_explore_library">探索音乐库</string>
+    <string name="home_recently_played">最近播放</string>
+    <string name="home_see_all">查看全部</string>
+    <string name="home_listening_title">收听统计</string>
+    <string name="home_listening_today">今天</string>
+    <string name="home_listening_week">本周</string>
+    <string name="home_listening_top_song">播放最多：%1$s</string>
+    <string name="home_minutes">%1$d 分钟</string>
+    <string name="home_less_than_minute">不到 1 分钟</string>
+    <string name="home_quick_title">快捷访问</string>
+    <string name="home_quick_recent_album">上次播放的专辑</string>
+</resources>

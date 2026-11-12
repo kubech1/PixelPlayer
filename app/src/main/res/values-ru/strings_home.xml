@@ -1,0 +1,33 @@
+<resources>
+    <string name="home_title">Главная</string>
+    <string name="home_mix_daily">Микс дня</string>
+    <string name="home_mix_underplayed">Редко прослушиваемое</string>
+    <string name="home_mix_rediscover">Давно не слушали</string>
+    <string name="home_mix_artist">Больше от %1$s</string>
+    <string name="home_mix_genre">Исследовать %1$s</string>
+    <string name="home_mix_recently_added">Недавно добавлено</string>
+    <plurals name="home_mix_personalized_song_count">
+        <item quantity="one">%1$d трек · На основе ваших прослушиваний</item>
+        <item quantity="few">%1$d трека · На основе ваших прослушиваний</item>
+        <item quantity="many">%1$d треков · На основе ваших прослушиваний</item>
+        <item quantity="other">%1$d трека · На основе ваших прослушиваний</item>
+    </plurals>
+    <plurals name="home_mix_song_count">
+        <item quantity="one">%1$d трек</item>
+        <item quantity="few">%1$d трека</item>
+        <item quantity="many">%1$d треков</item>
+        <item quantity="other">%1$d трека</item>
+    </plurals>
+    <string name="home_mix_play">Воспроизвести: %1$s</string>
+    <string name="home_explore_library">Открыть библиотеку</string>
+    <string name="home_recently_played">Недавно прослушано</string>
+    <string name="home_see_all">Показать все</string>
+    <string name="home_listening_title">Статистика прослушиваний</string>
+    <string name="home_listening_today">Сегодня</string>
+    <string name="home_listening_week">На этой неделе</string>
+    <string name="home_listening_top_song">Чаще всего: %1$s</string>
+    <string name="home_minutes">%1$d мин</string>
+    <string name="home_less_than_minute">Меньше минуты</string>
+    <string name="home_quick_title">Быстрый доступ</string>
+    <string name="home_quick_recent_album">Последний альбом</string>
+</resources>

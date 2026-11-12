@@ -1,13 +1,19 @@
 package com.theveloper.pixelplay.presentation.navigation
 
 import androidx.compose.runtime.Immutable
+import com.theveloper.pixelplay.data.model.LibraryTabId
 
 
 @Immutable
 sealed class Screen(val route: String) {
     object Home : Screen("home")
     object Search : Screen("search")
-    object Library : Screen("library")
+    object Library : Screen("library") {
+        const val TAB_ARGUMENT = "tab"
+        val pattern = "$route?$TAB_ARGUMENT={$TAB_ARGUMENT}"
+
+        fun createRoute(tab: LibraryTabId) = "$route?$TAB_ARGUMENT=${tab.storageKey}"
+    }
     object Settings : Screen("settings")
     object Accounts : Screen("settings_accounts")
     object SettingsCategory : Screen("settings_category/{categoryId}") {
@@ -18,7 +24,9 @@ sealed class Screen(val route: String) {
         fun createRoute(playlistId: String) = "playlist_detail/$playlistId"
     }
 
-    object  DailyMixScreen : Screen("daily_mix")
+    object DailyMixScreen : Screen("daily_mix?mixId={mixId}") {
+        fun createRoute(mixId: String) = "daily_mix?mixId=${android.net.Uri.encode(mixId)}"
+    }
     object RecentlyPlayed : Screen("recently_played")
     object Stats : Screen("stats")
     object GenreDetail : Screen("genre_detail/{genreId}") { // New screen

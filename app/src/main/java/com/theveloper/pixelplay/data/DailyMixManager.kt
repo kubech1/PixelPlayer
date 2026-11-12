@@ -9,6 +9,8 @@ import com.google.gson.reflect.TypeToken
 import com.theveloper.pixelplay.data.database.EngagementDao
 import com.theveloper.pixelplay.data.database.SongEngagementEntity
 import com.theveloper.pixelplay.data.model.Song
+import com.theveloper.pixelplay.data.model.HomeMixKind
+import com.theveloper.pixelplay.data.model.HomeMixSnapshot
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -16,9 +18,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import java.io.File
-import java.util.Calendar
-import java.util.LinkedHashSet
 import java.util.concurrent.TimeUnit
+import java.time.LocalDate
+import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -279,267 +281,302 @@ class DailyMixManager @Inject constructor(
         return readEngagements()
     }
 
-    private suspend fun computeRankedSongs(
+    /** Builds one discovery-led daily mix and three deterministic rotating mixes. */
+    suspend fun generateHomeMixSnapshots(
         allSongs: List<Song>,
         favoriteSongIds: Set<String>,
-        random: java.util.Random
-    ): List<RankedSong> {
-        if (allSongs.isEmpty()) return emptyList()
-
+        localDate: LocalDate,
+        recentSnapshots: List<HomeMixSnapshot>,
+        limit: Int = 24,
+        variantSeed: Long = 0L,
+        filterKey: String = "ALL",
+        catalogFingerprint: String = "",
+        zoneId: ZoneId = ZoneId.systemDefault(),
+        dailyExcludedSongIds: Set<String> = emptySet()
+    ): List<HomeMixSnapshot> {
+        if (allSongs.isEmpty() || limit <= 0) return emptyList()
+        val dailyCandidates = allSongs.filterNot { it.id in dailyExcludedSongIds }.ifEmpty { allSongs }
+        val dailySize = minOf(dailySizeForCatalog(allSongs.size), dailyCandidates.size, limit)
+        val now = localDate.plusDays(1).atStartOfDay(zoneId).toInstant().toEpochMilli() - 1L
         val engagements = readEngagements()
-        val songById = allSongs.associateBy { it.id }
-        val now = System.currentTimeMillis()
-
+        val songsById = allSongs.associateBy(Song::id)
         val artistAffinity = mutableMapOf<Long, Double>()
         val genreAffinity = mutableMapOf<String, Double>()
-
-        engagements.forEach { (songId, stats) ->
-            val song = songById[songId] ?: return@forEach
-            val weight = stats.playCount.toDouble() + (stats.totalPlayDurationMs / 60000.0)
-            if (weight <= 0) return@forEach
-            artistAffinity.merge(song.artistId, weight, Double::plus)
+        engagements.forEach { (id, stats) ->
+            val song = songsById[id] ?: return@forEach
+            val weight = stats.playCount.coerceAtLeast(0).toDouble() + stats.totalPlayDurationMs.coerceAtLeast(0L) / 60_000.0
+            if (weight <= 0.0) return@forEach
+            artistIds(song).forEach { artistAffinity.merge(it.id, weight, Double::plus) }
             normalizeGenreKey(song.genre)?.let { genreAffinity.merge(it, weight, Double::plus) }
         }
-
-        val favoriteArtistWeights = mutableMapOf<Long, Int>()
-        favoriteSongIds.forEach { id ->
-            val song = songById[id] ?: return@forEach
-            favoriteArtistWeights.merge(song.artistId, 1, Int::plus)
+        favoriteSongIds.forEach { id -> songsById[id]?.let { song ->
+            artistIds(song).forEach { artistAffinity.merge(it.id, 2.0, Double::plus) }
+        } }
+        val seed = localDate.toEpochDay() xor variantSeed
+        val recentSnapshots = recentSnapshots.filter { snapshot ->
+            runCatching { LocalDate.parse(snapshot.localDate) }.getOrNull()?.let { date ->
+                !date.isBefore(localDate.minusDays(6)) && date.isBefore(localDate)
+            } == true
         }
+        val recentIds = recentSnapshots.flatMapTo(mutableSetOf()) { it.songIds }
+        val recentForFilter = recentSnapshots.filter { it.filterKey == filterKey }
+        val dailySongs = selectDaily(
+            songs = dailyCandidates,
+            limit = dailySize,
+            engagements = engagements,
+            favorites = favoriteSongIds,
+            artistAffinity = artistAffinity,
+            genreAffinity = genreAffinity,
+            recentIds = recentIds,
+            seed = seed,
+            nowMillis = now
+        )
+        val dailyCover = chooseCoverSong(dailySongs, emptySet())
+        val highlightedAlbums = mutableSetOf<Long>()
+        dailyCover?.let { highlightedAlbums.add(it.albumId) }
+        val results = mutableListOf(
+            HomeMixSnapshot(
+                id = "daily", kind = HomeMixKind.DAILY, localDate = localDate.toString(),
+                songIds = dailySongs.map(Song::id),
+                isPersonalized = engagements.isNotEmpty() || favoriteSongIds.isNotEmpty(),
+                slot = -1, filterKey = filterKey, catalogFingerprint = catalogFingerprint,
+                rotationSlotsGenerated = true,
+                coverSongId = dailyCover?.id
+            )
+        )
 
-        val maxPlayCount = engagements.values.maxOfOrNull { it.playCount }?.takeIf { it > 0 } ?: 1
-        val maxDuration = engagements.values.maxOfOrNull { it.totalPlayDurationMs }?.takeIf { it > 0L } ?: 1L
-        val maxArtistAffinity = artistAffinity.values.maxOrNull()?.takeIf { it > 0 } ?: 1.0
-        val maxGenreAffinity = genreAffinity.values.maxOrNull()?.takeIf { it > 0 } ?: 1.0
-        val maxFavoriteArtist = favoriteArtistWeights.values.maxOrNull()?.takeIf { it > 0 } ?: 1
+        val rotations = mutableListOf<Rotation>()
+        val cutoff21 = now - TimeUnit.DAYS.toMillis(21)
+        val cutoff60 = now - TimeUnit.DAYS.toMillis(60)
+        val underplayed = allSongs.filter { song ->
+            val addedAt = addedTimestampMillis(song.dateAdded)
+            (engagements[song.id]?.playCount ?: 0) <= 2 && addedAt in 1L until cutoff21
+        }
+        addRotation(rotations, HomeMixKind.UNDERPLAYED, null, underplayed, recentForFilter)
 
-        return allSongs.map { song ->
+        val rediscover = allSongs.filter { song ->
             val stats = engagements[song.id]
-            val playCountScore = (stats?.playCount?.toDouble() ?: 0.0) / maxPlayCount
-            val durationScore = (stats?.totalPlayDurationMs?.toDouble() ?: 0.0) / maxDuration
-            val affinityScore = (playCountScore * 0.7 + durationScore * 0.3).coerceIn(0.0, 1.0)
+            val hasHistoryOrFavorite = (stats?.playCount ?: 0) >= 3 || song.id in favoriteSongIds
+            hasHistoryOrFavorite && (stats?.lastPlayedTimestamp ?: 0L) in 1L..cutoff60
+        }.sortedWith(compareBy<Song> { engagements[it.id]?.lastPlayedTimestamp ?: Long.MAX_VALUE }
+            .thenBy { stableHash(seed, it.id) })
+        addRotation(rotations, HomeMixKind.REDISCOVER, null, rediscover, recentForFilter)
 
-            val genreKey = normalizeGenreKey(song.genre)
-            val artistPreference = artistAffinity[song.artistId]?.div(maxArtistAffinity) ?: 0.0
-            val genrePreference = genreKey?.let { (genreAffinity[it] ?: 0.0) / maxGenreAffinity } ?: 0.0
-            val favoriteArtistPreference = favoriteArtistWeights[song.artistId]?.toDouble()?.div(maxFavoriteArtist) ?: 0.0
-            val preferenceScore = if (genreKey == null) {
-                (artistPreference * 0.6) + (favoriteArtistPreference * 0.4)
-            } else {
-                (artistPreference * 0.45) +
-                    (genrePreference * 0.35) +
-                    (favoriteArtistPreference * 0.20)
+        val artistOptions = allSongs.asSequence()
+            .filter { (engagements[it.id]?.playCount ?: 0) <= 2 }
+            .flatMap { song -> artistIds(song).map { it to song } }
+            .filter { (artist, _) -> artist.id in artistAffinity }
+            .groupBy { (artist, _) -> artist.id }
+        artistOptions.forEach { (id, entries) ->
+            if (entries.size >= ROTATING_MIN_SIZE) {
+                val subject = entries.first().first.name
+                val artistSongs = entries.map { it.second }
+                addRotation(rotations, HomeMixKind.ARTIST, subject,
+                    rankSubset(artistSongs, artistAffinity, genreAffinity, favoriteSongIds, seed + id), recentForFilter)
             }
+        }
 
-            val recencyScore = computeRecencyScore(stats?.lastPlayedTimestamp, now)
-            val noveltyScore = computeNoveltyScore(song.dateAdded, now)
-            val favoriteScore = if (favoriteSongIds.contains(song.id)) 1.0 else 0.0
-            val baselineScore = if (stats == null) 0.1 else 0.0
-            val noise = random.nextDouble() * 0.005 // Significantly reduced noise
+        allSongs.groupBy { normalizeGenreKey(it.genre) }.forEach { (genre, genreSongs) ->
+            if (genre != null && genreSongs.size >= ROTATING_MIN_SIZE) {
+                val subject = genreSongs.first().genre?.trim()
+                addRotation(rotations, HomeMixKind.GENRE, subject,
+                    rankSubset(genreSongs, artistAffinity, genreAffinity, favoriteSongIds, seed + genre.hashCode()), recentForFilter)
+            }
+        }
 
-            val finalScore = (preferenceScore * 0.45) +
-                (affinityScore * 0.25) +
-                (recencyScore * 0.15) +
-                (favoriteScore * 0.1) +
-                (noveltyScore * 0.05) +
-                baselineScore +
-                noise
+        val recentAdded = allSongs.filter { song -> addedTimestampMillis(song.dateAdded) in cutoff21..now }
+            .sortedWith(compareByDescending<Song> { addedTimestampMillis(it.dateAdded) }
+                .thenBy { engagements[it.id]?.playCount ?: 0 }.thenBy { stableHash(seed, it.id) })
+        addRotation(rotations, HomeMixKind.RECENTLY_ADDED, null, recentAdded, recentForFilter)
 
-            val discoveryScore = ((1.0 - affinityScore).coerceIn(0.0, 1.0) * 0.6) +
-                (noveltyScore * 0.25) +
-                (preferenceScore * 0.15)
-
-            RankedSong(
-                song = song,
-                finalScore = if (finalScore.isNaN() || finalScore.isInfinite()) 0.0 else finalScore,
-                discoveryScore = if (discoveryScore.isNaN() || discoveryScore.isInfinite()) 0.0 else discoveryScore,
-                affinityScore = affinityScore,
-                recencyScore = recencyScore,
-                noveltyScore = noveltyScore,
-                favoriteScore = favoriteScore
+        val dailyIds = dailySongs.mapTo(mutableSetOf(), Song::id)
+        val selectedRotationIds = mutableSetOf<String>()
+        val selectedKinds = mutableSetOf<HomeMixKind>()
+        val orderedRotations = rotations.sortedWith(
+            compareBy<Rotation> { it.priority }.thenBy { stableHash(seed, it.kind.name + it.subject) }
+        )
+        for (rotation in orderedRotations) {
+            if (selectedKinds.size >= ROTATING_COUNT) break
+            if (rotation.kind in selectedKinds) continue
+            val available = rotation.songs.filterNot { it.id in selectedRotationIds }.distinctBy(Song::id)
+            val freshCount = available.count { it.id !in dailyIds }
+            val overlapCount = available.size - freshCount
+            var targetSize = minOf(ROTATING_TARGET_SIZE, available.size)
+            while (targetSize >= ROTATING_MIN_SIZE &&
+                freshCount + minOf(overlapCount, targetSize / 4) < targetSize) {
+                targetSize--
+            }
+            if (targetSize < ROTATING_MIN_SIZE) continue
+            val selected = selectRotation(
+                candidates = available,
+                targetSize = targetSize,
+                dailyIds = dailyIds,
+                recentIds = recentIds,
+                seed = seed + results.size
+            )
+            if (selected.size < ROTATING_MIN_SIZE) continue
+            val slot = results.size - 1
+            selectedKinds += rotation.kind
+            selectedRotationIds.addAll(selected.map(Song::id))
+            val cover = chooseCoverSong(selected, highlightedAlbums)
+            cover?.let { highlightedAlbums.add(it.albumId) }
+            results += HomeMixSnapshot(
+                id = rotation.kind.name.lowercase() + rotation.subject?.let { "-" + slug(it) }.orEmpty(),
+                kind = rotation.kind, subject = rotation.subject, localDate = localDate.toString(),
+                songIds = selected.map(Song::id), isPersonalized = engagements.isNotEmpty() || favoriteSongIds.isNotEmpty(),
+                slot = slot, filterKey = filterKey, catalogFingerprint = catalogFingerprint,
+                coverSongId = cover?.id
             )
         }
-            .sortedWith(compareByDescending<RankedSong> { it.finalScore }.thenBy { it.song.id })
+        return results
     }
 
-    suspend fun generateDailyMix(
-        allSongs: List<Song>,
-        favoriteSongIds: Set<String> = emptySet(),
-        limit: Int = 30
+    private data class Rotation(
+        val kind: HomeMixKind,
+        val subject: String?,
+        val songs: List<Song>,
+        val priority: Long
+    )
+
+    private fun dailySizeForCatalog(size: Int): Int = when {
+        size <= 0 -> 0
+        size <= 8 -> size
+        size <= 20 -> maxOf(6, (size * 0.6).toInt())
+        size <= 40 -> 12
+        size <= 80 -> 18
+        else -> 24
+    }
+
+    private fun artistIds(song: Song) = (song.artists + song.primaryArtist).distinctBy { it.id }
+        .filter { it.id >= 0L && it.name.isNotBlank() && !it.name.equals("<unknown>", ignoreCase = true) }
+
+    private fun rankSubset(
+        songs: List<Song>, artistAffinity: Map<Long, Double>, genreAffinity: Map<String, Double>,
+        favorites: Set<String>, seed: Long
+    ): List<Song> = songs.sortedWith(
+        compareByDescending<Song> {
+            (artistIds(it).sumOf { artist -> artistAffinity[artist.id] ?: 0.0 }) +
+                (normalizeGenreKey(it.genre)?.let { genreAffinity[it] ?: 0.0 } ?: 0.0) +
+                if (it.id in favorites) 2.0 else 0.0
+        }.thenBy { stableHash(seed, it.id) }
+    )
+
+    private fun selectDaily(
+        songs: List<Song>, limit: Int, engagements: Map<String, SongEngagementStats>, favorites: Set<String>,
+        artistAffinity: Map<Long, Double>, genreAffinity: Map<String, Double>, recentIds: Set<String>, seed: Long,
+        nowMillis: Long
     ): List<Song> {
-        if (allSongs.isEmpty()) {
-            return emptyList()
+        val score: (Song) -> Double = { song ->
+            val stats = engagements[song.id]
+            val plays = stats?.playCount?.coerceAtLeast(0) ?: 0
+            val affinity = artistIds(song).sumOf { artistAffinity[it.id] ?: 0.0 } +
+                (normalizeGenreKey(song.genre)?.let { genreAffinity[it] ?: 0.0 } ?: 0.0) +
+                if (song.id in favorites) 2.0 else 0.0
+            val recency = stats?.lastPlayedTimestamp?.takeIf { it > 0L }
+                ?.let { ((nowMillis - it).coerceAtLeast(0L) / TimeUnit.DAYS.toMillis(1)).toDouble() } ?: 365.0
+            (1.0 / (1.0 + plays)) * 0.5 + (recency / (recency + 60.0)) * 0.15 +
+                (affinity / (affinity + 20.0)) * 0.35
         }
-
-        val calendar = Calendar.getInstance()
-        val seed = calendar.get(Calendar.YEAR) * 1000 + calendar.get(Calendar.DAY_OF_YEAR)
-        val random = java.util.Random(seed.toLong())
-
-        val rankedSongs = computeRankedSongs(allSongs, favoriteSongIds, random)
-        if (rankedSongs.isEmpty()) {
-            return allSongs.shuffled(random).take(limit.coerceAtMost(allSongs.size))
-        }
-
-        val diversityState = DiversityState()
-        val selected = pickWithDiversity(rankedSongs, favoriteSongIds, limit, diversityState)
-        if (selected.size >= limit || selected.size == rankedSongs.size) {
-            return selected
-        }
-
-        val remainingRanked = rankedSongs.filterNot { candidate ->
-            selected.any { it.id == candidate.song.id }
-        }
-        val quotaFill = pickWithDiversity(remainingRanked, favoriteSongIds, limit - selected.size, diversityState)
-        val combined = (selected + quotaFill).distinctBy { it.id }.toMutableList()
-
-        if (combined.size < limit) {
-            val remaining = allSongs
-                .filterNot { song -> combined.any { it.id == song.id } }
-                .shuffled(random)
-            for (song in remaining) {
-                combined.add(song)
-                if (combined.size >= limit) break
+        val order = songs.sortedWith(compareByDescending(score).thenBy { stableHash(seed, it.id) })
+        val underplayed = order.filter { (engagements[it.id]?.playCount ?: 0) <= 2 }
+        val familiar = order.filter { (engagements[it.id]?.playCount ?: 0) > 2 }
+        val knownTarget = limit / 3
+        val result = mutableListOf<Song>()
+        val used = mutableSetOf<String>()
+        val selectedArtists = mutableMapOf<Long, Int>()
+        val selectedAlbums = mutableMapOf<Long, Int>()
+        fun append(candidates: List<Song>, target: Int) {
+            val startSize = result.size
+            val ordered = candidates.withIndex().sortedBy { (index, song) ->
+                index.toDouble() + (if (song.id in recentIds) 40.0 else 0.0) -
+                    ((stableHash(seed, song.id) % 10_000L) / 10_000.0) * 4.0
+            }.map { it.value }
+            fun addRespectingDiversity() {
+                for (song in ordered) {
+                    if (result.size - startSize >= target || result.size >= limit || song.id in used) continue
+                    val ids = artistIds(song).map { it.id }
+                    if (ids.any { (selectedArtists[it] ?: 0) >= 2 } ||
+                        (song.albumId >= 0 && (selectedAlbums[song.albumId] ?: 0) >= 2)) continue
+                    result += song
+                    used += song.id
+                    ids.forEach { selectedArtists[it] = (selectedArtists[it] ?: 0) + 1 }
+                    if (song.albumId >= 0) selectedAlbums[song.albumId] = (selectedAlbums[song.albumId] ?: 0) + 1
+                }
+            }
+            addRespectingDiversity()
+            if (result.size - startSize < target) {
+                ordered.forEach { song ->
+                    if (result.size - startSize >= target || result.size >= limit) return@forEach
+                    if (used.add(song.id)) result += song
+                }
             }
         }
-
-        return combined.take(limit.coerceAtMost(combined.size))
+        append(underplayed, limit - knownTarget)
+        append(familiar, knownTarget)
+        append(order, limit - result.size)
+        return result.take(limit)
     }
 
-    suspend fun generateYourMix(
-        allSongs: List<Song>,
-        favoriteSongIds: Set<String> = emptySet(),
-        limit: Int = 60
-    ): List<Song> {
-        if (allSongs.isEmpty()) {
-            return emptyList()
-        }
-
-        val calendar = Calendar.getInstance()
-        val seed = calendar.get(Calendar.YEAR) * 1000 + calendar.get(Calendar.DAY_OF_YEAR) + 17
-        val random = java.util.Random(seed.toLong())
-        val rankedSongs = computeRankedSongs(allSongs, favoriteSongIds, random)
-
-        if (rankedSongs.isEmpty()) {
-            return allSongs.shuffled(random).take(limit.coerceAtMost(allSongs.size))
-        }
-
-        val favoriteSectionSize = (limit * 0.3).toInt().coerceAtLeast(5).coerceAtMost(limit)
-        val coreSectionSize = (limit * 0.45).toInt().coerceAtLeast(10).coerceAtMost(limit)
-        val discoverySectionSize = (limit - favoriteSectionSize - coreSectionSize).coerceAtLeast(0)
-
-        val diversityState = DiversityState()
-
-        val favoriteSection = pickWithDiversity(
-            rankedSongs.filter { favoriteSongIds.contains(it.song.id) },
-            favoriteSongIds,
-            favoriteSectionSize,
-            diversityState
-        )
-
-        val alreadySelectedIds = favoriteSection.map { it.id }.toMutableSet()
-
-        val coreSection = pickWithDiversity(
-            rankedSongs.filterNot { alreadySelectedIds.contains(it.song.id) },
-            favoriteSongIds,
-            coreSectionSize,
-            diversityState
-        )
-
-        alreadySelectedIds.addAll(coreSection.map { it.id })
-
-        val discoveryCandidates = rankedSongs
-            .filterNot { alreadySelectedIds.contains(it.song.id) }
-            .sortedWith(compareByDescending<RankedSong> { it.discoveryScore }.thenBy { it.song.id })
-
-        val discoverySection = pickWithDiversity(
-            discoveryCandidates,
-            favoriteSongIds,
-            discoverySectionSize,
-            diversityState
-        )
-
-        val orderedResult = LinkedHashSet<Song>()
-        orderedResult.addAll(favoriteSection)
-        orderedResult.addAll(coreSection)
-        orderedResult.addAll(discoverySection)
-
-        if (orderedResult.size < limit) {
-            val quotaFill = pickWithDiversity(
-                rankedSongs.filterNot { orderedResult.any { selected -> selected.id == it.song.id } },
-                favoriteSongIds,
-                limit - orderedResult.size,
-                diversityState
-            )
-            orderedResult.addAll(quotaFill)
-        }
-
-        if (orderedResult.size < limit) {
-            val filler = allSongs
-                .filterNot { orderedResult.any { selected -> selected.id == it.id } }
-                .shuffled(random)
-            for (song in filler) {
-                orderedResult.add(song)
-                if (orderedResult.size >= limit) break
-            }
-        }
-
-        return orderedResult.take(limit.coerceAtMost(orderedResult.size))
+    private fun addRotation(
+        target: MutableList<Rotation>, kind: HomeMixKind, subject: String?, songs: List<Song>,
+        recentSnapshots: List<HomeMixSnapshot>
+    ) {
+        if (songs.size < ROTATING_MIN_SIZE) return
+        target += Rotation(kind, subject, songs, lastExposureDay(recentSnapshots, kind, subject))
     }
 
-    /**
-     * Gets a localized, non-randomized, highly curated list of candidates
-     * optimized to be sent to an LLM for thematic playlist generation.
-     */
+    private fun lastExposureDay(snapshots: List<HomeMixSnapshot>, kind: HomeMixKind, subject: String?): Long =
+        snapshots.asSequence()
+            .filter { it.kind == kind && it.subject == subject }
+            .mapNotNull { runCatching { LocalDate.parse(it.localDate).toEpochDay() }.getOrNull() }
+            .maxOrNull() ?: Long.MIN_VALUE
 
-    private fun pickWithDiversity(
-        rankedSongs: List<RankedSong>,
-        favoriteSongIds: Set<String>,
-        limit: Int,
-        state: DiversityState = DiversityState()
+    private fun selectRotation(
+        candidates: List<Song>, targetSize: Int, dailyIds: Set<String>,
+        recentIds: Set<String>, seed: Long
     ): List<Song> {
-        if (limit <= 0 || rankedSongs.isEmpty()) return emptyList()
-
+        val targetDailyOverlap = targetSize / 4
+        val ordered = candidates.distinctBy(Song::id).withIndex().sortedBy { (index, song) ->
+            index.toDouble() + (if (song.id in recentIds) 20.0 else 0.0) -
+                ((stableHash(seed, song.id) % 10_000L) / 10_000.0) * 2.0
+        }.map { it.value }
         val selected = mutableListOf<Song>()
-
-        for (candidate in rankedSongs) {
-            if (selected.size >= limit) break
-            val artistId = candidate.song.artistId
-            val maxPerArtist = if (favoriteSongIds.contains(candidate.song.id)) 3 else 2
-            val currentCount = state.artistCounts.getOrDefault(artistId, 0)
-            if (currentCount >= maxPerArtist) continue
-
-            val genreKey = normalizeGenreKey(candidate.song.genre)
-            val maxPerGenre = if (genreKey == null) {
-                maxUnknownGenreCount(limit, favoriteSongIds.contains(candidate.song.id))
-            } else {
-                maxKnownGenreCount(limit, favoriteSongIds.contains(candidate.song.id))
-            }
-            if (genreKey == null) {
-                if (state.unknownGenreCount >= maxPerGenre) continue
-            } else {
-                val currentGenreCount = state.genreCounts.getOrDefault(genreKey, 0)
-                if (currentGenreCount >= maxPerGenre) continue
-            }
-
-            selected += candidate.song
-            state.artistCounts[artistId] = currentCount + 1
-            if (genreKey == null) {
-                state.unknownGenreCount += 1
-            } else {
-                state.genreCounts[genreKey] = state.genreCounts.getOrDefault(genreKey, 0) + 1
+        val artists = mutableMapOf<Long, Int>()
+        val albums = mutableMapOf<Long, Int>()
+        var dailyOverlap = 0
+        fun pick(respectArtistAlbumCaps: Boolean) {
+            for (song in ordered) {
+                if (selected.size >= targetSize || song in selected) continue
+                val overlapsDaily = song.id in dailyIds
+                if (overlapsDaily && dailyOverlap >= targetDailyOverlap) continue
+                val artistKeys = artistIds(song).map { it.id }
+                if (respectArtistAlbumCaps && (artistKeys.any { (artists[it] ?: 0) >= 2 } ||
+                        (song.albumId >= 0 && (albums[song.albumId] ?: 0) >= 2))) continue
+                selected += song
+                if (overlapsDaily) dailyOverlap++
+                artistKeys.forEach { artists[it] = (artists[it] ?: 0) + 1 }
+                if (song.albumId >= 0) albums[song.albumId] = (albums[song.albumId] ?: 0) + 1
             }
         }
-
-        if (selected.size < limit) {
-            for (candidate in rankedSongs) {
-                if (selected.size >= limit) break
-                if (selected.any { it.id == candidate.song.id }) continue
-                selected += candidate.song
-            }
-        }
-
-        return selected.take(limit)
+        pick(respectArtistAlbumCaps = true)
+        if (selected.size < targetSize) pick(respectArtistAlbumCaps = false)
+        return selected
     }
+
+    private fun chooseCoverSong(songs: List<Song>, highlightedAlbums: Set<Long>): Song? =
+        songs.firstOrNull { !it.albumArtUriString.isNullOrBlank() && it.albumId !in highlightedAlbums }
+            ?: songs.firstOrNull { !it.albumArtUriString.isNullOrBlank() }
+
+    private fun addedTimestampMillis(dateAdded: Long): Long = when {
+        dateAdded <= 0L -> 0L
+        dateAdded < 10_000_000_000L -> TimeUnit.SECONDS.toMillis(dateAdded)
+        else -> dateAdded
+    }
+
+    private fun stableHash(seed: Long, value: String): Long =
+        ("$seed:$value").hashCode().toLong().and(0xffffffffL)
+
+    private fun slug(value: String): String = value.lowercase().replace(Regex("[^a-z0-9]+"), "-").trim('-').take(32)
 
     private fun normalizeGenreKey(rawGenre: String?): String? {
         val normalized = rawGenre
@@ -555,65 +592,11 @@ class DailyMixManager @Inject constructor(
         }
     }
 
-    private fun maxKnownGenreCount(limit: Int, isFavorite: Boolean): Int {
-        val baseCap = when {
-            limit <= 12 -> 2
-            limit <= 30 -> 3
-            else -> 4
-        }
-        return baseCap + if (isFavorite) 1 else 0
-    }
-
-    private fun maxUnknownGenreCount(limit: Int, isFavorite: Boolean): Int {
-        val baseCap = when {
-            limit <= 12 -> 1
-            limit <= 30 -> 2
-            else -> 3
-        }
-        return baseCap + if (isFavorite) 1 else 0
-    }
-
-    private fun computeRecencyScore(lastPlayedTimestamp: Long?, now: Long): Double {
-        if (lastPlayedTimestamp == null || lastPlayedTimestamp <= 0L) return 0.6
-        val daysSinceLastPlay = ((now - lastPlayedTimestamp).coerceAtLeast(0L) / TimeUnit.DAYS.toMillis(1)).toDouble()
-        return when {
-            daysSinceLastPlay < 1 -> 0.2
-            daysSinceLastPlay < 3 -> 0.5
-            daysSinceLastPlay < 7 -> 0.7
-            daysSinceLastPlay < 14 -> 0.85
-            else -> 1.0
-        }
-    }
-
-    private fun computeNoveltyScore(dateAdded: Long, now: Long): Double {
-        if (dateAdded <= 0L) return 0.0
-        val dateAddedMillis = if (dateAdded < 10_000_000_000L) {
-            TimeUnit.SECONDS.toMillis(dateAdded)
-        } else {
-            dateAdded
-        }
-        val daysSinceAdded = ((now - dateAddedMillis).coerceAtLeast(0L) / TimeUnit.DAYS.toMillis(1)).toDouble()
-        return (1.0 - (daysSinceAdded / 60.0)).coerceIn(0.0, 1.0)
-    }
-
-    private data class RankedSong(
-        val song: Song,
-        val finalScore: Double,
-        val discoveryScore: Double,
-        val affinityScore: Double,
-        val recencyScore: Double,
-        val noveltyScore: Double,
-        val favoriteScore: Double
-    )
-
-    private data class DiversityState(
-        val artistCounts: MutableMap<Long, Int> = mutableMapOf(),
-        val genreCounts: MutableMap<String, Int> = mutableMapOf(),
-        var unknownGenreCount: Int = 0
-    )
-
     companion object {
         private const val TAG = "DailyMixManager"
+        private const val ROTATING_COUNT = 3
+        private const val ROTATING_MIN_SIZE = 5
+        private const val ROTATING_TARGET_SIZE = 8
         private val SCORE_KEY_CANDIDATES = listOf("score", "count", "value")
     }
 }

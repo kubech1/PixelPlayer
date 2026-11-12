@@ -1,30 +1,31 @@
 package com.theveloper.pixelplay.presentation.components
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.snap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -32,14 +33,30 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.util.lerp
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.theveloper.pixelplay.R
 import com.theveloper.pixelplay.ui.theme.GoogleSansRounded
 import com.theveloper.pixelplay.ui.theme.PixelPlayStatusBarStyle
+import com.theveloper.pixelplay.ui.theme.LocalMotionPreferences
+import com.theveloper.pixelplay.ui.theme.PixelMotion
+import com.theveloper.pixelplay.ui.theme.pillSurface
+import com.theveloper.pixelplay.ui.theme.rememberPillSurfaceColors
+import kotlin.math.roundToInt
 import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -103,38 +120,53 @@ fun HomeGradientTopBar(
     onMenuClick: () -> Unit = {},
     isScrolled: Boolean = false,
 ) {
-    val surfaceContainerHigh = MaterialTheme.colorScheme.surfaceContainerHighest
-
-    PixelPlayStatusBarStyle(color = surfaceContainerHigh)
-
-    val animatedAlpha by animateFloatAsState(
+    val pillColors = rememberPillSurfaceColors()
+    val motionEnabled = LocalMotionPreferences.current.animationsEnabled
+    val pillProgress by animateFloatAsState(
         targetValue = if (isScrolled) 1f else 0f,
-        animationSpec = tween(durationMillis = 300),
-        label = "topbar_alpha_transition"
+        animationSpec = if (motionEnabled) PixelMotion.structural() else snap(),
+        label = "Home top bar pill"
     )
+    val background = MaterialTheme.colorScheme.background
+    val onSurface = MaterialTheme.colorScheme.onSurface
+    val compact = pillProgress >= 0.5f
+    val titleSize = lerp(34f, 22f, pillProgress)
+    PixelPlayStatusBarStyle(color = background)
 
-    TopAppBar(
-        modifier = Modifier.background(surfaceContainerHigh.copy(alpha = animatedAlpha)),
-        title = {
+    Layout(
+        modifier = Modifier.fillMaxWidth().zIndex(5f)
+            .drawWithCache {
+                val scrim = Brush.verticalGradient(
+                    0f to background,
+                    0.45f to background,
+                    1f to background.copy(alpha = 0f),
+                )
+                onDrawBehind { drawRect(scrim, alpha = pillProgress) }
+            }
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)),
+        content = {
+            Box(Modifier.graphicsLayer { alpha = pillProgress }.pillSurface(CircleShape, pillColors))
             Text(
-                text = stringResource(R.string.app_name),
+                text = stringResource(R.string.home_title),
                 fontFamily = GoogleSansRounded,
-                style = MaterialTheme.typography.titleLarge,
+                fontSize = titleSize.sp,
+                lineHeight = (titleSize + 6f).sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(start = 4.dp)
+                color = if (compact) pillColors.contentColor else onSurface,
+                modifier = Modifier.semantics { heading() },
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
-        },
-        actions = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(end = 14.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 FilledIconButton(
                     colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        contentColor = MaterialTheme.colorScheme.onSurface
+                        containerColor = if (compact) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
+                        contentColor = if (compact) pillColors.contentColor else onSurface
                     ),
+                    modifier = Modifier.size(48.dp),
                     onClick = onTelegramClick
                 ) {
                     Icon(
@@ -144,9 +176,10 @@ fun HomeGradientTopBar(
                 }
                 FilledIconButton(
                     colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        contentColor = MaterialTheme.colorScheme.onSurface
+                        containerColor = if (compact) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
+                        contentColor = if (compact) pillColors.contentColor else onSurface
                     ),
+                    modifier = Modifier.size(48.dp),
                     onClick = onNavigationIconClick
                 ) {
                     Icon(
@@ -155,9 +188,34 @@ fun HomeGradientTopBar(
                     )
                 }
             }
-        },
-        colors = topAppBarColors(
-            containerColor = Color.Transparent
-        )
-    )
+            Box(Modifier.graphicsLayer { alpha = pillProgress }.pillSurface(CircleShape, pillColors))
+        }
+    ) { (titleSurface, title, actions, actionsSurface), constraints ->
+        val width = constraints.maxWidth
+        val height = constraints.maxHeight
+        val margin = minOf(16.dp.roundToPx(), width / 2)
+        val gap = 8.dp.roundToPx()
+        val available = (width - 2 * margin).coerceAtLeast(0)
+        val actionsPlaceable = actions.measure(Constraints(maxWidth = available, maxHeight = height))
+        val titleSpace = (available - actionsPlaceable.width - gap).coerceAtLeast(0)
+        val labelInsets = minOf(20.dp.roundToPx(), titleSpace / 3)
+        val titlePlaceable = title.measure(Constraints(maxWidth = (titleSpace - labelInsets).coerceAtLeast(0), maxHeight = height))
+        val rowHeight = maxOf(titlePlaceable.height, actionsPlaceable.height, 48.dp.roundToPx())
+        val titlePillWidth = titlePlaceable.width + labelInsets
+        val titleSurfacePlaceable = titleSurface.measure(Constraints.fixed(titlePillWidth, rowHeight))
+        val actionsSurfacePlaceable = actionsSurface.measure(Constraints.fixed(actionsPlaceable.width, rowHeight))
+        layout(width, constraints.constrainHeight(rowHeight + 16.dp.roundToPx())) {
+            val progress = pillProgress
+            val rowTop = lerp(4.dp.toPx(), 8.dp.toPx(), progress).roundToInt()
+            val expandedTitleX = margin + 4.dp.roundToPx()
+            val compactTitleX = margin + labelInsets / 2
+            val titleX = lerp(expandedTitleX.toFloat(), compactTitleX.toFloat(), progress).roundToInt()
+            val expandedActionsX = width - margin - actionsPlaceable.width
+            val actionsX = expandedActionsX
+            titleSurfacePlaceable.placeRelative(margin, rowTop)
+            actionsSurfacePlaceable.placeRelative(actionsX, rowTop)
+            titlePlaceable.placeRelative(titleX, (rowHeight - titlePlaceable.height) / 2 + rowTop)
+            actionsPlaceable.placeRelative(actionsX, (rowHeight - actionsPlaceable.height) / 2 + rowTop)
+        }
+    }
 }

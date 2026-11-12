@@ -1,0 +1,29 @@
+<resources>
+    <string name="home_title">홈</string>
+    <string name="home_mix_daily">오늘의 믹스</string>
+    <string name="home_mix_underplayed">드물게 재생됨</string>
+    <string name="home_mix_rediscover">오랫동안 듣지 않음</string>
+    <string name="home_mix_artist">%1$s 더 찾아보기</string>
+    <string name="home_mix_genre">%1$s 둘러보기</string>
+    <string name="home_mix_recently_added">최근 추가됨</string>
+    <plurals name="home_mix_personalized_song_count">
+        <item quantity="one">%1$d곡 · 청취 기록 기반</item>
+        <item quantity="other">%1$d곡 · 청취 기록 기반</item>
+    </plurals>
+    <plurals name="home_mix_song_count">
+        <item quantity="one">%1$d곡</item>
+        <item quantity="other">%1$d곡</item>
+    </plurals>
+    <string name="home_mix_play">%1$s 재생</string>
+    <string name="home_explore_library">라이브러리 둘러보기</string>
+    <string name="home_recently_played">최근 재생</string>
+    <string name="home_see_all">모두 보기</string>
+    <string name="home_listening_title">청취 통계</string>
+    <string name="home_listening_today">오늘</string>
+    <string name="home_listening_week">이번 주</string>
+    <string name="home_listening_top_song">가장 많이 재생: %1$s</string>
+    <string name="home_minutes">%1$d분</string>
+    <string name="home_less_than_minute">1분 미만</string>
+    <string name="home_quick_title">빠른 액세스</string>
+    <string name="home_quick_recent_album">마지막으로 재생한 앨범</string>
+</resources>

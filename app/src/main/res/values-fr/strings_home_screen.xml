@@ -274,4 +274,5 @@
     <string name="song_count_singular">%1$d chanson</string>
     <string name="song_count_plural">%1$d chansons</string>
     <string name="stats_week_label">Semaine %1$d</string>
+    <string name="mix_detail_unavailable">Ce mix n’est plus disponible.</string>
 </resources>

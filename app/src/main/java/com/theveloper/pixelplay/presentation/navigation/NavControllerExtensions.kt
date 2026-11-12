@@ -2,6 +2,7 @@ package com.theveloper.pixelplay.presentation.navigation
 
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavOptionsBuilder
 
 private fun NavController.isReadyForNavigation(): Boolean {
@@ -49,7 +50,17 @@ fun NavController.navigateSafelyReplacing(
 }
 
 fun NavController.navigateToTopLevelSafely(route: String): Boolean {
-    val startDestinationId = runCatching { graph.startDestinationId }.getOrNull() ?: return false
+    if (!isReadyForNavigation()) return false
+
+    // Reuse an existing root entry directly. Restoring a saved top-level stack
+    // after popping to the start destination can otherwise bring back the stack
+    // we just left (notably Library after opening a Library tab from Home).
+    val returnedToExistingDestination = runCatching {
+        popBackStack(route, inclusive = false, saveState = false)
+    }.getOrDefault(false)
+    if (returnedToExistingDestination) return true
+
+    val startDestinationId = runCatching { graph.findStartDestination().id }.getOrNull() ?: return false
     navigate(route) {
         popUpTo(startDestinationId) {
             saveState = true

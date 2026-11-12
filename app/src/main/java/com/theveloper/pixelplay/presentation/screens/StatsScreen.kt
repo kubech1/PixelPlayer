@@ -143,6 +143,10 @@ fun StatsScreen(
     navController: NavController,
     statsViewModel: StatsViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(statsViewModel) {
+        statsViewModel.activateStatsScreen()
+    }
+
     val uiState by statsViewModel.uiState.collectAsStateWithLifecycle()
     val summary = uiState.summary
     val lazyListState = rememberLazyListState()

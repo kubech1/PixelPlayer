@@ -1,0 +1,29 @@
+<resources>
+    <string name="home_title">Beranda</string>
+    <string name="home_mix_daily">Mix hari ini</string>
+    <string name="home_mix_underplayed">Jarang diputar</string>
+    <string name="home_mix_rediscover">Sudah lama tidak didengar</string>
+    <string name="home_mix_artist">Jelajahi karya %1$s</string>
+    <string name="home_mix_genre">Jelajahi %1$s</string>
+    <string name="home_mix_recently_added">Baru ditambahkan</string>
+    <plurals name="home_mix_personalized_song_count">
+        <item quantity="one">%1$d lagu · Berdasarkan aktivitas mendengarkanmu</item>
+        <item quantity="other">%1$d lagu · Berdasarkan aktivitas mendengarkanmu</item>
+    </plurals>
+    <plurals name="home_mix_song_count">
+        <item quantity="one">%1$d lagu</item>
+        <item quantity="other">%1$d lagu</item>
+    </plurals>
+    <string name="home_mix_play">Putar %1$s</string>
+    <string name="home_explore_library">Jelajahi koleksi</string>
+    <string name="home_recently_played">Baru diputar</string>
+    <string name="home_see_all">Lihat semua</string>
+    <string name="home_listening_title">Statistik mendengarkan</string>
+    <string name="home_listening_today">Hari ini</string>
+    <string name="home_listening_week">Minggu ini</string>
+    <string name="home_listening_top_song">Paling sering diputar: %1$s</string>
+    <string name="home_minutes">%1$d mnt</string>
+    <string name="home_less_than_minute">Kurang dari 1 menit</string>
+    <string name="home_quick_title">Akses cepat</string>
+    <string name="home_quick_recent_album">Album terakhir diputar</string>
+</resources>

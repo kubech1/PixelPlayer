@@ -495,7 +495,13 @@ class PlaybackDispatchStateHolder @Inject constructor(
         }
     }
 
-    fun playSongs(songsToPlay: List<Song>, startSong: Song, queueName: String = "None", playlistId: String? = null) {
+    fun playSongs(
+        songsToPlay: List<Song>,
+        startSong: Song,
+        queueName: String = "None",
+        playlistId: String? = null,
+        allowPersistentShuffle: Boolean = true,
+    ) {
         cancelPendingFullQueuePlayback()
         val requestToken = beginDirectPlaybackRequest()
         directPlaybackJob = cb.scope.launch {
@@ -540,7 +546,7 @@ class PlaybackDispatchStateHolder @Inject constructor(
             queueStateHolder.saveOriginalQueueState(validSongs, queueName)
 
             // Check if the user wants shuffle to be persistent across different albums
-            val isPersistent = userPreferencesRepository.persistentShuffleEnabledFlow.first()
+            val isPersistent = allowPersistentShuffle && userPreferencesRepository.persistentShuffleEnabledFlow.first()
             throwIfDirectPlaybackRequestIsStale(requestToken)
             // Check if shuffle is currently active in the player
             val isShuffleOn = playbackStateHolder.stablePlayerState.value.isShuffleEnabled

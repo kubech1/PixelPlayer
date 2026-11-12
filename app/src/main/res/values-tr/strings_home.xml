@@ -1,0 +1,29 @@
+<resources>
+    <string name="home_title">Ana sayfa</string>
+    <string name="home_mix_daily">Günün miks’i</string>
+    <string name="home_mix_underplayed">Nadiren çalınanlar</string>
+    <string name="home_mix_rediscover">Uzun zamandır dinlenmeyenler</string>
+    <string name="home_mix_artist">%1$s sanatçısını keşfet</string>
+    <string name="home_mix_genre">%1$s türünü keşfet</string>
+    <string name="home_mix_recently_added">Son eklenenler</string>
+    <plurals name="home_mix_personalized_song_count">
+        <item quantity="one">%1$d şarkı · Dinleme geçmişine göre</item>
+        <item quantity="other">%1$d şarkı · Dinleme geçmişine göre</item>
+    </plurals>
+    <plurals name="home_mix_song_count">
+        <item quantity="one">%1$d şarkı</item>
+        <item quantity="other">%1$d şarkı</item>
+    </plurals>
+    <string name="home_mix_play">%1$s çal</string>
+    <string name="home_explore_library">Kitaplığını keşfet</string>
+    <string name="home_recently_played">Son çalınanlar</string>
+    <string name="home_see_all">Tümünü gör</string>
+    <string name="home_listening_title">Dinleme istatistikleri</string>
+    <string name="home_listening_today">Bugün</string>
+    <string name="home_listening_week">Bu hafta</string>
+    <string name="home_listening_top_song">En çok çalınan: %1$s</string>
+    <string name="home_minutes">%1$d dk</string>
+    <string name="home_less_than_minute">1 dakikadan az</string>
+    <string name="home_quick_title">Hızlı erişim</string>
+    <string name="home_quick_recent_album">Son çalınan albüm</string>
+</resources>

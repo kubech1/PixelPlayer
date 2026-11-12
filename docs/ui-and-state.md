@@ -18,7 +18,23 @@ Las cuentas tienen recorridos propios en `presentation/telegram`, `gdrive`, `net
 
 Los archivos grandes contienen varias responsabilidades de presentación. Una corrección pequeña debe localizar el componente/handler concreto; no exige reescribir toda la pantalla.
 
-Se retiraron de la interfaz los avisos e insignias de versión Beta (`Beta 0.7.5` / `Beta 0.5`), el historial de cambios integrado, el anuncio de Play Store, la categoría de Copia y restauración y las Opciones de desarrollador (`ExperimentalSettingsScreen`). Las utilidades de mantenimiento de usuario (**Regenerar Daily Mix**, **Reiniciar estadísticas** mediante `StatsViewModel.resetAllStats()` sobre `PlaybackStatsRepository` y `EngagementDao`, y **Regenerar paletas**) residen en `SettingsCategory.LIBRARY`, mientras que **Resolución de carátulas** (`AlbumArtQuality`) y **Letras animadas / desenfoque** residen en `SettingsCategory.APPEARANCE`.
+Se retiraron de la interfaz los avisos e insignias de versión Beta (`Beta 0.7.5` / `Beta 0.5`), el historial de cambios integrado, el anuncio de Play Store, la categoría de Copia y restauración y las Opciones de desarrollador (`ExperimentalSettingsScreen`). Las utilidades de mantenimiento de usuario (**Regenerar Mix del día**, **Reiniciar estadísticas** mediante `StatsViewModel.resetAllStats()` sobre `PlaybackStatsRepository` y `EngagementDao`, y **Regenerar paletas**) residen en `SettingsCategory.LIBRARY`, mientras que **Resolución de carátulas** (`AlbumArtQuality`) y **Letras animadas / desenfoque** residen en `SettingsCategory.APPEARANCE`.
+
+## Inicio y detalle de mixes
+
+[Inicio](../app/src/main/java/com/theveloper/pixelplay/presentation/screens/HomeScreen.kt) empieza con «A mano». El primer acceso abre el último álbum identificable del historial. En ausencia de álbum, abre «Añadido recientemente» si ese mix está disponible, o Biblioteca. El segundo abre la pestaña «Me gusta» cuando está habilitada. Si está oculta, se ofrece Biblioteca cuando todavía no ocupa el primer acceso. Los accesos usan píldoras de superficie neutra y se apilan con texto grande o en espacios estrechos.
+
+«Explora tu biblioteca» muestra un carrusel horizontal con el Mix del día en primer lugar y hasta tres selecciones rotativas del mismo tamaño. Si «Añadido recientemente» ocupa un acceso, se muestra una sola vez. Siguen tres pistas recientes y las estadísticas de hoy y de la semana. Al desplazar Inicio, una píldora flotante contiene el título y otra reúne los iconos de proveedores y Ajustes. Cada grupo conserva su extremo durante la transición.
+
+La portada y el título abren el detalle del mix. Reproducir inicia la lista en su orden, aunque la reproducción aleatoria persistente esté activada. El detalle conserva la selección que abrió y ofrece reproducción, aleatorio y acciones de pista. La ruta anterior `daily_mix` conserva el destino del Mix del día y el argumento `mixId` selecciona un mix rotativo.
+
+«Me gusta» abre la raíz de Biblioteca con el argumento de pestaña `LIKED`. Si el destino elegido en la barra inferior ya está en la pila activa, la navegación vuelve directamente a esa entrada. Los destinos fuera de la pila activa conservan el mecanismo de restauración de la barra principal.
+
+Inicio solicita un resumen breve de escucha. La carga de estadísticas que recorre el catálogo comienza al abrir la pantalla de Estadísticas. La selección de mixes se solicita al entrar en Inicio o al abrir directamente un detalle que aún carezca de datos. Se vuelve a calcular al terminar una sincronización o al cambiar las carpetas bloqueadas.
+
+[HomeMixArtwork](../app/src/main/java/com/theveloper/pixelplay/presentation/components/HomeMixArtwork.kt) comparte el arte del carrusel con el detalle. [HomeMixPoster](../app/src/main/java/com/theveloper/pixelplay/presentation/components/HomeMixPoster.kt) dibuja los fondos en Compose. El Mix del día combina surcos cobrizos con hasta tres miniaturas de álbumes distintos. Cada rotativo elige una variante de posición y recorte a partir de los IDs ordenados de su selección. Si falla una carátula, intenta la siguiente candidata y la ilustración sigue visible aunque no cargue ninguna. Los fundidos, el reflejo breve al entrar en el detalle y la compactación del encabezado respetan movimiento reducido.
+
+Las [mediciones exploratorias de arranque y desplazamiento](hardware/validation-and-compatibility.md#rediseño-de-inicio-en-emulador-api-37) corresponden a la versión anterior con un Mix del día destacado.
 
 ## Observar el estado que se necesita
 
@@ -75,7 +91,11 @@ El arrastre horizontal del mini reproductor cambia de canción con los callbacks
 
 El reproductor completo se cierra con Atrás o arrastrando hacia abajo. El toque en su fondo se consume sin cerrar el panel. En letras animadas, el desenfoque conserva su interruptor, respeta el nivel global de efectos y usa el valor predeterminado de 2,5 dp por línea de distancia, con un máximo de 10 dp. La selección de paleta conserva los estilos y su vista previa. Las instalaciones anteriores conservan la precisión de color guardada y las nuevas usan el valor predeterminado.
 
-Buscar comparte un medidor de texto entre las tarjetas de géneros y calcula su ancho en el contenedor de la cuadrícula. El paginador de Biblioteca compone las páginas visibles y usa la precarga de Compose durante el desplazamiento horizontal.
+[Buscar](../app/src/main/java/com/theveloper/pixelplay/presentation/screens/SearchScreen.kt) conserva el campo y los filtros de consulta. Cuando la consulta está vacía,
+[GenreCategoriesGrid](../app/src/main/java/com/theveloper/pixelplay/presentation/screens/search/components/GenreCategoriesGrid.kt) presenta los géneros como píldoras neutras en cuadrícula o lista. Pasa a una columna en espacios estrechos o con texto grande, conservando la preferencia de cuadrícula. [GenreArtwork](../app/src/main/java/com/theveloper/pixelplay/presentation/screens/search/components/GenreArtwork.kt) dibuja escenas vectoriales dentro de un círculo. Reconoce variantes como «Electrónica» y distingue «Tropical House» de «House». Las etiquetas sin escena propia reciben una composición abstracta estable y las personalizaciones conservan su imagen dentro del círculo.
+Tocar abre el detalle; mantener pulsado activa la selección múltiple, cuyo indicador muestra el orden seleccionado.
+Los cambios de disposición y selección usan `PixelMotion` y respetan `LocalMotionPreferences`, con movimiento inmediato cuando las animaciones del sistema están desactivadas.
+El paginador de Biblioteca compone las páginas visibles y usa la precarga de Compose durante el desplazamiento horizontal.
 
 ## Portada compartida del reproductor (Fase 3)
 

@@ -149,7 +149,6 @@ import com.theveloper.pixelplay.R
 import com.theveloper.pixelplay.data.preferences.AlbumArtQuality
 import com.theveloper.pixelplay.data.preferences.AppLanguage
 import com.theveloper.pixelplay.data.preferences.AppThemeMode
-import com.theveloper.pixelplay.data.preferences.CollagePattern
 import com.theveloper.pixelplay.data.preferences.CarouselStyle
 import com.theveloper.pixelplay.data.preferences.LaunchTab
 import com.theveloper.pixelplay.data.preferences.LibraryNavigationMode
@@ -610,26 +609,6 @@ fun SettingsCategoryScreen(
                                     selectedKey = uiState.albumArtQuality.name,
                                     onSelectionChanged = { settingsViewModel.setAlbumArtQuality(AlbumArtQuality.valueOf(it)) },
                                     leadingIcon = { Icon(painterResource(R.drawable.outline_high_quality_24), null, tint = MaterialTheme.colorScheme.secondary) }
-                                )
-                            }
-
-                            SettingsSubsection(title = stringResource(R.string.settings_home_collage_section)) {
-                                ThemeSelectorItem(
-                                    label = stringResource(R.string.settings_collage_pattern_title),
-                                    description = stringResource(R.string.settings_collage_pattern_subtitle),
-                                    options = CollagePattern.entries.associate { it.storageKey to it.label },
-                                    selectedKey = uiState.collagePattern.storageKey,
-                                    onSelectionChanged = { key ->
-                                        settingsViewModel.setCollagePattern(CollagePattern.fromStorageKey(key))
-                                    },
-                                    leadingIcon = { Icon(painterResource(R.drawable.rounded_view_column_24), null, tint = MaterialTheme.colorScheme.secondary) }
-                                )
-                                SwitchSettingItem(
-                                    title = stringResource(R.string.settings_auto_rotate_patterns_title),
-                                    subtitle = stringResource(R.string.settings_auto_rotate_patterns_subtitle),
-                                    checked = uiState.collageAutoRotate,
-                                    onCheckedChange = { settingsViewModel.setCollageAutoRotate(it) },
-                                    leadingIcon = { Icon(painterResource(R.drawable.rounded_shuffle_24), null, tint = MaterialTheme.colorScheme.secondary) }
                                 )
                             }
 

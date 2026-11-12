@@ -439,7 +439,8 @@ fun LibraryScreen(
     playerViewModel: PlayerViewModel = hiltViewModel(),
     playlistViewModel: PlaylistViewModel = hiltViewModel(),
     libraryViewModel: LibraryViewModel = hiltViewModel(),
-    songInfoBottomSheetViewModel: SongInfoBottomSheetViewModel = hiltViewModel()
+    songInfoBottomSheetViewModel: SongInfoBottomSheetViewModel = hiltViewModel(),
+    requestedTabKey: String? = null
 ) {
     // La recolección de estados de alto nivel se mantiene mínima.
     val context = LocalContext.current // Added context
@@ -468,14 +469,15 @@ fun LibraryScreen(
     val libraryNavigationMode by playerViewModel.libraryNavigationMode.collectAsStateWithLifecycle()
     val isCompactNavigation = libraryNavigationMode == LibraryNavigationMode.COMPACT_PILL
     val tabCount = tabTitles.size.coerceAtLeast(1)
-    val normalizedLastTabIndex = positiveMod(lastTabIndex, tabCount)
-    val compactInitialPage = remember(tabCount, normalizedLastTabIndex) {
-        infinitePagerInitialPage(tabCount, normalizedLastTabIndex)
+    val initialTabIndex = requestedTabKey?.let(tabTitles::indexOf)?.takeIf { it >= 0 }
+        ?: positiveMod(lastTabIndex, tabCount)
+    val compactInitialPage = remember(tabCount, initialTabIndex) {
+        infinitePagerInitialPage(tabCount, initialTabIndex)
     }
     val pagerState = if (isCompactNavigation) {
         rememberPagerState(initialPage = compactInitialPage) { Int.MAX_VALUE }
     } else {
-        rememberPagerState(initialPage = normalizedLastTabIndex) { tabCount }
+        rememberPagerState(initialPage = initialTabIndex) { tabCount }
     }
     val currentTabIndex by remember(pagerState, tabTitles, isCompactNavigation) {
         derivedStateOf {
@@ -745,13 +747,6 @@ fun LibraryScreen(
         }
     }
 
-
-    // La lógica de carga diferida (lazy loading) se mantiene.
-    LaunchedEffect(Unit) {
-        Trace.beginSection("LibraryScreen.InitialTabLoad")
-        playerViewModel.onLibraryTabSelected(normalizedLastTabIndex)
-        Trace.endSection()
-    }
 
     LaunchedEffect(currentTabIndex) {
         Trace.beginSection("LibraryScreen.PageChangeTabLoad")

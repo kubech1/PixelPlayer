@@ -163,6 +163,49 @@ class PlaybackStatsRepository @Inject constructor(
         val peakDayDurationMs: Long
     )
 
+    data class HomeListeningTotals(
+        val todayDurationMs: Long,
+        val weekDurationMs: Long,
+        val topSongId: String?
+    )
+
+    suspend fun loadHomeListeningTotals(
+        nowMillis: Long = System.currentTimeMillis()
+    ): HomeListeningTotals = withContext(Dispatchers.IO) {
+        buildHomeListeningTotals(readEvents(), nowMillis, ZoneId.systemDefault())
+    }
+
+    internal fun buildHomeListeningTotals(
+        events: List<PlaybackEvent>,
+        nowMillis: Long,
+        zoneId: ZoneId
+    ): HomeListeningTotals {
+        val (weekStart, end) = StatsTimeRange.WEEK.resolveBounds(events, nowMillis, zoneId)
+        val (todayStart, _) = StatsTimeRange.DAY.resolveBounds(events, nowMillis, zoneId)
+        val weekEvents = events.mapNotNull { it.clipToBounds(weekStart, end) }
+        val weekBySong = weekEvents.groupBy { it.songId }.mapValues { (_, plays) -> mergeSongEvents(plays) }
+        val weekSpans = mergeSpans(weekBySong.values.flatten().map {
+            PlaybackSpan(it.startMillis, it.endMillis)
+        })
+        val todaySpans = mergeSpans(
+            weekEvents.mapNotNull { it.clipToBounds(todayStart, end) }
+                .groupBy { it.songId }
+                .values
+                .flatMap(::mergeSongEvents)
+                .map { PlaybackSpan(it.startMillis, it.endMillis) }
+        )
+        val topSong = weekBySong.entries.maxWithOrNull(
+            compareBy<Map.Entry<String, List<PlaybackSegment>>> { it.value.size }
+                .thenBy { entry -> entry.value.sumOf { it.durationMs } }
+                .thenBy { it.key }
+        )
+        return HomeListeningTotals(
+            todayDurationMs = todaySpans.sumOf { it.durationMs },
+            weekDurationMs = weekSpans.sumOf { it.durationMs },
+            topSongId = topSong?.key
+        )
+    }
+
     suspend fun recordPlayback(
         songId: String,
         durationMs: Long,
@@ -216,28 +259,7 @@ class PlaybackStatsRepository @Inject constructor(
         zoneId: ZoneId = ZoneId.systemDefault()
     ): PlaybackStatsSummary {
         val (startBound, endBound) = range.resolveBounds(allEvents, nowMillis, zoneId)
-        val filteredEvents = allEvents.mapNotNull { event ->
-            val start = event.startMillis()
-            val end = event.endMillis()
-            val lowerBound = startBound ?: Long.MIN_VALUE
-            if (end < lowerBound || start > endBound) {
-                return@mapNotNull null
-            }
-
-            val clippedStart = max(start, lowerBound)
-            val clippedEnd = min(end, endBound)
-            val clippedDuration = (clippedEnd - clippedStart).coerceAtLeast(0L)
-            if (clippedDuration <= 0L) {
-                return@mapNotNull null
-            }
-
-            event.copy(
-                timestamp = clippedEnd,
-                durationMs = clippedDuration,
-                startTimestamp = clippedStart,
-                endTimestamp = clippedEnd
-            )
-        }
+        val filteredEvents = allEvents.mapNotNull { it.clipToBounds(startBound, endBound) }
 
         val songMap = songs.associateBy { it.id }
         val normalizedEvents = filteredEvents
@@ -549,6 +571,18 @@ class PlaybackStatsRepository @Inject constructor(
             durationMs = finalDuration,
             startTimestamp = finalStart,
             endTimestamp = safeEnd
+        )
+    }
+
+    private fun PlaybackEvent.clipToBounds(startBound: Long?, endBound: Long): PlaybackEvent? {
+        val clippedStart = max(startMillis(), startBound ?: Long.MIN_VALUE)
+        val clippedEnd = min(endMillis(), endBound)
+        if (clippedEnd <= clippedStart) return null
+        return copy(
+            timestamp = clippedEnd,
+            durationMs = clippedEnd - clippedStart,
+            startTimestamp = clippedStart,
+            endTimestamp = clippedEnd
         )
     }
 

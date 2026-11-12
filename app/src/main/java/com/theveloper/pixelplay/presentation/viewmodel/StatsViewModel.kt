@@ -10,16 +10,25 @@ import com.theveloper.pixelplay.data.stats.PlaybackStatsRepository.PlaybackStats
 import com.theveloper.pixelplay.data.stats.StatsTimeRange
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+
+data class HomeListeningSummary(
+    val todayDurationMs: Long,
+    val weekDurationMs: Long,
+    val topSongTitle: String?
+)
 
 @HiltViewModel
 class StatsViewModel @Inject constructor(
@@ -42,20 +51,27 @@ class StatsViewModel @Inject constructor(
     private val _weeklyOverview = MutableStateFlow<PlaybackStatsSummary?>(null)
     val weeklyOverview: StateFlow<PlaybackStatsSummary?> = _weeklyOverview.asStateFlow()
 
-    private val _homeOverview = MutableStateFlow<PlaybackStatsSummary?>(null)
-    val homeOverview: StateFlow<PlaybackStatsSummary?> = _homeOverview.asStateFlow()
+    private val _homeListening = MutableStateFlow<HomeListeningSummary?>(null)
+    val homeListening: StateFlow<HomeListeningSummary?> = _homeListening.asStateFlow()
+    private var homeListeningJob: Job? = null
+    private var statsScreenActivated = false
 
     @Volatile
     private var cachedSongs: List<Song>? = null
 
     init {
         observeStatsRefreshFlow()
+    }
+
+    /** Starts the full library-backed stats load only when the stats screen is actually opened. */
+    fun activateStatsScreen() {
+        if (statsScreenActivated) return
+        statsScreenActivated = true
         refreshRange(
             range = StatsTimeRange.WEEK,
             showLoading = true,
             updateWeeklyOverview = true
         )
-        refreshHomeOverview()
     }
 
     fun onRangeSelected(range: StatsTimeRange) {
@@ -85,24 +101,21 @@ class StatsViewModel @Inject constructor(
         }
     }
 
-    fun refreshHomeOverview() {
-        viewModelScope.launch {
-            runCatching {
-                withContext(Dispatchers.IO) {
-                    val songs = loadSongs()
-                    for (range in HomeOverviewRanges) {
-                        val summary = playbackStatsRepository.loadSummary(range, songs)
-                        if (summary.hasListeningActivity()) {
-                            return@withContext summary
-                        }
-                    }
-                    null
-                }
-            }.onSuccess { summary ->
-                _homeOverview.value = summary
-            }.onFailure { throwable ->
-                Timber.e(throwable, "Failed to load home stats overview")
-                _homeOverview.value = null
+    fun refreshHomeListening() {
+        homeListeningJob?.cancel()
+        homeListeningJob = viewModelScope.launch {
+            try {
+                val totals = playbackStatsRepository.loadHomeListeningTotals()
+                val title = totals.topSongId?.let { musicRepository.getSong(it).first()?.title }
+                _homeListening.value = HomeListeningSummary(
+                    todayDurationMs = totals.todayDurationMs,
+                    weekDurationMs = totals.weekDurationMs,
+                    topSongTitle = title?.takeIf { it.isNotBlank() }
+                )
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                Timber.e(failure, "Failed to load home listening totals")
             }
         }
     }
@@ -146,6 +159,10 @@ class StatsViewModel @Inject constructor(
             playbackStatsRepository.refreshFlow
                 .drop(1)
                 .collectLatest {
+                    if (!statsScreenActivated) {
+                        if (homeListeningJob != null) refreshHomeListening()
+                        return@collectLatest
+                    }
                     val selectedRange = _uiState.value.selectedRange
                     refreshRange(
                         range = selectedRange,
@@ -155,7 +172,7 @@ class StatsViewModel @Inject constructor(
                     if (selectedRange != StatsTimeRange.WEEK) {
                         refreshWeeklyOverview()
                     }
-                    refreshHomeOverview()
+                    if (homeListeningJob != null) refreshHomeListening()
                 }
         }
     }
@@ -189,20 +206,4 @@ class StatsViewModel @Inject constructor(
         return songs
     }
 
-    private fun PlaybackStatsSummary.hasListeningActivity(): Boolean {
-        return totalDurationMs > 0L ||
-            totalPlayCount > 0 ||
-            uniqueSongs > 0 ||
-            activeDays > 0 ||
-            totalSessions > 0
-    }
-
-    private companion object {
-        val HomeOverviewRanges = listOf(
-            StatsTimeRange.WEEK,
-            StatsTimeRange.MONTH,
-            StatsTimeRange.YEAR,
-            StatsTimeRange.ALL
-        )
-    }
 }

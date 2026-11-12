@@ -1,0 +1,11 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity
+            android:name="com.theveloper.pixelplay.data.audio.BlindAudioEvaluationActivity"
+            android:exported="true"
+            android:permission="android.permission.DUMP"
+            android:label="Audio similarity evaluation"
+            android:theme="@style/Theme.PixelPlay"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize" />
+    </application>
+</manifest>

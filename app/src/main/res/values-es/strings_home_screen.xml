@@ -100,8 +100,8 @@
 
     <!-- Your Mix -->
     <string name="home_your_mix_title">Tu\nMix</string>
-    <string name="home_empty_placeholder_title">Aun no hay datos para mostrar</string>
-    <string name="home_empty_placeholder_subtitle">Tu mix aparecera aqui cuando PixelPlayer encuentre canciones o sincronice una fuente.</string>
+    <string name="home_empty_placeholder_title">Todavía no hay canciones</string>
+    <string name="home_empty_placeholder_subtitle">El Mix del día aparecerá cuando PixelPlayer encuentre canciones o sincronice una fuente.</string>
     <string name="home_empty_placeholder_refresh">Actualizar</string>
 
     <!-- DailyMixSection -->
@@ -111,8 +111,8 @@
     <string name="home_daily_mix_queue_name">Mix diario</string>
 
     <!-- DailyMixScreen -->
-    <string name="daily_mix_title">Mix diario</string>
-    <plurals name="daily_mix_songs_dot_duration">
+    <string name="daily_mix_title">Mix del día</string>
+<plurals name="daily_mix_songs_dot_duration">
         <item quantity="one">%1$d canción • %2$s</item>
         <item quantity="other">%1$d canciones • %2$s</item>
     </plurals>
@@ -274,4 +274,5 @@
     <string name="song_count_singular">%1$d canción</string>
     <string name="song_count_plural">%1$d canciones</string>
     <string name="stats_week_label">Semana %1$d</string>
+    <string name="mix_detail_unavailable">Este mix ya no está disponible.</string>
 </resources>

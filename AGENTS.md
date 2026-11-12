@@ -23,6 +23,12 @@ Entrada técnica: [docs/README.md](docs/README.md). Lee solo los temas pertinent
 | Toolchain, variantes, comandos, tests y CI | [Build y pruebas](docs/build-and-testing.md) |
 | Encontrar un archivo concreto | [Código](docs/reference/source-index.md) y [configuración](docs/reference/config-index.md) generados |
 
+## Navegación con Graphify
+
+Para rastrear dependencias, llamadas o cruces entre módulos, consulta `graphify query` o `graphify explain` cuando esté disponible el grafo local. Confirma las relaciones que afecten tu trabajo en el código y la documentación temática. Si el grafo falta o está desactualizado, usa los índices y la búsqueda directa. [Instalación y actualización](docs/build-and-testing.md#graphify).
+
+Si la tarea añade, modifica, mueve o elimina código indexable, o cambia las exclusiones que determinan la cobertura, actualiza el grafo local antes de entregar. Usa el procedimiento de la guía y comunica cualquier fallo de actualización.
+
 ## Reglas específicas del código
 
 - Confirma versiones y opciones en Gradle/catálogo; no copies requisitos antiguos del README o de una skill. La base documental usa Java/JVM 21 y Android SDK 37.
@@ -37,18 +43,17 @@ Entrada técnica: [docs/README.md](docs/README.md). Lee solo los temas pertinent
 
 ## Skills disponibles
 
-Residen en `$CODEX_HOME/skills` (por defecto `~/.codex/skills`). Lee el `SKILL.md` correspondiente antes de aplicarlo; no ejecutar las seis para todo cambio.
+Las skills de proyecto residen en `.agents/skills/`; las personales, en `$CODEX_HOME/skills` (por defecto `~/.codex/skills`). Lee el `SKILL.md` correspondiente antes de aplicarlo; no ejecutar todas para cada cambio.
 
 | Skill | Cuándo usarla |
 | --- | --- |
 | `architecture-decision` | Alternativas y compromisos relevantes; ADR cuando aporte valor |
-| `code-simplifier` | Claridad del código trabajado, preservando comportamiento y alcance |
 | `systematic-debugging` | Reproducir, reunir evidencia y encontrar causa antes de corregir |
 | `verification-before-completion` | Comprobaciones pertinentes antes de afirmar éxito |
-| `ui-ux-pro-max` | Interfaz, interacción y accesibilidad; consultas `--stack jetpack-compose` |
+| `frontend-design` | Dirección visual distintiva para diseñar o rediseñar interfaces |
 | `motion-design` | Propósito, timing, easing y accesibilidad de animaciones |
 
-Para UI/UX Pro Max usa la ruta absoluta de `scripts/search.py` dentro de la skill; `CLAUDE_PLUGIN_ROOT` no es la ruta de este entorno. CSS/GSAP/React requieren adaptación, no son implementaciones Compose. Conserva tokens/componentes existentes. Accesibilidad y fluidez prevalecen sobre recetas decorativas como tres capas de movimiento.
+Aplica `frontend-design` como guía visual y adapta sus principios a Jetpack Compose; sus ejemplos web de HTML/CSS/React no son implementaciones nativas. Conserva tokens y componentes existentes. Accesibilidad y fluidez prevalecen sobre recetas decorativas como tres capas de movimiento.
 
 Las versiones/recomendaciones de skills requieren comprobar compatibilidad cuando importe. No instalar otras herramientas solo porque aparezcan como referencias relacionadas. No sobrescribir un diseño persistido con `--force` sin autorización explícita; al persistir nuevo diseño, indicar `--output-dir` del proyecto. [Procedencia de skills](docs/skills-review.md).
 
@@ -57,7 +62,7 @@ Las versiones/recomendaciones de skills requieren comprobar compatibilidad cuand
 Desde la raíz en Windows, usa `.\gradlew.bat`. Procedimientos y requisitos: [build y pruebas](docs/build-and-testing.md).
 
 ```powershell
-.\gradlew.bat :app:assembleDebug -Ppixelplay.enableAbiSplits=false
+.\gradlew.bat :app:assembleDebug
 .\gradlew.bat :app:testDebugUnitTest
 .\gradlew.bat :app:lintDebug
 python scripts/context_docs.py check

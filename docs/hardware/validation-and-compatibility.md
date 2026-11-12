@@ -112,3 +112,21 @@ En la segunda pasada, una build temporal comparó las muestras de entrada y sali
   - `display` reporta `hasArrSupport false`, `frameRateCategoryRate {normal=60.0, high=90.0}` y `renderFrameRate 120.00001` bajo `REFRESH_RATE_MODE_SEAMLESS` (`10–120 Hz`). En [InteractiveRefreshRate](../../app/src/main/java/com/theveloper/pixelplay/presentation/utils/InteractiveRefreshRate.kt) se condicionó `Modifier.preferredFrameRate(FrameRateCategory.High)` a `view.display?.hasArrSupport() == true` para no degradar la ventana de 120 Hz a 90 Hz en One UI 9.
 - **Incertidumbre:** La preferencia subjetiva de intensidad (`LOW`/`MEDIUM`/`HIGH`) depende del usuario; el selector y previsualizador en Ajustes permiten ajustarla en vivo.
 - **Decisión:** Conservar la prioridad de composiciones multi-primitiva sobre `MOTOR_LINEAR_INDEX (5)` sin `THUD`, y delegar el refresco de 120 Hz al modo `SEAMLESS` de One UI 9 cuando `hasArrSupport()` sea `false`.
+
+### Diagnóstico de similitud acústica en SM-S921B (11 de noviembre de 2026)
+
+- El [diagnóstico instrumentado](../../app/src/androidTest/java/com/theveloper/pixelplay/data/audio/LocalAudioAnalyzerDiagnosticTest.kt) se ejecutó en el S24 con Android 17, API 37 y build debug. Decodificó las muestras sintéticas WAV, FLAC, MP3, AAC y Opus. La variante del mismo tono a menor ganancia quedó por encima de la pista sintética de contraste.
+- En una ejecución acotada sobre la biblioteca local, se decodificaron 6 de 6 FLAC y la segunda lectura de cada pista usó la caché de sesión. El recorrido tomó 85,842 s de reloj y 42,088 s de CPU del hilo llamador. El PSS de todo el proceso fue 175 327 KiB al inicio y el mayor valor muestreado fue 214 198 KiB.
+- El intento de escanear la biblioteca completa excedió el límite de 240 s del diagnóstico de host. Las cifras de seis pistas caracterizan esa ejecución y dejan pendiente el coste de una biblioteca grande. El test guarda solo datos agregados.
+- La evaluación auditiva ciega, el consumo energético y la interrupción de un lote al comenzar reproducción siguen pendientes. El analizador permanece en el source set debug y todavía no alimenta los mixes de Inicio.
+
+### Rediseño de Inicio en emulador API 37
+
+- Con 30 pistas sintéticas y compilación ART `speed` en ambos APK debug, cinco arranques en frío dieron una mediana hasta el primer fotograma de 1,63 s en la versión anterior y 1,76 s en la versión con «A mano». En cuatro recorridos de ida y vuelta, el p95 de tiempo por fotograma pasó de 150 a 101 ms.
+- La mediana de `Fully drawn` fue de 1,93 s en la versión anterior y 3,80 s con «A mano». La versión anterior permitía declarar la pantalla lista tras el temporizador del marcador de carga. La actual espera a que se resuelva la selección de Inicio. El emulador y los criterios distintos limitan la comparación.
+
+### Prueba del flujo de escucha ciega en emulador API 37
+
+- Con el catálogo sintético ampliado, el diagnóstico decodificó 42 pistas y preparó diez comparaciones, con cinco candidatos por método y referencia. Doce pistas tenían género. Se usó una semilla fija para seleccionar referencias porque la biblioteca de prueba no tenía favoritos. La preparación tomó 39,1 s de reloj y 10,7 s de CPU del hilo llamador, con un máximo de PSS muestreado de 87 617 KiB para el proceso.
+- Se verificó que los botones de respuesta permanecen deshabilitados hasta que termina la reproducción de la referencia y del candidato. Al omitir las diez referencias, el resumen indicó que la muestra estaba incompleta y deshabilitó los controles de la sesión.
+- La prueba de calidad perceptual en la biblioteca real y las mediciones operativas en el S24 siguen pendientes.

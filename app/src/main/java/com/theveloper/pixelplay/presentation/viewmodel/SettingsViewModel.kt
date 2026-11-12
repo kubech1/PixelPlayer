@@ -12,7 +12,6 @@ import com.theveloper.pixelplay.data.preferences.AlbumArtQuality
 import com.theveloper.pixelplay.data.preferences.AlbumArtColorAccuracy
 import com.theveloper.pixelplay.data.preferences.AlbumArtPaletteStyle
 import com.theveloper.pixelplay.data.preferences.AppLanguage
-import com.theveloper.pixelplay.data.preferences.CollagePattern
 import com.theveloper.pixelplay.data.preferences.FullPlayerLoadingTweaks
 import com.theveloper.pixelplay.data.preferences.ThemePreferencesRepository
 import com.theveloper.pixelplay.data.repository.LyricsRepository
@@ -75,8 +74,6 @@ data class SettingsUiState(
     val animatedLyricsBlurEnabled: Boolean = true,
     val visualEffectsLevel: com.theveloper.pixelplay.data.preferences.VisualEffectsLevel =
         com.theveloper.pixelplay.data.preferences.VisualEffectsLevel.DEFAULT,
-    val collagePattern: CollagePattern = CollagePattern.default,
-    val collageAutoRotate: Boolean = false,
     val minSongDuration: Int = 10000,
     val minTracksPerAlbum: Int = 1,
     val replayGainEnabled: Boolean = false,
@@ -190,18 +187,6 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             userPreferencesRepository.hapticIntensityFlow.collect { intensity ->
                 _uiState.update { it.copy(hapticIntensity = intensity) }
-            }
-        }
-
-        viewModelScope.launch {
-            userPreferencesRepository.collagePatternFlow.collect { pattern ->
-                _uiState.update { it.copy(collagePattern = pattern) }
-            }
-        }
-
-        viewModelScope.launch {
-            userPreferencesRepository.collageAutoRotateFlow.collect { autoRotate ->
-                _uiState.update { it.copy(collageAutoRotate = autoRotate) }
             }
         }
 
@@ -469,18 +454,6 @@ class SettingsViewModel @Inject constructor(
             paletteStyle = style,
             colorAccuracyLevel = accuracyLevel
         )
-    }
-
-    fun setCollagePattern(pattern: CollagePattern) {
-        viewModelScope.launch {
-            userPreferencesRepository.setCollagePattern(pattern)
-        }
-    }
-
-    fun setCollageAutoRotate(enabled: Boolean) {
-        viewModelScope.launch {
-            userPreferencesRepository.setCollageAutoRotate(enabled)
-        }
     }
 
     fun setAppThemeMode(mode: String) {

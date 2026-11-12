@@ -1,0 +1,37 @@
+<resources>
+    <string name="home_title">الرئيسية</string>
+    <string name="home_mix_daily">مزيج اليوم</string>
+    <string name="home_mix_underplayed">أغانٍ قليلة التشغيل</string>
+    <string name="home_mix_rediscover">أغانٍ لم تسمعها منذ مدة</string>
+    <string name="home_mix_artist">استكشف %1$s</string>
+    <string name="home_mix_genre">استكشف %1$s</string>
+    <string name="home_mix_recently_added">أُضيفت مؤخرًا</string>
+    <plurals name="home_mix_personalized_song_count">
+        <item quantity="zero">%1$d أغنية · بناءً على استماعك</item>
+        <item quantity="one">%1$d أغنية · بناءً على استماعك</item>
+        <item quantity="two">%1$d أغنيتين · بناءً على استماعك</item>
+        <item quantity="few">%1$d أغانٍ · بناءً على استماعك</item>
+        <item quantity="many">%1$d أغنية · بناءً على استماعك</item>
+        <item quantity="other">%1$d أغنية · بناءً على استماعك</item>
+    </plurals>
+    <plurals name="home_mix_song_count">
+        <item quantity="zero">%1$d أغنية</item>
+        <item quantity="one">%1$d أغنية</item>
+        <item quantity="two">%1$d أغنيتين</item>
+        <item quantity="few">%1$d أغانٍ</item>
+        <item quantity="many">%1$d أغنية</item>
+        <item quantity="other">%1$d أغنية</item>
+    </plurals>
+    <string name="home_mix_play">تشغيل %1$s</string>
+    <string name="home_explore_library">استكشف مكتبتك</string>
+    <string name="home_recently_played">تم تشغيلها مؤخرًا</string>
+    <string name="home_see_all">عرض الكل</string>
+    <string name="home_listening_title">إحصاءات الاستماع</string>
+    <string name="home_listening_today">اليوم</string>
+    <string name="home_listening_week">هذا الأسبوع</string>
+    <string name="home_listening_top_song">الأغنية الأكثر تشغيلًا: %1$s</string>
+    <string name="home_minutes">%1$d د</string>
+    <string name="home_less_than_minute">أقل من دقيقة</string>
+    <string name="home_quick_title">وصول سريع</string>
+    <string name="home_quick_recent_album">آخر ألبوم تم تشغيله</string>
+</resources>

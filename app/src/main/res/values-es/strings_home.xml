@@ -1,0 +1,31 @@
+<resources>
+    <string name="home_title">Inicio</string>
+    <string name="home_mix_daily">Mix del día</string>
+    <string name="home_mix_underplayed">Casi sin escuchar</string>
+    <string name="home_mix_rediscover">Hace tiempo que no escuchas</string>
+    <string name="home_mix_artist">Explora %1$s</string>
+    <string name="home_mix_genre">Explora %1$s</string>
+    <string name="home_mix_recently_added">Añadido recientemente</string>
+    <plurals name="home_mix_personalized_song_count">
+        <item quantity="one">%1$d canción · Según tus escuchas</item>
+        <item quantity="other">%1$d canciones · Según tus escuchas</item>
+        <item quantity="many">%1$d canciones · Según tus escuchas</item>
+    </plurals>
+    <plurals name="home_mix_song_count">
+        <item quantity="one">%1$d canción</item>
+        <item quantity="other">%1$d canciones</item>
+        <item quantity="many">%1$d canciones</item>
+    </plurals>
+    <string name="home_mix_play">Reproducir %1$s</string>
+    <string name="home_explore_library">Explora tu biblioteca</string>
+    <string name="home_recently_played">Reproducido recientemente</string>
+    <string name="home_see_all">Ver todo</string>
+    <string name="home_listening_title">Estadísticas de escucha</string>
+    <string name="home_listening_today">Hoy</string>
+    <string name="home_listening_week">Esta semana</string>
+    <string name="home_listening_top_song">Más escuchada: %1$s</string>
+    <string name="home_minutes">%1$d min</string>
+    <string name="home_less_than_minute">&lt;1 min</string>
+    <string name="home_quick_title">A mano</string>
+    <string name="home_quick_recent_album">Último álbum</string>
+</resources>

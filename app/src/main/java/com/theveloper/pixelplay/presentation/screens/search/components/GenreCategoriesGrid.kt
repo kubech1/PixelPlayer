@@ -4,31 +4,46 @@ import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottom
 
 import com.theveloper.pixelplay.presentation.components.bottomchrome.NavigationReselectionEffect
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ViewList
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,35 +51,33 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.TextMeasurer
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.media3.common.util.UnstableApi
 import com.theveloper.pixelplay.data.model.Genre
 import com.theveloper.pixelplay.presentation.components.MiniPlayerHeight
 import com.theveloper.pixelplay.presentation.components.SmartImage
-import com.theveloper.pixelplay.presentation.components.getNavigationBarHeight
-import com.theveloper.pixelplay.presentation.utils.GenreIconProvider
 import com.theveloper.pixelplay.presentation.viewmodel.PlayerViewModel
 import com.theveloper.pixelplay.ui.theme.LocalPixelPlayDarkTheme
+import com.theveloper.pixelplay.ui.theme.LocalMotionPreferences
+import com.theveloper.pixelplay.ui.theme.PixelMotion
+import com.theveloper.pixelplay.ui.theme.GoogleSansRounded
+import com.theveloper.pixelplay.ui.theme.rememberPillSurfaceColors
 import androidx.compose.ui.res.stringResource
 import com.theveloper.pixelplay.R
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.ui.draw.scale
-import androidx.compose.foundation.border
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material3.Icon
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.text.font.FontWeight
+
+private val GridGenreLabelSize = TextAutoSize.StepBased(14.sp, 18.sp, .5.sp)
 
 @OptIn(UnstableApi::class)
 @Composable
@@ -89,14 +102,15 @@ fun GenreCategoriesGrid(
         return
     }
 
-    val systemNavBarHeight = getNavigationBarHeight()
     val customGenreIcons = playerViewModel.customGenreIcons.collectAsStateWithLifecycle(
         initialValue = emptyMap(),
         context = kotlin.coroutines.EmptyCoroutineContext
     ).value
 
     // Persistence: Collect from ViewModel
-    val isGridView by playerViewModel.isGenreGridView.collectAsStateWithLifecycle()
+    val prefersGrid by playerViewModel.isGenreGridView.collectAsStateWithLifecycle()
+    val animationsEnabled = LocalMotionPreferences.current.animationsEnabled
+    val fontScale = LocalDensity.current.fontScale
 
     val browseState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
     NavigationReselectionEffect(com.theveloper.pixelplay.presentation.navigation.Screen.Search.route) { browseState.animateScrollToItem(0) }
@@ -115,11 +129,8 @@ fun GenreCategoriesGrid(
                 smoothnessAsPercentBL = 70
             ))
     ) {
-        val cardWidthPx = with(LocalDensity.current) {
-            val width = maxWidth.roundToPx()
-            if (isGridView) ((width - 12.dp.roundToPx()) / 2).coerceAtLeast(0) else width
-        }
-        val textMeasurer = rememberTextMeasurer(cacheSize = 64)
+        val gridFits = maxWidth >= 310.dp && fontScale < 1.35f
+        val isGridView = prefersGrid && gridFits
         LazyVerticalGrid(
             state = browseState,
             columns = if (isGridView) GridCells.Fixed(2) else GridCells.Fixed(1),
@@ -144,34 +155,37 @@ fun GenreCategoriesGrid(
                         style = MaterialTheme.typography.titleLarge
                     )
 
-                    // Toggle Button with persistence and styling
-                    // Animate between rounded corners in list mode and circular appearance in grid mode.
-                    val animatedCornerRadius = animateDpAsState(
-                        targetValue = if (!isGridView) 12.dp else 50.dp,
-                        label = "shapeAnimation"
-                    )
-
-                    androidx.compose.material3.FilledIconButton(
-                        onClick = { playerViewModel.toggleGenreViewMode() },
-                        colors = androidx.compose.material3.IconButtonDefaults.filledIconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                        ),
-                        shape = RoundedCornerShape(animatedCornerRadius.value)
-                    ) {
-                        androidx.compose.material3.Icon(
-                            imageVector = if (isGridView) Icons.AutoMirrored.Rounded.ViewList else Icons.Rounded.GridView,
-                            contentDescription = "Toggle Grid/List View"
+                    if (gridFits) {
+                        val animatedCornerRadius by animateDpAsState(
+                            targetValue = if (!isGridView) 12.dp else 50.dp,
+                            animationSpec = if (animationsEnabled) PixelMotion.structural() else snap(),
+                            label = "shapeAnimation"
                         )
+                        androidx.compose.material3.FilledIconButton(
+                            onClick = { playerViewModel.toggleGenreViewMode() },
+                            colors = androidx.compose.material3.IconButtonDefaults.filledIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            ),
+                            shape = RoundedCornerShape(animatedCornerRadius)
+                        ) {
+                            Icon(
+                                imageVector = if (isGridView) Icons.AutoMirrored.Rounded.ViewList else Icons.Rounded.GridView,
+                                contentDescription = "Toggle Grid/List View"
+                            )
+                        }
                     }
                 }
             }
             items(genres, key = { it.id }, contentType = { "genre" }) { genre ->
                 GenreCard(
+                    modifier = Modifier.animateItem(
+                        fadeInSpec = null,
+                        fadeOutSpec = null,
+                        placementSpec = if (animationsEnabled) PixelMotion.structural() else snap()
+                    ),
                     genre = genre,
                     customIcons = customGenreIcons,
-                    cardWidthPx = cardWidthPx,
-                    textMeasurer = textMeasurer,
                     onClick = { onGenreClick(genre) },
                     isGridView = isGridView,
                     isSelectionMode = isSelectionMode,
@@ -187,10 +201,9 @@ fun GenreCategoriesGrid(
 
 @Composable
 private fun GenreCard(
+    modifier: Modifier = Modifier,
     genre: Genre,
     customIcons: Map<String, Int>,
-    cardWidthPx: Int,
-    textMeasurer: TextMeasurer,
     onClick: () -> Unit,
     isGridView: Boolean,
     isSelectionMode: Boolean = false,
@@ -200,171 +213,167 @@ private fun GenreCard(
     onSelectionToggle: () -> Unit = {}
 ) {
     val isDark = LocalPixelPlayDarkTheme.current
-    val themeColor = remember(genre, isDark) {
-        com.theveloper.pixelplay.ui.theme.GenreThemeUtils.getGenreThemeColor(
+    val animationsEnabled = LocalMotionPreferences.current.animationsEnabled
+    val pillColors = rememberPillSurfaceColors()
+    val onBackgroundColor = pillColors.contentColor
+    val customIcon = customIcons[genre.name]
+    val iconGradientColors = remember(genre, isDark) {
+        val iconScheme = com.theveloper.pixelplay.ui.theme.GenreThemeUtils.getGenreColorScheme(
             genre = genre,
-            isDark = isDark,
-            fallbackGenreId = genre.id
+            isDark = isDark
         )
+        listOf(iconScheme.primary, iconScheme.tertiary, iconScheme.secondary)
     }
-    val backgroundColor = themeColor.container
-    val onBackgroundColor = themeColor.onContainer
-
-    val shape = RoundedCornerShape(20.dp)
+    val shape = CircleShape
 
     val selectionScale by animateFloatAsState(
         targetValue = if (isSelected) 0.98f else 1f,
-        animationSpec = tween(durationMillis = 200),
+        animationSpec = if (animationsEnabled) PixelMotion.feedback() else snap(),
         label = "genreCardSelectionScale"
     )
     val selectionBorderWidth by animateDpAsState(
-        targetValue = if (isSelected) 2.5.dp else 0.dp,
-        animationSpec = tween(durationMillis = 200),
+        targetValue = if (isSelected) 2.dp else 1.dp,
+        animationSpec = if (animationsEnabled) tween(PixelMotion.QUICK_DURATION_MS) else snap(),
         label = "genreCardSelectionBorder"
     )
 
-    // Layout Modifier Logic
-    val cardModifier = if (isGridView) {
-        Modifier.aspectRatio(1.2f)
+    val minimumCardHeight = if (isGridView) 72.dp else 80.dp
+    val selectionBadgeEnter = if (animationsEnabled) {
+        expandHorizontally(
+            expandFrom = Alignment.End,
+            animationSpec = PixelMotion.structural()
+        ) +
+            scaleIn(animationSpec = PixelMotion.feedback()) +
+            fadeIn(animationSpec = tween(PixelMotion.QUICK_DURATION_MS))
     } else {
-        Modifier.fillMaxWidth().height(100.dp) // Fixed height for list view, full width
+        EnterTransition.None
     }
+    val selectionBadgeExit = if (animationsEnabled) {
+        shrinkHorizontally(
+            shrinkTowards = Alignment.End,
+            animationSpec = PixelMotion.structural()
+        ) +
+            scaleOut(animationSpec = PixelMotion.structural()) +
+            fadeOut(animationSpec = tween(PixelMotion.QUICK_DURATION_MS))
+    } else {
+        ExitTransition.None
+    }
+    val iconSize = if (isGridView) 48.dp else 56.dp
+    val badgeSize = if (isGridView) 26.dp else 32.dp
+    val sidePadding = if (isGridView) 7.dp else 12.dp
+    val itemSpacing = if (isGridView) 7.dp else 12.dp
+    val singleWordInGrid = isGridView && genre.name.none(Char::isWhitespace)
 
     Card(
-        modifier = cardModifier
+        modifier = modifier
+            .fillMaxWidth()
             .scale(selectionScale)
-            .then(
-                if (isSelected) {
-                    Modifier.border(
-                        width = selectionBorderWidth,
-                        color = MaterialTheme.colorScheme.primary,
-                        shape = shape
-                    )
-                } else {
-                    Modifier
-                }
-            )
             .clip(shape)
-            .pointerInput(isSelectionMode) {
-                detectTapGestures(
-                    onTap = {
-                        if (isSelectionMode) {
-                            onSelectionToggle()
-                        } else {
-                            onClick()
-                        }
-                    },
-                    onLongPress = {
-                        onLongPress()
-                    }
-                )
+            .border(
+                width = selectionBorderWidth,
+                color = if (isSelected) MaterialTheme.colorScheme.primary
+                else onBackgroundColor.copy(alpha = 0.08f),
+                shape = shape
+            )
+            .combinedClickable(
+                role = Role.Button,
+                onClick = {
+                    if (isSelectionMode) onSelectionToggle() else onClick()
+                },
+                onLongClick = onLongPress
+            )
+            .semantics {
+                selected = isSelected
             },
         shape = shape,
-        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        colors = CardDefaults.cardColors(
+            containerColor = pillColors.surfaceColor,
+            contentColor = onBackgroundColor
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Box(
+        Row(
             modifier = Modifier
-                .fillMaxSize()
-                .clip(RoundedCornerShape(20.dp))
-                .background(backgroundColor)
+                .fillMaxWidth()
+                .heightIn(min = minimumCardHeight)
+                .padding(horizontal = sidePadding, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(itemSpacing)
         ) {
-            val density = LocalDensity.current
-            val titleStartPadding = 14.dp
-            val titleEndPadding = if (isGridView) 14.dp else 96.dp
-            val titlePresentation = remember(
-                genre.id,
-                genre.name,
-                isGridView,
-                cardWidthPx,
-                textMeasurer,
-                density.density,
-                density.fontScale
-            ) {
-                val startPaddingPx = with(density) { titleStartPadding.roundToPx() }
-                val endPaddingPx = with(density) { titleEndPadding.roundToPx() }
-                GenreTypography.resolveTitlePresentation(
-                    genreId = genre.id,
-                    genreName = genre.name,
-                    isGridView = isGridView,
-                    cardWidthPx = cardWidthPx,
-                    horizontalPaddingPx = (startPaddingPx + endPaddingPx) / 2,
-                    textMeasurer = textMeasurer
-                )
-            }
-
-            // Imagen del género en esquina inferior derecha
             Box(
-                modifier = Modifier
-                    .size(90.dp) 
-                    .align(Alignment.BottomEnd)
-                    .offset(x = 16.dp, y = 16.dp) 
+                modifier = Modifier.size(iconSize).clip(CircleShape),
+                contentAlignment = Alignment.Center
             ) {
-                SmartImage(
-                    model = GenreIconProvider.getGenreImageResource(genre.name, customIcons),
-                    contentDescription = "Genre illustration",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .alpha(0.55f),
-                    colorFilter = ColorFilter.tint(onBackgroundColor),
-                    contentScale = ContentScale.Crop
-                )
-            }
-
-            // Nombre del género en esquina superior izquierda
-            Column(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .fillMaxWidth()
-                    .padding(start = titleStartPadding, top = 14.dp, end = titleEndPadding),
-                verticalArrangement = Arrangement.spacedBy(0.dp)
-            ) {
-                Text(
-                    text = titlePresentation.firstLine,
-                    style = titlePresentation.style,
-                    color = onBackgroundColor,
-                    softWrap = false,
-                    minLines = 1,
-                    maxLines = 1,
-                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                titlePresentation.secondLine?.let { secondLine ->
-                    Text(
-                        text = secondLine,
-                        style = titlePresentation.style,
-                        color = onBackgroundColor,
-                        softWrap = false,
-                        minLines = 1,
-                        maxLines = 1,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                        modifier = Modifier.fillMaxWidth(titlePresentation.secondLineWidthFraction)
+                if (customIcon != null) {
+                    SmartImage(
+                        model = customIcon,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
                     )
+                } else {
+                    GenreArtwork(genre = genre, colors = iconGradientColors)
                 }
             }
 
-            if (isSelected) {
+            Text(
+                text = genre.name,
+                modifier = Modifier.weight(1f),
+                autoSize = if (singleWordInGrid) GridGenreLabelSize else null,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontFamily = GoogleSansRounded,
+                    fontSize = 18.sp,
+                    lineHeight = 22.sp,
+                ),
+                color = onBackgroundColor,
+                softWrap = !singleWordInGrid,
+                maxLines = if (singleWordInGrid) 1 else 2,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            AnimatedVisibility(
+                visible = isSelectionMode,
+                enter = selectionBadgeEnter,
+                exit = selectionBadgeExit
+            ) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)),
+                    modifier = Modifier.size(badgeSize),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (selectionIndex != null && selectionIndex >= 0) {
-                        Text(
-                            text = selectionIndex.toString(),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Rounded.CheckCircle,
-                            contentDescription = "Selected",
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(28.dp)
-                        )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                color = if (isSelected) MaterialTheme.colorScheme.primary
+                                else Color.Transparent,
+                                shape = CircleShape
+                            )
+                            .then(
+                                if (isSelected) Modifier
+                                else Modifier.border(
+                                    width = 1.dp,
+                                    color = onBackgroundColor.copy(alpha = 0.44f),
+                                    shape = CircleShape
+                                )
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (isSelected && selectionIndex != null && selectionIndex >= 0) {
+                            Text(
+                                text = selectionIndex.toString(),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        } else if (isSelected) {
+                            Icon(
+                                imageVector = Icons.Rounded.CheckCircle,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 }
             }

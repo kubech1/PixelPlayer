@@ -12,7 +12,7 @@ import sys
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
-SKIP_DIRS = {'.git', '.idea', '.gradle', '.kotlin', 'build', '__pycache__', 'node_modules'}
+SKIP_DIRS = {'.git', '.idea', '.gradle', '.kotlin', 'build', '__pycache__', 'node_modules', 'graphify-out'}
 PRIVATE_FILES = {'local.properties', 'keystore.properties', '.env', 'google-services.json'}
 CODE_SUFFIXES = {'.kt', '.kts', '.java', '.js', '.py', '.c', '.cc', '.cpp', '.h', '.hpp', '.proto', '.bat', '.sh', '.ps1'}
 CODE_NAMES = {'gradlew', 'CMakeLists.txt'}
