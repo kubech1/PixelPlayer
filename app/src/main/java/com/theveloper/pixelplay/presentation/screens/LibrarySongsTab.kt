@@ -1,5 +1,6 @@
 package com.theveloper.pixelplay.presentation.screens
 
+import com.theveloper.pixelplay.presentation.components.topEdgeFade
 import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottomChrome
 
 import com.theveloper.pixelplay.presentation.components.bottomchrome.NavigationReselectionEffect
@@ -26,15 +27,12 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,8 +48,6 @@ import com.theveloper.pixelplay.data.model.SortOption
 import com.theveloper.pixelplay.presentation.components.MiniPlayerHeight
 import com.theveloper.pixelplay.presentation.viewmodel.PlayerViewModel
 import com.theveloper.pixelplay.presentation.components.subcomps.EnhancedSongListItem
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.LoadState
@@ -80,7 +76,6 @@ fun LibrarySongsTab(
     onSongLongPress: (Song) -> Unit = {},
     onSongSelectionToggle: (Song) -> Unit = {},
     getSelectionIndex: (String) -> Int? = { null },
-    onLocateCurrentSongVisibilityChanged: (Boolean) -> Unit = {},
     onRegisterLocateCurrentSongAction: ((() -> Unit)?) -> Unit = {},
     storageFilter: StorageFilter = StorageFilter.ALL,
     hasCurrentSong: Boolean = false
@@ -90,8 +85,6 @@ fun LibrarySongsTab(
     val dummyListState = rememberLazyListState()
     val pullToRefreshState = rememberPullToRefreshState()
     val coroutineScope = rememberCoroutineScope()
-    val visibilityCallback by rememberUpdatedState(onLocateCurrentSongVisibilityChanged)
-    val registerActionCallback by rememberUpdatedState(onRegisterLocateCurrentSongAction)
     val songFastScrollLabelProvider = remember(songs, sortOption) {
         { index: Int ->
             songFastScrollLabel(
@@ -103,57 +96,15 @@ fun LibrarySongsTab(
     var lastHandledSongSortKey by remember { mutableStateOf(sortOption.storageKey) }
     var pendingSongSortScrollReset by remember { mutableStateOf(false) }
     var songSortSawRefreshLoading by remember { mutableStateOf(false) }
-    val currentSongId by remember(playerViewModel) {
-        playerViewModel.stablePlayerState
-            .map { it.currentSong?.id }
-            .distinctUntilChanged()
-    }.collectAsStateWithLifecycle(initialValue = null)
-
-    // Check if list is effectively empty (based on Paging state)
-    // val isListEmpty = songs.itemCount == 0 && songs.loadState.refresh is LoadState.NotLoading
-    
-    // Calculate current song index for button visibility
-    val currentSongListIndex = remember(songs.itemSnapshotList, currentSongId) {
-        if (currentSongId == null) -1
-        else {
-            val snapshot = songs.itemSnapshotList
-            val indexInSnapshot = snapshot.items.indexOfFirst { it.id == currentSongId }
-            if (indexInSnapshot != -1) {
-                indexInSnapshot + snapshot.placeholdersBefore
-            } else {
-                -1
-            }
-        }
-    }
-
-    // Scroll Handler from ViewModel
-    LaunchedEffect(Unit) {
-        playerViewModel.scrollToIndexEvent.collect { index ->
-            if (index >= 0) {
-                 val firstVisible = listState.firstVisibleItemIndex
-                 if (Math.abs(index - firstVisible) > 20) {
-                     listState.scrollToItem(index)
-                 } else {
-                     listState.animateScrollToItem(index)
-                 }
-            }
-        }
-    }
-
-    // New action just triggers the ViewModel request
-    val locateCurrentSongAction: (() -> Unit)? = remember(currentSongId) {
-        if (currentSongId == null) {
-            null
-        } else {
-            {
-                playerViewModel.requestLocateCurrentSong()
-            }
-        }
-    }
-
-    LaunchedEffect(locateCurrentSongAction) {
-        registerActionCallback(locateCurrentSongAction)
-    }
+    RegisterLibraryCenterAction(
+        playerViewModel = playerViewModel,
+        listState = listState,
+        itemCount = songs.itemCount,
+        sortOption = sortOption,
+        storageFilter = storageFilter,
+        favoritesOnly = false,
+        onRegister = onRegisterLocateCurrentSongAction,
+    )
 
     LaunchedEffect(sortOption) {
         val currentSortKey = sortOption.storageKey
@@ -174,51 +125,6 @@ fun LibrarySongsTab(
         if (!songSortSawRefreshLoading) return@LaunchedEffect
         listState.scrollToItem(0)
         pendingSongSortScrollReset = false
-    }
-    
-    // Visibility Logic:
-    // If the song is NOT in the current snapshot (index == -1), we assume it's unloaded, so SHOW the button.
-    // If the song IS in the snapshot (index != -1), we check if it's visible on screen.
-    // - If visible -> Hide button
-    // - If not visible -> Show button
-
-    LaunchedEffect(currentSongListIndex, songs.itemCount, isLoading, listState, currentSongId) {
-        // If list is empty or loading, hide button
-        if (songs.itemCount == 0 || isLoading) {
-            visibilityCallback(false)
-            return@LaunchedEffect
-        }
-        
-        // If song is not loaded in current Paging snapshot, we ALWAYS show the button
-        // because we don't know if it's visible or not, so we assume it's reachable via the button (which triggers DB lookup)
-        if (currentSongListIndex == -1) {
-             // Only show if we actually have a current song
-             visibilityCallback(currentSongId != null)
-             return@LaunchedEffect
-        }
-
-        // If song IS loaded, check visibility using layout info
-        snapshotFlow {
-            val layoutInfo = listState.layoutInfo
-            val visibleItems = layoutInfo.visibleItemsInfo
-            if (visibleItems.isEmpty()) {
-                false
-            } else {
-                // Consider it visible if it's within the range of visible indices
-                currentSongListIndex in visibleItems.first().index..visibleItems.last().index
-            }
-        }
-            .distinctUntilChanged()
-            .collect { isVisible ->
-                visibilityCallback(!isVisible)
-            }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            visibilityCallback(false)
-            registerActionCallback(null)
-        }
     }
 
     val refreshState = songs.loadState.refresh
@@ -312,7 +218,7 @@ fun LibrarySongsTab(
                                         bottomStart = PlayerSheetCollapsedCornerRadius,
                                         bottomEnd = PlayerSheetCollapsedCornerRadius
                                     )
-                                ),
+                                ).topEdgeFade(MaterialTheme.colorScheme.background) { activeListState.canScrollBackward },
                             state = activeListState,
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             contentPadding = PaddingValues(bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + 30.dp)
@@ -347,6 +253,7 @@ fun LibrarySongsTab(
                                     }
 
                                     LibraryPlaybackAwareSongItem(
+                                        useLibraryPill = true,
                                         song = song,
                                         playerViewModel = playerViewModel,
                                         isSelected = isSelected,

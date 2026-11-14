@@ -216,13 +216,12 @@ internal fun PlayerArtworkHalo(
                                             drawThumbnail(to, fade)
                                         }
                                     }
-                                    // Soften artwork extremes behind the header and track text.
-                                    if (full) {
-                                        drawRect(
-                                            (if (dark) Color.Black else Color.White).copy(alpha = if (dark) 0.24f else 0.36f),
-                                            blendMode = BlendMode.SrcAtop
-                                        )
-                                    }
+                                    // Bound thumbnail luminance before layering it over the mesh.
+                                    val base = if (dark) Color.Black else Color.White
+                                    drawRect(
+                                        base.copy(alpha = if (dark) 0.56f else 0.50f),
+                                        blendMode = BlendMode.SrcAtop
+                                    )
                                     drawRect(mask, blendMode = BlendMode.DstIn)
                                 }
                             }

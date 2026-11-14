@@ -1,21 +1,19 @@
 package com.theveloper.pixelplay.presentation.components.scoped
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.snap
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.util.lerp
 import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.data.preferences.ThemePreference
@@ -25,17 +23,16 @@ import com.theveloper.pixelplay.ui.theme.LocalMotionPreferences
 /**
  * Theme state for the player sheet.
  *
- * Expansion-dependent values ([miniAlpha], elevation) are **no longer** included here.
+ * Expansion-dependent alpha and elevation are not included here.
  * They are computed inline in the consuming composable's `graphicsLayer` / `derivedStateOf`,
  * reading directly from the [Animatable] expansion fraction during the draw phase.
  * This eliminates per-frame recomposition that the old [Transition]-based approach caused.
  */
 internal data class SheetThemeState(
-    val albumColorScheme: ColorScheme,
+    val ambientColorScheme: ColorScheme?,
     val isPreparingPlayback: Boolean,
     val miniReadyAlpha: Float,
-    val miniAppearScale: Float,
-    val playerAreaBackground: State<Color>
+    val miniAppearScale: Float
 )
 
 internal fun resolvePlayerSheetTargetScheme(
@@ -85,21 +82,10 @@ internal fun rememberSheetThemeState(
         }
     }
 
-    var lastAlbumScheme by remember { mutableStateOf<ColorScheme?>(null) }
-    var lastAlbumSchemeSongId by remember { mutableStateOf<String?>(null) }
-    // When song changes, keep lastAlbumScheme as cross-song fallback
-    // to prevent flicker to system color while new color loads.
-    // Only update the tracked song ID so the new scheme replaces it once ready.
-    LaunchedEffect(currentSong?.id) {
-        if (currentSong?.id != lastAlbumSchemeSongId) {
-            lastAlbumSchemeSongId = currentSong?.id
-        }
-    }
-    LaunchedEffect(currentSongActiveScheme, currentSong?.id) {
-        val currentSongId = currentSong?.id
-        if (currentSongId != null && currentSongActiveScheme != null) {
+    var lastAlbumScheme by remember(isDarkTheme) { mutableStateOf<ColorScheme?>(null) }
+    LaunchedEffect(currentSongActiveScheme, isDarkTheme) {
+        if (currentSongActiveScheme != null) {
             lastAlbumScheme = currentSongActiveScheme
-            lastAlbumSchemeSongId = currentSongId
         }
     }
 
@@ -107,33 +93,32 @@ internal fun rememberSheetThemeState(
         preparingSongId != null && preparingSongId == currentSong?.id
     }
 
-    // Capture nullable var for smart-cast
-    val lastAlbumSchemeSnapshot = lastAlbumScheme
+    val ambientColorScheme = if (isAlbumArtTheme) {
+        // While artwork loads, keep the previous hue. Tracks without artwork use the solid base.
+        resolvePlayerSheetTargetScheme(
+            isAlbumArtTheme = true,
+            hasAlbumArt = hasAlbumArt,
+            currentSongActiveScheme = currentSongActiveScheme,
+            lastAlbumScheme = lastAlbumScheme,
+            systemColorScheme = systemColorScheme
+        ).takeUnless { it === systemColorScheme }
+    } else {
+        val context = LocalContext.current
+        val configuration = LocalConfiguration.current
+        remember(context, configuration, isDarkTheme) {
+            runCatching {
+                if (isDarkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            }.getOrNull()
+        }
+    }
 
-    // Cross-song fallback is only valid while a new track with usable album art is still loading.
-    // Tracks without art must resolve directly to the system scheme, otherwise previous colors stick.
-    val rawAlbumColorScheme = resolvePlayerSheetTargetScheme(
-        isAlbumArtTheme = isAlbumArtTheme,
-        hasAlbumArt = hasAlbumArt,
-        currentSongActiveScheme = currentSongActiveScheme,
-        lastAlbumScheme = lastAlbumSchemeSnapshot,
-        systemColorScheme = systemColorScheme
-    )
-
-    val playerAreaBackground = animateColorAsState(
-        targetValue = rawAlbumColorScheme.primaryContainer,
-        animationSpec = if (LocalMotionPreferences.current.animationsEnabled) {
-            spring(stiffness = Spring.StiffnessMediumLow)
-        } else {
-            snap()
-        },
-        label = "Player background"
-    )
-
+    val animationsEnabled = LocalMotionPreferences.current.animationsEnabled
     val miniAppearProgress = remember { Animatable(0f) }
-    LaunchedEffect(currentSong?.id) {
+    LaunchedEffect(currentSong?.id, animationsEnabled) {
         if (currentSong == null) {
             miniAppearProgress.snapTo(0f)
+        } else if (!animationsEnabled) {
+            miniAppearProgress.snapTo(1f)
         } else if (miniAppearProgress.value < 1f) {
             miniAppearProgress.animateTo(
                 targetValue = 1f,
@@ -155,10 +140,9 @@ internal fun rememberSheetThemeState(
     //   - elevation → inside derivedStateOf for visualCardShadowElevation
 
     return SheetThemeState(
-        albumColorScheme = rawAlbumColorScheme,
+        ambientColorScheme = ambientColorScheme,
         isPreparingPlayback = isPreparingPlayback,
         miniReadyAlpha = miniReadyAlpha,
-        miniAppearScale = miniAppearScale,
-        playerAreaBackground = playerAreaBackground
+        miniAppearScale = miniAppearScale
     )
 }

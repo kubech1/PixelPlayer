@@ -82,17 +82,6 @@ fun ScreenWrapper(
         entry.destination.route?.let { route -> !isMainRootRoute(route) } == true
     }
     val shouldRunDepthEffects = !isMainRootScreen || hasVisibleNonMainRootScreen
-    if (!shouldRunDepthEffects) {
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-        ) {
-            content()
-        }
-        return
-    }
-
     // Dim/Blur Logic: the screen "behind" during any transition — forward push, committed pop,
     // or an in-progress predictive back gesture — is always the entry directly below the top of
     // the back stack, i.e. previousBackStackEntry. The incoming screen of a committed pop is
@@ -197,11 +186,11 @@ fun ScreenWrapper(
             // the exception: Home/Search/Library keep the same slide/fade transition, but skip
             // the expensive offscreen depth layer while no deeper screen is visible.
             .graphicsLayer {
-                compositingStrategy = if (shouldRunDepthEffects) {
-                    CompositingStrategy.Offscreen
-                } else {
-                    CompositingStrategy.Auto
-                }
+                // Keep compositingStrategy stable as Offscreen across the screen's lifecycle.
+                // Toggling between Auto and Offscreen when a deeper screen (e.g. AlbumDetail)
+                // enters visibleEntries causes the RenderNode to re-allocate on frame 0 and
+                // produces a visible flash on the outgoing Home screen.
+                compositingStrategy = CompositingStrategy.Offscreen
                 if (shouldRunDepthEffects && animatedCornerRadius > 0.5f) {
                     this.shape = RoundedCornerShape(animatedCornerRadius.dp)
                     this.clip = true

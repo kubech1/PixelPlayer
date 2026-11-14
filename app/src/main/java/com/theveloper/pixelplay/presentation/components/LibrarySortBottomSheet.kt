@@ -10,6 +10,8 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -75,6 +77,7 @@ fun LibrarySortBottomSheet(
     onViewToggleChange: (Boolean) -> Unit = {},
     viewToggleContent: (@Composable () -> Unit)? = null,
     sourceToggleContent: (@Composable () -> Unit)? = null,
+    sourceSectionTitle: String? = null,
     extraContent: (@Composable () -> Unit)? = null
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -104,6 +107,7 @@ fun LibrarySortBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp, vertical = 0.dp)
                 .selectableGroup(),
             verticalArrangement = Arrangement.spacedBy(2.dp)
@@ -251,8 +255,8 @@ fun LibrarySortBottomSheet(
             if (sourceToggleContent != null) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = stringResource(R.string.library_sort_source),
-                    style = MaterialTheme.typography.headlineSmall,
+                    text = sourceSectionTitle ?: stringResource(R.string.library_sort_source),
+                    style = MaterialTheme.typography.titleMedium,
                     fontFamily = GoogleSansRounded,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(start = 2.dp, top = 8.dp, bottom = 8.dp)

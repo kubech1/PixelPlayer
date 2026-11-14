@@ -23,11 +23,14 @@ Entrada técnica: [docs/README.md](docs/README.md). Lee solo los temas pertinent
 | Toolchain, variantes, comandos, tests y CI | [Build y pruebas](docs/build-and-testing.md) |
 | Encontrar un archivo concreto | [Código](docs/reference/source-index.md) y [configuración](docs/reference/config-index.md) generados |
 
-## Navegación con Graphify
+## Navegación y mantenimiento del grafo con `codebase-memory-mcp`
 
-Para rastrear dependencias, llamadas o cruces entre módulos, consulta `graphify query` o `graphify explain` cuando esté disponible el grafo local. Confirma las relaciones que afecten tu trabajo en el código y la documentación temática. Si el grafo falta o está desactualizado, usa los índices y la búsqueda directa. [Instalación y actualización](docs/build-and-testing.md#graphify).
+Este proyecto está indexado con [`codebase-memory-mcp`](docs/build-and-testing.md#codebase-memory-mcp) (y la skill `codebase-memory`). Úsalo antes de recorrer archivos manualmente para ahorrar contexto y obtener relaciones estructurales exactas:
 
-Si la tarea añade, modifica, mueve o elimina código indexable, o cambia las exclusiones que determinan la cobertura, actualiza el grafo local antes de entregar. Usa el procedimiento de la guía y comunica cualquier fallo de actualización.
+- **Explorar y localizar:** `list_projects` y `index_status` (verificar estado/frescura), `get_architecture` (vista general, paquetes, puntos de entrada), `get_graph_schema` (nodos y aristas), `search_graph` (símbolos por nombre/etiqueta/grado) y `search_code` (búsqueda textual).
+- **Inspeccionar y trazar:** `get_file_outline` (estructura de un archivo), `get_code_snippet` (código fuente de un símbolo), `trace_path` (quién llama a X o qué llama X: `inbound`, `outbound`, `both`) y `query_graph` (consultas Cypher multi-salto).
+- **Impacto, calidad y cobertura:** `detect_changes` (impacto del diff local en símbolos), `compare_graphs` (comparar estados del grafo), `check_index_coverage` (comprobar cobertura y lagunas en rutas citadas; una relación ausente no demuestra que no exista), `manage_adr` e `ingest_traces`.
+- **Regla obligatoria de actualización:** cada vez que realices cambios en código, configuración o documentación, **actualiza el grafo** ejecutando `index_repository` sobre la raíz del repositorio (por ejemplo `repo_path: "C:/dev/PixelPlayer-master"`, `mode: "full"` si hubo cambios amplios o al cerrar la tarea) y confirma con `index_status`. El seguimiento automático (`watch`) puede no estar activo si no es el proyecto de sesión, por lo que re-indexar tras editar es indispensable para mantener el grafo al día.
 
 ## Reglas específicas del código
 
@@ -35,7 +38,9 @@ Si la tarea añade, modifica, mueve o elimina código indexable, o cambia las ex
 - `MusicService`/Media3 poseen la reproducción duradera. Identifica servicio, controller, holder y estado UI antes de cambiar un flujo. Mantén separado el tick de posición del estado amplio de pantallas.
 - Los IDs de canciones abarcan varias fuentes; no asumir que todos son numéricos ni que una página de biblioteca representa la cola completa.
 - Cambios de Room requieren revisar esquema, migración y consumidores. No habilitar fallback destructivo para resolver fallos; validar preservación de datos y esquema también en debug.
-- Cambios de `shared` requieren revisar teléfono y reloj: emisor, receptor, defaults y compatibilidad de DTO/rutas. El reloj no es solo un mando.
+- Cambios de `shared` requieren revisar teléfono y reloj: emisor, receptor, defaults y compatibilidad de DTO/rutas. El reloj no es solo un mando. Mantén actualizadas las pruebas de serialización en `shared/src/test/`.
+- **Evita monolitos y código muerto:** al ampliar una pantalla, componente, DAO o ViewModel, extrae subcomponentes/helpers en subpaquetes por dominio (`presentation/screens/<dominio>/`, `presentation/components/<dominio>/`) en lugar de engrosar un único archivo por encima de ~500-800 líneas. Elimina código sin uso y advertencias nuevas al cerrar cada cambio.
+- **DI y proveedores modulares:** registra nuevas dependencias Hilt en el módulo correspondiente (`DatabaseModule`, `RepositoryModule`, `NetworkModule`, `AppModule`). Para integraciones remotas, reutiliza las bases compartidas (`CloudStreamProxy`, `BaseRemoteCoverFetcher`) en vez de duplicar lógica por proveedor.
 - No mover disco/red/lectura de metadatos a composición o al hilo principal sin justificación. Conserva cancelación y liberación de jobs/listeners/players.
 - Tratar backups, URI y respuestas remotas como entradas no confiables. No registrar secretos ni contenido privado en documentación o fixtures.
 - Los informes históricos de rendimiento contienen hipótesis y fotografías anteriores; revalida cada hallazgo antes de tratarlo como bug vigente.

@@ -44,7 +44,6 @@ markdown.xml
 /.agents/skills/*
 !/.agents/skills/frontend-design/
 !/.agents/skills/frontend-design/**
-/graphify-out/
 
 # Node/tooling dependencies and local env files
 **/node_modules/

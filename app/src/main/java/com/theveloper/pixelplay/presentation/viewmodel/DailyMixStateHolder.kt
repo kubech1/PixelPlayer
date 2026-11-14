@@ -7,7 +7,7 @@ import com.theveloper.pixelplay.data.model.HomeMixKind
 import com.theveloper.pixelplay.data.model.HomeMixSnapshot
 import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.data.model.StorageFilter
-import com.theveloper.pixelplay.data.database.SourceType
+import com.theveloper.pixelplay.data.database.isProviderSong
 import com.theveloper.pixelplay.data.preferences.UserPreferencesRepository
 import com.theveloper.pixelplay.data.repository.MusicRepository
 import kotlinx.collections.immutable.persistentListOf
@@ -145,11 +145,9 @@ class DailyMixStateHolder @Inject constructor(
 
     private suspend fun loadVisibleSongs(): VisibleCatalog {
         val all = musicRepository.getAllSongsOnce()
-        val storageFilter = userPreferencesRepository.lastStorageFilterFlow.first()
-        val hideLocal = userPreferencesRepository.hideLocalMediaFlow.first()
-        val effectiveFilter = if (hideLocal) StorageFilter.ONLINE else storageFilter
+        val effectiveFilter = userPreferencesRepository.effectiveStorageFilterFlow.first()
         val songs = all.filter { song ->
-            val online = isOnlineSong(song)
+            val online = song.isProviderSong()
             song.contentUriString.isNotBlank() && when (effectiveFilter) {
                 StorageFilter.ALL -> true
                 StorageFilter.ONLINE -> online
@@ -167,12 +165,6 @@ class DailyMixStateHolder @Inject constructor(
     private fun fingerprint(value: String): String = MessageDigest.getInstance("SHA-256")
         .digest(value.toByteArray())
         .joinToString("") { byte -> "%02x".format(byte) }
-
-    private fun isOnlineSong(song: Song): Boolean =
-        SourceType.fromContentUri(song.contentUriString) != SourceType.LOCAL ||
-            song.contentUriString.startsWith("telegram:") ||
-            song.telegramFileId != null || song.neteaseId != null || song.gdriveFileId != null ||
-            song.qqMusicMid != null || song.navidromeId != null || song.jellyfinId != null
 
     private fun List<HomeMixSnapshot>.toFeed(allSongs: List<Song>): HomeMixFeed {
         val songsById = allSongs.associateBy(Song::id)

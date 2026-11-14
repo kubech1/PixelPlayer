@@ -11,8 +11,13 @@ import com.google.android.gms.cast.framework.CastSession
 import com.google.android.gms.cast.framework.SessionManager
 import com.google.android.gms.cast.framework.SessionManagerListener
 import com.google.android.gms.cast.framework.media.RemoteMediaClient
+import com.theveloper.pixelplay.data.database.isProviderMusicReference
+import com.theveloper.pixelplay.data.service.cast.CAST_PROVIDER_MUSIC_KEY
 import com.theveloper.pixelplay.data.service.cast.CastRemotePlaybackState
 import com.theveloper.pixelplay.presentation.viewmodel.ListeningStatsTracker
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
@@ -52,8 +57,11 @@ internal data class RemotePlaybackSnapshot(
  */
 internal class CastSyncCoordinator(
     private val context: Context,
+    private val scope: CoroutineScope,
     private val listeningStatsTracker: ListeningStatsTracker,
     private val requestWidgetUpdate: (force: Boolean) -> Unit,
+    private val isLocalMusicMode: () -> Boolean,
+    private val resolveLegacyProviderIds: suspend (Sequence<String>) -> Set<String>,
 ) {
     private companion object {
         private const val TAG = "MusicService_PixelPlay"
@@ -65,6 +73,8 @@ internal class CastSyncCoordinator(
     private var observedSession: CastSession? = null
     private var activeStatsOccurrenceId: String? = null
     private var activePlaybackIntent: Boolean = false
+    private var localPolicyJob: Job? = null
+    private var localPolicyCommandInFlight = false
 
     /** The active remote media client, if any, preferring the observed session. */
     fun currentRemoteMediaClient(): RemoteMediaClient? =
@@ -91,6 +101,7 @@ internal class CastSyncCoordinator(
             }
 
             override fun onQueueStatusUpdated() {
+                enforceLocalMusic()
                 syncListeningStatsFromRemote()
                 requestWidgetUpdate(false)
             }
@@ -150,6 +161,7 @@ internal class CastSyncCoordinator(
                 runCatching { remoteClient.registerCallback(callback) }
             }
             remoteClient.requestStatus()
+            enforceLocalMusic()
             syncListeningStatsFromRemote()
         } ?: run {
             activeStatsOccurrenceId = null
@@ -160,6 +172,8 @@ internal class CastSyncCoordinator(
     }
 
     fun stop() {
+        localPolicyJob?.cancel()
+        localPolicyCommandInFlight = false
         observedSession?.remoteMediaClient?.let { remoteClient ->
             remoteClientCallback?.let { callback ->
                 runCatching { remoteClient.unregisterCallback(callback) }
@@ -178,6 +192,70 @@ internal class CastSyncCoordinator(
         sessionManagerListener = null
         remoteClientCallback = null
         sessionManager = null
+    }
+
+    fun enforceLocalMusic() {
+        if (!isLocalMusicMode() || localPolicyJob?.isActive == true || localPolicyCommandInFlight) return
+        val client = currentRemoteMediaClient() ?: return
+        val items = client.mediaStatus?.queueItems.orEmpty()
+        if (items.isEmpty()) return
+
+        localPolicyJob = scope.launch {
+            val legacyIds = resolveLegacyProviderIds(
+                items.asSequence()
+                    .mapNotNull { it.customData?.takeUnless { data -> data.has(CAST_PROVIDER_MUSIC_KEY) } }
+                    .map { it.optString("songId") }
+            )
+            val providerItemIds = items.filter { item ->
+                val data = item.customData
+                val songId = data?.optString("songId").orEmpty()
+                data?.optBoolean(CAST_PROVIDER_MUSIC_KEY) == true ||
+                    isProviderMusicReference(songId, "") || songId in legacyIds
+            }.mapTo(mutableSetOf()) { it.itemId }
+            if (providerItemIds.isEmpty() || currentRemoteMediaClient() !== client || !isLocalMusicMode()) {
+                return@launch
+            }
+
+            val currentStatus = client.mediaStatus ?: return@launch
+            val removeIds = currentStatus.queueItems.mapNotNull { it.itemId.takeIf(providerItemIds::contains) }
+            if (removeIds.isEmpty()) return@launch
+
+            localPolicyCommandInFlight = true
+            fun removeItems() {
+                if (!isLocalMusicMode() || currentRemoteMediaClient() !== client) {
+                    localPolicyCommandInFlight = false
+                    return
+                }
+                runCatching {
+                    val command = if (removeIds.size == currentStatus.queueItems.size) {
+                        client.stop()
+                    } else {
+                        client.queueRemoveItems(removeIds.toIntArray(), null)
+                    }
+                    command.setResultCallback { localPolicyCommandInFlight = false }
+                }.onFailure {
+                    localPolicyCommandInFlight = false
+                    Timber.tag(TAG).w(it, "Could not remove provider tracks from the Cast queue")
+                }
+            }
+            if (currentStatus.currentItemId in providerItemIds) {
+                runCatching {
+                    client.pause().setResultCallback { result ->
+                        if (result.status.isSuccess) {
+                            removeItems()
+                        } else {
+                            localPolicyCommandInFlight = false
+                            if (isLocalMusicMode() && currentRemoteMediaClient() === client) client.stop()
+                        }
+                    }
+                }.onFailure {
+                    localPolicyCommandInFlight = false
+                    Timber.tag(TAG).w(it, "Could not pause the active provider track on Cast")
+                }
+            } else {
+                removeItems()
+            }
+        }
     }
 
     fun syncListeningStatsFromRemote() {

@@ -82,7 +82,7 @@ class ControllerSyncCallbacks(
  * rebuild with its timeline-signature dedupe, repeat-mode restore, and the playback
  * audio-metadata (format/bitrate/sample-rate) probing shown in the player file info.
  */
-@OptIn(UnstableApi::class)
+@androidx.annotation.OptIn(UnstableApi::class)
 @ViewModelScoped
 class MediaControllerSyncStateHolder @Inject constructor(
     private val musicRepository: MusicRepository,

@@ -56,6 +56,7 @@ class MusicRepositoryImplTest {
         coEvery { mockUserPreferencesRepository.allowedDirectoriesFlow } returns flowOf(emptySet())
         coEvery { mockUserPreferencesRepository.blockedDirectoriesFlow } returns flowOf(setOf("/dummy"))
         every { mockUserPreferencesRepository.mockGenresEnabledFlow } returns flowOf(false)
+        every { mockUserPreferencesRepository.cloudMusicEnabledFlow } returns flowOf(false)
         coEvery { mockUserPreferencesRepository.initialSetupDoneFlow } returns flowOf(true)
         coEvery { mockUserPreferencesRepository.isFolderFilterActiveFlow } returns flowOf(false)
         // Populate artists
@@ -257,13 +258,15 @@ class MusicRepositoryImplTest {
         every {
             mockMusicDao.getUniqueGenres(
                 any<List<String>>(),
-                any<Boolean>()
+                any<Boolean>(),
+                includeCloud = false,
             )
         } returns flowOf(listOf("Rock", " Rock ", "rock"))
         every {
             mockMusicDao.hasUnknownGenre(
                 any<List<String>>(),
-                any<Boolean>()
+                any<Boolean>(),
+                includeCloud = false,
             )
         } returns flowOf(false)
 
@@ -279,13 +282,15 @@ class MusicRepositoryImplTest {
         every {
             mockMusicDao.getUniqueGenres(
                 any<List<String>>(),
-                any<Boolean>()
+                any<Boolean>(),
+                includeCloud = false,
             )
         } returns flowOf(listOf("Unknown", " unknown "))
         every {
             mockMusicDao.hasUnknownGenre(
                 any<List<String>>(),
-                any<Boolean>()
+                any<Boolean>(),
+                includeCloud = false,
             )
         } returns flowOf(true)
 
@@ -301,13 +306,15 @@ class MusicRepositoryImplTest {
         every {
             mockMusicDao.getUniqueGenres(
                 any<List<String>>(),
-                any<Boolean>()
+                any<Boolean>(),
+                includeCloud = false,
             )
         } returns flowOf(listOf("Rock"))
         every {
             mockMusicDao.hasUnknownGenre(
                 any<List<String>>(),
-                any<Boolean>()
+                any<Boolean>(),
+                includeCloud = false,
             )
         } returns flowOf(true)
 
@@ -337,7 +344,8 @@ class MusicRepositoryImplTest {
                 eq("%, Pop,%"),
                 eq("%,Pop,%"),
                 any(),
-                eq(true)
+                eq(true),
+                includeCloud = false,
             )
         } returns flowOf(listOf(matchingSong))
 

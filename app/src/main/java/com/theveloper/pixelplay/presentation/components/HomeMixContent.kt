@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -33,6 +35,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -270,23 +273,52 @@ fun HomeRecentlyPlayedSection(
                 Text(stringResource(R.string.home_see_all))
             }
         }
-        for (index in 0 until minOf(3, songs.size)) {
-            val song = songs[index].song
-            Row(
-                modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp)
-                    .clickable(role = Role.Button) { onPlaySong(song) }
-                    .padding(horizontal = 24.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                SmartImage(song.albumArtUriString, null, Modifier.size(48.dp), shape = RoundedCornerShape(10.dp))
-                Column(Modifier.weight(1f)) {
-                    Text(song.title, maxLines = 2, overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
-                    Text(song.displayArtist, maxLines = 2, overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        val pages = remember(songs) { songs.take(9).chunked(3) }
+        val pagerState = rememberPagerState { pages.size }
+        HorizontalPager(
+            state = pagerState,
+            verticalAlignment = Alignment.Top,
+        ) { page ->
+            Column(Modifier.heightIn(min = if (pages.size > 1) 216.dp else 0.dp)) {
+                pages[page].forEach { entry ->
+                    val song = entry.song
+                    Row(
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp)
+                            .clickable(role = Role.Button) { onPlaySong(song) }
+                            .padding(horizontal = 24.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    ) {
+                        SmartImage(song.albumArtUriString, null, Modifier.size(48.dp), shape = RoundedCornerShape(10.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(song.title, maxLines = 2, overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
+                            Text(song.displayArtist, maxLines = 2, overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        if (currentSongId == song.id) {
+                            PlayingEqIcon(color = MaterialTheme.colorScheme.primary, isPlaying = isPlaying)
+                        }
+                    }
                 }
-                if (currentSongId == song.id) PlayingEqIcon(color = MaterialTheme.colorScheme.primary, isPlaying = isPlaying)
+            }
+        }
+        if (pages.size > 1) {
+            Row(
+                Modifier.fillMaxWidth().padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
+            ) {
+                repeat(pages.size) { page ->
+                    val selected = page == pagerState.currentPage
+                    Box(
+                        Modifier.size(width = if (selected) 16.dp else 6.dp, height = 6.dp)
+                            .background(
+                                if (selected) MaterialTheme.colorScheme.onSurface
+                                else MaterialTheme.colorScheme.outlineVariant,
+                                CircleShape,
+                            )
+                    )
+                }
             }
         }
     }

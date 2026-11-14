@@ -154,6 +154,7 @@ class SettingsViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+    val cloudMusicEnabledFlow = userPreferencesRepository.cloudMusicEnabledFlow
 
     private val fileExplorerStateHolder = FileExplorerStateHolder(userPreferencesRepository, viewModelScope, context)
 
@@ -479,6 +480,13 @@ class SettingsViewModel @Inject constructor(
     fun setLibraryNavigationMode(mode: String) {
         viewModelScope.launch {
             userPreferencesRepository.setLibraryNavigationMode(mode)
+        }
+    }
+
+    fun setCloudMusicEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setCloudMusicEnabled(enabled)
+            if (enabled) syncManager.sync()
         }
     }
 

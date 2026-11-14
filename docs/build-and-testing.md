@@ -53,20 +53,23 @@ Para una clase concreta, se puede filtrar la tarea JVM con `--tests "paquete.Cla
 
 En otros shells, usar `./gradlew` en vez de `gradlew.bat`. El workflow del APK usa el Wrapper para reproducir la versión fijada.
 
-## Graphify
+## codebase-memory-mcp
 
-Graphify indexa localmente el código de `app`, `wear`, `shared` y `baselineprofile` para ubicar símbolos y explorar relaciones. Con `uv` disponible, instala la CLI y genera el grafo desde la raíz. La versión comprobada es `graphifyy` 0.9.106 con Python 3.12. Si PowerShell no encuentra `graphify` tras la instalación, ejecuta `uv tool update-shell` y abre una terminal nueva.
+[codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) proporciona un grafo de conocimiento local para explorar símbolos y relaciones entre código, documentación y configuración compatible. En este entorno está instalada la versión 0.12.1 y el servidor MCP está disponible para los agentes conectados (Antigravity, Codex u otros clientes MCP). Para instalarlo en Windows desde cero, sigue las instrucciones oficiales de PowerShell del repositorio, inspecciona el instalador y reinicia el agente después de instalarlo. La integración y la skill `codebase-memory` son independientes del repositorio.
 
-```powershell
-uv tool install --python 3.12 graphifyy==0.9.106
-graphify extract . --code-only
-graphify cluster-only . --no-label
-graphify explain MusicService
-```
+### Capacidades principales
 
-Ejecuta `graphify update .` desde la raíz antes de cerrar una tarea que añada, modifique, mueva o elimine código indexable. Úsalo también al cambiar de rama o al ajustar `.graphifyignore`. Si un cambio en `.gitignore` altera la cobertura del grafo, ejecuta `graphify update . --force` para aplicar todas las exclusiones. Comprueba el resultado del comando antes de dar el grafo por actualizado.
+- **Gestión del índice:** `index_repository` (indexación `full`, `moderate` o `fast`, síncrona o `async`), `index_status` (estado, nodos/aristas, cobertura y `watch`), `list_projects` y `delete_project`.
+- **Exploración y lectura:** `get_architecture`, `get_graph_schema`, `search_graph`, `search_code`, `get_file_outline` y `get_code_snippet`.
+- **Trazado y consultas avanzadas:** `trace_path` (`inbound`, `outbound`, `both` con etiquetas de riesgo), `query_graph` (consultas Cypher sobre nodos y aristas), `detect_changes` (símbolos afectados por cambios locales), `compare_graphs`, `check_index_coverage`, `manage_adr` e `ingest_traces`.
 
-Los resultados se generan en `graphify-out/` y quedan fuera de Git. La extracción `--code-only` omite el análisis semántico de documentación y multimedia. Consulta los manifiestos, recursos XML y contratos de ejecución en sus archivos fuente. [Referencia de la CLI](https://docs.graphify.com/open-source/configuration/cli).
+### Flujo de uso y actualización obligatoria
+
+1. Al iniciar una tarea o tras compactar contexto, consulta `list_projects` e `index_status` para confirmar que `C-dev-PixelPlayer-master` está listo y al día.
+2. Usa `search_graph`, `trace_path`, `get_architecture`, `query_graph` y `get_code_snippet` para navegar, y `check_index_coverage` para revisar posibles lagunas en los archivos consultados. Confirma los resultados con el código fuente cuando haya cobertura parcial o archivos no analizados (como recursos XML de Android o manifiestos).
+3. **Tras realizar cambios en el repositorio**, ejecuta `index_repository` con la ruta absoluta de la raíz (`C:/dev/PixelPlayer-master`) para actualizar el grafo antes de dar por terminada la tarea (usa `async: true` y consulta `status: true` si el cliente tiene límite de tiempo por llamada). El modo `watch` solo sincroniza automáticamente el proyecto activo de la sesión MCP, por lo que re-indexar explícitamente garantiza que el grafo permanezca actualizado para la siguiente IA.
+
+El índice se guarda en la caché local de la herramienta, fuera del repositorio, salvo que se solicite explícitamente persistir un artefacto. Consulta la [documentación oficial](https://github.com/DeusData/codebase-memory-mcp) para instalación, configuración, actualización y detalles del índice.
 
 ## Qué verifican las pruebas presentes
 

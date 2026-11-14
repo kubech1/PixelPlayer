@@ -2,6 +2,8 @@
 
 package com.theveloper.pixelplay.presentation.screens
 
+import androidx.compose.material3.ColorScheme
+import com.theveloper.pixelplay.presentation.components.scoped.ArtworkHeaderGradient
 import com.theveloper.pixelplay.presentation.navigation.navigateSafely
 import com.theveloper.pixelplay.presentation.navigation.navigateSafelyReplacing
 
@@ -33,6 +35,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -128,10 +131,9 @@ fun AlbumDetailScreen(
         albumArtUri?.let { playerViewModel.themeStateHolder.getAlbumColorSchemeFlow(it, eager = false) }
     }
     val albumColorSchemePair = albumColorSchemeFlow?.collectAsStateWithLifecycle()?.value
-    val albumColorScheme = remember(albumColorSchemePair, isDarkTheme, baseColorScheme) {
-        albumColorSchemePair?.let { pair -> if (isDarkTheme) pair.dark else pair.light }
-            ?: baseColorScheme
-    }
+    val artworkScheme = albumColorSchemePair?.let { if (isDarkTheme) it.dark else it.light }
+    val artworkWash = artworkScheme?.let { lerpColor(baseColorScheme.surface, it.primary, 0.14f) }
+        ?: baseColorScheme.surface
     var headerArtworkLoaded by remember(albumArtUri) { mutableStateOf(albumArtUri == null) }
     var themeRequestIssued by remember(albumArtUri) { mutableStateOf(albumArtUri == null) }
     LaunchedEffect(albumArtUri, headerArtworkLoaded, themeRequestIssued) {
@@ -144,10 +146,10 @@ fun AlbumDetailScreen(
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
 
-    MaterialTheme(
-        colorScheme = albumColorScheme,
-        typography = MaterialTheme.typography,
-        shapes = MaterialTheme.shapes
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = baseColorScheme.background,
+        contentColor = baseColorScheme.onBackground
     ) {
 
         val isMiniPlayerVisible = stablePlayerState.currentSong != null
@@ -236,8 +238,7 @@ fun AlbumDetailScreen(
                                 }
                             }
 
-                            val canConsumeScroll = !(isScrollingDown && newHeight == minTopBarHeightPx)
-                            return if (canConsumeScroll) Offset(0f, consumed) else Offset.Zero
+                            return if (consumed.roundToInt() != 0) Offset(0f, consumed) else Offset.Zero
                         }
 
                         override suspend fun onPostFling(
@@ -356,6 +357,8 @@ fun AlbumDetailScreen(
                             collapseFraction = collapseFraction,
                             headerHeight = currentTopBarHeightDp,
                             headerImageRequestSize = headerImageRequestSize,
+                            artworkWash = artworkWash,
+                            artworkScheme = artworkScheme,
                             onHeaderArtworkState = { state ->
                                 if (state is AsyncImagePainter.State.Success) {
                                     headerArtworkLoaded = true
@@ -376,6 +379,8 @@ fun AlbumDetailScreen(
                             collapseFraction = collapseFraction,
                             headerHeight = currentTopBarHeightDp,
                             headerImageRequestSize = headerImageRequestSize,
+                            artworkWash = artworkWash,
+                            artworkScheme = artworkScheme,
                             onHeaderArtworkState = { state ->
                                 if (state is AsyncImagePainter.State.Success) {
                                     headerArtworkLoaded = true
@@ -497,6 +502,8 @@ private fun SharedAlbumTopBarProbe(
     collapseFraction: Float,
     headerHeight: Dp,
     headerImageRequestSize: Size,
+    artworkWash: Color,
+    artworkScheme: ColorScheme?,
     onHeaderArtworkState: ((AsyncImagePainter.State) -> Unit)? = null,
     onBackPressed: () -> Unit,
     onPlayClick: () -> Unit
@@ -507,12 +514,12 @@ private fun SharedAlbumTopBarProbe(
         else Color.White.copy(alpha = 0.4f)
     val solidAlpha = (collapseFraction * 2f).coerceIn(0f, 1f)
     val expandedContentAlpha = 1f - solidAlpha
-    val headerOverlayBrush = remember(surfaceColor, expandedContentAlpha) {
+    val headerOverlayBrush = remember(surfaceColor, artworkWash, expandedContentAlpha) {
         Brush.verticalGradient(
             colors = listOf(
                 Color.Transparent,
                 surfaceColor.copy(alpha = 0.22f * expandedContentAlpha),
-                surfaceColor.copy(alpha = 0.82f * expandedContentAlpha),
+                artworkWash.copy(alpha = 0.82f * expandedContentAlpha),
                 surfaceColor
             )
         )
@@ -549,11 +556,7 @@ private fun SharedAlbumTopBarProbe(
                 onState = onHeaderArtworkState,
                 modifier = Modifier.fillMaxSize()
             )
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(headerOverlayBrush)
-            )
+            ArtworkHeaderGradient("album:${album.id}", artworkScheme, expandedContentAlpha, headerOverlayBrush)
         }
 
         Box(
@@ -616,6 +619,8 @@ private fun CollapsingAlbumTopBar(
     collapseFraction: Float,
     headerHeight: Dp,
     headerImageRequestSize: Size,
+    artworkWash: Color,
+    artworkScheme: ColorScheme?,
     onHeaderArtworkState: ((AsyncImagePainter.State) -> Unit)? = null,
     onBackPressed: () -> Unit,
     onPlayClick: () -> Unit
@@ -630,12 +635,12 @@ private fun CollapsingAlbumTopBar(
     val fabScale = 1f - collapseFraction
     val headerContentAlpha = 1f - (collapseFraction * 2).coerceAtMost(1f)
     val showExpandedArtwork = headerContentAlpha > 0.01f
-    val headerOverlayBrush = remember(surfaceColor, headerContentAlpha) {
+    val headerOverlayBrush = remember(surfaceColor, artworkWash, headerContentAlpha) {
         Brush.verticalGradient(
             colors = listOf(
                 Color.Transparent,
                 surfaceColor.copy(alpha = 0.30f * headerContentAlpha),
-                surfaceColor.copy(alpha = 0.90f * headerContentAlpha),
+                artworkWash.copy(alpha = 0.90f * headerContentAlpha),
                 surfaceColor.copy(alpha = headerContentAlpha)
             )
         )
@@ -681,11 +686,7 @@ private fun CollapsingAlbumTopBar(
                     onState = onHeaderArtworkState,
                     modifier = Modifier.fillMaxSize()
                 )
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(headerOverlayBrush)
-                )
+                ArtworkHeaderGradient("album:${album.id}", artworkScheme, headerContentAlpha, headerOverlayBrush)
             }
             Box(
                 modifier = Modifier

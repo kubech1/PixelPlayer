@@ -73,6 +73,9 @@ import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerAlbumNavigationEffect
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerArtistNavigationEffect
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerArtworkIdentity
+import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.graphics.lerp as lerpColor
+import com.theveloper.pixelplay.presentation.components.scoped.PlayerGlassBackdrop
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerMeshBackground
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerSheetPredictiveBackHandler
 import com.theveloper.pixelplay.presentation.components.scoped.QueueSheetRuntimeEffects
@@ -531,6 +534,7 @@ fun UnifiedPlayerSheetV2(
     val themedAlbumArtUri by playerViewModel.currentThemedAlbumArtUri.collectAsStateWithLifecycle()
     val isDarkTheme = LocalPixelPlayDarkTheme.current
     val currentSong = infrequentPlayerState.currentSong
+    val systemColorScheme = MaterialTheme.colorScheme
     val sheetThemeState = rememberSheetThemeState(
         activePlayerSchemePair = activePlayerSchemePair,
         isDarkTheme = isDarkTheme,
@@ -538,15 +542,29 @@ fun UnifiedPlayerSheetV2(
         currentSong = currentSong,
         themedAlbumArtUri = themedAlbumArtUri,
         preparingSongId = preparingSongId,
-        systemColorScheme = MaterialTheme.colorScheme
+        systemColorScheme = systemColorScheme
     )
-    val albumColorScheme = sheetThemeState.albumColorScheme
+    val ambientColorScheme = sheetThemeState.ambientColorScheme
+    val playerControlScheme = remember(ambientColorScheme, systemColorScheme, isDarkTheme) {
+        ambientColorScheme?.let { artwork ->
+            artwork.copy(
+                background = systemColorScheme.background,
+                onBackground = lerpColor(systemColorScheme.onBackground, artwork.primary, 0.66f),
+                onSurface = lerpColor(systemColorScheme.onSurface, artwork.onSurface, 0.80f),
+                secondaryFixedDim = if (isDarkTheme) artwork.secondaryContainer else artwork.secondaryFixed,
+                onSecondaryFixed = if (isDarkTheme) artwork.onSecondaryContainer else artwork.onSecondaryFixed,
+                tertiaryFixedDim = if (isDarkTheme) artwork.tertiaryContainer else artwork.tertiaryFixed,
+                onTertiaryFixed = if (isDarkTheme) artwork.onTertiaryContainer else artwork.onTertiaryFixed,
+            )
+        } ?: systemColorScheme
+    }
     val pillColors = rememberPillSurfaceColors()
     val isPreparingPlayback = sheetThemeState.isPreparingPlayback
     val miniReadyAlpha = sheetThemeState.miniReadyAlpha
     val miniAppearScale = sheetThemeState.miniAppearScale
-    val playerAreaBackground = sheetThemeState.playerAreaBackground
-    val depthEffects = LocalVisualEffects.current.allowsDepthEffects
+    val playerAreaBackground = playerControlScheme.background
+    val visualEffects = LocalVisualEffects.current
+    val depthEffects = visualEffects.allowsDepthEffects
 
     val sheetInteractionState = rememberSheetInteractionState(
         scope = scope,
@@ -664,7 +682,7 @@ fun UnifiedPlayerSheetV2(
                             .clip(sheetInteractionState.playerShadowShape)
                             .continuousPillGradient { bottomChrome.mergeFractionProvider() * (1f - effectiveExpansionFractionProvider()) }
                             .drawBehind {
-                                drawRect(playerAreaBackground.value, alpha = effectiveExpansionFractionProvider())
+                                drawRect(playerAreaBackground, alpha = effectiveExpansionFractionProvider())
                             }
                             // innerLayout:
                             // Measures the actual player content with full screen height targetContentHeightPx
@@ -703,12 +721,17 @@ fun UnifiedPlayerSheetV2(
                             }
                     ) {
                         val songId = infrequentPlayerState.currentSong?.id
-                        if (depthEffects && songId != null) {
+                        val playerBackdrop = if (depthEffects && !visualEffects.isPowerSaveMode && songId != null && ambientColorScheme != null) {
+                            val layer = rememberGraphicsLayer()
+                            remember(layer) { PlayerGlassBackdrop(layer) }
+                        } else null
+                        if (depthEffects && songId != null && ambientColorScheme != null) {
                             PlayerMeshBackground(
                                 songId = songId,
-                                targetScheme = albumColorScheme,
-                                baseColor = { playerAreaBackground.value },
-                                foregroundColor = albumColorScheme.onPrimaryContainer,
+                                targetScheme = ambientColorScheme,
+                                baseColor = { playerAreaBackground },
+                                foregroundColor = playerControlScheme.onBackground,
+                                backdrop = playerBackdrop,
                                 expansion = effectiveExpansionFractionProvider,
                                 modifier = Modifier.matchParentSize()
                             )
@@ -719,8 +742,9 @@ fun UnifiedPlayerSheetV2(
                             isCastConnecting = isCastConnecting,
                             isPreparingPlayback = isPreparingPlayback,
                             playerContentExpansionFraction = playerContentExpansionFraction,
-                            albumColorScheme = albumColorScheme,
-                            targetArtworkTint = albumColorScheme.primary,
+                            albumColorScheme = playerControlScheme,
+                            glassBackdrop = playerBackdrop,
+                            targetArtworkTint = ambientColorScheme?.primary ?: playerControlScheme.primary,
                             bottomSheetOpenFraction = bottomSheetOpenFraction,
                             fullPlayerVisualState = fullPlayerVisualState,
                             containerHeight = containerHeight,
@@ -750,7 +774,7 @@ fun UnifiedPlayerSheetV2(
                     prewarmFullPlayer = prewarmFullPlayer && !shouldRenderFullPlayer,
                     currentSong = infrequentPlayerState.currentSong,
                     containerHeight = containerHeight,
-                    albumColorScheme = albumColorScheme,
+                    albumColorScheme = playerControlScheme,
                     currentQueueSourceName = currentQueueSourceName,
                     infrequentPlayerState = infrequentPlayerState,
                     carouselStyle = carouselStyle,
@@ -808,7 +832,7 @@ fun UnifiedPlayerSheetV2(
                 keepQueueSheetWarm = currentSheetContentState == PlayerSheetState.EXPANDED &&
                     !internalIsKeyboardVisible,
                 isQueueTelemetryActive = isQueueTelemetryActive,
-                albumColorScheme = albumColorScheme,
+                albumColorScheme = playerControlScheme,
                 queueScrimAlpha = queueScrimAlpha,
                 showQueueSheet = showQueueSheet,
                 isQueueCollapsing = queueSheetState.isCollapsing,
@@ -839,7 +863,7 @@ fun UnifiedPlayerSheetV2(
     UnifiedPlayerCastLayer(
         showCastSheet = castSheetState.showCastSheet,
         internalIsKeyboardVisible = internalIsKeyboardVisible,
-        albumColorScheme = albumColorScheme,
+        albumColorScheme = playerControlScheme,
         playerViewModel = playerViewModel,
         onDismiss = castSheetState.dismissCastSheet,
         onExpansionChanged = castSheetState.onCastExpansionChanged

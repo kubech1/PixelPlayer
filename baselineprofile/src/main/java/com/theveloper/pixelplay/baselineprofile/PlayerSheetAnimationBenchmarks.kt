@@ -243,11 +243,14 @@ class PlayerSheetAnimationBenchmarks {
     }
 
     private fun androidx.benchmark.macro.MacrobenchmarkScope.openCollapsedPlayerByTap(fallbackY: Int) {
-        findByTextOrDescription(SHEET_COLLAPSED_PATTERN, TINY_WAIT_MS)?.let {
-            click(it)
-            return
+        val bounds = findByTextOrDescription(SHEET_COLLAPSED_PATTERN, TINY_WAIT_MS)
+            ?.let { runCatching { it.visibleBounds }.getOrNull() }
+        if (bounds != null && !bounds.isEmpty) {
+            // The center can land on a transport control in the compact player.
+            tap(bounds.left + bounds.width() / 3, bounds.centerY())
+        } else {
+            tap(device.displayWidth / 3, fallbackY)
         }
-        tap(device.displayWidth / 2, fallbackY)
     }
 
     private fun androidx.benchmark.macro.MacrobenchmarkScope.swipeOpenFromCollapsed(

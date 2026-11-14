@@ -123,6 +123,23 @@ abstract class CloudStreamProxy<K : Any>(
         return getProxyUrl(id)
     }
 
+    /**
+     * Pre-fetches and caches the real stream URL for a song so the proxy can
+     * serve it instantly when ExoPlayer makes its HTTP request.
+     */
+    suspend fun warmUpStreamUrl(uriString: String) {
+        val uri = Uri.parse(uriString)
+        if (uri.scheme != uriScheme) return
+        val rawId = extractIdFromUri(uri) ?: return
+        val id = parseRouteParam(rawId) ?: return
+        if (!validateId(id)) return
+        try {
+            getOrFetchStreamUrl(id)
+        } catch (e: Exception) {
+            Timber.w(e, "$proxyTag: warmUpStreamUrl failed for $id")
+        }
+    }
+
     fun start() {
         startJob?.cancel()
         startJob = proxyScope.launch {

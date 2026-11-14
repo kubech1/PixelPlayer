@@ -24,11 +24,15 @@ import com.theveloper.pixelplay.data.model.SortOption
 import com.theveloper.pixelplay.data.model.StorageFilter
 import com.theveloper.pixelplay.data.model.TransitionSettings
 import javax.inject.Inject
+import javax.inject.Provider
 import javax.inject.Singleton
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -84,7 +88,8 @@ data class AdvancedPerformanceDiagnosticsSettings(
 @Singleton
 class UserPreferencesRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
-    private val json: Json
+    private val json: Json,
+    private val legacyCloudAccounts: Provider<LegacyCloudAccounts>? = null
 ) {
 
     private val backupExcludedKeyNames = setOf(
@@ -94,6 +99,7 @@ class UserPreferencesRepository @Inject constructor(
     // ─── Preference keys ────────────────────────────────────────────────────
 
     private object PreferencesKeys {
+        val CLOUD_MUSIC_ENABLED = booleanPreferencesKey("cloud_music_enabled")
         val APP_REBRAND_DIALOG_SHOWN = booleanPreferencesKey("app_rebrand_dialog_shown")
         val ALLOWED_DIRECTORIES = stringSetPreferencesKey("allowed_directories")
         val BLOCKED_DIRECTORIES = stringSetPreferencesKey("blocked_directories")
@@ -789,6 +795,24 @@ suspend fun markDirectoryRulesVersionApplied(version: Int) {
         dataStore.edit { it[PreferencesKeys.LAST_STORAGE_FILTER] = filter.name }
     }
 
+    val cloudMusicEnabledFlow: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.CLOUD_MUSIC_ENABLED] ?: dataStore.edit { stored ->
+            if (stored[PreferencesKeys.CLOUD_MUSIC_ENABLED] == null) {
+                stored[PreferencesKeys.CLOUD_MUSIC_ENABLED] =
+                    stored[PreferencesKeys.INITIAL_SETUP_DONE] == true &&
+                        legacyCloudAccounts?.get()?.hasConfiguredAccount() == true
+            }
+        }[PreferencesKeys.CLOUD_MUSIC_ENABLED] == true
+    }.distinctUntilChanged()
+
+    suspend fun setCloudMusicEnabled(enabled: Boolean) {
+        dataStore.edit { it[PreferencesKeys.CLOUD_MUSIC_ENABLED] = enabled }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend fun <T> runWhileCloudMusicEnabled(block: suspend () -> T): T? =
+        cloudMusicEnabledFlow.mapLatest { enabled -> if (enabled) block() else null }.first()
+
     val mockGenresEnabledFlow: Flow<Boolean> =
         pref { it[PreferencesKeys.MOCK_GENRES_ENABLED] ?: false }
 
@@ -845,6 +869,18 @@ suspend fun markDirectoryRulesVersionApplied(version: Int) {
 
     val hideLocalMediaFlow: Flow<Boolean> =
         pref { it[PreferencesKeys.HIDE_LOCAL_MEDIA] ?: false }.distinctUntilChanged()
+
+    val effectiveStorageFilterFlow: Flow<StorageFilter> = combine(
+        cloudMusicEnabledFlow,
+        lastStorageFilterFlow,
+        hideLocalMediaFlow
+    ) { cloudEnabled, storageFilter, hideLocal ->
+        when {
+            !cloudEnabled -> StorageFilter.OFFLINE
+            hideLocal -> StorageFilter.ONLINE
+            else -> storageFilter
+        }
+    }.distinctUntilChanged()
 
     suspend fun setHideLocalMedia(hide: Boolean) {
         dataStore.edit { it[PreferencesKeys.HIDE_LOCAL_MEDIA] = hide }

@@ -186,8 +186,7 @@ fun GenreDetailScreen(
                 }
 
                 // Make sure we consume scroll only if we actually resized the bar
-                val canConsumeScroll = !(isScrollingDown && newHeight == minTopBarHeightPx)
-                return if (canConsumeScroll) Offset(0f, consumed) else Offset.Zero
+                return if (consumed.roundToInt() != 0) Offset(0f, consumed) else Offset.Zero
             }
 
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
@@ -215,27 +214,7 @@ fun GenreDetailScreen(
         }
     }
 
-    // Colors
-    val defaultContainer = MaterialTheme.colorScheme.surfaceVariant
-    val defaultOnContainer = MaterialTheme.colorScheme.onSurfaceVariant
     val themeGenre = uiState.genre
-    val themeColor = remember(themeGenre, decodedGenreId, darkMode, defaultContainer, defaultOnContainer) {
-        if (themeGenre != null) {
-            com.theveloper.pixelplay.ui.theme.GenreThemeUtils.getGenreThemeColor(
-                genre = themeGenre,
-                isDark = darkMode,
-                fallbackGenreId = decodedGenreId
-            )
-        } else {
-            com.theveloper.pixelplay.ui.theme.GenreThemeColor(
-                defaultContainer,
-                defaultOnContainer
-            )
-        }
-    }
-    
-    val startColor = themeColor.container
-    val contentColor = themeColor.onContainer
     
     // Optimization: Calculate a fast display name for the title while the full Genre object is loading.
     // This prevents the "Genre" placeholder from flashing during the navigation transition.
@@ -283,25 +262,25 @@ fun GenreDetailScreen(
         label = "fabPadding"
     )
 
-    // Capture Neutral Colors from the App Theme (before overriding)
     val baseColorScheme = MaterialTheme.colorScheme
-
-    // Dynamic Theme
-    val genreColorScheme = remember(themeGenre, decodedGenreId, darkMode, genrePaletteStyle) {
+    val headerTint = remember(themeGenre, decodedGenreId, darkMode, genrePaletteStyle) {
         com.theveloper.pixelplay.ui.theme.GenreThemeUtils.getGenreDetailColorScheme(
             genre = themeGenre,
             fallbackGenreId = decodedGenreId,
             isDark = darkMode,
             paletteStyle = genrePaletteStyle
-        )
+        ).primary
     }
 
-    MaterialTheme(colorScheme = genreColorScheme) {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = baseColorScheme.background,
+        contentColor = baseColorScheme.onBackground
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .nestedScroll(nestedScrollConnection)
-                .background(MaterialTheme.colorScheme.background) // Uses new theme background
         ) {
             // Optimization: Cache Dp conversions
             val currentTopBarHeightDp = with(density) { topBarHeight.value.toDp() }
@@ -413,8 +392,7 @@ fun GenreDetailScreen(
                 collapseFraction = collapseFraction,
                 headerHeight = currentTopBarHeightDp,
                 onBackPressed = { navController.popBackStack() },
-                startColor = startColor,
-                contentColor = contentColor
+                tint = headerTint
             )
         
             // Selection Count Pill (Top-Center below collapsed top bar)
@@ -525,7 +503,6 @@ fun GenreDetailScreen(
             }
 
             // Quick Fill Dialog
-            // QuickFillDialog with Base Theme (Independent of Genre Theme)
             MaterialTheme(colorScheme = baseColorScheme) {
                 QuickFillDialog(
                     visible = showQuickFillDialog,
@@ -548,7 +525,7 @@ fun GenreDetailScreen(
                 val isFavorite = favoriteSongIds.contains(song.id)
 
                 MaterialTheme(
-                    colorScheme = genreColorScheme,
+                    colorScheme = baseColorScheme,
                     typography = MaterialTheme.typography,
                     shapes = MaterialTheme.shapes
                 ) {
@@ -756,16 +733,21 @@ private fun GenreDetailListItem.fastScrollLabel(sortOption: SortOption): String?
 
 // --- Top Bar Component ---
 @Composable
-fun GenreCollapsibleTopBar(
+private fun GenreCollapsibleTopBar(
     title: String,
     collapseFraction: Float,
     headerHeight: Dp,
     onBackPressed: () -> Unit,
-    startColor: Color,
-    contentColor: Color
+    tint: Color
 ) {
     Box(Modifier.fillMaxWidth().height(headerHeight)) {
-        val gradient = remember(startColor) { Brush.verticalGradient(listOf(startColor.copy(alpha = 0.8f), Color.Transparent)) }
+        val gradient = remember(tint) {
+            Brush.verticalGradient(
+                0.14f to Color.Transparent,
+                0.45f to tint.copy(alpha = 0.14f),
+                1f to Color.Transparent
+            )
+        }
         Box(Modifier.matchParentSize().graphicsLayer {
             alpha = 1f - (collapseFraction * 2f).coerceIn(0f, 1f)
         }.background(gradient))
@@ -773,9 +755,7 @@ fun GenreCollapsibleTopBar(
             title = title,
             collapseFraction = { collapseFraction },
             headerHeight = headerHeight,
-            onBackClick = onBackPressed,
-            contentColor = contentColor,
-            syncStatusBarWithContainer = false
+            onBackClick = onBackPressed
         )
     }
 }

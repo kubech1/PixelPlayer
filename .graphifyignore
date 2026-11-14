@@ -1,8 +1,0 @@
-# Configuración del IDE, skills locales y artefactos generados.
-/.idea/
-/.agents/
-/docs/reference/
-/graphify-out/
-
-# Material gráfico de presentación del repositorio.
-/assets/

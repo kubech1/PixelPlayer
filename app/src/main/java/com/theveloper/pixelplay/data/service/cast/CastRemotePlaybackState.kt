@@ -2,6 +2,8 @@ package com.theveloper.pixelplay.data.service.cast
 
 import com.google.android.gms.cast.MediaStatus
 
+internal const val CAST_PROVIDER_MUSIC_KEY = "providerMusic"
+
 internal data class CastRemotePlaybackProjection(
     val isPlaying: Boolean,
     val playWhenReady: Boolean,

@@ -69,7 +69,11 @@
     <string name="library_action_new">Nuevo</string>
     <string name="library_cd_create_new_playlist">Crear lista nueva</string>
     <string name="library_cd_import_m3u_playlist">Importar lista M3U</string>
-    <string name="library_cd_locate_current_song">Localizar canción actual</string>
+    <string name="library_cd_locate_current_song">Centrar canción actual</string>
+    <string name="library_source_all">Todas</string>
+    <string name="library_source_local">Local</string>
+    <string name="library_source_cloud">Nube</string>
+    <string name="library_source_device_storage">Almacenamiento</string>
     <string name="library_storage_filter_all_songs">Todas</string>
     <string name="library_storage_filter_online">NUBE</string>
     <string name="library_storage_filter_offline">LOCAL</string>
@@ -239,7 +243,7 @@
     <string name="sort_method_subfolder_count">Cantidad de subcarpetas</string>
 
     <!-- LibrarySortBottomSheet-->
-    <string name="library_sort_source">Origen</string>
+    <string name="library_sort_source">Fuente</string>
     <string name="library_sort_order">Orden</string>
     <string name="library_sort_descending">Descendente</string>
     <string name="library_sort_ascending">Ascendente</string>

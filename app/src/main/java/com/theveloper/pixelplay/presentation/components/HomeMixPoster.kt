@@ -1,6 +1,8 @@
 package com.theveloper.pixelplay.presentation.components
 
+import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -50,6 +52,25 @@ internal fun DrawScope.drawMixPoster(kind: HomeMixKind, fineDetail: Boolean) {
             )
         }
     }
+}
+
+/** Representative colors from the poster's ground and illuminated shapes. */
+internal fun mixPosterColorScheme(kind: HomeMixKind, theme: ColorScheme, dark: Boolean): ColorScheme {
+    val (primary, secondary, tertiary) = when (kind) {
+        HomeMixKind.DAILY -> Triple(Color(0xFFDA8561), Color(0xFF9F4C90), Color(0xFFFFBF83))
+        HomeMixKind.UNDERPLAYED -> Triple(Color(0xFF20768D), Color(0xFF62D9D0), Color(0xFFF5C5E0))
+        HomeMixKind.REDISCOVER -> Triple(Color(0xFF8360AA), Color(0xFF6A82C4), Color(0xFFBFEAF1))
+        HomeMixKind.ARTIST -> Triple(Color(0xFF8D9A58), Color(0xFF69C4AB), Color(0xFFF7CF97))
+        HomeMixKind.GENRE -> Triple(Color(0xFF603755), Color(0xFFEEA9CE), Color(0xFF82A9E0))
+        HomeMixKind.RECENTLY_ADDED -> Triple(Color(0xFF74394C), Color(0xFFCB7285), Color(0xFFFFE5C8))
+    }
+    val concentration = if (dark) 0.42f else 0.54f
+    return theme.copy(
+        primary = lerp(theme.surface, primary, concentration),
+        primaryContainer = lerp(theme.surface, primary, concentration),
+        secondaryContainer = lerp(theme.surface, secondary, concentration),
+        tertiaryContainer = lerp(theme.surface, tertiary, concentration),
+    )
 }
 
 private val PosterGrain = Random(31).let { random ->

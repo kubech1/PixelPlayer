@@ -130,6 +130,7 @@ class PlayerViewModelTest {
 
         // Mock UserPreferences
         coEvery { mockUserPreferencesRepository.navCompactOnScrollFlow } returns flowOf(true)
+        every { mockUserPreferencesRepository.cloudMusicEnabledFlow } returns flowOf(false)
         coEvery { mockUserPreferencesRepository.favoriteSongIdsFlow } returns flowOf(emptySet())
         coEvery { mockUserPreferencesRepository.songsSortOptionFlow } returns flowOf("SongTitleAZ")
         coEvery { mockUserPreferencesRepository.albumsSortOptionFlow } returns flowOf("AlbumTitleAZ")

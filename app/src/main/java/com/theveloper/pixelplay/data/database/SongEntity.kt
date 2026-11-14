@@ -35,6 +35,28 @@ object SourceType {
     }
 }
 
+private val ProviderIdPrefixes = listOf("telegram_", "netease_", "gdrive_", "qqmusic_", "navidrome_", "jellyfin_")
+
+internal fun isProviderMusicReference(id: String, uri: String): Boolean =
+    SourceType.fromContentUri(uri) != SourceType.LOCAL ||
+        uri.startsWith("telegram:", ignoreCase = true) ||
+        uri.startsWith("http://", ignoreCase = true) ||
+        uri.startsWith("https://", ignoreCase = true) ||
+        ProviderIdPrefixes.any(id::startsWith) ||
+        isLegacyTelegramSongId(id)
+
+private fun isLegacyTelegramSongId(id: String): Boolean {
+    val separator = id.indexOf('_')
+    return separator > 0 &&
+        id.substring(0, separator).toLongOrNull() != null &&
+        id.substring(separator + 1).toLongOrNull() != null
+}
+
+internal fun Song.isProviderSong(): Boolean =
+    isProviderMusicReference(id, contentUriString) ||
+        telegramFileId != null || telegramChatId != null || neteaseId != null ||
+        gdriveFileId != null || qqMusicMid != null || navidromeId != null || jellyfinId != null
+
 @Entity(
     tableName = "songs",
     indices = [
@@ -126,10 +148,10 @@ private fun SongEntity.toSongInternal(artists: List<ArtistRef>): Song {
         // Parse Telegram metadata from contentUriString
         telegramChatId = if (this.contentUriString.startsWith("telegram://")) {
             this.contentUriString.removePrefix("telegram://").split("/").getOrNull(0)?.toLongOrNull()
-        } else null,
+        } else this.telegramChatId,
         telegramFileId = if (this.contentUriString.startsWith("telegram://")) {
             this.contentUriString.removePrefix("telegram://").split("/").getOrNull(1)?.toIntOrNull()
-        } else null,
+        } else this.telegramFileId,
         neteaseId = if (this.contentUriString.startsWith("netease://")) {
             this.contentUriString.removePrefix("netease://").toLongOrNull()
         } else null,

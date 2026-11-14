@@ -4,7 +4,7 @@
 
 Regenerar desde la raíz: `python scripts/context_docs.py generate`.
 
-Archivos: **425**. Huella de rutas y contenido: `590eb0a7764a96cfc811d02e86aaee157fb105f1777b525bf523218027d71d1a`.
+Archivos: **425**. Huella de rutas y contenido: `22ce76768301a3b94cec9c6e3267a83f2dd248345ae5208874dabbd90e5e2671`.
 
 Este índice permite localizar archivos; no certifica su comportamiento ni sustituye los documentos temáticos. Los símbolos son una extracción léxica parcial, no un análisis del compilador. Se excluyen cachés, salidas de build, entornos virtuales y archivos locales de credenciales.
 
@@ -29,7 +29,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 
 | Archivo | Líneas |
 | --- | ---: |
-| [.gitignore](../../.gitignore) | 56 |
+| [.gitignore](../../.gitignore) | 55 |
 | [gradle.properties](../../gradle.properties) | 35 |
 
 ## .github
@@ -381,13 +381,13 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_equalizer.xml](../../app/src/main/res/values/strings_equalizer.xml) | 57 |
 | [strings_home.xml](../../app/src/main/res/values/strings_home.xml) | 29 |
 | [strings_home_screen.xml](../../app/src/main/res/values/strings_home_screen.xml) | 278 |
-| [strings_library.xml](../../app/src/main/res/values/strings_library.xml) | 544 |
+| [strings_library.xml](../../app/src/main/res/values/strings_library.xml) | 548 |
 | [strings_modernization.xml](../../app/src/main/res/values/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values/strings_settings.xml) | 637 |
+| [strings_settings.xml](../../app/src/main/res/values/strings_settings.xml) | 640 |
 | [strings_widget.xml](../../app/src/main/res/values/strings_widget.xml) | 17 |
-| [themes.xml](../../app/src/main/res/values/themes.xml) | 26 |
+| [themes.xml](../../app/src/main/res/values/themes.xml) | 27 |
 
 ## app/src/main/res/values-ar
 
@@ -437,11 +437,11 @@ Lectura inicial: [guía del proyecto](../README.md).
 | [strings_equalizer.xml](../../app/src/main/res/values-es/strings_equalizer.xml) | 57 |
 | [strings_home.xml](../../app/src/main/res/values-es/strings_home.xml) | 31 |
 | [strings_home_screen.xml](../../app/src/main/res/values-es/strings_home_screen.xml) | 278 |
-| [strings_library.xml](../../app/src/main/res/values-es/strings_library.xml) | 544 |
+| [strings_library.xml](../../app/src/main/res/values-es/strings_library.xml) | 548 |
 | [strings_modernization.xml](../../app/src/main/res/values-es/strings_modernization.xml) | 28 |
 | [strings_player.xml](../../app/src/main/res/values-es/strings_player.xml) | 198 |
 | [strings_screens.xml](../../app/src/main/res/values-es/strings_screens.xml) | 237 |
-| [strings_settings.xml](../../app/src/main/res/values-es/strings_settings.xml) | 628 |
+| [strings_settings.xml](../../app/src/main/res/values-es/strings_settings.xml) | 631 |
 | [strings_widget.xml](../../app/src/main/res/values-es/strings_widget.xml) | 17 |
 
 ## app/src/main/res/values-fr
@@ -533,7 +533,7 @@ Lectura inicial: [guía del proyecto](../README.md).
 
 | Archivo | Líneas |
 | --- | ---: |
-| [themes.xml](../../app/src/main/res/values-night/themes.xml) | 17 |
+| [themes.xml](../../app/src/main/res/values-night/themes.xml) | 18 |
 
 ## app/src/main/res/values-ru
 

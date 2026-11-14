@@ -11,6 +11,8 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MediaMetadata.PICTURE_TYPE_FRONT_COVER
 import androidx.media3.common.util.UnstableApi
+import com.theveloper.pixelplay.data.database.isProviderMusicReference
+import com.theveloper.pixelplay.data.database.isProviderSong
 import com.theveloper.pixelplay.data.provider.SharedArtworkContentProvider
 import com.theveloper.pixelplay.data.model.Song
 import java.io.File
@@ -97,6 +99,15 @@ object MediaItemBuilder {
     const val EXTERNAL_EXTRA_SAMPLE_RATE = EXTERNAL_EXTRA_PREFIX + "SAMPLE_RATE"
     const val EXTERNAL_EXTRA_FILE_PATH = EXTERNAL_EXTRA_PREFIX + "FILE_PATH"
     const val EXTERNAL_EXTRA_NAVIDROME_ID = EXTERNAL_EXTRA_PREFIX + "NAVIDROME_ID"
+    internal const val EXTRA_PROVIDER_MUSIC = "com.theveloper.pixelplay.playback.PROVIDER_MUSIC"
+
+    @OptIn(UnstableApi::class)
+    internal fun isProviderMediaItem(item: MediaItem): Boolean {
+        val extras = item.mediaMetadata.extras
+        return extras?.getBoolean(EXTRA_PROVIDER_MUSIC) == true ||
+            isProviderMusicReference(item.mediaId, extras?.getString(EXTERNAL_EXTRA_CONTENT_URI).orEmpty()) ||
+            isProviderMusicReference(item.mediaId, item.localConfiguration?.uri?.toString().orEmpty())
+    }
 
     fun build(song: Song): MediaItem {
         return MediaItem.Builder()
@@ -284,6 +295,7 @@ object MediaItemBuilder {
         }
 
         val extras = Bundle().apply {
+            putBoolean(EXTRA_PROVIDER_MUSIC, song.isProviderSong())
             putBoolean(EXTERNAL_EXTRA_FLAG, song.id.startsWith(EXTERNAL_MEDIA_ID_PREFIX))
             putString(EXTERNAL_EXTRA_ALBUM, song.album)
             putLong(EXTERNAL_EXTRA_DURATION, song.duration)

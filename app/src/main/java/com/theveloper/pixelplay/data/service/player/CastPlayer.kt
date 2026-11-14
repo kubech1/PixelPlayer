@@ -21,7 +21,9 @@ import com.google.android.gms.cast.framework.CastSession
 import com.google.android.gms.cast.framework.media.RemoteMediaClient
 import com.google.android.gms.common.api.PendingResult
 import com.google.android.gms.common.images.WebImage
+import com.theveloper.pixelplay.data.database.isProviderSong
 import com.theveloper.pixelplay.data.model.Song
+import com.theveloper.pixelplay.data.service.cast.CAST_PROVIDER_MUSIC_KEY
 import com.theveloper.pixelplay.data.service.cast.CastAudioMimeUtils
 import com.theveloper.pixelplay.data.service.cast.IsoBmffAudioCodecDetector
 import com.theveloper.pixelplay.data.service.http.CastSessionSecurity
@@ -233,11 +235,17 @@ class CastPlayer(
         serverAddress: String,
         authToken: String?,
         autoPlay: Boolean,
+        allowProviderSongs: () -> Boolean = { true },
         onComplete: (Boolean, String?) -> Unit
     ) {
         val client = remoteMediaClient
         if (client == null) {
             onComplete(false, "RemoteMediaClient is null")
+            return
+        }
+        val containsProviderSongs = songs.any(Song::isProviderSong)
+        if (containsProviderSongs && !allowProviderSongs()) {
+            onComplete(false, null)
             return
         }
 
@@ -364,6 +372,11 @@ class CastPlayer(
                     // Post back to Main thread — Cast SDK requires Main for queueLoad.
                     timeoutHandler.post {
                         try {
+                            if (containsProviderSongs && !allowProviderSongs()) {
+                                callbackFired = true
+                                onComplete(false, null)
+                                return@post
+                            }
                             val mediaItems = songs.map { song ->
                                 song.toMediaQueueItem(
                                     serverAddress = serverAddress,
@@ -514,6 +527,7 @@ class CastPlayer(
             .setCustomData(
                 JSONObject()
                     .put("songId", this.id)
+                    .put(CAST_PROVIDER_MUSIC_KEY, this.isProviderSong())
                     .put("mimeType", contentType)
                     .put("durationHintMs", durationHintMs)
                     .put("streamDurationSentMs", streamDuration)

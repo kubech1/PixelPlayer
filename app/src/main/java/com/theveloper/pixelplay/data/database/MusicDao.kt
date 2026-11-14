@@ -417,6 +417,9 @@ interface MusicDao {
     @Query("SELECT " + SONG_LIST_PROJECTION + " FROM songs WHERE id IN (:songIds)")
     suspend fun getSongsByIdsListSimple(songIds: List<Long>): List<SongEntity>
 
+    @Query("SELECT id FROM songs WHERE id IN (:songIds) AND source_type != 0")
+    suspend fun getProviderSongIds(songIds: List<Long>): List<Long>
+
     /**
      * Resolves the unified-table song id for a given content URI. Used when the
      * currently-playing song was loaded from a non-unified source (e.g. raw Telegram
@@ -458,11 +461,13 @@ interface MusicDao {
         FROM songs
         WHERE id IN (:songIds)
         AND (:applyDirectoryFilter = 0 OR id < 0 OR parent_directory_path IN (:allowedParentDirs))
+        AND (:includeCloud = 1 OR source_type = 0)
     """)
     fun getSongsByIds(
         songIds: List<Long>,
         allowedParentDirs: List<String>,
-        applyDirectoryFilter: Boolean
+        applyDirectoryFilter: Boolean,
+        includeCloud: Boolean = true
     ): Flow<List<SongEntity>>
 
     @Query("SELECT * FROM songs WHERE album_id = :albumId ORDER BY disc_number ASC, track_number ASC")
@@ -582,34 +587,40 @@ interface MusicDao {
     @Query("""
         SELECT * FROM songs
         WHERE (:applyDirectoryFilter = 0 OR id < 0 OR parent_directory_path IN (:allowedParentDirs))
+        AND (:includeCloud = 1 OR source_type = 0)
         ORDER BY RANDOM()
         LIMIT :limit
     """)
     suspend fun getRandomSongs(
         limit: Int,
         allowedParentDirs: List<String> = emptyList(),
-        applyDirectoryFilter: Boolean = false
+        applyDirectoryFilter: Boolean = false,
+        includeCloud: Boolean = true
     ): List<SongEntity>
 
     @Query("""
         SELECT """ + SONG_LIST_PROJECTION + """
         FROM songs
         WHERE (:applyDirectoryFilter = 0 OR id < 0 OR parent_directory_path IN (:allowedParentDirs))
+        AND (:includeCloud = 1 OR source_type = 0)
         ORDER BY title COLLATE NOCASE ASC, artist_name COLLATE NOCASE ASC, id ASC
         LIMIT 1
     """)
     suspend fun getFirstPlayableSong(
         allowedParentDirs: List<String> = emptyList(),
-        applyDirectoryFilter: Boolean = false
+        applyDirectoryFilter: Boolean = false,
+        includeCloud: Boolean = true
     ): SongEntity?
 
     @Query("""
         SELECT * FROM songs
         WHERE (:applyDirectoryFilter = 0 OR id < 0 OR parent_directory_path IN (:allowedParentDirs))
+        AND (:includeCloud = 1 OR source_type = 0)
     """)
     fun getAllSongs(
         allowedParentDirs: List<String> = emptyList(),
-        applyDirectoryFilter: Boolean = false
+        applyDirectoryFilter: Boolean = false,
+        includeCloud: Boolean = true
     ): Flow<List<SongEntity>>
 
     @Query("""
@@ -634,13 +645,15 @@ interface MusicDao {
         SELECT """ + SONG_LIST_PROJECTION + """
         FROM songs
         WHERE (:applyDirectoryFilter = 0 OR id < 0 OR parent_directory_path IN (:allowedParentDirs))
+        AND (:includeCloud = 1 OR source_type = 0)
         ORDER BY date_added DESC, id DESC
         LIMIT :limit
     """)
     fun getHomeMixPreviewSongs(
         limit: Int,
         allowedParentDirs: List<String>,
-        applyDirectoryFilter: Boolean
+        applyDirectoryFilter: Boolean,
+        includeCloud: Boolean = true
     ): Flow<List<SongEntity>>
 
     @Query("""
@@ -980,6 +993,7 @@ interface MusicDao {
         SELECT songs.* FROM songs
         INNER JOIN songs_fts ON songs_fts.rowid = songs.id
         WHERE (:applyDirectoryFilter = 0 OR songs.id < 0 OR songs.parent_directory_path IN (:allowedParentDirs))
+        AND (:includeCloud = 1 OR songs.source_type = 0)
         AND songs_fts MATCH :matchQuery
         ORDER BY songs.title ASC
         LIMIT :limit
@@ -988,7 +1002,8 @@ interface MusicDao {
         matchQuery: String,
         allowedParentDirs: List<String>,
         applyDirectoryFilter: Boolean,
-        limit: Int
+        limit: Int,
+        includeCloud: Boolean
     ): Flow<List<SongEntity>>
 
     /**
@@ -997,6 +1012,7 @@ interface MusicDao {
     @Query("""
         SELECT * FROM songs
         WHERE (:applyDirectoryFilter = 0 OR id < 0 OR parent_directory_path IN (:allowedParentDirs))
+        AND (:includeCloud = 1 OR source_type = 0)
         AND title LIKE '%' || :query || '%'
         ORDER BY title ASC
         LIMIT :limit
@@ -1005,7 +1021,8 @@ interface MusicDao {
         query: String,
         allowedParentDirs: List<String>,
         applyDirectoryFilter: Boolean,
-        limit: Int
+        limit: Int,
+        includeCloud: Boolean
     ): Flow<List<SongEntity>>
 
     /**
@@ -1014,6 +1031,7 @@ interface MusicDao {
     @Query("""
         SELECT * FROM songs
         WHERE (:applyDirectoryFilter = 0 OR id < 0 OR parent_directory_path IN (:allowedParentDirs))
+        AND (:includeCloud = 1 OR source_type = 0)
         AND (title LIKE '%' || :query || '%' OR artist_name LIKE '%' || :query || '%')
         ORDER BY title ASC
         LIMIT :limit
@@ -1022,7 +1040,8 @@ interface MusicDao {
         query: String,
         allowedParentDirs: List<String>,
         applyDirectoryFilter: Boolean,
-        limit: Int
+        limit: Int,
+        includeCloud: Boolean
     ): Flow<List<SongEntity>>
 
     fun searchSongsLimited(
@@ -1030,27 +1049,31 @@ interface MusicDao {
         allowedParentDirs: List<String>,
         applyDirectoryFilter: Boolean,
         limit: Int,
-        titleOnly: Boolean = false
+        titleOnly: Boolean = false,
+        includeCloud: Boolean = true
     ): Flow<List<SongEntity>> {
         val ftsFlow = searchSongsLimitedMatch(
             matchQuery = if (titleOnly) buildSongTitleSearchMatchQuery(query) else buildSongSearchMatchQuery(query),
             allowedParentDirs = allowedParentDirs,
             applyDirectoryFilter = applyDirectoryFilter,
-            limit = limit
+            limit = limit,
+            includeCloud = includeCloud
         )
         val likeFlow = if (titleOnly) {
             searchSongsLimitedByTitleLike(
                 query = query.trim(),
                 allowedParentDirs = allowedParentDirs,
                 applyDirectoryFilter = applyDirectoryFilter,
-                limit = limit
+                limit = limit,
+                includeCloud = includeCloud
             )
         } else {
             searchSongsLimitedLike(
                 query = query.trim(),
                 allowedParentDirs = allowedParentDirs,
                 applyDirectoryFilter = applyDirectoryFilter,
-                limit = limit
+                limit = limit,
+                includeCloud = includeCloud
             )
         }
         return ftsFlow.combine(likeFlow) { ftsResults, likeResults ->
@@ -1359,6 +1382,7 @@ interface MusicDao {
         FROM songs
         INNER JOIN albums ON albums.id = songs.album_id
         WHERE (:applyDirectoryFilter = 0 OR songs.id < 0 OR songs.parent_directory_path IN (:allowedParentDirs))
+        AND (:includeCloud = 1 OR songs.source_type = 0)
         AND (albums.title LIKE '%' || :query || '%' OR albums.artist_name LIKE '%' || :query || '%')
         GROUP BY
             albums.id,
@@ -1376,7 +1400,8 @@ interface MusicDao {
         query: String,
         allowedParentDirs: List<String>,
         applyDirectoryFilter: Boolean,
-        minTracks: Int
+        minTracks: Int,
+        includeCloud: Boolean = true
     ): Flow<List<AlbumEntity>>
 
     // --- Artist Queries ---
@@ -1502,6 +1527,7 @@ interface MusicDao {
         INNER JOIN song_artist_cross_ref ON song_artist_cross_ref.song_id = songs.id
         INNER JOIN artists ON artists.id = song_artist_cross_ref.artist_id
         WHERE (:applyDirectoryFilter = 0 OR songs.id < 0 OR songs.parent_directory_path IN (:allowedParentDirs))
+        AND (:includeCloud = 1 OR songs.source_type = 0)
         AND artists.name LIKE '%' || :query || '%'
         GROUP BY artists.id
         ORDER BY artists.name ASC
@@ -1509,7 +1535,8 @@ interface MusicDao {
     fun searchArtists(
         query: String,
         allowedParentDirs: List<String>,
-        applyDirectoryFilter: Boolean
+        applyDirectoryFilter: Boolean,
+        includeCloud: Boolean = true
     ): Flow<List<ArtistEntity>>
 
     // --- Artist Image Operations ---
@@ -1560,6 +1587,7 @@ interface MusicDao {
     @Query("""
         SELECT * FROM songs
         WHERE (:applyDirectoryFilter = 0 OR id < 0 OR parent_directory_path IN (:allowedParentDirs))
+        AND (:includeCloud = 1 OR source_type = 0)
         AND (
             genre LIKE :genreName
             OR genre LIKE :genrePrefix
@@ -1578,18 +1606,21 @@ interface MusicDao {
         genreMiddleWithSpace: String,
         genreMiddle: String,
         allowedParentDirs: List<String>,
-        applyDirectoryFilter: Boolean
+        applyDirectoryFilter: Boolean,
+        includeCloud: Boolean = true,
     ): Flow<List<SongEntity>>
 
     @Query("""
         SELECT * FROM songs
         WHERE (:applyDirectoryFilter = 0 OR id < 0 OR parent_directory_path IN (:allowedParentDirs))
         AND (genre IS NULL OR genre = '')
+        AND (:includeCloud = 1 OR source_type = 0)
         ORDER BY title ASC
     """)
     fun getSongsWithNullGenre(
         allowedParentDirs: List<String>,
-        applyDirectoryFilter: Boolean
+        applyDirectoryFilter: Boolean,
+        includeCloud: Boolean = true,
     ): Flow<List<SongEntity>>
 
     // Example: Get all unique genre names
@@ -1600,11 +1631,13 @@ interface MusicDao {
         SELECT DISTINCT genre FROM songs
         WHERE genre IS NOT NULL AND genre != ''
         AND (:applyDirectoryFilter = 0 OR id < 0 OR parent_directory_path IN (:allowedParentDirs))
+        AND (:includeCloud = 1 OR source_type = 0)
         ORDER BY genre ASC
     """)
     fun getUniqueGenres(
         allowedParentDirs: List<String>,
-        applyDirectoryFilter: Boolean
+        applyDirectoryFilter: Boolean,
+        includeCloud: Boolean = true,
     ): Flow<List<String>>
 
     @Query("""
@@ -1612,11 +1645,13 @@ interface MusicDao {
             SELECT 1 FROM songs
             WHERE (:applyDirectoryFilter = 0 OR id < 0 OR parent_directory_path IN (:allowedParentDirs))
             AND (genre IS NULL OR genre = '')
+            AND (:includeCloud = 1 OR source_type = 0)
         )
     """)
     fun hasUnknownGenre(
         allowedParentDirs: List<String>,
-        applyDirectoryFilter: Boolean
+        applyDirectoryFilter: Boolean,
+        includeCloud: Boolean = true,
     ): Flow<Boolean>
 
     // --- Combined Queries (Potentially useful for more complex scenarios) ---

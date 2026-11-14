@@ -2,6 +2,7 @@
 
 package com.theveloper.pixelplay.presentation.screens
 
+import com.theveloper.pixelplay.presentation.components.scoped.ArtworkHeaderGradient
 import com.theveloper.pixelplay.presentation.navigation.navigateSafely
 import com.theveloper.pixelplay.presentation.navigation.navigateSafelyReplacing
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -137,14 +138,20 @@ fun ArtistDetailScreen(
     val isDarkTheme = LocalPixelPlayDarkTheme.current
     val baseColorScheme = MaterialTheme.colorScheme
 
-    // --- Dynamic color palette from pre-warmed ViewModel state ---
-    // artistColorScheme is set by the ViewModel BEFORE isLoading becomes false,
-    // so the very first composition already has the correct palette — no flash.
     val artistColorSchemePair by viewModel.artistColorScheme.collectAsStateWithLifecycle()
-    val artistColorScheme = remember(artistColorSchemePair, isDarkTheme) {
-        artistColorSchemePair?.let { pair -> if (isDarkTheme) pair.dark else pair.light }
-            ?: baseColorScheme
+    val fallbackAlbumArt = if (uiState.effectiveImageUrl.isNullOrBlank()) {
+        uiState.albumSections.firstNotNullOfOrNull { album ->
+            album.albumArtUriString?.takeIf(String::isNotBlank)
+        }
+    } else null
+    val fallbackSchemeFlow = remember(fallbackAlbumArt, playerViewModel) {
+        fallbackAlbumArt?.let { playerViewModel.themeStateHolder.getAlbumColorSchemeFlow(it) }
     }
+    val fallbackSchemePair = fallbackSchemeFlow?.collectAsStateWithLifecycle()?.value
+    val artworkScheme = (artistColorSchemePair ?: fallbackSchemePair)
+        ?.let { if (isDarkTheme) it.dark else it.light }
+    val artworkWash = artworkScheme?.let { lerpColor(baseColorScheme.surface, it.primary, 0.14f) }
+        ?: baseColorScheme.surface
 
     // --- Image picker for custom artist image ---
     val imagePickerLauncher = rememberLauncherForActivityResult(
@@ -204,8 +211,7 @@ fun ArtistDetailScreen(
                 }
 
                 // Si estamos en el tope y scrolleamos hacia arriba, la lista no debe moverse.
-                val canConsumeScroll = !(isScrollingDown && newHeight == minTopBarHeightPx)
-                return if (canConsumeScroll) Offset(0f, consumed) else Offset.Zero
+                return if (consumed.roundToInt() != 0) Offset(0f, consumed) else Offset.Zero
             }
 
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
@@ -235,14 +241,10 @@ fun ArtistDetailScreen(
     // --- Fin de la lógica del Header ---
 
     // Wrap in dynamic theme derived from the artist's image
-    MaterialTheme(
-        colorScheme = artistColorScheme,
-        typography = MaterialTheme.typography,
-        shapes = MaterialTheme.shapes
-    ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.surface
+        color = baseColorScheme.background,
+        contentColor = baseColorScheme.onBackground
     ) {
         Box(modifier = Modifier.nestedScroll(nestedScrollConnection)) {
             when {
@@ -412,6 +414,8 @@ fun ArtistDetailScreen(
                             collapseFraction = collapseFraction,
                             headerHeight = currentTopBarHeightDp,
                             headerImageRequestSize = headerImageRequestSize,
+                            artworkWash = artworkWash,
+                            artworkScheme = artworkScheme,
                             hasCustomImage = !artist.customImageUri.isNullOrBlank(),
                             onBackPressed = { navController.popBackStack() },
                             onPlayClick = {
@@ -435,6 +439,8 @@ fun ArtistDetailScreen(
                             collapseFraction = collapseFraction,
                             headerHeight = currentTopBarHeightDp,
                             headerImageRequestSize = headerImageRequestSize,
+                            artworkWash = artworkWash,
+                            artworkScheme = artworkScheme,
                             onBackPressed = { navController.popBackStack() },
                             onPlayClick = {
                                 if (songs.isNotEmpty()) {
@@ -454,7 +460,6 @@ fun ArtistDetailScreen(
         }
     } // End Surface
 
-    // Bottom sheets inherit the artist's dynamic color palette — same approach as AlbumDetailScreen
     if (showSongInfoBottomSheet && selectedSongForInfo != null) {
         val currentSong = selectedSongForInfo
         val isFavorite = remember(currentSong?.id, favoriteIds) {
@@ -549,7 +554,6 @@ fun ArtistDetailScreen(
             }
         }
     }
-    } // End MaterialTheme
 }
 
 private fun ArtistAlbumSection.collapseKey(): String = "artist_album_${albumId}_${title}"
@@ -732,6 +736,8 @@ private fun SharedArtistTopBarProbe(
     collapseFraction: Float,
     headerHeight: Dp,
     headerImageRequestSize: Size,
+    artworkWash: Color,
+    artworkScheme: ColorScheme?,
     hasCustomImage: Boolean,
     onBackPressed: () -> Unit,
     onPlayClick: () -> Unit,
@@ -746,12 +752,12 @@ private fun SharedArtistTopBarProbe(
     val solidAlpha = (collapseFraction * 2f).coerceIn(0f, 1f)
     val expandedContentAlpha = 1f - solidAlpha
     val displayUrl = effectiveImageUrl?.takeIf { it.isNotBlank() }
-    val headerOverlayBrush = remember(surfaceColor, expandedContentAlpha) {
+    val headerOverlayBrush = remember(surfaceColor, artworkWash, expandedContentAlpha) {
         Brush.verticalGradient(
             colors = listOf(
                 Color.Transparent,
                 surfaceColor.copy(alpha = 0.24f * expandedContentAlpha),
-                surfaceColor.copy(alpha = 0.84f * expandedContentAlpha),
+                artworkWash.copy(alpha = 0.84f * expandedContentAlpha),
                 surfaceColor
             )
         )
@@ -796,11 +802,7 @@ private fun SharedArtistTopBarProbe(
                 )
             }
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(headerOverlayBrush)
-            )
+            ArtworkHeaderGradient("artist:${artist.id}", artworkScheme, expandedContentAlpha, headerOverlayBrush)
         }
 
         Box(
@@ -910,6 +912,8 @@ private fun CustomCollapsingTopBar(
     collapseFraction: Float, // 0.0 = expandido, 1.0 = colapsado
     headerHeight: Dp,
     headerImageRequestSize: Size,
+    artworkWash: Color,
+    artworkScheme: ColorScheme?,
     onBackPressed: () -> Unit,
     onPlayClick: () -> Unit,
     onChangeImage: () -> Unit,
@@ -922,12 +926,12 @@ private fun CustomCollapsingTopBar(
     val fabScale = 1f - collapseFraction
     val headerContentAlpha = 1f - (collapseFraction * 2).coerceAtMost(1f)
     val showExpandedArtwork = headerContentAlpha > 0.01f
-    val headerOverlayBrush = remember(surfaceColor, headerContentAlpha) {
+    val headerOverlayBrush = remember(surfaceColor, artworkWash, headerContentAlpha) {
         Brush.verticalGradient(
             colors = listOf(
                 Color.Transparent,
                 surfaceColor.copy(alpha = 0.30f * headerContentAlpha),
-                surfaceColor.copy(alpha = 0.90f * headerContentAlpha),
+                artworkWash.copy(alpha = 0.90f * headerContentAlpha),
                 surfaceColor.copy(alpha = headerContentAlpha)
             )
         )
@@ -983,11 +987,7 @@ private fun CustomCollapsingTopBar(
                             .graphicsLayer { alpha = headerContentAlpha }
                     )
                 }
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(headerOverlayBrush)
-                )
+                ArtworkHeaderGradient("artist:${artist.id}", artworkScheme, headerContentAlpha, headerOverlayBrush)
             }
             Box(
                 modifier = Modifier

@@ -176,7 +176,7 @@ fun ExpressiveTopBarContent(
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
-private fun rememberGoogleSansFlexFontFamily(
+internal fun rememberGoogleSansFlexFontFamily(
     fontWeight: FontWeight,
     widthAxis: Float
 ): FontFamily {

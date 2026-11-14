@@ -134,8 +134,7 @@ fun DelimiterConfigScreen(
                     }
                 }
 
-                val canConsumeScroll = !(isScrollingDown && newHeight == minTopBarHeightPx)
-                return if (canConsumeScroll) Offset(0f, consumed) else Offset.Zero
+                return if (consumed.roundToInt() != 0) Offset(0f, consumed) else Offset.Zero
             }
         }
     }

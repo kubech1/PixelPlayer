@@ -50,6 +50,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.absoluteValue // Added
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -423,45 +424,8 @@ constructor(
                     val allSongIds = musicDao.getAllSongIds().toSet()
                     AlbumArtCacheManager.cleanOrphanedCacheFiles(applicationContext, allSongIds)
 
-                    // Sync cloud songs into the unified songs table.
-                    // OPT #7: Guard each source to avoid opening Room transactions when
-                    // the user hasn't configured that cloud provider.
-                    val hasTelegramChannels = telegramDao.getAllChannels().first().isNotEmpty()
-                    val neteaseCount = neteaseDao.getNeteaseCount()
-                    // For Navidrome, we only do network sync if SYNC_THRESHOLD_MS (24h) threshold has passed.
-                    val navidromeNeedsNetworkSync = navidromeRepository.isLoggedIn && 
-                        (System.currentTimeMillis() - navidromeRepository.lastFullSyncTime >= NavidromeRepository.SYNC_THRESHOLD_MS)
-                    
-                    val needsActiveCloudSync = hasTelegramChannels ||
-                        neteaseCount > 0 ||
-                        navidromeNeedsNetworkSync
-
-                    if (needsActiveCloudSync) {
-                        setProgress(
-                            workDataOf(
-                                PROGRESS_PHASE to SyncProgress.SyncPhase.SYNCING_CLOUD.ordinal
-                            )
-                        )
-                    }
-
-                    if (hasTelegramChannels) {
-                        syncTelegramData()
-                    } else {
-                        Log.d(TAG, "Skipping Telegram sync — no channels configured.")
-                    }
-
-                    // syncNeteaseData already has an internal isEmpty guard; a lightweight
-                    // count check here avoids even calling into the function.
-                    if (neteaseCount > 0) {
-                        syncNeteaseData()
-                    } else {
-                        Log.d(TAG, "Skipping Netease sync — no songs in local cache.")
-                    }
-
-                    if (navidromeRepository.isLoggedIn) {
-                        syncNavidromeData()
-                    } else {
-                        Log.d(TAG, "Skipping Navidrome sync — not logged in.")
+                    userPreferencesRepository.runWhileCloudMusicEnabled {
+                        syncCloudProviders()
                     }
 
                     // Recalculate total
@@ -479,6 +443,8 @@ constructor(
                         )
                     }
                     Result.success(workDataOf(OUTPUT_TOTAL_SONGS to finalTotalSongs.toLong()))
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     Log.e(TAG, "Error during MediaStore synchronization", e)
                     AdvancedPerformanceDiagnostics.recordEventIfEnabled(
@@ -492,6 +458,49 @@ constructor(
                     Trace.endSection() // End SyncWorker.doWork
                 }
             }
+
+    private suspend fun syncCloudProviders() {
+        // Sync cloud songs into the unified songs table.
+        // OPT #7: Guard each source to avoid opening Room transactions when
+        // the user hasn't configured that cloud provider.
+        val hasTelegramChannels = telegramDao.getAllChannels().first().isNotEmpty()
+        val neteaseCount = neteaseDao.getNeteaseCount()
+        // For Navidrome, we only do network sync if SYNC_THRESHOLD_MS (24h) threshold has passed.
+        val navidromeNeedsNetworkSync = navidromeRepository.isLoggedIn &&
+            (System.currentTimeMillis() - navidromeRepository.lastFullSyncTime >= NavidromeRepository.SYNC_THRESHOLD_MS)
+
+        val needsActiveCloudSync = hasTelegramChannels ||
+            neteaseCount > 0 ||
+            navidromeNeedsNetworkSync
+
+        if (needsActiveCloudSync) {
+            setProgress(
+                workDataOf(
+                    PROGRESS_PHASE to SyncProgress.SyncPhase.SYNCING_CLOUD.ordinal
+                )
+            )
+        }
+
+        if (hasTelegramChannels) {
+            syncTelegramData()
+        } else {
+            Log.d(TAG, "Skipping Telegram sync — no channels configured.")
+        }
+
+        // syncNeteaseData already has an internal isEmpty guard; a lightweight
+        // count check here avoids even calling into the function.
+        if (neteaseCount > 0) {
+            syncNeteaseData()
+        } else {
+            Log.d(TAG, "Skipping Netease sync — no songs in local cache.")
+        }
+
+        if (navidromeRepository.isLoggedIn) {
+            syncNavidromeData()
+        } else {
+            Log.d(TAG, "Skipping Navidrome sync — not logged in.")
+        }
+    }
 
     /** Data class to hold the result of multi-artist preprocessing. */
     private data class MultiArtistProcessResult(

@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.theveloper.pixelplay.R
@@ -72,6 +73,8 @@ fun AppNavigation(
     onOpenSidebar: () -> Unit
 ) {
     var startDestination by remember { mutableStateOf<String?>(null) }
+    val cloudMusicEnabled by userPreferencesRepository.cloudMusicEnabledFlow
+        .collectAsStateWithLifecycle(initialValue = null)
 
     LaunchedEffect(Unit) {
         startDestination = userPreferencesRepository.launchTabFlow
@@ -228,6 +231,7 @@ fun AppNavigation(
             composable(
                 Screen.Accounts.route,
             ) {
+                if (!showCloudDestination(cloudMusicEnabled, navController, Screen.Accounts.route)) return@composable
                 ScreenWrapper(navController = navController, playerViewModel = playerViewModel, animatedVisibilityScope = this) {
                     AccountsScreen(
                         onBackClick = { navController.popBackStack() },
@@ -465,6 +469,7 @@ fun AppNavigation(
             composable(
                 Screen.NeteaseDashboard.route,
             ) {
+                if (!showCloudDestination(cloudMusicEnabled, navController, Screen.NeteaseDashboard.route)) return@composable
                 ScreenWrapper(navController = navController, playerViewModel = playerViewModel, animatedVisibilityScope = this) {
                     com.theveloper.pixelplay.presentation.netease.dashboard.NeteaseDashboardScreen(
                         onBack = { navController.popBackStack() }
@@ -474,6 +479,7 @@ fun AppNavigation(
             composable(
                 Screen.QqMusicDashboard.route,
             ) {
+                if (!showCloudDestination(cloudMusicEnabled, navController, Screen.QqMusicDashboard.route)) return@composable
                 ScreenWrapper(navController = navController, playerViewModel = playerViewModel, animatedVisibilityScope = this) {
                     com.theveloper.pixelplay.presentation.qqmusic.dashboard.QqMusicDashboardScreen(
                         onBack = { navController.popBackStack() }
@@ -483,6 +489,7 @@ fun AppNavigation(
             composable(
                 Screen.NavidromeDashboard.route,
             ) {
+                if (!showCloudDestination(cloudMusicEnabled, navController, Screen.NavidromeDashboard.route)) return@composable
                 ScreenWrapper(navController = navController, playerViewModel = playerViewModel, animatedVisibilityScope = this) {
                     com.theveloper.pixelplay.presentation.navidrome.dashboard.NavidromeDashboardScreen(
                         onBack = { navController.popBackStack() }
@@ -492,6 +499,7 @@ fun AppNavigation(
             composable(
                 Screen.JellyfinDashboard.route,
             ) {
+                if (!showCloudDestination(cloudMusicEnabled, navController, Screen.JellyfinDashboard.route)) return@composable
                 ScreenWrapper(navController = navController, playerViewModel = playerViewModel, animatedVisibilityScope = this) {
                     com.theveloper.pixelplay.presentation.jellyfin.dashboard.JellyfinDashboardScreen(
                         onBack = { navController.popBackStack() }
@@ -500,6 +508,20 @@ fun AppNavigation(
             }
         }
     }
+}
+
+@Composable
+private fun showCloudDestination(
+    enabled: Boolean?,
+    navController: NavHostController,
+    route: String,
+): Boolean {
+    LaunchedEffect(enabled, route) {
+        if (enabled == false && navController.currentDestination?.route == route) {
+            navController.popBackStack()
+        }
+    }
+    return enabled == true
 }
 
 private fun String.toRoute(): String = when (this) {

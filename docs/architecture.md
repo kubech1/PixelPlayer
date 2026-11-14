@@ -60,7 +60,7 @@ El [índice de código](reference/source-index.md) desglosa todos los directorio
 
 ## Construcción de dependencias y vida útil
 
-[AppModule](../app/src/main/java/com/theveloper/pixelplay/di/AppModule.kt) proporciona Room, DAOs, DataStore, repositorios, clientes HTTP, Coil, token de sesión y scope de aplicación. [Qualifiers](../app/src/main/java/com/theveloper/pixelplay/di/Qualifiers.kt) distingue dependencias del mismo tipo. Wear tiene su propio [WearModule](../wear/src/main/java/com/theveloper/pixelplay/di/WearModule.kt).
+[AppModule](../app/src/main/java/com/theveloper/pixelplay/di/AppModule.kt), [DatabaseModule](../app/src/main/java/com/theveloper/pixelplay/di/DatabaseModule.kt), [RepositoryModule](../app/src/main/java/com/theveloper/pixelplay/di/RepositoryModule.kt) y [NetworkModule](../app/src/main/java/com/theveloper/pixelplay/di/NetworkModule.kt) proporcionan respectivamente configuración base/DataStore/Coil/sesión, Room/DAOs, repositorios y clientes HTTP/Retrofit. [Qualifiers](../app/src/main/java/com/theveloper/pixelplay/di/Qualifiers.kt) distingue dependencias del mismo tipo. Wear tiene su propio [WearModule](../wear/src/main/java/com/theveloper/pixelplay/di/WearModule.kt).
 
 No presupongas que todos los objetos duran lo mismo: hay singletons, scopes de ViewModel, trabajos del servicio y coroutines de UI. Para cambiar un listener o job, identifica quién lo crea, quién lo cancela y qué ocurre al destruir el servicio, salir de la pantalla o reconstruir el player.
 
@@ -76,3 +76,12 @@ Estas son pautas de modificación derivadas de la estructura, no una certificaci
 
 
 La decisión de observación de salida y recuperación está en [ADR 0003](decisions/0003-audio-output-observation.md). Las señales de visibilidad de UI no poseen la reproducción del servicio.
+
+## Pautas de modularidad y orden para futuras ediciones
+
+Para evitar que reaparezcan archivos monolíticos, duplicación entre proveedores o código muerto, toda edición nueva debe respetar estas pautas:
+
+1. **Tamaño y cohesión de archivos UI/estado:** no acumular múltiples secciones, diálogos o listas complejas en un solo archivo de pantalla o sheet. Cuando una pantalla o componente crezca, extraer subcomponentes en su subpaquete dedicado (siguiendo el patrón ya aplicado en `presentation/screens/stats/`, `library/`, `equalizer/`, `setup/`, `search/`, `playlist/`, `settings/`, `presentation/components/player/`, `queue/`, `lyrics/`, `cast/`, `songinfo/` y `wear/.../screens/player/`). En `PlayerViewModel` y `*StateHolder`, delegar nuevas responsabilidades en holders o coordinadores acotados en lugar de añadir más métodos al ViewModel principal.
+2. **Módulos Hilt separados:** no concentrar nuevas dependencias en `AppModule` si pertenecen a base de datos (`DatabaseModule`), repositorios (`RepositoryModule`) o red/HTTP (`NetworkModule`).
+3. **Reutilización entre proveedores remotos:** antes de crear o modificar lógica de streaming, caché o carga de portadas para un proveedor (`GDrive`, `Jellyfin`, `Navidrome`, `Netease`, `QQMusic`), extender o reutilizar las bases comunes ([CloudStreamProxy](../app/src/main/java/com/theveloper/pixelplay/data/stream/CloudStreamProxy.kt), [BaseRemoteCoverFetcher](../app/src/main/java/com/theveloper/pixelplay/data/image/BaseRemoteCoverFetcher.kt)) en lugar de copiar implementaciones entre paquetes.
+4. **Higiene continua y contratos `:shared`:** verificar con `codebase-memory-mcp` (`search_graph`, `detect_changes`) y compilación que no queden funciones o utilidades huérfanas ni advertencias evitables. Si se modifica o añade un DTO en `shared/`, actualizar [WearContractsSerializationTest](../shared/src/test/java/com/theveloper/pixelplay/shared/WearContractsSerializationTest.kt).

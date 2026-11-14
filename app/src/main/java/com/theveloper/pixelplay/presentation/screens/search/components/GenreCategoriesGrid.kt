@@ -1,5 +1,6 @@
 package com.theveloper.pixelplay.presentation.screens.search.components
 
+import com.theveloper.pixelplay.presentation.components.topEdgeFade
 import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottomChrome
 
 import com.theveloper.pixelplay.presentation.components.bottomchrome.NavigationReselectionEffect
@@ -134,7 +135,7 @@ fun GenreCategoriesGrid(
         LazyVerticalGrid(
             state = browseState,
             columns = if (isGridView) GridCells.Fixed(2) else GridCells.Fixed(1),
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().topEdgeFade(MaterialTheme.colorScheme.background) { browseState.canScrollBackward },
             contentPadding = PaddingValues(
                 top = 8.dp,
                 bottom = 28.dp + LocalBottomChrome.current.navBarOccupiedHeight + MiniPlayerHeight

@@ -4,8 +4,12 @@ import android.graphics.RuntimeShader
 import android.os.Trace
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -16,12 +20,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.util.lerp
+import com.theveloper.pixelplay.presentation.utils.LocalVisualEffects
 import com.theveloper.pixelplay.ui.theme.LocalMotionPreferences
 import kotlin.math.pow
 import kotlin.random.Random
@@ -65,10 +75,13 @@ internal fun playerMeshPositions(songId: String): List<Offset> {
 
 internal fun playerMeshPalette(songId: String, scheme: ColorScheme): PlayerMeshPalette {
     val base = MeshRgb.from(scheme.primaryContainer)
+    val primary = MeshRgb.from(scheme.primary)
     return PlayerMeshPalette(
         playerMeshPositions(songId),
         listOf(scheme.primaryContainer, scheme.secondaryContainer, scheme.tertiaryContainer, scheme.surfaceContainer)
-            .map { base.mix(MeshRgb.from(it), 0.30f) }
+            .mapIndexed { index, color ->
+                base.mix(MeshRgb.from(color), 0.80f).mix(primary, if (index == 0) 0.28f else 0.10f)
+            }
     )
 }
 
@@ -131,13 +144,19 @@ internal fun PlayerMeshBackground(
     baseColor: () -> Color,
     foregroundColor: Color,
     expansion: () -> Float,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    header: Boolean = false,
+    backdrop: PlayerGlassBackdrop? = null,
+    overArtwork: Boolean = false,
 ) {
     val view = LocalView.current
     val shader = remember(view) { if (view.isHardwareAccelerated) runCatching { RuntimeShader(MeshShader) }.getOrNull() else null }
     val brush = remember(shader) { shader?.let(::ShaderBrush) }
     val target = remember(songId, targetScheme) { playerMeshPalette(songId, targetScheme) }
     val animate = LocalMotionPreferences.current.animationsEnabled
+    val effects = LocalVisualEffects.current
+    val isLight = foregroundColor.luminance() < 0.5f
+    val maxStrength = if (isLight) 0.95f else 0.78f
     val progress = remember { Animatable(1f) }
     var endpoints by remember { mutableStateOf(target to target) }
     LaunchedEffect(target, animate) {
@@ -153,7 +172,10 @@ internal fun PlayerMeshBackground(
         }
     }
 
-    Spacer(modifier.graphicsLayer { alpha = expansion().coerceIn(0f, 1f) }.drawWithCache {
+    val backdropPosition = if (backdrop == null) Modifier else Modifier.onGloballyPositioned {
+        backdrop.origin = it.positionInRoot()
+    }
+    Spacer(modifier.then(backdropPosition).graphicsLayer { alpha = expansion().coerceIn(0f, 1f) }.drawWithCache {
         val text = MeshRgb.from(foregroundColor)
         shader?.setFloatUniform("resolution", size.width, size.height)
         onDrawBehind {
@@ -163,14 +185,33 @@ internal fun PlayerMeshBackground(
                 val visible = if (blend >= 1f) to else from.mix(to, blend)
                 val contrast = playerMeshContrast(visible.colors, MeshRgb.from(baseColor()), text)
                 if (brush == null || shader == null || contrast.strength == 0f) {
-                    drawRect(contrast.base.color())
+                    if (overArtwork) {
+                        drawRect(androidx.compose.ui.graphics.Brush.verticalGradient(
+                            0.25f to Color.Transparent, 0.82f to contrast.base.color()
+                        ))
+                    } else {
+                        if (backdrop == null) {
+                            drawRect(contrast.base.color())
+                        } else {
+                            backdrop.layer.record { drawRect(contrast.base.color()) }
+                            drawLayer(backdrop.layer)
+                        }
+                    }
                 } else {
                     shader.setFloatUniform("base", contrast.base.r, contrast.base.g, contrast.base.b)
-                    shader.setFloatUniform("strength", contrast.strength)
+                    shader.setFloatUniform("strength", minOf(contrast.strength, maxStrength))
                     shader.setFloatUniform("progress", blend)
+                    shader.setFloatUniform("header", if (header) 1f else 0f)
+                    shader.setFloatUniform("overArtwork", if (overArtwork) 1f else 0f)
+                    shader.setFloatUniform("grain", if (effects.allowsRealtimeBlur) 1f else 0.76f)
                     shader.setPalette("from", from)
                     shader.setPalette("to", to)
-                    drawRect(brush)
+                    if (backdrop == null) {
+                        drawRect(brush)
+                    } else {
+                        backdrop.layer.record { drawRect(brush) }
+                        drawLayer(backdrop.layer)
+                    }
                 }
             }
         }
@@ -206,7 +247,7 @@ private const val MeshShader = """
     uniform float3 fromColor0, fromColor1, fromColor2, fromColor3;
     uniform float3 toColor0, toColor1, toColor2, toColor3;
     uniform float3 base;
-    uniform float strength, progress;
+    uniform float strength, progress, header, grain, overArtwork;
 
     float weight(float2 p, float2 a, float2 b) {
         float2 d = p - mix(a, b, progress);
@@ -223,13 +264,49 @@ private const val MeshShader = """
                        w1 * mix(fromColor1, toColor1, progress) +
                        w2 * mix(fromColor2, toColor2, progress) +
                        w3 * mix(fromColor3, toColor3, progress)) / (w0 + w1 + w2 + w3);
-        float3 linearRgb = clamp(mix(base, mesh, strength), 0.0, 1.0);
-        float3 srgb = mix(12.92 * linearRgb, 1.055 * pow(linearRgb, float3(1.0 / 2.4)) - 0.055,
-                          step(float3(0.0031308), linearRgb));
-        float noise = fract(sin(dot(floor(pixel), float2(12.9898, 78.233))) * 43758.5453) - 0.5;
-        srgb = clamp(srgb + (3.0 / 255.0) * noise * strength, 0.0, 1.0);
-        linearRgb = mix(srgb / 12.92, pow((srgb + 0.055) / 1.055, float3(2.4)),
-                     step(float3(0.04045), srgb));
-        return half4(fromLinearSrgb(linearRgb), 1.0);
+        float edge = min(p.y, 1.0 - p.y);
+        float sweep = 0.66 + 0.22 * sin(2.8 * p.x + 4.5 * p.y);
+        float field = smoothstep(0.015, 0.13, edge) * sweep;
+        float headerEntry = mix(smoothstep(0.0, 0.16, p.y), 1.0, overArtwork);
+        float headerField = headerEntry * (1.0 - smoothstep(0.26, 1.0, p.y)) * sweep;
+        field = mix(field, headerField, header);
+        float2 cell = floor(pixel / 1.35);
+        float3 hash = fract(float3(cell.xyx) * 0.1031);
+        hash += dot(hash, hash.yzx + 33.33);
+        float threshold = fract((hash.x + hash.y) * hash.z);
+        // Interleave nearby blends. The dots come from the palette and base,
+        // with their density following the gradient instead of a noise overlay.
+        float band = grain * 0.34 * min(field, 1.0 - field);
+        float dithered = threshold < field ? field + band : field - band;
+        float alternate = (threshold < w0 / (w0 + w2)) ? 0.0 : 1.0;
+        float3 fleck = mix(mix(fromColor0, toColor0, progress),
+                           mix(fromColor2, toColor2, progress), alternate);
+        mesh = mix(mesh, fleck, grain * 0.23 * field);
+        float opacity = mix(1.0, smoothstep(0.26, 0.79, p.y + (threshold - 0.5) * 0.16), overArtwork);
+        return half4(fromLinearSrgb(mix(base, mesh, strength * clamp(dithered, 0.0, 1.0))) * opacity, opacity);
     }
 """
+
+@Composable
+internal fun ArtworkHeaderGradient(
+    artworkKey: String,
+    artworkScheme: ColorScheme?,
+    artworkAlpha: Float,
+    fallback: Brush,
+) {
+    val theme = MaterialTheme.colorScheme
+    if (artworkScheme != null && LocalVisualEffects.current.allowsDepthEffects) {
+        PlayerMeshBackground(
+            songId = artworkKey,
+            targetScheme = artworkScheme,
+            baseColor = { theme.surface },
+            foregroundColor = theme.onSurface,
+            expansion = { artworkAlpha },
+            modifier = Modifier.fillMaxSize(),
+            header = true,
+            overArtwork = true,
+        )
+    } else {
+        Box(Modifier.fillMaxSize().background(fallback))
+    }
+}

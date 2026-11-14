@@ -3,14 +3,10 @@ package com.theveloper.pixelplay.ui.theme
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -18,10 +14,8 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.theveloper.pixelplay.presentation.viewmodel.ColorSchemePair
 import androidx.core.graphics.ColorUtils
 
 val LocalPixelPlayDarkTheme = staticCompositionLocalOf { false }
@@ -69,69 +63,103 @@ fun PixelPlayStatusBarStyle(
 }
 
 val DarkColorScheme = darkColorScheme(
-    primary = PixelPlayPurplePrimary,
-    secondary = PixelPlayPink,
-    tertiary = PixelPlayOrange,
-    background = PixelPlayPurpleDark,
-    surface = PixelPlaySurface,
-    onPrimary = PixelPlayWhite,
-    onSecondary = PixelPlayWhite,
-    onTertiary = PixelPlayWhite,
-    onBackground = PixelPlayWhite,
-    onSurface = PixelPlayLightPurple, // Texto sobre superficies
-    error = Color(0xFFFF5252),
-    onError = PixelPlayWhite
+    primary = Color(0xFFF2F2F2),
+    onPrimary = Color.Black,
+    primaryContainer = Color(0xFF292929),
+    onPrimaryContainer = Color.White,
+    inversePrimary = Color(0xFF242424),
+    secondary = Color(0xFFD5D5D5),
+    onSecondary = Color.Black,
+    secondaryContainer = Color(0xFF313131),
+    onSecondaryContainer = Color.White,
+    tertiary = Color(0xFFC8C8C8),
+    onTertiary = Color.Black,
+    tertiaryContainer = Color(0xFF383838),
+    onTertiaryContainer = Color.White,
+    background = Color.Black,
+    onBackground = Color.White,
+    surface = Color.Black,
+    onSurface = Color.White,
+    surfaceVariant = Color(0xFF282828),
+    onSurfaceVariant = Color.White,
+    surfaceTint = Color.Transparent,
+    inverseSurface = Color(0xFFF2F2F2),
+    inverseOnSurface = Color.Black,
+    outline = Color(0xFF858585),
+    outlineVariant = Color(0xFF3F3F3F),
+    surfaceBright = Color(0xFF3B3B3B),
+    surfaceDim = Color.Black,
+    surfaceContainerLowest = Color.Black,
+    surfaceContainerLow = Color(0xFF101010),
+    surfaceContainer = Color(0xFF181818),
+    surfaceContainerHigh = Color(0xFF212121),
+    surfaceContainerHighest = Color(0xFF2B2B2B),
+    primaryFixed = Color(0xFFE8E8E8),
+    primaryFixedDim = Color(0xFFCECECE),
+    onPrimaryFixed = Color.Black,
+    onPrimaryFixedVariant = Color(0xFF272727),
+    secondaryFixed = Color(0xFFDEDEDE),
+    secondaryFixedDim = Color(0xFFC6C6C6),
+    onSecondaryFixed = Color.Black,
+    onSecondaryFixedVariant = Color(0xFF303030),
+    tertiaryFixed = Color(0xFFD4D4D4),
+    tertiaryFixedDim = Color(0xFFBEBEBE),
+    onTertiaryFixed = Color.Black,
+    onTertiaryFixedVariant = Color(0xFF383838)
 )
 
 val LightColorScheme = lightColorScheme(
-    primary = LightPrimary,
-    onPrimary = PixelPlayWhite,
-    primaryContainer = LightPrimaryContainer,
-    onPrimaryContainer = LightOnPrimaryContainer,
-    secondary = PixelPlayPink,
-    onSecondary = PixelPlayWhite,
-    secondaryContainer = PixelPlayPink.copy(alpha = 0.15f),
-    onSecondaryContainer = PixelPlayPink.copy(alpha = 0.85f),
-    tertiary = PixelPlayOrange,
-    onTertiary = PixelPlayBlack,
-    background = LightBackground,
-    onBackground = LightOnSurface,
-    surface = LightSurface,
-    onSurface = LightOnSurface,
-    surfaceVariant = LightSurfaceVariant,
-    onSurfaceVariant = LightOnSurfaceVariant,
-    outline = LightOutline,
-    outlineVariant = LightOutline.copy(alpha = 0.6f),
-    surfaceTint = LightPrimary,
-    error = Color(0xFFD32F2F),
-    onError = PixelPlayWhite
+    primary = Color(0xFF242424),
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFFE9E9E9),
+    onPrimaryContainer = Color.Black,
+    inversePrimary = Color(0xFFF2F2F2),
+    secondary = Color(0xFF414141),
+    onSecondary = Color.White,
+    secondaryContainer = Color(0xFFE5E5E5),
+    onSecondaryContainer = Color.Black,
+    tertiary = Color(0xFF555555),
+    onTertiary = Color.White,
+    tertiaryContainer = Color(0xFFE0E0E0),
+    onTertiaryContainer = Color.Black,
+    background = Color.White,
+    onBackground = Color.Black,
+    surface = Color.White,
+    onSurface = Color.Black,
+    surfaceVariant = Color(0xFFEEEEEE),
+    onSurfaceVariant = Color.Black,
+    surfaceTint = Color.Transparent,
+    inverseSurface = Color(0xFF242424),
+    inverseOnSurface = Color.White,
+    outline = Color(0xFF747474),
+    outlineVariant = Color(0xFFD8D8D8),
+    surfaceBright = Color.White,
+    surfaceDim = Color(0xFFDCDCDC),
+    surfaceContainerLowest = Color.White,
+    surfaceContainerLow = Color(0xFFF7F7F7),
+    surfaceContainer = Color(0xFFF1F1F1),
+    surfaceContainerHigh = Color(0xFFEBEBEB),
+    surfaceContainerHighest = Color(0xFFE4E4E4),
+    primaryFixed = Color(0xFFE8E8E8),
+    primaryFixedDim = Color(0xFFCECECE),
+    onPrimaryFixed = Color.Black,
+    onPrimaryFixedVariant = Color(0xFF272727),
+    secondaryFixed = Color(0xFFDEDEDE),
+    secondaryFixedDim = Color(0xFFC6C6C6),
+    onSecondaryFixed = Color.Black,
+    onSecondaryFixedVariant = Color(0xFF303030),
+    tertiaryFixed = Color(0xFFD4D4D4),
+    tertiaryFixedDim = Color(0xFFBEBEBE),
+    onTertiaryFixed = Color.Black,
+    onTertiaryFixedVariant = Color(0xFF383838)
 )
 
 @Composable
 fun PixelPlayTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    colorSchemePairOverride: ColorSchemePair? = null,
     content: @Composable () -> Unit
 ) {
-    val context = LocalContext.current
-    val finalColorScheme = when {
-        colorSchemePairOverride == null -> {
-            // Tema dinámico del sistema como prioridad si no hay override
-            try {
-                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-            } catch (e: Exception) {
-                // Fallback a los defaults si dynamic colors falla (raro, pero posible en algunos dispositivos)
-                if (darkTheme) DarkColorScheme else LightColorScheme
-            }
-        }
-        colorSchemePairOverride != null -> {
-            // Usar el esquema del álbum si se proporciona
-            if (darkTheme) colorSchemePairOverride.dark else colorSchemePairOverride.light
-        }
-        // Fallback final a los defaults si no hay override ni dynamic colors aplicables
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val finalColorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
     PixelPlayStatusBarStyle(
         color = finalColorScheme.background,

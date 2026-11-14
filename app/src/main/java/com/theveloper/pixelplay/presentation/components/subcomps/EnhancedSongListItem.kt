@@ -2,6 +2,8 @@ package com.theveloper.pixelplay.presentation.components.subcomps
 
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -40,14 +42,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.lerp as lerpColor
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp as lerpDp
 import coil.size.Size
@@ -57,6 +65,11 @@ import com.theveloper.pixelplay.presentation.components.ShimmerBox
 import androidx.compose.ui.res.stringResource
 import com.theveloper.pixelplay.R
 import com.theveloper.pixelplay.presentation.components.SmartImage
+import com.theveloper.pixelplay.presentation.utils.LocalVisualEffects
+import com.theveloper.pixelplay.ui.theme.LocalMotionPreferences
+import com.theveloper.pixelplay.ui.theme.MIN_LABEL_CONTRAST_RATIO
+import com.theveloper.pixelplay.ui.theme.PixelMotion
+import com.theveloper.pixelplay.ui.theme.calculateWcagContrastRatio
 
 @Immutable
 private data class EnhancedSongAnimationTarget(
@@ -103,12 +116,15 @@ fun EnhancedSongListItem(
     selectionIndex: Int? = null,
     isSelectionMode: Boolean = false,
     showMoreOptionsButton: Boolean = true,
+    useLibraryPill: Boolean = false,
+    artworkColors: Pair<Color, Color>? = null,
     onLongPress: () -> Unit = {},
     onMoreOptionsClick: (Song) -> Unit,
     onClick: () -> Unit
 ) {
     val albumArtTargetSizePx = with(LocalDensity.current) { albumArtSize.roundToPx() }
-    val isHighlighted = isCurrentSong && !isLoading
+    val isHighlighted = isCurrentSong && !isLoading && !useLibraryPill
+    val motionEnabled = LocalMotionPreferences.current.animationsEnabled
     var wasEverActive by remember { mutableStateOf(isHighlighted || isSelected) }
     if (isHighlighted || isSelected) {
         wasEverActive = true
@@ -127,23 +143,23 @@ fun EnhancedSongListItem(
             label = "EnhancedSongListItemTransition"
         )
         highlightProgress = transition.animateFloat(
-            transitionSpec = { tween(durationMillis = 400) },
+            transitionSpec = { if (motionEnabled) tween(durationMillis = 400) else snap() },
             label = "highlightProgress"
         ) { state ->
             if (state.isHighlighted) 1f else 0f
         }.value
         selectionVisualProgress = transition.animateFloat(
-            transitionSpec = { tween(durationMillis = 250) },
+            transitionSpec = { if (motionEnabled) tween(durationMillis = 250) else snap() },
             label = "selectionVisualProgress"
         ) { state ->
             if (state.isSelected) 1f else 0f
         }.value
         selectionScaleProgress = transition.animateFloat(
             transitionSpec = {
-                spring(
+                if (motionEnabled) spring(
                     dampingRatio = Spring.DampingRatioMediumBouncy,
                     stiffness = Spring.StiffnessLow
-                )
+                ) else snap()
             },
             label = "selectionScaleProgress"
         ) { state ->
@@ -160,8 +176,9 @@ fun EnhancedSongListItem(
     val selectionScale = lerpFloat(1f, 0.98f, selectionScaleProgress)
     val selectionBorderWidth = lerpDp(0.dp, 2.5.dp, selectionVisualProgress)
 
-    val surfaceShape = remember(animatedCornerRadius, customShape, isHighlighted) {
+    val surfaceShape = remember(animatedCornerRadius, customShape, isHighlighted, useLibraryPill) {
         when {
+            useLibraryPill -> CircleShape
             customShape != null && !isHighlighted -> customShape
             animatedCornerRadius == 22.dp -> DefaultRowShape
             else -> RoundedCornerShape(animatedCornerRadius)
@@ -195,6 +212,14 @@ fun EnhancedSongListItem(
         selectionVisualProgress
     )
     val showSelectionDecoration = selectionVisualProgress > 0.001f
+    val libraryArtworkModifier = if (useLibraryPill && artworkColors != null) {
+        Modifier.libraryArtworkWash(
+            artworkColors,
+            containerColor,
+            contentColor.copy(alpha = 0.7f),
+            isCurrentSong && isPlaying && !isSelectionMode,
+        )
+    } else Modifier
 
     if (isLoading) {
         // Shimmer Placeholder Layout
@@ -295,6 +320,7 @@ fun EnhancedSongListItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .then(libraryArtworkModifier)
                     .padding(horizontal = 13.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -341,6 +367,21 @@ fun EnhancedSongListItem(
                                 }
                             }
                         }
+                        if (useLibraryPill && isCurrentSong && !isSelectionMode) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .size(20.dp)
+                                    .background(colors.surfaceContainerHighest, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                PlayingEqIcon(
+                                    modifier = Modifier.size(width = 13.dp, height = 11.dp),
+                                    color = colors.onSurface,
+                                    isPlaying = isPlaying && motionEnabled
+                                )
+                            }
+                        }
                     }
                     Spacer(modifier = Modifier.width(14.dp))
                 } else {
@@ -378,7 +419,7 @@ fun EnhancedSongListItem(
                     )
                 }
                 
-                val showPlayingIndicator = isCurrentSong && !isSelectionMode
+                val showPlayingIndicator = !useLibraryPill && isCurrentSong && !isSelectionMode
                 val showTrailingAction = showMoreOptionsButton && !isSelectionMode
 
                 if (showPlayingIndicator) {
@@ -412,6 +453,75 @@ fun EnhancedSongListItem(
                             modifier = Modifier.size(24.dp)
                         )
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun Modifier.libraryArtworkWash(
+    palette: Pair<Color, Color>,
+    background: Color,
+    textColor: Color,
+    playing: Boolean
+): Modifier {
+    val effects = LocalVisualEffects.current
+    val animated = LocalMotionPreferences.current.animationsEnabled
+    val opacity = animateFloatAsState(
+        targetValue = if (playing && effects.allowsDepthEffects) 1f else 0f,
+        animationSpec = if (animated && effects.allowsDepthEffects) {
+            tween(PixelMotion.STANDARD_DURATION_MS)
+        } else snap(),
+        label = "Library artwork wash"
+    )
+    val (primary, secondary) = palette
+    val primaryAlpha = if (effects.allowsRealtimeBlur) 0.48f else 0.40f
+    val secondaryAlpha = if (effects.allowsRealtimeBlur) 0.28f else 0.21f
+    val tintStrength = remember(palette, background, textColor, primaryAlpha, secondaryAlpha) {
+        var safe = 0f
+        var upper = 1f
+        repeat(8) {
+            val candidate = (safe + upper) / 2f
+            val first = primary.copy(alpha = primaryAlpha * candidate)
+            val second = secondary.copy(alpha = secondaryAlpha * candidate)
+            val underPrimary = first.compositeOver(background)
+            val underSecondary = second.compositeOver(background)
+            val underBoth = second.compositeOver(underPrimary)
+            if (listOf(underPrimary, underSecondary, underBoth).all {
+                    calculateWcagContrastRatio(textColor, it) >= MIN_LABEL_CONTRAST_RATIO
+                }) {
+                safe = candidate
+            } else {
+                upper = candidate
+            }
+        }
+        safe
+    }
+    return drawWithCache {
+        val ltr = layoutDirection == LayoutDirection.Ltr
+        fun leadingX(fraction: Float): Float = size.width * if (ltr) fraction else 1f - fraction
+        val middle = size.width / 2f
+        val first = Brush.radialGradient(
+            0f to primary.copy(alpha = primaryAlpha * tintStrength),
+            0.48f to primary.copy(alpha = primaryAlpha * tintStrength * 0.55f),
+            1f to primary.copy(alpha = 0f),
+            center = Offset(leadingX(0.105f), size.height * 0.58f),
+            radius = (size.width * 0.39f).coerceAtLeast(1f)
+        )
+        val second = Brush.radialGradient(
+            0f to secondary.copy(alpha = secondaryAlpha * tintStrength),
+            0.50f to secondary.copy(alpha = secondaryAlpha * tintStrength * 0.60f),
+            1f to secondary.copy(alpha = 0f),
+            center = Offset(leadingX(0.18f), size.height * 0.28f),
+            radius = (size.width * 0.30f).coerceAtLeast(1f)
+        )
+        onDrawBehind {
+            val alpha = opacity.value
+            if (alpha > 0f) {
+                clipRect(left = if (ltr) 0f else middle, right = if (ltr) middle else size.width) {
+                    drawRect(brush = first, alpha = alpha)
+                    drawRect(brush = second, alpha = alpha)
                 }
             }
         }

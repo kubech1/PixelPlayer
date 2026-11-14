@@ -15,9 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
@@ -41,7 +42,15 @@ internal fun HomeMixArtwork(
 ) {
     val selection = remember(mix.kind, mix.songs) { rotatingComposition(mix) }
     val candidates = remember(mix.cover, mix.songs) { albumCandidates(mix) }
-    val failed = remember(candidates) { mutableStateListOf<String>() }
+    var failed by rememberSaveable(candidates) { mutableStateOf(arrayListOf<String>()) }
+    var failedAt by rememberSaveable(candidates) { mutableLongStateOf(0L) }
+    LaunchedEffect(candidates) {
+        val age = System.currentTimeMillis() - failedAt
+        if (failedAt != 0L && (age < 0L || age >= 60_000L)) {
+            failed = arrayListOf()
+            failedAt = 0L
+        }
+    }
     val daily = mix.kind == HomeMixKind.DAILY
     val covers = candidates.asSequence()
         .filterNot { it.uri in failed }
@@ -93,7 +102,8 @@ internal fun HomeMixArtwork(
                     onState = { state ->
                         ready = state is AsyncImagePainter.State.Success
                         if (state is AsyncImagePainter.State.Error && cover.uri !in failed) {
-                            failed += cover.uri
+                            failed = ArrayList(failed).apply { add(cover.uri) }
+                            failedAt = System.currentTimeMillis()
                         }
                     },
                 )

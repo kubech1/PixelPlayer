@@ -2,6 +2,7 @@
 
 package com.theveloper.pixelplay.presentation.screens
 
+import com.theveloper.pixelplay.presentation.components.topEdgeFade
 import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottomChrome
 
 import com.theveloper.pixelplay.presentation.components.bottomchrome.NavigationReselectionEffect
@@ -32,15 +33,12 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -68,8 +66,6 @@ import com.theveloper.pixelplay.presentation.components.songFastScrollLabel
 import com.theveloper.pixelplay.presentation.components.subcomps.EnhancedSongListItem
 import com.theveloper.pixelplay.presentation.viewmodel.PlayerViewModel
 import com.theveloper.pixelplay.presentation.viewmodel.StablePlayerState
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import androidx.compose.ui.text.style.TextOverflow
 
@@ -88,7 +84,6 @@ fun LibraryFavoritesTab(
     onSongSelectionToggle: (Song) -> Unit = {},
     getSelectionIndex: (String) -> Int? = { null },
     sortOption: SortOption,
-    onLocateCurrentSongVisibilityChanged: (Boolean) -> Unit = {},
     onRegisterLocateCurrentSongAction: ((() -> Unit)?) -> Unit = {},
     storageFilter: StorageFilter = StorageFilter.ALL,
     hasCurrentSong: Boolean = false
@@ -96,8 +91,6 @@ fun LibraryFavoritesTab(
     val listState = rememberLazyListState()
     NavigationReselectionEffect(com.theveloper.pixelplay.presentation.navigation.Screen.Library.route) { listState.animateScrollToItem(0) }
     val coroutineScope = rememberCoroutineScope()
-    val visibilityCallback by rememberUpdatedState(onLocateCurrentSongVisibilityChanged)
-    val registerActionCallback by rememberUpdatedState(onRegisterLocateCurrentSongAction)
     val favoriteFastScrollLabelProvider = remember(favoriteSongs, sortOption) {
         { index: Int ->
             songFastScrollLabel(
@@ -109,46 +102,15 @@ fun LibraryFavoritesTab(
     var lastHandledFavoriteSortKey by remember { mutableStateOf(sortOption.storageKey) }
     var pendingFavoriteSortScrollReset by remember { mutableStateOf(false) }
     var favoriteSortSawRefreshLoading by remember { mutableStateOf(false) }
-    val currentSongId by remember(playerViewModel) {
-        playerViewModel.stablePlayerState
-            .map { it.currentSong?.id }
-            .distinctUntilChanged()
-    }.collectAsStateWithLifecycle(initialValue = null)
-
-    val currentSongListIndex = remember(favoriteSongs.itemCount, currentSongId) {
-        if (currentSongId == null) -1
-        else {
-            val items = favoriteSongs.itemSnapshotList
-            items.indexOfFirst { it?.id == currentSongId }
-        }
-    }
-    // New action just triggers the ViewModel request
-    val locateCurrentSongAction: (() -> Unit)? = remember(currentSongId) {
-        if (currentSongId == null) {
-            null
-        } else {
-            {
-                playerViewModel.requestLocateCurrentSong()
-            }
-        }
-    }
-    // Scroll Handler from ViewModel
-    LaunchedEffect(Unit) {
-        playerViewModel.scrollToIndexEvent.collect { index ->
-            if (index >= 0) {
-                 val firstVisible = listState.firstVisibleItemIndex
-                 if (Math.abs(index - firstVisible) > 20) {
-                     listState.scrollToItem(index)
-                 } else {
-                     listState.animateScrollToItem(index)
-                 }
-            }
-        }
-    }
-
-    LaunchedEffect(locateCurrentSongAction) {
-        registerActionCallback(locateCurrentSongAction)
-    }
+    RegisterLibraryCenterAction(
+        playerViewModel = playerViewModel,
+        listState = listState,
+        itemCount = favoriteSongs.itemCount,
+        sortOption = sortOption,
+        storageFilter = storageFilter,
+        favoritesOnly = true,
+        onRegister = onRegisterLocateCurrentSongAction,
+    )
 
     LaunchedEffect(sortOption) {
         val currentSortKey = sortOption.storageKey
@@ -168,38 +130,6 @@ fun LibraryFavoritesTab(
         if (!favoriteSortSawRefreshLoading) return@LaunchedEffect
         listState.scrollToItem(0)
         pendingFavoriteSortScrollReset = false
-    }
-
-    LaunchedEffect(currentSongListIndex, favoriteSongs.itemCount, listState, currentSongId) {
-        if (currentSongId == null || favoriteSongs.itemCount == 0) {
-            visibilityCallback(false)
-            return@LaunchedEffect
-        }
-
-        if (currentSongListIndex == -1) {
-             visibilityCallback(true)
-             return@LaunchedEffect
-        }
-
-        snapshotFlow {
-            val visibleItems = listState.layoutInfo.visibleItemsInfo
-            if (visibleItems.isEmpty()) {
-                false
-            } else {
-                currentSongListIndex in visibleItems.first().index..visibleItems.last().index
-            }
-        }
-            .distinctUntilChanged()
-            .collect { isVisible ->
-                visibilityCallback(!isVisible)
-            }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            visibilityCallback(false)
-            registerActionCallback(null)
-        }
     }
 
     if (favoriteSongs.itemCount == 0 && favoriteSongs.loadState.refresh !is LoadState.Loading) {
@@ -239,7 +169,7 @@ fun LibraryFavoritesTab(
                                     bottomStart = PlayerSheetCollapsedCornerRadius,
                                     bottomEnd = PlayerSheetCollapsedCornerRadius
                                 )
-                            ),
+                            ).topEdgeFade(MaterialTheme.colorScheme.background) { listState.canScrollBackward },
                         state = listState,
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         contentPadding = PaddingValues(bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + 30.dp)
@@ -252,6 +182,7 @@ fun LibraryFavoritesTab(
                             val song = favoriteSongs[index]
                             if (song != null) {
                                 LibraryPlaybackAwareSongItem(
+                                    useLibraryPill = true,
                                     song = song,
                                     playerViewModel = playerViewModel,
                                     onMoreOptionsClick = { onMoreOptionsClick(song) },
@@ -423,7 +354,7 @@ fun LibrarySongsTabPaginated(
                                         bottomStart = PlayerSheetCollapsedCornerRadius,
                                         bottomEnd = PlayerSheetCollapsedCornerRadius
                                     )
-                                ),
+                                ).topEdgeFade(MaterialTheme.colorScheme.background) { activeListState.canScrollBackward },
                             state = activeListState,
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             contentPadding = PaddingValues(bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + 30.dp)

@@ -442,8 +442,6 @@ class PlaylistViewModel @Inject constructor(
                     }
                 }
 
-                if (originalBitmap == null) return@withContext null
-
                 // Target dimensions (Square)
                 val targetSize = 1024
 

@@ -43,20 +43,4 @@ class QqMusicStreamProxy @Inject constructor(
         uri.host ?: uri.path?.removePrefix("/")
 
     fun resolveQqMusicUri(uriString: String): String? = resolveUri(uriString)
-
-    /**
-     * Pre-fetches and caches the real stream URL for a song so the proxy can
-     * serve it instantly when ExoPlayer makes its HTTP request.
-     */
-    suspend fun warmUpStreamUrl(uriString: String) {
-        val uri = Uri.parse(uriString)
-        if (uri.scheme != "qqmusic") return
-        val songMid = uri.host ?: uri.path?.removePrefix("/") ?: return
-        if (!CloudStreamSecurity.validateQqMusicSongMid(songMid)) return
-        try {
-            getOrFetchStreamUrl(songMid)
-        } catch (e: Exception) {
-            Timber.w(e, "warmUpStreamUrl failed for $songMid")
-        }
-    }
 }

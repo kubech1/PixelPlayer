@@ -69,7 +69,11 @@
     <string name="library_action_new">New</string>
     <string name="library_cd_create_new_playlist">Create new playlist</string>
     <string name="library_cd_import_m3u_playlist">Import M3U playlist</string>
-    <string name="library_cd_locate_current_song">Locate current song</string>
+    <string name="library_cd_locate_current_song">Center current song</string>
+    <string name="library_source_all">All</string>
+    <string name="library_source_local">Local</string>
+    <string name="library_source_cloud">Cloud</string>
+    <string name="library_source_device_storage">Storage</string>
     <string name="library_storage_filter_all_songs">All songs</string>
     <string name="library_storage_filter_online">CLOUD</string>
     <string name="library_storage_filter_offline">LOCAL</string>

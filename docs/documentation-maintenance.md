@@ -31,7 +31,7 @@ Al añadir un subsistema que no encaje, crea una página temática y enlázala d
 1. **Ubicar:** leer instrucciones aplicables, el documento temático pertinente y los archivos propietarios del comportamiento. Un typo no exige leer toda la guía.
 2. **Contrastar:** si hay discrepancia, identificar la fuente actual. Distinguir bug de documentación, comportamiento intencional e hipótesis pendiente. No ajustar el código a una descripción antigua por inercia.
 3. **Actualizar:** editar explicación, enlaces, contratos, limitaciones y comandos afectados. Si cambia el significado de un dato, documentar unidad, identidad, valor por defecto y consumidores importantes.
-4. **Regenerar:** desde la raíz, `python scripts/context_docs.py generate` cuando cambie fuente indexada. El generador solo escribe los dos índices; no reescribe explicaciones ni decisiones.
+4. **Regenerar y re-indexar:** desde la raíz, ejecuta `python scripts/context_docs.py generate` cuando cambie fuente indexada (el generador solo escribe los dos índices; no reescribe explicaciones ni decisiones). Además, actualiza el grafo de `codebase-memory-mcp` ejecutando `index_repository` sobre la raíz del proyecto para mantenerlo al día tras cualquier cambio.
 5. **Comprobar:** `python scripts/context_docs.py check`, más las comprobaciones técnicas apropiadas al cambio. Leer el resultado real.
 6. **Entregar:** resumir cambio, documentación afectada y verificaciones. Registrar pendientes concretos con su efecto; no declarar completa una validación que no se ejecutó.
 

@@ -47,16 +47,4 @@ class JellyfinStreamProxy @Inject constructor(
         uri.host ?: uri.path?.removePrefix("/")
 
     fun resolveJellyfinUri(uriString: String): String? = resolveUri(uriString)
-
-    suspend fun warmUpStreamUrl(uriString: String) {
-        val uri = Uri.parse(uriString)
-        if (uri.scheme != "jellyfin") return
-        val itemId = uri.host ?: uri.path?.removePrefix("/") ?: return
-        if (!CloudStreamSecurity.validateJellyfinItemId(itemId)) return
-        try {
-            getOrFetchStreamUrl(itemId)
-        } catch (e: Exception) {
-            Timber.w(e, "warmUpStreamUrl failed for $itemId")
-        }
-    }
 }

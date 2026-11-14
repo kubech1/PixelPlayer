@@ -43,6 +43,8 @@ import com.theveloper.pixelplay.presentation.components.player.FullPlayerContent
 import com.theveloper.pixelplay.presentation.components.scoped.FullPlayerVisualState
 import com.theveloper.pixelplay.presentation.components.scoped.rememberFullPlayerRuntimePolicy
 import com.theveloper.pixelplay.presentation.viewmodel.PlayerSheetState
+import com.theveloper.pixelplay.presentation.components.scoped.LocalPlayerGlassBackdrop
+import com.theveloper.pixelplay.presentation.components.scoped.PlayerGlassBackdrop
 import com.theveloper.pixelplay.presentation.viewmodel.PlayerViewModel
 import com.theveloper.pixelplay.presentation.viewmodel.StablePlayerState
 
@@ -55,6 +57,7 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
     isPreparingPlayback: Boolean,
     playerContentExpansionFraction: Animatable<Float, AnimationVector1D>,
     albumColorScheme: ColorScheme,
+    glassBackdrop: PlayerGlassBackdrop?,
     targetArtworkTint: androidx.compose.ui.graphics.Color,
     bottomSheetOpenFraction: Float,
     fullPlayerVisualState: FullPlayerVisualState,
@@ -142,6 +145,7 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
             }
             CompositionLocalProvider(
                 LocalMaterialTheme provides albumColorScheme,
+                LocalPlayerGlassBackdrop provides glassBackdrop,
                 LocalPlayerArtworkDepth provides artworkDepth
             ) {
                 val fullPlayerScale by remember(bottomSheetOpenFraction) {

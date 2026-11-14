@@ -48,6 +48,8 @@ import com.theveloper.pixelplay.data.model.SearchFilterType
 import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.data.model.HomeMixFeed
 import com.theveloper.pixelplay.data.model.SortOption
+import com.theveloper.pixelplay.data.model.StorageFilter
+import com.theveloper.pixelplay.data.model.localOnly
 import com.theveloper.pixelplay.data.model.toLibraryTabIdOrNull
 import com.theveloper.pixelplay.data.provider.SharedArtworkContentProvider
 import com.theveloper.pixelplay.data.preferences.CarouselStyle
@@ -630,6 +632,24 @@ class PlayerViewModel @Inject constructor(
 
     suspend fun getSongsForCurrentFavoriteSelection(): List<Song> =
         playbackDispatchStateHolder.getSongsForCurrentFavoriteSelection()
+
+    suspend fun findLibrarySongIndex(
+        songId: String,
+        sortOption: SortOption,
+        storageFilter: StorageFilter,
+        favoritesOnly: Boolean,
+    ): Int? {
+        val internalId = songId.toLongOrNull() ?: stablePlayerState.value.currentSong
+            ?.takeIf { it.id == songId && it.contentUriString.isNotBlank() }
+            ?.let { musicRepository.getSongIdByContentUri(it.contentUriString) }
+            ?: return null
+        val orderedIds = if (favoritesOnly) {
+            musicRepository.getFavoriteSongIdsSorted(sortOption, storageFilter)
+        } else {
+            musicRepository.getSongIdsSorted(sortOption, storageFilter)
+        }
+        return orderedIds.indexOf(internalId).takeIf { it >= 0 }
+    }
 
     val castRoutes: StateFlow<List<MediaRouter.RouteInfo>> = castStateHolder.castRoutes
     val selectedRoute: StateFlow<MediaRouter.RouteInfo?> = castStateHolder.selectedRoute
@@ -1245,7 +1265,30 @@ class PlayerViewModel @Inject constructor(
     val favoritesPagingFlow = libraryStateHolder.favoritesPagingFlow
 
     // Daily mix state is now managed by DailyMixStateHolder
-    val homeMixFeed: StateFlow<HomeMixFeed?> = dailyMixStateHolder.homeMixFeed
+    val cloudMusicEnabled: StateFlow<Boolean> = userPreferencesRepository.cloudMusicEnabledFlow
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    val homeMixFeed: StateFlow<HomeMixFeed?> = combine(
+        dailyMixStateHolder.homeMixFeed,
+        cloudMusicEnabled,
+    ) { feed, enabled ->
+        if (enabled || feed == null) feed else HomeMixFeed(
+            daily = feed.daily?.localOnly(),
+            rotating = feed.rotating.mapNotNull { it.localOnly() }.toImmutableList(),
+        )
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    init {
+        viewModelScope.launch {
+            var previous: Boolean? = null
+            userPreferencesRepository.cloudMusicEnabledFlow.collect { enabled ->
+                if (previous != null && previous != enabled) {
+                    refreshHomeMixes()
+                }
+                previous = enabled
+            }
+        }
+    }
 
     /**
      * Observes a song by ID from Room DB, combined with the latest favorite status.
@@ -1267,6 +1310,11 @@ class PlayerViewModel @Inject constructor(
 
     fun shuffleAllSongs(queueName: String = "All Songs (Shuffled)") =
         queueStateHolder.shuffleAll(queueName, shufflePlaybackCallbacks())
+
+    fun shuffleLibrarySongs(favoritesOnly: Boolean) {
+        val title = context.getString(if (favoritesOnly) R.string.library_tab_liked else R.string.library_tab_songs)
+        playbackDispatchStateHolder.shuffleLibrarySongs(favoritesOnly, title)
+    }
 
     /**
      * Called from Quick Settings tile. Unlike shuffleAllSongs(), this always starts
@@ -2771,7 +2819,7 @@ class PlayerViewModel @Inject constructor(
     fun playSong(song: Song) {
         viewModelScope.launch {
             val controller = mediaController ?: return@launch
-            val mediaItem = playbackDispatchStateHolder.buildResolvedPlaybackMediaItem(song)
+            val mediaItem = playbackDispatchStateHolder.buildResolvedPlaybackMediaItem(song) ?: return@launch
 
             controller.setMediaItem(mediaItem)
             controller.prepare()

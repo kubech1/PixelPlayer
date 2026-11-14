@@ -56,6 +56,8 @@ El margen fijo es de 5,5 dB en la familia de 44,1 kHz y de 0,6 dB a 48/96/192 kH
 
 ## Persistencia y controles externos
 
+Cuando Música en la nube se desactiva, el servicio elimina las entradas de proveedor de la cola. Una canción local en curso conserva su posición y estado. Si la canción actual es remota, la sesión se detiene antes de retirar las entradas remotas. Al restaurar una cola, el servicio vuelve a aplicar el origen permitido. [Política de origen](decisions/0006-opt-in-cloud-music.md).
+
 `MusicService` captura y restaura [PlaybackQueueSnapshot](../app/src/main/java/com/theveloper/pixelplay/data/model/PlaybackQueueSnapshot.kt), coordina timers, notificación y escucha de dispositivos. Restaurar una cola no equivale necesariamente a iniciar audio; comprueba `playWhenReady` y el contexto del lanzamiento.
 
 Los items solicitados por controladores se resuelven mediante callbacks y [TrustedMediaItemsResolution](../app/src/main/java/com/theveloper/pixelplay/data/service/TrustedMediaItemsResolution.kt). No aceptar URIs o extras arbitrarios de un cliente externo como si los hubiese generado la UI interna.

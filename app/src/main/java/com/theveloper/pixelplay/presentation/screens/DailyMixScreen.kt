@@ -44,8 +44,13 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
+import com.theveloper.pixelplay.presentation.components.mixPosterColorScheme
+import com.theveloper.pixelplay.presentation.components.scoped.PlayerMeshBackground
+import com.theveloper.pixelplay.presentation.utils.LocalVisualEffects
+import com.theveloper.pixelplay.ui.theme.LocalPixelPlayDarkTheme
 import com.theveloper.pixelplay.R
 import com.theveloper.pixelplay.data.model.HomeMix
+import com.theveloper.pixelplay.data.model.localOnly
 import com.theveloper.pixelplay.presentation.components.HomeMixArtwork
 import com.theveloper.pixelplay.presentation.components.PlaylistBottomSheet
 import com.theveloper.pixelplay.presentation.components.SongInfoBottomSheet
@@ -73,6 +78,7 @@ fun DailyMixScreen(
     playlistViewModel: PlaylistViewModel = hiltViewModel(),
 ) {
     val feed by playerViewModel.homeMixFeed.collectAsStateWithLifecycle()
+    val cloudMusicEnabled by playerViewModel.cloudMusicEnabled.collectAsStateWithLifecycle()
     val availableMix = feed?.let { if (mixId == "daily") it.daily else it.rotating.find { mix -> mix.id == mixId } }
     var displayedMix by remember(mixId) { mutableStateOf<HomeMix?>(null) }
     LaunchedEffect(mixId) {
@@ -81,7 +87,10 @@ fun DailyMixScreen(
     LaunchedEffect(availableMix) {
         if (displayedMix == null) displayedMix = availableMix
     }
-    val mix = displayedMix ?: availableMix
+    val selection = displayedMix ?: availableMix
+    val mix = remember(selection, cloudMusicEnabled) {
+        if (cloudMusicEnabled) selection else selection?.localOnly()
+    }
     val shineProgress = rememberMixPosterShine(mix)
     val title = mix?.localizedTitle() ?: stringResource(R.string.daily_mix_title)
     val songs = mix?.songs ?: persistentListOf()
@@ -183,7 +192,9 @@ fun DailyMixScreen(
         }
     }
 
-    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
+    val theme = MaterialTheme.colorScheme
+    val dark = LocalPixelPlayDarkTheme.current
+    Box(Modifier.fillMaxSize().background(theme.surface)) {
         Column(Modifier.fillMaxSize()) {
             IconButton(
                 onClick = { navController.popBackStack() },
@@ -210,7 +221,23 @@ fun DailyMixScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     item(key = "mix_header") {
-                        MixDetailHeader(title, mix, shineProgress)
+                        Box(Modifier.fillMaxWidth()) {
+                            if (LocalVisualEffects.current.allowsDepthEffects) {
+                                val scheme = remember(mix.kind, theme, dark) {
+                                    mixPosterColorScheme(mix.kind, theme, dark)
+                                }
+                                PlayerMeshBackground(
+                                    songId = mix.id,
+                                    targetScheme = scheme,
+                                    baseColor = { theme.surface },
+                                    foregroundColor = theme.onSurface,
+                                    expansion = { 1f },
+                                    modifier = Modifier.matchParentSize(),
+                                    header = true,
+                                )
+                            }
+                            MixDetailHeader(title, mix, shineProgress)
+                        }
                     }
                     item(key = "play_shuffle_buttons") {
                         Row(

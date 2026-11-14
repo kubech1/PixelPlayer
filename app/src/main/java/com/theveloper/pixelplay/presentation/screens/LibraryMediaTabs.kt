@@ -6,6 +6,7 @@
 
 package com.theveloper.pixelplay.presentation.screens
 
+import com.theveloper.pixelplay.presentation.components.topEdgeFade
 import com.theveloper.pixelplay.presentation.components.bottomchrome.LocalBottomChrome
 
 import com.theveloper.pixelplay.presentation.components.bottomchrome.NavigationReselectionEffect
@@ -341,7 +342,7 @@ fun LibraryAlbumsTab(
                                             bottomStart = PlayerSheetCollapsedCornerRadius,
                                             bottomEnd = PlayerSheetCollapsedCornerRadius
                                         )
-                                    ),
+                                    ).topEdgeFade(MaterialTheme.colorScheme.background) { activeListState.canScrollBackward },
                                 state = activeListState,
                                 contentPadding = PaddingValues(bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + ListExtraBottomGap + 4.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -409,7 +410,7 @@ fun LibraryAlbumsTab(
                                             bottomStart = PlayerSheetCollapsedCornerRadius,
                                             bottomEnd = PlayerSheetCollapsedCornerRadius
                                         )
-                                    ),
+                                    ).topEdgeFade(MaterialTheme.colorScheme.background) { activeGridState.canScrollBackward },
                                 state = activeGridState,
                                 columns = GridCells.Fixed(2),
                                 contentPadding = PaddingValues(bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + ListExtraBottomGap + 4.dp),
@@ -625,7 +626,7 @@ fun LibraryArtistsTab(
                                         bottomStart = PlayerSheetCollapsedCornerRadius,
                                         bottomEnd = PlayerSheetCollapsedCornerRadius
                                     )
-                                ),
+                                ).topEdgeFade(MaterialTheme.colorScheme.background) { activeListState.canScrollBackward },
                             state = activeListState,
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             contentPadding = PaddingValues(bottom = bottomBarHeight + LocalBottomChrome.current.miniPlayerRestingHeight + ListExtraBottomGap)

@@ -40,6 +40,8 @@ Los DAOs también cubren favoritos, playlists, historial de búsqueda, letras, e
 
 [UserPreferencesRepository](../app/src/main/java/com/theveloper/pixelplay/data/preferences/UserPreferencesRepository.kt) es un punto amplio de ajustes. Hay repositorios específicos para tema, playlists y ecualizador. Antes de añadir una clave, busca cómo se representa, su valor por defecto, su serialización y si entra en backup. No documentar ni registrar los valores privados de una instalación.
 
+El filtro efectivo de Biblioteca usa origen local cuando Música en la nube está apagada. DataStore conserva el filtro elegido y la preferencia Solo nube para volver a aplicarlos si se activa. La columna `source_type` distingue el catálogo de un proveedor aunque su archivo esté en caché. Las consultas de búsqueda y géneros aplican la condición de origen antes de agrupar o limitar resultados.
+
 La migración 42→43 conserva identidad, carátulas y relaciones de playlists, normaliza la fuente antigua `AI` a `LOCAL` y elimina `is_ai_generated`, `ai_cache` y `ai_usage`. Los esquemas anteriores conservan el contrato histórico; no deben editarse para esconder campos retirados. La normalización también se aplica al importar listas antiguas desde preferencias o backups.
 
 ## Consultas, carpetas y bibliotecas grandes

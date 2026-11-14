@@ -1,6 +1,8 @@
 package com.theveloper.pixelplay.data.model
 
+import com.theveloper.pixelplay.data.database.isProviderSong
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.serialization.Serializable
 
 /** Home recommendation feed for the current local date. */
@@ -17,6 +19,16 @@ data class HomeMix(
     val cover: Song?,
     val isPersonalized: Boolean = false
 )
+
+internal fun HomeMix.localOnly(): HomeMix? {
+    if (songs.none(Song::isProviderSong)) return this
+    val localSongs = songs.filterNot(Song::isProviderSong).toImmutableList()
+    if (localSongs.isEmpty()) return null
+    val localCover = cover?.takeIf { candidate -> localSongs.any { it.id == candidate.id } }
+        ?: localSongs.firstOrNull { !it.albumArtUriString.isNullOrBlank() }
+        ?: localSongs.first()
+    return copy(songs = localSongs, cover = localCover)
+}
 
 @Serializable
 enum class HomeMixKind {

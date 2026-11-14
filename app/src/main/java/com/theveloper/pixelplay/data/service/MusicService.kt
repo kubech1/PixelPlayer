@@ -45,10 +45,13 @@ import com.google.common.util.concurrent.SettableFuture
 import com.theveloper.pixelplay.PixelPlayApplication
 import com.theveloper.pixelplay.MainActivity
 import com.theveloper.pixelplay.R
+import com.theveloper.pixelplay.data.database.MusicDao
+import com.theveloper.pixelplay.data.database.isProviderMusicReference
 import com.theveloper.pixelplay.data.diagnostics.PerformanceMetrics
 import com.theveloper.pixelplay.data.model.PlayerInfo
 import com.theveloper.pixelplay.data.model.PlaybackQueueItemSnapshot
 import com.theveloper.pixelplay.data.model.PlaybackQueueSnapshot
+import com.theveloper.pixelplay.data.model.localOnly
 import com.theveloper.pixelplay.data.preferences.EqualizerPreferencesRepository
 import com.theveloper.pixelplay.data.preferences.ThemePreferencesRepository
 import com.theveloper.pixelplay.data.preferences.UserPreferencesRepository
@@ -59,6 +62,7 @@ import com.theveloper.pixelplay.ui.glancewidget.PlayerActions
 import com.theveloper.pixelplay.utils.AlbumArtUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -151,6 +155,8 @@ class MusicService : MediaLibraryService() {
     @Inject
     lateinit var musicRepository: MusicRepository
     @Inject
+    lateinit var musicDao: MusicDao
+    @Inject
     lateinit var userPreferencesRepository: UserPreferencesRepository
     @Inject
     lateinit var equalizerPreferencesRepository: EqualizerPreferencesRepository
@@ -193,6 +199,9 @@ class MusicService : MediaLibraryService() {
     private val controllerLastBrowsedParent = mutableMapOf<String, String>()
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var keepPlayingInBackground = true
+    private var cloudMusicEnabled: Boolean? = null
+    private var localQueuePolicyJob: Job? = null
+    private var applyingLocalQueuePolicy = false
     private var isManualShuffleEnabled = false
     private var persistentShuffleEnabled = false
     // --- Counted Play State ---
@@ -210,8 +219,11 @@ class MusicService : MediaLibraryService() {
     private val castSyncCoordinator by lazy {
         CastSyncCoordinator(
             context = this,
+            scope = serviceScope,
             listeningStatsTracker = listeningStatsTracker,
             requestWidgetUpdate = { force -> widgetUpdateManager.requestFullUpdate(force) },
+            isLocalMusicMode = { cloudMusicEnabled == false },
+            resolveLegacyProviderIds = ::legacyProviderIds,
         )
     }
     // Glance widget + Wear OS update pipeline, extracted to a standalone manager.
@@ -484,6 +496,16 @@ class MusicService : MediaLibraryService() {
         serviceScope.launch {
             userPreferencesRepository.keepPlayingInBackgroundFlow.collect { enabled ->
                 keepPlayingInBackground = enabled
+            }
+        }
+
+        serviceScope.launch {
+            userPreferencesRepository.cloudMusicEnabledFlow.collect { enabled ->
+                cloudMusicEnabled = enabled
+                if (!enabled) {
+                    removeProviderTracksFromQueue()
+                    castSyncCoordinator.enforceLocalMusic()
+                }
             }
         }
 
@@ -819,16 +841,18 @@ class MusicService : MediaLibraryService() {
                 return serviceScope.future {
                     if (mediaItems.size == 1 && !controller.packageName.startsWith(APP_PACKAGE_PREFIX)) {
                         resolveContextQueueForRequestedItem(mediaItems.first(), controller)?.let { queue ->
-                            grantArtworkUriPermissions(controller.packageName, queue.mediaItems)
-                            return@future queue.mediaItems
+                            val eligible = eligibleMediaItems(queue.mediaItems, queue.mediaItems)
+                            if (eligible.none { it.index == queue.startIndex }) return@future mutableListOf()
+                            val allowed = eligible.mapTo(mutableListOf()) { it.value }
+                            grantArtworkUriPermissions(controller.packageName, allowed)
+                            return@future allowed
                         }
                     }
-                    resolveMediaItemsByIds(mediaItems).also { resolvedItems ->
-                        grantArtworkUriPermissions(
-                            controller.packageName,
-                            resolvedItems.trustedArtworkGrantItems
-                        )
-                    }.mediaItems
+                    val resolved = resolveMediaItemsByIds(mediaItems)
+                    val allowed = eligibleMediaItems(resolved.mediaItems, resolved.trustedArtworkGrantItems)
+                        .mapTo(mutableListOf()) { it.value }
+                    grantArtworkUriPermissions(controller.packageName, resolved.trustedItemsAmong(allowed))
+                    allowed
                 }
             }
 
@@ -848,27 +872,21 @@ class MusicService : MediaLibraryService() {
                     } else {
                         null
                     }
-                    if (contextQueue != null) {
-                        grantArtworkUriPermissions(controller.packageName, contextQueue.mediaItems)
-                        return@future MediaSession.MediaItemsWithStartPosition(
-                            contextQueue.mediaItems,
-                            contextQueue.startIndex,
-                            startPositionMs
-                        )
+                    val resolvedItems = contextQueue?.let {
+                        TrustedMediaItemsResolution(it.mediaItems, it.mediaItems)
+                    } ?: resolveMediaItemsByIds(mediaItems)
+                    val sourceIndex = contextQueue?.startIndex ?: requestedIndex
+                    val eligible = eligibleMediaItems(resolvedItems.mediaItems, resolvedItems.trustedArtworkGrantItems)
+                    val eligibleStartIndex = eligible.indexOfFirst { it.index == sourceIndex }
+                    if (eligibleStartIndex < 0 && resolvedItems.mediaItems.isNotEmpty()) {
+                        // Reject a stale provider selection instead of replacing a local queue.
+                        throw UnsupportedOperationException("Cloud music is disabled")
                     }
-
-                    val resolvedItems = resolveMediaItemsByIds(mediaItems)
-                    grantArtworkUriPermissions(
-                        controller.packageName,
-                        resolvedItems.trustedArtworkGrantItems
-                    )
-                    val safeStartIndex = requestedIndex.coerceIn(
-                        0,
-                        (resolvedItems.mediaItems.size - 1).coerceAtLeast(0)
-                    )
+                    val allowed = eligible.mapTo(mutableListOf()) { it.value }
+                    grantArtworkUriPermissions(controller.packageName, resolvedItems.trustedItemsAmong(allowed))
                     MediaSession.MediaItemsWithStartPosition(
-                        resolvedItems.mediaItems,
-                        safeStartIndex,
+                        allowed,
+                        eligibleStartIndex.coerceAtLeast(0),
                         startPositionMs
                     )
                 }
@@ -1197,6 +1215,7 @@ class MusicService : MediaLibraryService() {
     }
 
     private fun reportNavidromePlayback(state: String, mediaItem: MediaItem? = engine.masterPlayer.currentMediaItem) {
+        if (cloudMusicEnabled == false) return
         val player = engine.masterPlayer
         // Ensure we capture player state on main thread to avoid IllegalStateException
         val targetItem = mediaItem ?: return
@@ -1213,12 +1232,14 @@ class MusicService : MediaLibraryService() {
 
         // Use appScope for the network call so it survives if serviceScope is cancelled
         appScope.launch(Dispatchers.IO) {
-            navidromeRepository.reportPlayback(
-                navidromeId = navidromeId,
-                positionMs = positionMs,
-                state = state,
-                playbackRate = playbackRate
-            )
+            userPreferencesRepository.runWhileCloudMusicEnabled {
+                navidromeRepository.reportPlayback(
+                    navidromeId = navidromeId,
+                    positionMs = positionMs,
+                    state = state,
+                    playbackRate = playbackRate
+                )
+            }
         }
     }
 
@@ -1314,7 +1335,9 @@ class MusicService : MediaLibraryService() {
                 val mediaItem = (mediaSession?.player ?: engine.masterPlayer).currentMediaItem
                 getNavidromeId(mediaItem)?.let { navidromeId ->
                     appScope.launch(Dispatchers.IO) {
-                        navidromeRepository.scrobble(navidromeId, submission = true)
+                        userPreferencesRepository.runWhileCloudMusicEnabled {
+                            navidromeRepository.scrobble(navidromeId, submission = true)
+                        }
                     }
                 }
 
@@ -1331,6 +1354,16 @@ class MusicService : MediaLibraryService() {
         override fun onTimelineChanged(timeline: Timeline, reason: Int) {
             widgetUpdateManager.requestFullUpdate(true)
             schedulePlaybackSnapshotPersist(immediate = timeline.isEmpty)
+            if (cloudMusicEnabled == false && !applyingLocalQueuePolicy &&
+                reason == Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED
+            ) {
+                // Queue rebuilds can attach several batches in one gesture.
+                localQueuePolicyJob?.cancel()
+                localQueuePolicyJob = serviceScope.launch {
+                    delay(50L)
+                    if (cloudMusicEnabled == false) removeProviderTracksFromQueue()
+                }
+            }
             // Pre-fetch RG for the next track so the cache is warm before playback starts
             val player = engine.masterPlayer
             val nextIndex = player.nextMediaItemIndex
@@ -1380,6 +1413,13 @@ class MusicService : MediaLibraryService() {
         }
 
         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+            if (cloudMusicEnabled == false && mediaItem?.let(MediaItemBuilder::isProviderMediaItem) == true) {
+                engine.masterPlayer.pause()
+                serviceScope.launch {
+                    if (cloudMusicEnabled == false) removeProviderTracksFromQueue()
+                }
+                return
+            }
             syncLocalListeningStatsFromPlayer(mediaSession?.player ?: engine.masterPlayer, forceNewSession = true)
             if (isNavidromeMediaItem(mediaItem)) {
                 reportNavidromePlayback("starting")
@@ -1685,6 +1725,7 @@ class MusicService : MediaLibraryService() {
                     albumTitle = metadata.albumTitle?.toString(),
                     artworkUri = resolveStoredArtworkUriString(metadata),
                     durationMs = durationMs,
+                    providerMusic = MediaItemBuilder.isProviderMediaItem(mediaItem),
                 )
             )
         }
@@ -1722,47 +1763,100 @@ class MusicService : MediaLibraryService() {
         )
     }
 
+    private fun removeProviderTracksFromQueue(): Boolean {
+        if (applyingLocalQueuePolicy) return false
+        val player = engine.masterPlayer
+        val activeWasProvider = player.currentMediaItem?.let(MediaItemBuilder::isProviderMediaItem) == true
+
+        applyingLocalQueuePolicy = true
+        try {
+            if (activeWasProvider) {
+                // Pause before removing the selected item so its successor stays paused.
+                player.pause()
+            }
+
+            var end = player.mediaItemCount
+            while (end > 0) {
+                if (!MediaItemBuilder.isProviderMediaItem(player.getMediaItemAt(end - 1))) {
+                    end--
+                    continue
+                }
+                var start = end - 1
+                while (start > 0 && MediaItemBuilder.isProviderMediaItem(player.getMediaItemAt(start - 1))) {
+                    start--
+                }
+                player.removeMediaItems(start, end)
+                end = start
+            }
+        } finally {
+            applyingLocalQueuePolicy = false
+        }
+        return activeWasProvider
+    }
+
+    private suspend fun localPlaybackSnapshot(snapshot: PlaybackQueueSnapshot): PlaybackQueueSnapshot {
+        val unmarkedIds = snapshot.items.asSequence()
+            .filter { it.providerMusic == null && !isProviderMusicReference(it.mediaId, it.uri) }
+            .map { it.mediaId }
+        return snapshot.localOnly(legacyProviderIds(unmarkedIds))
+    }
+
+    private suspend fun legacyProviderIds(ids: Sequence<String>): Set<String> = buildSet {
+        ids.mapNotNull(String::toLongOrNull).distinct().chunked(800).forEach { batch ->
+            musicDao.getProviderSongIds(batch).mapTo(this, Long::toString)
+        }
+    }
+
     private suspend fun restorePlaybackQueueSnapshotIfNeeded() {
         val alreadyHasQueue = withContext(Dispatchers.Main.immediate) {
             engine.masterPlayer.mediaItemCount > 0
         }
         if (alreadyHasQueue) return
 
-        val snapshot = runCatching {
+        val persisted = runCatching {
             userPreferencesRepository.getPlaybackQueueSnapshotOnce()
         }.getOrNull() ?: return
 
-        if (snapshot.items.isEmpty()) {
-            return
-        }
+        if (persisted.items.isEmpty()) return
 
         val allowBackgroundPlayback = runCatching {
             userPreferencesRepository.keepPlayingInBackgroundFlow.first()
         }.getOrDefault(keepPlayingInBackground)
-        val shouldRestorePlaying = snapshot.playWhenReady && allowBackgroundPlayback
 
-        val restoredItems = snapshot.items.mapNotNull(::buildMediaItemFromSnapshot)
-        if (restoredItems.isEmpty()) {
-            userPreferencesRepository.setPlaybackQueueSnapshot(null)
+        val includeCloud = userPreferencesRepository.cloudMusicEnabledFlow.first()
+        var snapshot = if (includeCloud) persisted else localPlaybackSnapshot(persisted)
+        val initialItem = snapshot.items.getOrNull(snapshot.currentIndex)?.let(::buildMediaItemFromSnapshot)
+        val resolvedInitialItem = initialItem?.let { item ->
+            if (MediaItemBuilder.isProviderMediaItem(item)) {
+                try {
+                    userPreferencesRepository.runWhileCloudMusicEnabled { engine.resolveMediaItem(item) }
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (_: Exception) {
+                    null
+                }
+            } else {
+                item
+            }
+        }
+        val stillIncludesCloud = includeCloud && userPreferencesRepository.cloudMusicEnabledFlow.first()
+        if (includeCloud && !stillIncludesCloud) snapshot = localPlaybackSnapshot(persisted)
+        val prepared = snapshot.items.withIndex().mapNotNull { (index, item) ->
+            val mediaItem = if (stillIncludesCloud && index == snapshot.currentIndex && resolvedInitialItem != null) {
+                resolvedInitialItem
+            } else {
+                buildMediaItemFromSnapshot(item)
+            }
+            mediaItem?.let { IndexedValue(index, it) }
+        }
+        if (prepared.isEmpty()) {
+            if (engine.masterPlayer.mediaItemCount == 0) userPreferencesRepository.setPlaybackQueueSnapshot(null)
             return
         }
-
-        val resolvedIndex = when {
-            snapshot.currentIndex in restoredItems.indices -> snapshot.currentIndex
-            !snapshot.currentMediaId.isNullOrBlank() -> {
-                restoredItems.indexOfFirst { it.mediaId == snapshot.currentMediaId }
-                    .takeIf { it >= 0 } ?: 0
-            }
-            else -> 0
-        }
-
-        val preparedItems = restoredItems.toMutableList()
-        preparedItems.getOrNull(resolvedIndex)?.let { currentItem ->
-            val resolvedCurrentItem = runCatching { engine.resolveMediaItem(currentItem) }.getOrNull()
-            if (resolvedCurrentItem != null && resolvedCurrentItem != currentItem) {
-                preparedItems[resolvedIndex] = resolvedCurrentItem
-            }
-        }
+        val resolvedIndex = prepared.indexOfFirst { it.index == snapshot.currentIndex }.takeIf { it >= 0 }
+            ?: prepared.indexOfFirst { it.value.mediaId == snapshot.currentMediaId }.coerceAtLeast(0)
+        val preparedItems = prepared.map { it.value }
+        val shouldRestorePlaying = snapshot.playWhenReady && allowBackgroundPlayback
 
         withContext(Dispatchers.Main.immediate) {
             val player = engine.masterPlayer
@@ -1784,13 +1878,16 @@ class MusicService : MediaLibraryService() {
                     resolvedIndex,
                     snapshot.currentPositionMs.coerceAtLeast(0L)
                 )
-                if (shouldRestorePlaying || preparedItems.size <= PAUSED_RESTORE_PREPARE_QUEUE_LIMIT) {
+                val activeWasRemoved = cloudMusicEnabled == false && removeProviderTracksFromQueue()
+                if ((shouldRestorePlaying && !activeWasRemoved) ||
+                    player.mediaItemCount in 1..PAUSED_RESTORE_PREPARE_QUEUE_LIMIT
+                ) {
                     player.prepare()
                 }
                 player.repeatMode = safeRepeatMode
                 player.shuffleModeEnabled = false
                 isManualShuffleEnabled = snapshot.shuffleEnabled
-                if (shouldRestorePlaying && !foregroundPlaybackRejected) {
+                if (shouldRestorePlaying && !activeWasRemoved && !foregroundPlaybackRejected) {
                     player.playWhenReady = true
                 } else {
                     player.playWhenReady = false
@@ -1802,7 +1899,7 @@ class MusicService : MediaLibraryService() {
 
         Timber.tag(TAG).i(
             "Restored playback snapshot: items=%d index=%d playWhenReady=%s",
-            restoredItems.size,
+            preparedItems.size,
             snapshot.currentIndex,
             shouldRestorePlaying
         )
@@ -1822,6 +1919,7 @@ class MusicService : MediaLibraryService() {
             ?.let { metadataBuilder.setArtworkUri(it) }
 
         val extras = Bundle().apply {
+            snapshotItem.providerMusic?.let { putBoolean(MediaItemBuilder.EXTRA_PROVIDER_MUSIC, it) }
             putBoolean(
                 MediaItemBuilder.EXTERNAL_EXTRA_FLAG,
                 snapshotItem.mediaId.startsWith("external:")
@@ -2701,6 +2799,29 @@ class MusicService : MediaLibraryService() {
                 MediaItemBuilder.buildForExternalController(this, song)
             }
         }
+    }
+
+    private suspend fun eligibleMediaItems(
+        items: List<MediaItem>,
+        trustedItems: List<MediaItem>,
+    ): List<IndexedValue<MediaItem>> {
+        if (items.isEmpty() || userPreferencesRepository.cloudMusicEnabledFlow.first()) {
+            return items.withIndex().toList()
+        }
+        val trusted = trustedItems.toHashSet()
+        val unmarkedIds = items.asSequence()
+            .filter { it !in trusted || it.mediaMetadata.extras?.containsKey(MediaItemBuilder.EXTRA_PROVIDER_MUSIC) != true }
+            .map { it.mediaId }
+        val legacyIds = legacyProviderIds(unmarkedIds)
+        return items.withIndex().filterNot { (_, item) ->
+            MediaItemBuilder.isProviderMediaItem(item) || item.mediaId in legacyIds
+        }
+    }
+
+    private fun TrustedMediaItemsResolution.trustedItemsAmong(allowed: List<MediaItem>): List<MediaItem> {
+        if (allowed.size == mediaItems.size) return trustedArtworkGrantItems
+        val allowedItems = allowed.toHashSet()
+        return trustedArtworkGrantItems.filter { it in allowedItems }
     }
 
     private fun grantArtworkUriPermissions(

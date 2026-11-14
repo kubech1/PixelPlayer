@@ -8,18 +8,25 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.theveloper.pixelplay.data.diagnostics.AdvancedPerformanceDiagnostics
 import com.theveloper.pixelplay.data.navidrome.NavidromeRepository
+import com.theveloper.pixelplay.data.preferences.UserPreferencesRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.CancellationException
 import timber.log.Timber
 
 @HiltWorker
 class NavidromeSyncWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val repository: NavidromeRepository
+    private val repository: NavidromeRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
+        return userPreferencesRepository.runWhileCloudMusicEnabled { sync() } ?: Result.success()
+    }
+
+    private suspend fun sync(): Result {
         val syncType = inputData.getString(KEY_SYNC_TYPE) ?: SYNC_TYPE_ALL
         val playlistId = inputData.getString(KEY_PLAYLIST_ID)
 
@@ -67,6 +74,8 @@ class NavidromeSyncWorker @AssistedInject constructor(
                 )
             }
             Result.success()
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Timber.e(e, "NavidromeSyncWorker: Sync failed")
             AdvancedPerformanceDiagnostics.recordEventIfEnabled(

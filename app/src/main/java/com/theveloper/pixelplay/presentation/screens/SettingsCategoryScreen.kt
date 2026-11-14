@@ -1,5 +1,6 @@
 package com.theveloper.pixelplay.presentation.screens
 
+import com.theveloper.pixelplay.presentation.components.CollapsibleHeaderScrim
 import com.theveloper.pixelplay.presentation.navigation.navigateSafely
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.ui.draw.rotate
@@ -199,6 +200,7 @@ fun SettingsCategoryScreen(
     
     // State Collection (Duplicated from SettingsScreen for now to ensure functionality)
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
+    val cloudMusicEnabled by settingsViewModel.cloudMusicEnabledFlow.collectAsStateWithLifecycle(false)
     val currentPath by settingsViewModel.currentPath.collectAsStateWithLifecycle()
     val directoryChildren by settingsViewModel.currentDirectoryChildren.collectAsStateWithLifecycle()
     val availableStorages by settingsViewModel.availableStorages.collectAsStateWithLifecycle()
@@ -317,8 +319,7 @@ fun SettingsCategoryScreen(
                     coroutineScope.launch { topBarHeight.snapTo(newHeight) }
                 }
 
-                val canConsumeScroll = !(isScrollingDown && newHeight == minTopBarHeightPx)
-                return if (canConsumeScroll) Offset(0f, consumed) else Offset.Zero
+                return if (consumed.roundToInt() != 0) Offset(0f, consumed) else Offset.Zero
             }
         }
     }
@@ -364,6 +365,14 @@ fun SettingsCategoryScreen(
                ) {
                     when (category) {
                         SettingsCategory.LIBRARY -> {
+                            SettingsSubsection(title = stringResource(R.string.settings_cloud_music_section)) {
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.settings_cloud_music_title),
+                                    subtitle = stringResource(R.string.settings_cloud_music_subtitle),
+                                    checked = cloudMusicEnabled,
+                                    onCheckedChange = settingsViewModel::setCloudMusicEnabled
+                                )
+                            }
                             SettingsSubsection(title = stringResource(R.string.settings_library_structure_section)) {
                                 SettingsItem(
                                     title = stringResource(R.string.settings_excluded_directories_title),
@@ -898,6 +907,7 @@ fun SettingsCategoryScreen(
             }
         }
 
+        CollapsibleHeaderScrim(currentTopBarHeightDp) { collapseFraction }
         CollapsibleCommonTopBar(
             collapseFraction = { collapseFraction },
             headerHeight = currentTopBarHeightDp,

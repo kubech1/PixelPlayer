@@ -19,6 +19,16 @@ En Buscar, las píldoras neutras contienen una escena vectorial en un círculo y
 
 Las ilustraciones quedan estáticas en reposo. Al abrir el detalle, un reflejo breve recorre las superficies pulidas cuando los efectos de profundidad y las animaciones están activos.
 
+## Blanco y negro y Biblioteca
+
+El fondo base es blanco `#FFFFFF` en Claro y negro `#000000` en Oscuro. El texto principal usa el color inverso. Las superficies flotantes y los estados de controles se distinguen con grises neutros. Las ilustraciones, las carátulas y sus efectos localizados aportan color. El reproductor expandido combina esa base con un degradado granulado de la carátula y recupera los acentos cromáticos del transporte, el texto y la iconografía. El halo de la portada se dibuja por separado.
+
+Biblioteca deja las pestañas visibles de partida y conserva el gesto lateral y el selector compacto. Al bajar, la pestaña activa se compacta en una píldora a la izquierda. Centrar y Ordenar mantienen sus objetivos táctiles circulares independientes a la derecha. El título Biblioteca, la primera pestaña y Aleatorio parten del mismo margen. Centrar se representa con un punto y conserva su etiqueta accesible. Al subir se recupera la tira de pestañas.
+
+En el estado compacto, Aleatorio cede su etiqueta cuando el ancho es limitado para dejar espacio al nombre de la pestaña; el icono conserva su descripción accesible. Las listas atenúan el contenido en el borde superior al desplazarse.
+
+Canciones y Me gusta usan filas en píldora con la misma geometría en reposo, pausa y reproducción. Mientras una pista suena, su paleta difuminada nace detrás de la carátula y se desvanece en la primera mitad de la fila. La forma recorta todo el efecto. En pausa se usa un indicador discreto. El movimiento reducido conserva la distinción entre estados.
+
 ## Instrucciones para quien implemente
 
 - Sigue [AGENTS.md](../AGENTS.md) y limita los cambios al alcance acordado. Mantén las tareas de disco, red y metadatos fuera del hilo principal. `MusicService` y Media3 conservan la responsabilidad de reproducción.
@@ -230,12 +240,12 @@ En **Completo**, el halo mide 1,9 veces la portada y alcanza el encabezado, el t
 
 ### 4.2 Fondo de malla
 
-`RuntimeShader` (AGSL) con 4 puntos de color fijos (posiciones derivadas del hash del id de la canción, para dar variedad estable) y mezcla por distancia inversa suavizada. Grano estático de ±1,5/255 por hash de coordenadas, sin uniform de tiempo.
-- **Colores:** `primaryContainer`, `secondaryContainer`, `tertiaryContainer` y un neutro, cada uno mezclado al 70 % hacia `playerAreaBackground` para que la malla sea sutil.
-- **Dónde se pinta:** solo en el área expandida, con alpha = `expansionFraction`. El mini reproductor mantiene el color sólido.
-- **Transición:** al cambiar de canción, un uniform `progress` mezcla el conjunto anterior con el nuevo en 600 ms. Fuera de esa transición no se invalida el dibujo, así que no hay coste continuo.
-- En MINIMAL se usa el color sólido actual.
-- **Contraste:** prueba unitaria de que el texto principal del reproductor mantiene ≥ 4,5:1 contra el peor punto de la malla, con paletas sintéticas.
+El fondo expandido usa una malla AGSL de cuatro puntos estables derivados del identificador de la pista. Un patrón de puntos estático intercala tonos cercanos de la malla y del fondo base con una densidad que sigue el degradado. El color llega a la zona de transporte y se funde con blanco en claro y con negro en oscuro. En claro el color tiene más presencia y en oscuro se atenúa.
+
+- El color del fondo cambia con la paleta en 600 ms y se actualiza de inmediato con movimiento reducido. El mini reproductor usa su superficie habitual.
+- En Equilibrado y Completo, la píldora inferior y los botones de minimizar, dispositivo, cola y letra reutilizan el fondo grabado y desenfocan la porción detrás de cada control. Los segmentos inferiores se apoyan en la misma capa desenfocada. Completo usa un radio de desenfoque mayor. Con ahorro de batería se usa tinte translúcido. Mínimo conserva un fondo sólido.
+- El contraste del título se calcula contra el extremo más desfavorable del degradado. Los pares cromáticos de transporte se toman de los roles de contenedor de Material.
+- Las cabeceras de álbum y artista usan el mismo grano para fundir la portada y su paleta con la superficie. Si falta la foto del artista, el patrón se conserva y el degradado usa la paleta del primer álbum con portada disponible. Los detalles de mixes usan los tonos de sus ilustraciones procedurales y se funden con la superficie al llegar a la lista.
 
 **Criterio de la Fase 4:** capturas comparativas en tema claro y oscuro con 3 portadas sintéticas (clara, oscura, saturada). Sin trabajo de dibujo continuo con la reproducción en pausa ni con la pantalla quieta (comprobar con el perfilador de GPU o con el trazado de `RenderThread`).
 
@@ -281,7 +291,7 @@ Nuevo componente en `presentation/components/FavoriteButton.kt`, con el estilo `
 Evolucionar [CollapsibleCommonTopBar](../app/src/main/java/com/theveloper/pixelplay/presentation/components/CollapsibleCommonTopBar.kt) y [ExpressiveTopBarContent](../app/src/main/java/com/theveloper/pixelplay/presentation/components/ExpressiveTopBarContent.kt), que usan About, Accounts, AlbumDetail, ArtistDetail, ArtistSettings y otras pantallas:
 - **Expandida:** título grande sobre un fondo transparente, sin barra sólida.
 - **Colapsada:** píldora flotante de al menos 48 dp de alto, con margen de 16 dp y 8 dp de separación después del inset superior seguro. La altura crece con el texto del sistema. El ancho se ajusta al contenido, con un máximo de 360 dp limitado por el espacio entre los márgenes. Contiene Atrás, el título (`titleMedium`, una línea con elipsis) y las acciones, y usa `pillSurface`.
-- **Transición:** la impulsa el `collapseFraction` existente. La píldora aparece entre 0,6 y 1,0, con el valor leído en layout o dibujo.
+- **Transición:** la impulsa el `collapseFraction` existente. El mismo título interpola su posición y tamaño entre el encabezado y el interior de la píldora, y vuelve al expandirse. La superficie aparece entre 0,6 y 1,0, con el valor leído en layout o dibujo.
 - Álbum, Artista y Género comparten la barra. Álbum y Artista la usan también en sus variantes experimentales.
 - Inicio compacta el título en una píldora al inicio y agrupa proveedores y Ajustes en otra al final. Los dos iconos pierden sus fondos circulares individuales al compactar. Buscar, Biblioteca y proveedores usan sus encabezados específicos.
 

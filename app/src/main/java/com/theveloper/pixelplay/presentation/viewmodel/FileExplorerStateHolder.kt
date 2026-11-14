@@ -476,10 +476,6 @@ class FileExplorerStateHolder(
         }
     }
 
-    private fun hasUnknownCounts(entry: RawDirectoryEntry): Boolean {
-        return entry.directAudioCount == UNKNOWN_AUDIO_COUNT || entry.totalAudioCount == UNKNOWN_AUDIO_COUNT
-    }
-
     private suspend fun getOrBuildMediaStoreDirectoryIndex(forceRefresh: Boolean): MediaStoreDirectoryIndex {
         if (!forceRefresh) {
             mediaStoreDirectoryIndex?.let { return it }

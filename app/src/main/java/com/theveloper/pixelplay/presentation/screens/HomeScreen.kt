@@ -77,6 +77,7 @@ import com.theveloper.pixelplay.presentation.model.collectRecentlyPlayedSongIds
 import com.theveloper.pixelplay.presentation.model.mapRecentlyPlayedSongs
 import com.theveloper.pixelplay.presentation.navigation.Screen
 import com.theveloper.pixelplay.presentation.components.StreamingProviderSheet
+import com.theveloper.pixelplay.data.database.isProviderSong
 import com.theveloper.pixelplay.presentation.viewmodel.PlayerViewModel
 import com.theveloper.pixelplay.presentation.viewmodel.SettingsViewModel
 import com.theveloper.pixelplay.presentation.viewmodel.StatsViewModel
@@ -112,6 +113,7 @@ fun HomeScreen(
     }
     val statsViewModel: StatsViewModel = hiltViewModel()
     val homeMixFeed by playerViewModel.homeMixFeed.collectAsStateWithLifecycle()
+    val cloudMusicEnabled by playerViewModel.cloudMusicEnabled.collectAsStateWithLifecycle()
     val playbackHistory by playerViewModel.playbackHistory.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
     val recentSongIds = remember(playbackHistory) {
@@ -163,8 +165,11 @@ fun HomeScreen(
         }
     }
 
-    val recentlyPlayedQueue = remember(recentlyPlayedSongs) {
-        recentlyPlayedSongs.map { it.song }.toImmutableList()
+    val visibleRecentSongs = remember(recentlyPlayedSongs, cloudMusicEnabled) {
+        if (cloudMusicEnabled) recentlyPlayedSongs else recentlyPlayedSongs.filterNot { it.song.isProviderSong() }
+    }
+    val recentlyPlayedQueue = remember(visibleRecentSongs) {
+        visibleRecentSongs.map { it.song }.toImmutableList()
     }
 
     ReportDrawnWhen {
@@ -182,6 +187,9 @@ fun HomeScreen(
     // Padding inferior si hay canción en reproducción
 
     var showStreamingProviderSheet by remember { mutableStateOf(false) }
+    LaunchedEffect(cloudMusicEnabled) {
+        if (!cloudMusicEnabled) showStreamingProviderSheet = false
+    }
     LocalContext.current
 
     val homeListening by statsViewModel.homeListening.collectAsStateWithLifecycle()
@@ -216,7 +224,7 @@ fun HomeScreen(
     LaunchedEffect(
         needsScrollRestore,
         homeMixFeed,
-        recentlyPlayedSongs.size,
+        visibleRecentSongs.size,
         homeListening
     ) {
         if (!needsScrollRestore) return@LaunchedEffect
@@ -229,8 +237,8 @@ fun HomeScreen(
 
     val libraryTabs by playerViewModel.libraryTabsFlow.collectAsStateWithLifecycle()
     val unknownAlbum = stringResource(R.string.common_unknown_album)
-    val lastAlbumSong = remember(recentlyPlayedSongs, unknownAlbum) {
-        recentlyPlayedSongs.firstOrNull {
+    val lastAlbumSong = remember(visibleRecentSongs, unknownAlbum) {
+        visibleRecentSongs.firstOrNull {
             val song = it.song
             song.albumId != 0L && song.albumId != -1L && song.album.isNotBlank() &&
                 !song.album.equals(unknownAlbum, ignoreCase = true) &&
@@ -288,9 +296,9 @@ fun HomeScreen(
                     onNavigationIconClick = {
                         navController.navigateSafely(Screen.Settings.route)
                     },
-                    onTelegramClick = {
+                    onCloudClick = if (cloudMusicEnabled) ({
                         showStreamingProviderSheet = true
-                    },
+                    }) else null,
                     onMenuClick = {
                         // onOpenSidebar() // Disabled
                     },
@@ -336,10 +344,10 @@ fun HomeScreen(
                     }
                 }
 
-                if (recentlyPlayedSongs.isNotEmpty()) {
+                if (visibleRecentSongs.isNotEmpty()) {
                     item(key = "recently_played_section", contentType = "recently_played_section") {
                         HomeRecentlyPlayedSection(
-                            songs = recentlyPlayedSongs,
+                            songs = visibleRecentSongs,
                             currentSongId = currentSong?.id,
                             isPlaying = isPlaying,
                             onPlaySong = { song ->
@@ -368,7 +376,7 @@ fun HomeScreen(
                 Modifier.align(Alignment.BottomCenter)
             )
     }
-    if (showStreamingProviderSheet) {
+    if (cloudMusicEnabled && showStreamingProviderSheet) {
         val neteaseViewModel: NeteaseDashboardViewModel = hiltViewModel()
         val qqMusicViewModel: QqMusicDashboardViewModel = hiltViewModel()
         val navidromeViewModel: NavidromeDashboardViewModel = hiltViewModel()

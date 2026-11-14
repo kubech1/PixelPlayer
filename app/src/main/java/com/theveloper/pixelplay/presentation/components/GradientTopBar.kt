@@ -116,7 +116,7 @@ fun GenreGradientTopBar(
 @Composable
 fun HomeGradientTopBar(
     onNavigationIconClick: () -> Unit,
-    onTelegramClick: () -> Unit,
+    onCloudClick: (() -> Unit)?,
     onMenuClick: () -> Unit = {},
     isScrolled: Boolean = false,
 ) {
@@ -161,18 +161,20 @@ fun HomeGradientTopBar(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                FilledIconButton(
-                    colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = if (compact) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
-                        contentColor = if (compact) pillColors.contentColor else onSurface
-                    ),
-                    modifier = Modifier.size(48.dp),
-                    onClick = onTelegramClick
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Cloud,
-                        contentDescription = stringResource(R.string.topbar_cd_cloud_streaming)
-                    )
+                if (onCloudClick != null) {
+                    FilledIconButton(
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = if (compact) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
+                            contentColor = if (compact) pillColors.contentColor else onSurface
+                        ),
+                        modifier = Modifier.size(48.dp),
+                        onClick = onCloudClick
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Cloud,
+                            contentDescription = stringResource(R.string.topbar_cd_cloud_streaming)
+                        )
+                    }
                 }
                 FilledIconButton(
                     colors = IconButtonDefaults.filledIconButtonColors(

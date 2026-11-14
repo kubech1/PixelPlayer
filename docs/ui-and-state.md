@@ -24,9 +24,11 @@ Se retiraron de la interfaz los avisos e insignias de versión Beta (`Beta 0.7.5
 
 [Inicio](../app/src/main/java/com/theveloper/pixelplay/presentation/screens/HomeScreen.kt) empieza con «A mano». El primer acceso abre el último álbum identificable del historial. En ausencia de álbum, abre «Añadido recientemente» si ese mix está disponible, o Biblioteca. El segundo abre la pestaña «Me gusta» cuando está habilitada. Si está oculta, se ofrece Biblioteca cuando todavía no ocupa el primer acceso. Los accesos usan píldoras de superficie neutra y se apilan con texto grande o en espacios estrechos.
 
-«Explora tu biblioteca» muestra un carrusel horizontal con el Mix del día en primer lugar y hasta tres selecciones rotativas del mismo tamaño. Si «Añadido recientemente» ocupa un acceso, se muestra una sola vez. Siguen tres pistas recientes y las estadísticas de hoy y de la semana. Al desplazar Inicio, una píldora flotante contiene el título y otra reúne los iconos de proveedores y Ajustes. Cada grupo conserva su extremo durante la transición.
+«Explora tu biblioteca» muestra un carrusel horizontal con el Mix del día en primer lugar y hasta tres selecciones rotativas del mismo tamaño. Si «Añadido recientemente» ocupa un acceso, se muestra una sola vez. Sigue un carrusel de hasta nueve pistas recientes, con tres por página, y las estadísticas de hoy y de la semana. Al desplazar Inicio, una píldora flotante contiene el título y otra reúne los iconos de proveedores y Ajustes. Cada grupo conserva su extremo durante la transición.
 
 La portada y el título abren el detalle del mix. Reproducir inicia la lista en su orden, aunque la reproducción aleatoria persistente esté activada. El detalle conserva la selección que abrió y ofrece reproducción, aleatorio y acciones de pista. La ruta anterior `daily_mix` conserva el destino del Mix del día y el argumento `mixId` selecciona un mix rotativo.
+
+Las carátulas candidatas que fallan se recuerdan al navegar de regreso para evitar repetir inmediatamente la búsqueda y hacer reaparecer las miniaturas. En una entrada posterior, tras un minuto, se vuelven a permitir intentos para recuperarse de fallos temporales.
 
 «Me gusta» abre la raíz de Biblioteca con el argumento de pestaña `LIKED`. Si el destino elegido en la barra inferior ya está en la pila activa, la navegación vuelve directamente a esa entrada. Los destinos fuera de la pila activa conservan el mecanismo de restauración de la barra principal.
 
@@ -35,6 +37,18 @@ Inicio solicita un resumen breve de escucha. La carga de estadísticas que recor
 [HomeMixArtwork](../app/src/main/java/com/theveloper/pixelplay/presentation/components/HomeMixArtwork.kt) comparte el arte del carrusel con el detalle. [HomeMixPoster](../app/src/main/java/com/theveloper/pixelplay/presentation/components/HomeMixPoster.kt) dibuja los fondos en Compose. El Mix del día combina surcos cobrizos con hasta tres miniaturas de álbumes distintos. Cada rotativo elige una variante de posición y recorte a partir de los IDs ordenados de su selección. Si falla una carátula, intenta la siguiente candidata y la ilustración sigue visible aunque no cargue ninguna. Los fundidos, el reflejo breve al entrar en el detalle y la compactación del encabezado respetan movimiento reducido.
 
 Las [mediciones exploratorias de arranque y desplazamiento](hardware/validation-and-compatibility.md#rediseño-de-inicio-en-emulador-api-37) corresponden a la versión anterior con un Mix del día destacado.
+
+## Biblioteca
+
+Las pestañas visibles y el selector compacto son dos disposiciones de la misma navegación. En la disposición visible, desplazar la lista compacta la cabecera y subir devuelve la tira. Centrar busca la posición de la pista en el orden y la fuente efectivos de Canciones o Me gusta, incluso en pausa. El botón queda inactivo cuando la pista no pertenece a esa vista. Aleatorio resuelve toda la selección correspondiente antes de construir la cola, sin depender de las páginas cargadas en Compose.
+
+Ordenar abre el panel con las opciones de orden. La sección Fuente solo aparece con Música en la nube activa. El modo local oculta las entradas de proveedor en Inicio y Ajustes. [Política de origen](integrations.md#modo-local).
+
+La capa [ScreenWrapper](../app/src/main/java/com/theveloper/pixelplay/presentation/components/ScreenWrapper.kt) mantiene el mismo contenedor de contenido al activar y desactivar la profundidad durante la navegación. Esto evita descartar el estado de composición exclusivamente por cambiar de capa; la carga de datos y la restauración de desplazamiento conservan sus propias reglas.
+
+En Biblioteca y la exploración de géneros de Buscar, `topEdgeFade` atenúa el borde superior cuando la lista ya se ha desplazado. En Ajustes, una protección gradual separa la cabecera compacta del contenido que pasa detrás sin interceptar gestos. Las barras colapsables notifican el desplazamiento que realmente consumen al llegar a sus límites.
+
+Las barras superiores compartidas desplazan y reducen el mismo título hacia la píldora conforme colapsan. En Biblioteca, al alcanzarse el umbral de compactación, el selector y las acciones animan sus posiciones y dimensiones hasta su nueva disposición; con las animaciones del sistema desactivadas, el cambio es inmediato.
 
 ## Observar el estado que se necesita
 
@@ -52,6 +66,8 @@ Evita duplicar estado persistente en `remember` sin sincronización o recopilar 
 ## Temas, recursos y movimiento
 
 [Theme](../app/src/main/java/com/theveloper/pixelplay/ui/theme/Theme.kt), [Motion](../app/src/main/java/com/theveloper/pixelplay/ui/theme/Motion.kt), [Depth](../app/src/main/java/com/theveloper/pixelplay/ui/theme/Depth.kt), [ColorRoles](../app/src/main/java/com/theveloper/pixelplay/ui/theme/ColorRoles.kt), [Type](../app/src/main/java/com/theveloper/pixelplay/ui/theme/Type.kt) y [Shape](../app/src/main/java/com/theveloper/pixelplay/ui/theme/Shape.kt) son referencias de estilo. `PixelPlayTheme` instala `PixelPlayMotionScheme` sobre Material 3 (`PixelMotion` separa muelles estructurales críticamente amortiguados de muelles de feedback con rebote ligero). La paleta de una portada pasa por extracción y procesamiento, no es simplemente un color fijo.
+
+El esquema de la app conserva fondos base blanco y negro con texto principal inverso y superficies neutras. Claro, Oscuro y Seguir al sistema eligen la base. El reproductor obtiene por separado los colores para el halo y la malla de grano localizado.
 
 Los recursos están en [app/src/main/res](../app/src/main/res): XML de valores, traducciones, drawables, fuentes, layouts de soporte y configuración Android. Modifica claves de recursos con sus consumidores; no confundir la UI Compose con ausencia de XML. El [índice de configuración](reference/config-index.md) cubre los recursos textuales; imágenes y fuentes binarias se localizan en estos directorios y `assets/` en la raíz.
 

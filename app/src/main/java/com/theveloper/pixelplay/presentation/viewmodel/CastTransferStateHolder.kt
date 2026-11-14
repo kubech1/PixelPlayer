@@ -18,6 +18,7 @@ import com.google.android.gms.cast.framework.SessionManager
 import com.google.android.gms.cast.framework.SessionManagerListener
 import com.google.android.gms.cast.framework.media.RemoteMediaClient
 import com.theveloper.pixelplay.data.model.Song
+import com.theveloper.pixelplay.data.preferences.UserPreferencesRepository
 import com.theveloper.pixelplay.data.service.cast.CastRemotePlaybackState
 import com.theveloper.pixelplay.data.service.http.CastSessionSecurity
 import com.theveloper.pixelplay.data.service.http.MediaFileHttpServerService
@@ -51,6 +52,7 @@ class CastTransferStateHolder @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val castStateHolder: CastStateHolder,
     private val playbackStateHolder: PlaybackStateHolder,
+    private val userPreferencesRepository: UserPreferencesRepository,
     private val dualPlayerEngine: DualPlayerEngine // For local player control during transfer
 ) {
     private val CAST_LOG_TAG = "PlayerCastTransfer"
@@ -61,6 +63,8 @@ class CastTransferStateHolder @Inject constructor(
     private val remoteBufferingLogIntervalMs = 5_000L
 
     private var scope: CoroutineScope? = null
+    private var cloudMusicEnabled = false
+    private var cloudMusicJob: Job? = null
     
     // Callbacks for interacting with PlayerViewModel
     // Provides current queue from UI state
@@ -155,6 +159,10 @@ class CastTransferStateHolder @Inject constructor(
         this.onDisconnect = onDisconnect
         this.onCastError = onCastError
         this.onSongChanged = onSongChanged
+        cloudMusicJob?.cancel()
+        cloudMusicJob = scope.launch {
+            userPreferencesRepository.cloudMusicEnabledFlow.collect { cloudMusicEnabled = it }
+        }
 
         setupListeners()
     }
@@ -613,6 +621,7 @@ class CastTransferStateHolder @Inject constructor(
                     serverAddress = serverAddress,
                     authToken = accessPolicy.authToken,
                     autoPlay = wasPlaying, // Simplification
+                    allowProviderSongs = { cloudMusicEnabled },
                     onComplete = loadResult@{ success, detail ->
                         if (!success && initialLoadAttempt < 2) {
                             Timber.tag(CAST_LOG_TAG).w(
@@ -904,6 +913,7 @@ class CastTransferStateHolder @Inject constructor(
             serverAddress = serverAddress,
             authToken = accessPolicy.authToken,
             autoPlay = true,
+            allowProviderSongs = { cloudMusicEnabled },
             onComplete = { success, detail ->
                 if (success) {
                     lastRemoteQueue = queue
@@ -1349,6 +1359,7 @@ class CastTransferStateHolder @Inject constructor(
                 serverAddress = serverAddress,
                 authToken = accessPolicy.authToken,
                 autoPlay = true,
+                allowProviderSongs = { cloudMusicEnabled },
                 onComplete = { success, detail ->
                     if (!success) {
                         pendingRemoteSongId = null
@@ -1530,6 +1541,8 @@ class CastTransferStateHolder @Inject constructor(
      */
     fun onCleared() {
         // Cancel all active jobs
+        cloudMusicJob?.cancel()
+        cloudMusicJob = null
         remoteProgressObserverJob?.cancel()
         remoteStatusRefreshJob?.cancel()
         sessionSuspendedRecoveryJob?.cancel()

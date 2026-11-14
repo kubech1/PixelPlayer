@@ -1,5 +1,6 @@
 package com.theveloper.pixelplay.presentation.screens
 
+import com.theveloper.pixelplay.presentation.components.CollapsibleHeaderScrim
 import com.theveloper.pixelplay.presentation.navigation.navigateSafely
 
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -58,7 +59,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -129,6 +129,7 @@ fun SettingsScreen(
     val maxTopBarHeightPx = with(density) { maxTopBarHeight.toPx() }
 
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
+    val cloudMusicEnabled by settingsViewModel.cloudMusicEnabledFlow.collectAsStateWithLifecycle(false)
     val launchTab = uiState.launchTab
 
     var showCornerRadiusOverlay by remember { mutableStateOf(false) }
@@ -163,8 +164,7 @@ fun SettingsScreen(
                     coroutineScope.launch { topBarHeight.snapTo(newHeight) }
                 }
 
-                val canConsumeScroll = !(isScrollingDown && newHeight == minTopBarHeightPx)
-                return if (canConsumeScroll) Offset(0f, consumed) else Offset.Zero
+                return if (consumed.roundToInt() != 0) Offset(0f, consumed) else Offset.Zero
             }
         }
     }
@@ -207,14 +207,15 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxSize()
         ) {
             item {
-                val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+                val categoryColors = MaterialTheme.colorScheme.secondaryContainer to
+                    MaterialTheme.colorScheme.onSecondaryContainer
                 ExpressiveSettingsGroup {
                     val mainCategories = SettingsCategory.entries.filter {
                         it != SettingsCategory.ABOUT && 
                         it != SettingsCategory.DEVICE_CAPABILITIES
                     }
 
-                    val totalItems = mainCategories.size + 3 // Device + Accounts + About
+                    val totalItems = mainCategories.size + if (cloudMusicEnabled) 3 else 2
                     fun shapeFor(index: Int) =
                         when {
                             totalItems == 1 -> RoundedCornerShape(24.dp)
@@ -226,11 +227,10 @@ fun SettingsScreen(
                     var itemIndex = 0
 
                     mainCategories.forEach { category ->
-                        val colors = getCategoryColors(category, isDark)
 
                         ExpressiveCategoryItem(
                             category = category,
-                            customColors = colors,
+                            customColors = categoryColors,
                             onClick = {
                                 if (category == SettingsCategory.EQUALIZER) {
                                     navController.navigateSafely(Screen.Equalizer.route)
@@ -248,7 +248,7 @@ fun SettingsScreen(
 
                     ExpressiveCategoryItem(
                         category = SettingsCategory.DEVICE_CAPABILITIES,
-                        customColors = getCategoryColors(SettingsCategory.DEVICE_CAPABILITIES, isDark),
+                        customColors = categoryColors,
                         onClick = { navController.navigateSafely(Screen.DeviceCapabilities.route) },
                         shape = shapeFor(itemIndex)
                     )
@@ -257,22 +257,22 @@ fun SettingsScreen(
                     }
                     itemIndex++
 
-                    ExpressiveNavigationItem(
-                        title = stringResource(R.string.settings_category_accounts_title),
-                        subtitle = stringResource(R.string.settings_category_accounts_subtitle),
-                        icon = Icons.Rounded.AccountCircle,
-                        colors = getAccountsColors(isDark),
-                        onClick = { navController.navigateSafely(Screen.Accounts.route) },
-                        shape = shapeFor(itemIndex)
-                    )
-                    if (itemIndex < totalItems - 1) {
+                    if (cloudMusicEnabled) {
+                        ExpressiveNavigationItem(
+                            title = stringResource(R.string.settings_category_accounts_title),
+                            subtitle = stringResource(R.string.settings_category_accounts_subtitle),
+                            icon = Icons.Rounded.AccountCircle,
+                            colors = categoryColors,
+                            onClick = { navController.navigateSafely(Screen.Accounts.route) },
+                            shape = shapeFor(itemIndex)
+                        )
                         Spacer(modifier = Modifier.height(2.dp))
+                        itemIndex++
                     }
-                    itemIndex++
 
                     ExpressiveCategoryItem(
                         category = SettingsCategory.ABOUT,
-                        customColors = getCategoryColors(SettingsCategory.ABOUT, isDark),
+                        customColors = categoryColors,
                         onClick = { navController.navigateSafely("about") },
                         shape = shapeFor(itemIndex)
                     )
@@ -282,6 +282,7 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
+        CollapsibleHeaderScrim(currentTopBarHeightDp) { collapseFraction }
         CollapsibleCommonTopBar(
                 title = stringResource(R.string.common_settings),
                 collapseFraction = { collapseFraction },
@@ -451,14 +452,6 @@ fun ExpressiveCategoryItem(
     }
 }
 
-private fun getAccountsColors(isDark: Boolean): Pair<Color, Color> {
-    return if (isDark) {
-        Color(0xFF37474F) to Color(0xFFBBD9E8)
-    } else {
-        Color(0xFFD6EAF5) to Color(0xFF103548)
-    }
-}
-
 @Composable
 fun ExpressiveSettingsGroup(content: @Composable () -> Unit) {
     Column(
@@ -468,29 +461,5 @@ fun ExpressiveSettingsGroup(content: @Composable () -> Unit) {
             .background(Color.Transparent)
     ) {
         content()
-    }
-}
-
-private fun getCategoryColors(category: SettingsCategory, isDark: Boolean): Pair<Color, Color> {
-    return if (isDark) {
-        when (category) {
-            SettingsCategory.LIBRARY -> Color(0xFF004A77) to Color(0xFFC2E7FF) 
-            SettingsCategory.APPEARANCE -> Color(0xFF7D5260) to Color(0xFFFFD8E4) 
-            SettingsCategory.PLAYBACK -> Color(0xFF633B48) to Color(0xFFFFD8EC) 
-            SettingsCategory.BEHAVIOR -> Color(0xFF3E4C63) to Color(0xFFD7E3FF)
-            SettingsCategory.EQUALIZER -> Color(0xFF6E4E13) to Color(0xFFFFDEAC) 
-            SettingsCategory.DEVICE_CAPABILITIES -> Color(0xFF004D61) to Color(0xFFACEFEE) // Custom teal/cyan mix
-            SettingsCategory.ABOUT -> Color(0xFF3F474D) to Color(0xFFDEE3EB) 
-        }
-    } else {
-        when (category) {
-            SettingsCategory.LIBRARY -> Color(0xFFD7E3FF) to Color(0xFF005AC1)
-            SettingsCategory.APPEARANCE -> Color(0xFFFFD8E4) to Color(0xFF631835)
-            SettingsCategory.PLAYBACK -> Color(0xFFFFD8EC) to Color(0xFF631B4B)
-            SettingsCategory.BEHAVIOR -> Color(0xFFD7E3FF) to Color(0xFF253347)
-            SettingsCategory.EQUALIZER -> Color(0xFFFFDEAC) to Color(0xFF281900)
-            SettingsCategory.DEVICE_CAPABILITIES -> Color(0xFFACEFEE) to Color(0xFF002022)
-            SettingsCategory.ABOUT -> Color(0xFFEFF1F7) to Color(0xFF44474F)
-        }
     }
 }

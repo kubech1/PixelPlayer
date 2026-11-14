@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
@@ -28,6 +30,9 @@ import com.theveloper.pixelplay.data.preferences.VisualEffectsLevel
 import com.theveloper.pixelplay.data.preferences.CarouselStyle
 import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.presentation.components.scoped.LocalPlayerArtworkDepth
+import com.theveloper.pixelplay.presentation.components.scoped.LocalPlayerGlassBackdrop
+import com.theveloper.pixelplay.presentation.components.scoped.PlayerGlassBackdrop
+import com.theveloper.pixelplay.presentation.components.scoped.playerGlass
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerArtworkDepth
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerArtworkHalo
 import com.theveloper.pixelplay.presentation.components.scoped.PlayerMeshBackground
@@ -51,7 +56,7 @@ class PlayerDepthEffectsTest {
     @get:Rule val compose = createComposeRule()
 
     @Test
-    fun rendersMeshAndConfinesTheExtraBlurToTheHalo() {
+    fun rendersGrainedMeshAndPreservesTheSeparateArtworkHalo() {
         val cover = createCover()
 
         val level = mutableStateOf(EffectiveVisualEffects(VisualEffectsLevel.MINIMAL))
@@ -100,15 +105,22 @@ class PlayerDepthEffectsTest {
             val minimal = capture()
             assertEquals(Color.Black, pixel(minimal, 4, 4))
             compose.runOnIdle { level.value = EffectiveVisualEffects(VisualEffectsLevel.BALANCED) }
-            compose.waitUntil(15_000L) { pixel(capture(), 36, 100).red > 0.25f }
+            // Outside the cover, the halo adds red over the neutral base and blue mesh.
+            compose.waitUntil(15_000L) {
+                val halo = pixel(capture(), 38, 100)
+                halo.red > halo.blue + 0.04f
+            }
             val balanced = capture()
-            assertNotEquals(pixel(balanced, 4, 4), pixel(balanced, 195, 195))
+            assertEquals(Color.Black, pixel(balanced, 4, 0))
+            assertNotEquals(Color.Black, pixel(balanced, 2, 100))
+            assertNotEquals(Color.Black, pixel(balanced, 22, 165))
+            assertNotEquals(pixel(minimal, 22, 100), pixel(balanced, 22, 100))
             assertTrue(pixel(balanced, 36, 100).red > pixel(minimal, 36, 100).red)
 
             compose.runOnIdle { level.value = EffectiveVisualEffects(VisualEffectsLevel.FULL) }
             val full = capture()
             assertNotEquals(pixel(balanced, 34, 100), pixel(full, 34, 100))
-            assertEquals(pixel(balanced, 4, 4), pixel(full, 4, 4))
+            assertEquals(Color.Black, pixel(full, 4, 0))
             assertEquals(Color.White, pixel(full, 100, 100))
 
             compose.runOnIdle { level.value = EffectiveVisualEffects(VisualEffectsLevel.FULL, isPowerSaveMode = true) }
@@ -116,6 +128,48 @@ class PlayerDepthEffectsTest {
         } finally {
             cover.delete()
         }
+    }
+
+    @Test
+    fun glassSmoothsTheBackdropWithoutBlurringItsContent() {
+        val scheme = darkColorScheme(
+            primary = Color.Red,
+            primaryContainer = Color(0xFFAD3859),
+            secondaryContainer = Color(0xFFAB3020),
+            tertiaryContainer = Color(0xFF8256AB),
+        )
+        compose.setContent {
+            val layer = rememberGraphicsLayer()
+            val backdrop = remember(layer) { PlayerGlassBackdrop(layer) }
+            CompositionLocalProvider(
+                LocalPlayerGlassBackdrop provides backdrop,
+                LocalVisualEffects provides EffectiveVisualEffects(VisualEffectsLevel.BALANCED),
+            ) {
+                Box(Modifier.size(200.dp).testTag("depth-root").background(Color.Black)) {
+                    PlayerMeshBackground(
+                        songId = "glass-cover",
+                        targetScheme = scheme,
+                        baseColor = { Color.Black },
+                        foregroundColor = Color.White,
+                        expansion = { 1f },
+                        modifier = Modifier.matchParentSize(),
+                        backdrop = backdrop,
+                    )
+                    Box(Modifier.offset(50.dp, 68.dp).size(100.dp, 64.dp).playerGlass(Color.Black)) {
+                        Box(Modifier.offset(75.dp, 20.dp).size(10.dp).background(Color.White))
+                    }
+                }
+            }
+        }
+
+        val image = capture()
+        val outside = (60..112).map { pixel(image, it, 64).red }
+        val inside = (60..112).map { pixel(image, it, 75).red }
+        val outsideVariation = outside.zipWithNext { a, b -> kotlin.math.abs(a - b) }.average()
+        val insideVariation = inside.zipWithNext { a, b -> kotlin.math.abs(a - b) }.average()
+        assertTrue(inside.average() > 0.02)
+        assertTrue(insideVariation < outsideVariation * 0.5)
+        assertEquals(Color.White, pixel(image, 130, 93))
     }
 
     @Test

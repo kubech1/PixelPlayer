@@ -17,6 +17,7 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -33,6 +34,33 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class CollapsibleCommonTopBarTest {
     @get:Rule val compose = createComposeRule()
+
+    @Test
+    fun titleMovesAndShrinksIntoThePillAsTheHeaderCollapses() {
+        val collapse = mutableFloatStateOf(0f)
+        compose.setContent {
+            MaterialTheme {
+                Box(Modifier.size(360.dp, 200.dp)) {
+                    val compactHeight = collapsedTopBarHeight()
+                    CollapsibleCommonTopBar(
+                        title = "Ajustes",
+                        collapseFraction = { collapse.floatValue },
+                        headerHeight = androidx.compose.ui.unit.lerp(180.dp, compactHeight, collapse.floatValue),
+                        onBackClick = {},
+                        syncStatusBarWithContainer = false,
+                    )
+                }
+            }
+        }
+        val title = compose.onNodeWithText("Ajustes")
+        val expanded = title.assertIsDisplayed().getUnclippedBoundsInRoot()
+        compose.runOnIdle { collapse.floatValue = 0.5f }
+        val halfway = title.assertIsDisplayed().getUnclippedBoundsInRoot()
+        compose.runOnIdle { collapse.floatValue = 1f }
+        val collapsed = title.assertIsDisplayed().getUnclippedBoundsInRoot()
+        assertTrue("The title should travel upward", expanded.top > halfway.top && halfway.top > collapsed.top)
+        assertTrue("The title should shrink", expanded.right - expanded.left > collapsed.right - collapsed.left)
+    }
 
     @Test
     fun keepsBackAndActionUsableAtDoubleFontScaleInNarrowRtlLayout() {

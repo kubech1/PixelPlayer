@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
@@ -26,6 +27,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -33,15 +36,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp as lerpColor
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -123,6 +130,10 @@ fun CollapsibleCommonTopBar(
         derivedStateOf { topBarPillProgress(latestCollapse(), animated) >= 0.5f }
     }
     val height = compactTopBarHeight()
+    val density = LocalDensity.current
+    var actionsWidthPx by remember { mutableIntStateOf(0) }
+    val compactFontSize = MaterialTheme.typography.titleMedium.fontSize
+    val compactFont = rememberGoogleSansFlexFontFamily(FontWeight.Bold, 100f)
     if (syncStatusBarWithContainer) {
         PixelPlayStatusBarStyle(color = MaterialTheme.colorScheme.surface)
     }
@@ -136,24 +147,27 @@ fun CollapsibleCommonTopBar(
                 WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
             )
     ) {
+        val pillProgress = topBarPillProgress(latestCollapse(), animated)
         Box(
-            Modifier.fillMaxSize()
-                .graphicsLayer { alpha = 1f - topBarPillProgress(latestCollapse(), animated) }
-                .then(if (compact) Modifier.clearAndSetSemantics { hideFromAccessibility() } else Modifier)
+            Modifier.fillMaxSize().zIndex(1f).offset {
+                IntOffset(0, (TopBarGap.toPx() * pillProgress).roundToInt())
+            }
         ) {
             ExpressiveTopBarContent(
                 title = title,
-                collapseFraction = 0f,
+                collapseFraction = if (animated) latestCollapse().coerceIn(0f, 1f) else if (compact) 1f else 0f,
                 subtitle = subtitle,
                 expandedTitleStartPadding = expandedTitleStartPadding,
                 expandedTitleEndPadding = expandedTitleEndPadding,
-                containerHeightRange = expandedTitleHeight to expandedTitleHeight,
+                collapsedTitleStartPadding = TopBarMargin + TopBarTouchTarget,
+                collapsedTitleEndPadding = with(density) { actionsWidthPx.toDp() } + TopBarMargin * 2 + TopBarGap,
+                containerHeightRange = expandedTitleHeight to height,
                 titleStyle = titleStyle,
-                titleScaleRange = expandedTitleScale to expandedTitleScale,
-                titleFontSizeRange = expandedTitleFontSize to expandedTitleFontSize,
-                maxLines = maxLines,
+                titleScaleRange = 1f to 1f,
+                titleFontSizeRange = (expandedTitleFontSize * expandedTitleScale) to compactFontSize,
+                maxLines = if (compact) 1 else maxLines,
                 expandedSubtitleMaxLines = expandedSubtitleMaxLines,
-                contentColor = contentColor,
+                contentColor = lerpColor(contentColor, colors.contentColor, pillProgress),
                 subtitleColor = subtitleColor,
                 enableExpandedTitleWidthCompression = enableExpandedTitleWidthCompression,
                 titleWidthCompressionThreshold = titleWidthCompressionThreshold,
@@ -175,22 +189,38 @@ fun CollapsibleCommonTopBar(
                     modifier = Modifier.size(TopBarTouchTarget),
                     onClick = onBackClick,
                     colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = if (compact) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerLow,
-                        contentColor = if (compact) colors.contentColor else MaterialTheme.colorScheme.onSurface
+                        containerColor = lerpColor(
+                            MaterialTheme.colorScheme.surfaceContainerLow,
+                            Color.Transparent,
+                            pillProgress
+                        ),
+                        contentColor = lerpColor(
+                            MaterialTheme.colorScheme.onSurface,
+                            colors.contentColor,
+                            pillProgress
+                        )
                     )
                 ) {
                     Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.common_back))
                 }
                 Text(
                     text = title,
-                    modifier = Modifier.graphicsLayer { alpha = topBarPillProgress(latestCollapse(), animated) }
-                        .then(if (!compact) Modifier.clearAndSetSemantics { hideFromAccessibility() } else Modifier),
-                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.graphicsLayer { alpha = 0f }
+                        .clearAndSetSemantics { hideFromAccessibility() },
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontFamily = compactFont,
+                        fontWeight = FontWeight.Bold,
+                        lineHeight = compactFontSize * 1.1f,
+                    ),
                     color = colors.contentColor,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Row(verticalAlignment = Alignment.CenterVertically, content = actions)
+                Row(
+                    modifier = Modifier.onSizeChanged { actionsWidthPx = it.width },
+                    verticalAlignment = Alignment.CenterVertically,
+                    content = actions,
+                )
             }
         ) { (surface, back, label, trailing), constraints ->
             val available = constraints.maxWidth

@@ -20,6 +20,12 @@ Cada proveedor tiene representación persistente y conversión de IDs. Antes de 
 
 Los scripts [qq_sign.js](../app/src/main/assets/qq_sign.js) y [vm_new.js](../app/src/main/assets/vm_new.js) forman parte del mecanismo de firma de QQ. Son código distribuido con la app; una simplificación o reformateo requiere entender el protocolo y sus pruebas, no tratarlo como un recurso visual prescindible.
 
+### Modo local
+
+**Ajustes → Gestión de música → Música en la nube** habilita el catálogo y los accesos de los proveedores. Las instalaciones nuevas empiezan en modo local. En una instalación existente, la detección inicial usa la configuración de cuentas guardada y las fuentes de Telegram ya vinculadas. El valor que elija el usuario prevalece.
+
+Al apagar la nube, las consultas y el escaneo de archivos locales siguen activos. Las sincronizaciones de los proveedores quedan suspendidas y sus pistas desaparecen de Biblioteca y Buscar. El botón de nube de Inicio y la entrada de cuentas quedan ocultos. Las cuentas, el catálogo indexado y la caché se conservan para volver a activar la función. La pertenencia a Biblioteca local depende del origen, así que una pista descargada por el proveedor conserva su origen remoto.
+
 ## Streaming y resolución de URI
 
 [DualPlayerEngine](../app/src/main/java/com/theveloper/pixelplay/data/service/player/DualPlayerEngine.kt) distingue URIs locales, HTTP(S) y esquemas de proveedor. [CloudStreamProxy](../app/src/main/java/com/theveloper/pixelplay/data/stream/CloudStreamProxy.kt) ofrece infraestructura de proxy local, vinculada a `127.0.0.1`, con preparación, caché de URLs y transporte de contenido. Cada proveedor resuelve su fuente; no asumir que todos comparten exactamente la misma autenticación.
